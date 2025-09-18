@@ -29,16 +29,16 @@
         <%@ include file="/views/common/navbar.jsp" %>
         <!-- KẾT THÚC nav -->
 
-        <div class="hero-wrap js-fullheight" style="background-image: url('images/bg_5.jpg');">
+        <div class="hero-wrap js-fullheight" style="background-image: url('images/island_Bg.jpg');">
             <div class="overlay"></div>
             <div class="container">
                 <div class="row no-gutters slider-text js-fullheight align-items-center" data-scrollax-parent="true">
                     <div class="col-md-7 ftco-animate">
-                        <span class="subheading">Chào mừng đến với Pacific</span>
+                        <span class="subheading">Chào mừng đến với Meland</span>
                         <h1 class="mb-4">Khám phá điểm đến yêu thích của bạn cùng chúng tôi</h1>
                         <p class="caps">Du lịch đến bất kỳ nơi nào trên thế giới, mà không cần phải đi vòng quanh</p>
                     </div>
-                    <a href="https://vimeo.com/45830194" class="icon-video popup-vimeo d-flex align-items-center justify-content-center mb-4">
+                    <a href="https://vimeo.com/1103281572" class="icon-video popup-vimeo d-flex align-items-center justify-content-center mb-4">
                         <span class="fa fa-play"></span>
                     </a>
                 </div>
