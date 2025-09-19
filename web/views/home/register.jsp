@@ -40,9 +40,9 @@
             <!-- content of register page -->   
             <div class="right-panel col-lg-5">
                 <a href="index.jsp" class="btn-home">
-                    <i class="fa fa-home"></i> Trang chủ
+                    <i class="fa fa-home"></i> Trang Chủ
                 </a>
-                <div id="msg" style="display: none; padding: 10px; text-align: center;"></div>
+             
                 <div class="register-container">
                     <div class="logo"> 
                         <h1>🏝️ Island Travel</h1>
@@ -113,7 +113,7 @@
 
                     </form>
                     <div class="login-link">
-                        <p>Đã có tài khoản? <a href="login.">Đăng nhập</a></p>
+                        <p>Đã có tài khoản? <a href="login.jsp">Đăng nhập</a></p>
                     </div>
                 </div>
 

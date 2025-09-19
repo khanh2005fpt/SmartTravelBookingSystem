@@ -14,6 +14,7 @@ body {
     box-sizing: border-box;
 }
 
+
 .right-panel{
 
     font-family: 'Arial', sans-serif;
@@ -27,6 +28,8 @@ body {
 
 }
 
+/* Phan dang kyyy*/
+
 .img-regis img {
     width: 100%;
     height: auto;
@@ -39,16 +42,16 @@ body {
 }
 
 .logo h1{
-      color: #0077be;
-            font-size: 55px;
-            font-weight: bold;
-             text-shadow: 2px 2px 4px rgba(0, 119, 190, 0.1);
+    color: #0077be;
+    font-size: 55px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 119, 190, 0.1);
 }
 .logo p{
-      color: #00a8cc;
-            font-size: 23px;
-            font-weight: 200;
-            margin-left:30px;
+    color: #00a8cc;
+    font-size: 23px;
+    font-weight: 200;
+    margin-left:30px;
 }
 
 .register-container{
@@ -68,7 +71,7 @@ register-container.form-group{
     padding: 10px;
     width: 300px;
     height: 45px;
-     font-size: 13px;
+    font-size: 13px;
     border: 1px solid #00a8cc;  /* viền xanh biển */
     border-radius: 5px;
 
@@ -91,14 +94,14 @@ register-container.form-group{
 
 }
 .check_box input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
 }
 .check_box label {
     color: #666;
     font-size: 14px;
-  font-size: 13px;
+    font-size: 13px;
     cursor: pointer;
 }
 input:focus {
@@ -107,23 +110,223 @@ input:focus {
     box-shadow: 0 0 1px rgba(0,168,204,0.5); /* đổ bóng nhẹ */
 }
 .register-btn{
- width: 140px;
-  background: linear-gradient(135deg, #0077be, #00a8cc);
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            height: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 15px 0px;
+    width: 140px;
+    background: linear-gradient(135deg, #0077be, #00a8cc);
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    height: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 15px 0px;
 }
 .login-link{
     margin-top: 15px;
-    
+
 }
 .btn-home{
     margin-left: 320px;
-   font-size: 20px;
+    font-size: 20px;
+}
+
+/*---------------------------------------------------------------------------------------*/
+
+/* Phan dang nhappp*/
+
+
+.img-login img{
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+.register-header{
+    text-align: center;
+
+}
+
+.logo1 h1{
+    color:#36ADAD;
+    font-size: 55px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 119, 190, 0.1);
+    margin-right: 20px;
+}
+.logo1 p{
+    color: #36ADAD;
+    font-size: 23px;
+    font-weight: 200;
+    margin-left:30px;
+}
+.logo1{
+    margin-top: 40px
+        
+}
+
+.login-container{
+    background: linear-gradient(to bottom right, #e8fdfd, #c8f5f5, #a3ecec);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(54, 173, 173, 0.16); /* bóng rất nhẹ */
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    align-content: center;
+    height: 750px;
+    text-align: center;
+    margin-top: 40px;
+
+}
+.login-container input ,
+login-container.form-group1{
+    padding: 10px;
+    width: 300px;
+    height: 45px;
+    font-size: 13px;
+    border: 1px solid #36ADAD;  
+    border-radius: 5px;
+    margin:10px 25px 35px 0;
+    
+    
+
+}
+input:focus {
+    border: 2px solid #36ADAD ; 
+    outline: none;              /* bỏ viền mặc định của trình duyệt */
+     box-shadow: 0 8px 20px rgba(54, 173, 173, 0.16);
+}
+.form-label {
+    width: 120px;  
+  
+    margin-bottom: 8px;
+    color:#01908F;
+    font-weight: 600;
+    font-size: 16px;
+    margin-left: 20px;
+    
+}
+
+
+.login-container input::placeholder {
+    font-size: 12px;
+    color:  #888;
+    font-style: normal;
+}
+
+.forget-pass {
+    display: flex;
+   justify-content: center; /* Căn giữa */
+   align-items: center;
+    align-items: center;
+    width: 100%;
+    margin: 10px 0px 30px 0px;
+    gap: 140px;
+}
+
+.check_box {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa checkbox và label */
+}
+
+.check_box input[type="checkbox"] {
+    margin: 0;
+    vertical-align: middle;
+    width: 20px;
+    height: 19px;
+    cursor: pointer;
+}
+
+.check_box label {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    line-height: 16px; /* Căn chỉnh với chiều cao của checkbox */
+    vertical-align: middle;
+}
+
+.forgot-pass {
+    font-size: 17px;
+    color: #36ADAD;
+    text-decoration: none;
+    line-height: 16px; /* Căn chỉnh với checkbox */
+    vertical-align: middle;
+     font-weight: bold; 
+}
+
+.forgot-pass:hover {
+    text-decoration: underline;
+    color: #005A6E;
+}
+
+.btn-login-page {
+    width: 300px;
+    padding: 15px 20px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+   background: linear-gradient(135deg, #a8edea 0%, #36adad 100%); /*xanh ngọc*/
+
+    color: white;
+    
+
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    
+    /* Typography */
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-login-page:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(54, 173, 173, 0.3); 
+}
+
+.google-login-container{
+     margin-top: 30px;
+    text-align: center;
+}
+
+.divider span {
+      color: #36ADAD;
+     font-weight: bold; 
+    
+}
+
+.btn-google {
+    width: 400px;
+    margin-top: 20px;
+    padding: 12px 20px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    margin-left: 35px;
+    background: white;
+    color: #3c4043;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-decoration: none;
+    font-family: 'Google Sans', 'Roboto', arial, sans-serif;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.30), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+}
+.signup-link{
+    margin-top: 40px;
+}
+
+.btn-home1{
+    margin-left: 320px;
+    font-size: 20px;
 }
