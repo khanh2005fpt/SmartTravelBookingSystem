@@ -40,7 +40,7 @@ body {
 
 .logo h1{
       color: #0077be;
-            font-size: 51px;
+            font-size: 55px;
             font-weight: bold;
              text-shadow: 2px 2px 4px rgba(0, 119, 190, 0.1);
 }
@@ -58,7 +58,7 @@ body {
     align-content: center;
     height: 760px;
     text-align: center;
-    margin-top: 40px;
+    margin-top: 50px;
 
 }
 
@@ -67,7 +67,7 @@ register-container.form-group{
     margin-bottom: 20px;
     padding: 10px;
     width: 300px;
-    height: 43px;
+    height: 45px;
      font-size: 13px;
     border: 1px solid #00a8cc;  /* viền xanh biển */
     border-radius: 5px;
@@ -91,8 +91,8 @@ register-container.form-group{
 
 }
 .check_box input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   cursor: pointer;
 }
 .check_box label {
@@ -124,6 +124,6 @@ input:focus {
     
 }
 .btn-home{
-    margin-left: 350px;
- 
+    margin-left: 320px;
+   font-size: 20px;
 }

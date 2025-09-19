@@ -25,11 +25,11 @@
                         Đăng nhập</a>
                     
                 </li>
-                <div>
+               
                    <li class="nav-item ml-lg-3">
-                    <a href="register.jsp" class="btn btn-primary btn-outline-primary ">Đăng ký</a>
+                    <a href="register.jsp" class="btn btn-register btn-primary btn-outline-primary ">Đăng ký</a>
                 </li> 
-                </div>
+             
                 
 
             </ul>

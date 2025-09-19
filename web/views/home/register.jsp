@@ -1,8 +1,4 @@
-<%-- 
-    Document   : register
-    Created on : Sep 18, 2025, 7:36:43 PM
-    Author     : nqagh
---%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -11,28 +7,19 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Register Page</title>
-
         <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
-
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/animate.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.carousel.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.theme.default.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/magnific-popup.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap-datepicker.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/jquery.timepicker.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/flaticon.css">
 
-        <link rel="stylesheet" href="css/animate.css">
-
-        <link rel="stylesheet" href="css/owl.carousel.min.css">
-        <link rel="stylesheet" href="css/owl.theme.default.min.css">
-        <link rel="stylesheet" href="css/magnific-popup.css">
-
-        <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-        <link rel="stylesheet" href="css/jquery.timepicker.css">
-
-
-        <link rel="stylesheet" href="css/flaticon.css">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/style1.css">
-
-        <!-- Bootstrap 4 CSS -->
-        <link rel="stylesheet" href="views/home/css/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap/bootstrap.min.css">
 
     </head>
     <body>
@@ -40,24 +27,54 @@
         <div class="container-fluid row">
             <!-- image of register page -->   
 
-            <div class="left-panel col-md-7 p-0">
+            <div class="left-panel col-lg-7 p-0">
                 <div class="img-regis">
                     <img src="${pageContext.request.contextPath}/views/home/images/register_pic1.jpg" alt="Island">
                 </div>
             </div>
 
+
+
+
+
             <!-- content of register page -->   
-            <div class="right-panel col-md-5">
-                        <a href="index.jsp" class="btn-home">
-   <i class="fa fa-home"></i> Trang chủ
-</a>
+            <div class="right-panel col-lg-5">
+                <a href="index.jsp" class="btn-home">
+                    <i class="fa fa-home"></i> Trang chủ
+                </a>
+                <div id="msg" style="display: none; padding: 10px; text-align: center;"></div>
                 <div class="register-container">
                     <div class="logo"> 
-                      <h1>🏝️ Island Travel</h1>
-                    <p>Khám phá thiên đường biển đảo</p>
+                        <h1>🏝️ Island Travel</h1>
+                        <p>Khám phá thiên đường biển đảo</p>
                     </div>
-                   
-                    <form action="registerServelt" method="POST">
+
+                    <!--Thong bao loi -->         
+                    <%
+                        String error = (String) request.getAttribute("errorMess");
+                        if (error != null) {
+                    %>
+                    <div id="errorAlert" class="alert alert-danger" role="alert">
+                        <%= error %>
+                    </div>
+                    <script>
+                        // Sau 3 giây thì ẩn alert
+                        setTimeout(function () {
+                            var alertBox = document.getElementById("errorAlert");
+                            if (alertBox) {
+                                alertBox.style.display = "none";
+                            }
+                        }, 5000);
+                    </script>
+                    <%
+                        }
+                    %>
+
+
+
+                    <!--Form dang ky -->
+
+                    <form action="${pageContext.request.contextPath}/register" method="post">
                         <div class="form-group">
                             <span class="icon">👤</span>
                             <input type="text" id="username" name="username" placeholder="Tên đăng nhập">
@@ -65,7 +82,7 @@
 
                         <div class="form-group">
                             <span class="icon">🔒</span>
-                            <input type="password" id="password" name="password" placeholder="Tối thiểu 8-10 kí tự" >
+                            <input type="password" id="password" name="password" placeholder="Tối thiểu 8-20 kí tự" >
                         </div>
 
                         <div class="form-group">
@@ -75,12 +92,12 @@
 
                         <div class="form-group">
                             <span class="icon">📧</span>
-                            <input type="email" id="email" name="email" placeholder="email" >
+                            <input type="email" id="email" name="email" placeholder="Email" >
                         </div>
 
                         <div class="form-group">
                             <span class="icon">👤</span>
-                            <input type="text" id="fullName" name="fullName" placeholder="họ và tên" >
+                            <input type="text" id="fullName" name="fullName" placeholder="Họ và tên" >
                         </div>
 
                         <div class="form-group">
@@ -93,20 +110,28 @@
                             <label for="terms">Tôi đồng ý với <a href="#">những điều khoản dịch vụ</a></label>
                         </div>
                         <button  type="submit" class="register-btn">Đăng Ký</button>
+
                     </form>
                     <div class="login-link">
                         <p>Đã có tài khoản? <a href="login.">Đăng nhập</a></p>
                     </div>
                 </div>
-                <a href="index.jsp" class="btn-home">
- 
-
-        </div>
 
 
-        <!-- Bootstrap JS and jquery (bundle đã gồm Popper.js) -->
-        <script src="views/home/js/jquery-3.6.0.min.js"></script>
-        <script src="views/home/js/bootstrap.bundle.min.js"></script>
+
+            </div>
+
+
+            <!-- Bootstrap JS and jquery (bundle đã gồm Popper.js) -->
+            <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>
+            <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>
+
+
+
+            <!-- thong bao loi javaScript -->
+            <script>
+
+            </script>
 
     </body>
 </html>
