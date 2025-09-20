@@ -18,13 +18,15 @@ public class User {
     private String phone;
     private String role;
     private Date createdAt;
+    private String status;
 
 
     public User() {}
 
   
+  
     public User(int userId, String username, String password, String email, 
-                String fullName, String phone, String role, Date createdAt) {
+                String fullName, String phone, String role, Date createdAt, String status) {
         this.userId = userId;
         this.username = username;
         this.password = password;
@@ -33,9 +35,17 @@ public class User {
         this.phone = phone;
         this.role = role;
         this.createdAt = createdAt;
+        this.status = status;
     }
 
-   
+     public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public int getUserId() {
         return userId;
     }
@@ -102,7 +112,8 @@ public class User {
                 ", fullName='" + fullName + '\'' +
                 ", phone='" + phone + '\'' +
                 ", role='" + role + '\'' +
-                ", createdAt=" + createdAt +
+                ", createdAt=" + createdAt +'\'' +
+                 ", status=" + status+
                 '}';
     }
 }

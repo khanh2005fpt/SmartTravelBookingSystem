@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.CallableStatement;
 import utils.DBContext;
+
 /**
  *
  * @author nqagh
@@ -28,7 +29,7 @@ public class userDao extends DBContext {
         this.status = status;
     }
 
-    
+  // dang ky  
  public String Signup(String username, String password, String email, String fullName, String phone) {
     try {
         
@@ -59,6 +60,46 @@ public class userDao extends DBContext {
         return "Error: " + errorMessage;
     }
 }
+ 
+   // dang nhappp
+ 
+  public User loginSystem(String username, String password) {
+    String sql = "SELECT * FROM Users WHERE username = ?";
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, username);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            User user = new User();
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password")); // lấy hash từ DB
+            user.setStatus(rs.getString("status"));
+            String storedPassword = user.getPassword();
+
+            // So sánh password plain text 
+            if (password != null && password.equals(storedPassword)) {
+                return user;
+            }
+
+            // So sánh password với hash BCrypt
+            try {
+                if (BCrypt.checkpw(password, storedPassword)) {
+                    return user;
+                }
+            } catch (Exception e) {
+                System.out.println("BCrypt Verify error: " + e);
+            }
+        }
+    } catch (SQLException sq) {
+        sq.printStackTrace();
+    }
+
+    return null; // Sai username hoặc password
+}
+
+  
  // check userName ton tai
  
    public boolean checkUsernameExist (String username){

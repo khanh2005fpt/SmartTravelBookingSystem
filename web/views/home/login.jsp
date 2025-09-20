@@ -42,11 +42,32 @@
                         <p>Khám phá nhịp sống biển đảo</p>
                     </div>
                     <!--Thong bao loi -->  
+          <%
+    String error = (String) session.getAttribute("errorMess");
+    if (error != null) {
+%>
+    <div id="errorAlert" class="alert alert-danger" role="alert">
+        <%= error %>
+    </div>
+    <script>
+        // Sau 5 giây thì ẩn alert
+        setTimeout(function () {
+            var alertBox = document.getElementById("errorAlert");
+            if (alertBox) {
+                alertBox.style.display = "none";
+            }
+        }, 3000);
+    </script>
+<%
+        // Xóa thông báo để tránh bị hiển thị lại khi reload trang
+        session.removeAttribute("errorMess");
+    }
+%>
 
 
 
                     <!--Form dang nhap -->
-                    <form action="action" method="POST">
+                    <form action="${pageContext.request.contextPath}/login" method="POST">
                         <div class="form-group1">
                             <label class="form-label"> Tên đăng nhập</label>
                             <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập">
