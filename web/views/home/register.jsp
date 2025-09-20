@@ -17,7 +17,6 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap-datepicker.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/jquery.timepicker.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/flaticon.css">
-
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap/bootstrap.min.css">
 
@@ -106,9 +105,9 @@
                             <input type="tel" id="phone" name="phoneNumber" placeholder="Số diện thoại" >
                         </div>
 
-                        <div class=" check_box">
+                        <div class="check_box">
                             <input type="checkbox" id="terms" required>
-                            <label for="terms">Tôi đồng ý với <a href="#">những điều khoản dịch vụ</a></label>
+                            <label for="terms">Tôi đồng ý với <a href="Service_Terms.jsp" target="_blank">những điều khoản dịch vụ </a></label>
                         </div>
                         <button  type="submit" class="register-btn">Đăng Ký</button>
 

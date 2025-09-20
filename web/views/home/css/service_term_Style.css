@@ -1,0 +1,258 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : Sep 20, 2025, 5:20:59 PM
+    Author     : nqagh
+*/
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+            color: #333;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        header {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #headerImage {
+            cursor: pointer;
+            width: 100%;
+            max-height: 360px;
+            object-fit: cover;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            filter: brightness(0.9);
+        }
+
+        #headerImage:hover {
+            filter: brightness(1);
+            transform: scale(1.02);
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 119, 190, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #headerImage:hover + .header-overlay,
+        .header-overlay:hover {
+            opacity: 1;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #00aaff, #0077be, #00cec9);
+            border-radius: 15px 15px 0 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #0077be;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #00aaff, #00cec9);
+            border-radius: 2px;
+            font-size: 30px;
+        }
+
+        h2 {
+            color: #0077be;
+            font-size: 1.4rem;
+            margin: 35px 0 20px 0;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            border-left: 4px solid #00aaff;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        h2:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.2);
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+            color: #444;
+            padding: 0 5px;
+        }
+
+        ul {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 12px;
+            color: #444;
+            position: relative;
+            padding-left: 10px;
+        }
+
+        li::before {
+            content: "▶";
+            color: #00aaff;
+            font-size: 0.8em;
+            position: absolute;
+            left: -15px;
+            top: 2px;
+        }
+
+        /* Styling đặc biệt cho section liên hệ */
+        h2:last-of-type {
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            color: white;
+            border-left: 4px solid #00cec9;
+            color: #0077be;
+        }
+
+        /* Contact info styling */
+        .contact-info {
+            background: linear-gradient(135deg, #f8f9ff, #e8f4fd);
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #e3f2fd;
+            margin-top: 20px;
+            height: 110px;
+        }
+
+        .contact-info p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #0077be;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Upload container styling */
+        .upload-container {
+            display: none; /* Ẩn upload container để giữ design clean */
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #00aaff 0%, #0077be 100%);
+            margin-top: 40px;
+            color: #f8f9fa;
+            font-size: 1rem;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+
+        footer strong {
+            font-size: 1.1rem;
+             color: #f8f9fa;
+        }
+
+        /* Hiệu ứng scroll smooth */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                margin: 20px 15px;
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+                padding: 12px 15px;
+                margin: 25px 0 15px 0;
+            }
+
+            #headerImage {
+                max-height: 250px;
+            }
+
+            .header-overlay {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Subtle animation khi load */
+        main {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Highlight important text */
+        strong {
+            color: #0077be;
+        }
+
+        /* Improve readability */
+        p, li {
+            font-size: 1rem;
+        }
