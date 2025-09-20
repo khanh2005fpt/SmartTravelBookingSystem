@@ -7,6 +7,7 @@
             <span class="oi oi-menu"></span> Menu
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
               <link rel="stylesheet" href="views/home/css/style.css">
+                 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
         </button>
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav ml-auto align-items-center">
@@ -19,15 +20,15 @@
                 
                 <!-- Thêm nút đăng nhập / đăng ký -->
                 
-                <li class="nav-item ml-lg-5">
-                    <a href="login.jsp" class="btn btn-login btn-outline-white me-2"> 
+                <li class="nav-item ml-lg-5 ml-5">
+                    <a href="login.jsp" class="btn btn-login1"> 
                         <i class="bi bi-person"></i>
                         Đăng nhập</a>
                     
                 </li>
                
                    <li class="nav-item ml-lg-3">
-                    <a href="register.jsp" class="btn btn-register btn-primary btn-outline-primary ">Đăng ký</a>
+                    <a href="register.jsp" class="btn btn-register1 ">Đăng ký</a>
                 </li> 
              
                 

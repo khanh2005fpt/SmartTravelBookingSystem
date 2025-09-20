@@ -96,6 +96,7 @@ public class loginServlet extends HttpServlet {
              if(userN.isEmpty() || userN == null || passWord.isEmpty() || passWord == null){
                   session.setAttribute("errorMess" ,"Các trường không được để trống!" );
                   response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+                  return;
               }
               
            //check acc active and ton taiE

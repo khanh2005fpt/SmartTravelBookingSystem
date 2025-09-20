@@ -10087,4 +10087,9 @@ textarea.form-control {
     stroke-dashoffset: -136px; } }
 
 
+.navbar-nav li.nav-item::before {
+    content: none !important;
+}
+
+
 

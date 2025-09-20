@@ -1,19 +1,35 @@
-<%-- 
-    Document   : Service_Terms
-    Created on : Sep 20, 2025, 5:09:32 PM
-    Author     : nqagh
---%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Service_TermsPage</title>
          <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/service_term_Style.css">
+         <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="css/animate.css">
+
+        <link rel="stylesheet" href="css/owl.carousel.min.css">
+        <link rel="stylesheet" href="css/owl.theme.default.min.css">
+        <link rel="stylesheet" href="css/magnific-popup.css">
+
+        <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+        <link rel="stylesheet" href="css/jquery.timepicker.css">
+
+
+        <link rel="stylesheet" href="css/flaticon.css">
+        <link rel="stylesheet" href="css/style.css">
+                  <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
+          <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
     </head>
     <body>
+       <%@ include file="/views/common/navbar.jsp" %>
+        <!-- KẾT THÚC nav -->
           <header>
         <img id="headerImage" src="${pageContext.request.contextPath}/views/home/images/Servie_Term_Pic.jpg"
              alt="Smart Island Travel Banner">
