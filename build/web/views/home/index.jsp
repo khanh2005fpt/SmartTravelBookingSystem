@@ -1,5 +1,7 @@
-<!DOCTYPE html>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 
 <html lang="vi">
     <head>
@@ -24,6 +26,8 @@
 
         <link rel="stylesheet" href="css/flaticon.css">
         <link rel="stylesheet" href="css/style.css">
+        
+          <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
     </head>
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
