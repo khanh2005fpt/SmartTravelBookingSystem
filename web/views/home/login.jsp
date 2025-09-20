@@ -38,7 +38,7 @@
                 </a>
                 <div class="login-container">
                     <div class="logo1">
-                        <h1>🌊 Island Travel</h1>
+                        <h1> 🏝️  Island Travel</h1>
                         <p>Khám phá nhịp sống biển đảo</p>
                     </div>
                     <!--Thong bao loi -->  

@@ -45,31 +45,32 @@
              
                 <div class="register-container">
                     <div class="logo"> 
-                        <h1>🏝️ Island Travel</h1>
+                        <h1> 🏝️  Island Travel</h1>
                         <p>Khám phá thiên đường biển đảo</p>
                     </div>
 
                     <!--Thong bao loi -->         
-                    <%
-                        String error = (String) request.getAttribute("errorMess");
-                        if (error != null) {
-                    %>
-                    <div id="errorAlert" class="alert alert-danger" role="alert">
-                        <%= error %>
-                    </div>
-                    <script>
-                        // Sau 3 giây thì ẩn alert
-                        setTimeout(function () {
-                            var alertBox = document.getElementById("errorAlert");
-                            if (alertBox) {
-                                alertBox.style.display = "none";
-                            }
-                        }, 5000);
-                    </script>
-                    <%
-                        }
-                    %>
-
+           <%
+    String error = (String) session.getAttribute("errorMess");
+    if (error != null) {
+%>
+    <div id="errorAlert" class="alert alert-danger" role="alert">
+        <%= error %>
+    </div>
+    <script>
+        // Sau 5 giây thì ẩn alert
+        setTimeout(function () {
+            var alertBox = document.getElementById("errorAlert");
+            if (alertBox) {
+                alertBox.style.display = "none";
+            }
+        }, 3000);
+    </script>
+<%
+        // Xóa thông báo để tránh bị hiển thị lại khi reload trang
+        session.removeAttribute("errorMess");
+    }
+%>
 
 
                     <!--Form dang ky -->

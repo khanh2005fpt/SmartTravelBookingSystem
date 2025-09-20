@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import DAO.userDao;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -21,7 +22,6 @@ import DAO.userDao;
 public class registerServlet extends HttpServlet {
 
     private userDao userDAO;
-   
 
     @Override
     public void init() throws ServletException {
@@ -64,7 +64,7 @@ public class registerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
     }
 
     /**
@@ -84,6 +84,8 @@ public class registerServlet extends HttpServlet {
         String Email = request.getParameter("email");
         String FullName = request.getParameter("fullName");
         String Phone = request.getParameter("phoneNumber");
+    HttpSession session = request.getSession();
+      
 
         // check null and rong input
         if (UserName == null || UserName.isEmpty()
@@ -93,9 +95,11 @@ public class registerServlet extends HttpServlet {
                 || FullName == null || FullName.isEmpty()
                 || Phone == null || Phone.isEmpty()) {
 
-            request.setAttribute("errorMess", "Thiếu các thông tin bắt buộc , Vui lòng nhập đầy đủ thông tin!");
-            request.getRequestDispatcher("/views/home/register.jsp").forward(request, response);
-            return;
+         
+    session.setAttribute("errorMess", "Thiếu các thông tin bắt buộc, vui lòng nhập đầy đủ!");
+    response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+    return;
+
         }
 
         // Validate theo field
@@ -146,9 +150,10 @@ public class registerServlet extends HttpServlet {
             }
 
             if (error != null) {
-                request.setAttribute("errorMess", error);
-                request.getRequestDispatcher("/views/home/register.jsp").forward(request, response);
-                return;
+               
+    session.setAttribute("errorMess", error);
+    response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+    return;
             }
         }
 
@@ -157,55 +162,56 @@ public class registerServlet extends HttpServlet {
         boolean emailExist = userDAO.checkEmailExist(Email);
         boolean fullNamelExist = userDAO.checkFullnameExist(FullName);
         boolean phoneExist = userDAO.checkPhoneExist(Phone);
-
+            
         try {
+           
             if (userNameExist && emailExist && fullNamelExist && phoneExist) {
-                request.setAttribute("errorMess", "Tài khoản này đã tồn tại!");
-                request.getRequestDispatcher("/views/home/register.jsp").forward(request, response);
+                session.setAttribute("errorMess", "Tài khoản này đã tồn tại!");
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
                 return;
             }
             if (userNameExist) {
-                request.setAttribute("errorMess", "Tên đăng nhập đã tồn tại!");
-                request.getRequestDispatcher("views/home/register.jsp").forward(request, response);
+                session.setAttribute("errorMess", "Tên đăng nhập đã tồn tại!");
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
                 return;
             }
             if (emailExist) {
-                request.setAttribute("errorMess", "Email đã tồn tại!");
-                request.getRequestDispatcher("views/home/register.jsp").forward(request, response);
+                session.setAttribute("errorMess", "Email đã tồn tại!");
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
                 return;
             }
             if (phoneExist) {
-                request.setAttribute("errorMess", "Số điện thoại đã tồn tại!");
-                request.getRequestDispatcher("views/home/register.jsp").forward(request, response);
+                session.setAttribute("errorMess", "Số điện thoại đã tồn tại!");
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
                 return;
             }
 
             if (fullNamelExist) {
-                request.setAttribute("errorMess", "Họ và tên đã tồn tại!");
-                request.getRequestDispatcher("views/home/register.jsp").forward(request, response);
+                session.setAttribute("errorMess", "Họ và tên đã tồn tại!");
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
                 return;
             }
 
         } catch (Exception e) {
-            request.setAttribute("errorMess", "Lỗi khi kiểm tra thông tin: " + e.getMessage());
-    request.getRequestDispatcher("views/home/register.jsp").forward(request, response);
+            session.setAttribute("errorMess", "Lỗi khi kiểm tra thông tin: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
         }
 
         // dang ky 
         try {
-            
+
             String signUpResult = userDAO.Signup(UserName, PassWord, Email, FullName, Phone);
-            if("Success".equals(userDAO.getStatus())){
-                 request.setAttribute("mess", "Đăng kí thành công! Xin vui lòng đăng nhậppp .");
-                request.getRequestDispatcher("views/home/login.jsp").forward(request, response); 
-            }else {
-                request.setAttribute("errorMess",  signUpResult);
-                request.getRequestDispatcher("views/home/register.jsp").forward(request, response);
+            if ("Success".equals(userDAO.getStatus())) {
+                session.setAttribute("mess", "Đăng kí thành công! Xin vui lòng đăng nhậppp .");
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+            } else {
+                session.setAttribute("errorMess", signUpResult);
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
             }
 
         } catch (Exception e) {
-            request.setAttribute("errorMess", "Đăng kí thất bại: " + e.getMessage());
-            request.getRequestDispatcher("views/home/register.jsp").forward(request, response);
+          session.setAttribute("errorMess", "Đăng kí thất bại: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
         }
     }
 
@@ -219,5 +225,4 @@ public class registerServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-      
 }
