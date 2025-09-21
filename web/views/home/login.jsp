@@ -21,24 +21,35 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap/bootstrap.min.css">
     </head>
-    <body>
-        <div class="container-fluid row">
-            <!-- image of login page -->  
-            <div class="left-panel col-lg-7 p-0">
-                <div class="img-login">
-                    <img src="${pageContext.request.contextPath}/views/home/images/login_pic.jpg" alt="Island"/>  
-                </div>
+   <body>
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            
+            <!-- Cột hình ảnh -->
+            <div class="col-lg-7 d-none d-lg-block p-0">
+                <img src="${pageContext.request.contextPath}/views/home/images/login_pic.jpg" 
+                     alt="Island" class="w-100 h-100 object-fit-cover">
             </div>
 
-            <!-- content of login page -->
-            <div class="right-panel col-lg-5">
-                <a href="index.jsp" class="btn-home1">
-                    <i class="fa fa-home"> </i> Trang Chủ
-                </a>
-                <div class="login-container">
-                    <div class="logo1">
-                        <h1> 🏝️ Island Travel</h1>
-                        <p>Khám phá nhịp sống biển đảo</p>
+            <!-- Cột form -->
+            <div class="col-lg-5 d-flex flex-column justify-content-center align-items-center p-4 bg-light">
+                
+                <!-- Nút home -->
+                <div class="d-flex justify-content-end  mb-5 " style="max-width: 450px; width: 100%;" >
+                    <a href="index.jsp" class="btn btn-outline-primary">
+                        <i class="fa fa-home"></i> Trang Chủ
+                    </a>
+                </div>
+
+                <!-- Form login -->
+                <div class="login-container p-4 bg-white rounded shadow">
+                    
+                    <!-- Logo -->
+                    <div class="text-center mb-4">
+                        <h1 class="fw-bold text-primary mr-2" style="font-family:'Arizonia', cursive;">
+                            🏝️ Island Travel
+                        </h1>
+                        <p class="text-muted-logo">Khám phá nhịp sống biển đảo</p>
                     </div>
 
                     <!-- Thông báo lỗi -->
@@ -46,7 +57,7 @@
                         String error = (String) session.getAttribute("errorMess");
                         if (error != null) {
                     %>
-                        <div id="errorAlert" class="alert alert-danger" role="alert">
+                        <div id="errorAlert" class="alert alert-danger alert_style" role="alert">
                             <%= error %>
                         </div>
                         <script>
@@ -62,82 +73,75 @@
                         }
                     %>
 
-                    <!-- Form đăng nhập -->
+                    <!-- Form -->
                     <form action="${pageContext.request.contextPath}/login" method="POST">
-                        <div class="form-group1">
-                            <label class="form-label"> Tên đăng nhập</label>
-                            <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập">
-                        </div> 
-                        <div class="form-group1">
-                            <label for="password" class="form-label"> Mật khẩu</label>
-                            <input type="password" id="password" name="pass" placeholder="Nhập mật khẩu">
+                        
+                        <div class="mb-4">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" >
                         </div>
 
-                        <div class="forget-pass">
-                            <div class="check_box">
-                                <input type="checkbox" name="remember" id="terms">
-                                <label for="terms"> Ghi nhớ đăng nhập</label>
-                            </div>
-                            <!-- Mở modal -->
-                            <a href="#" class="forgot-pass" data-toggle="modal" data-target="#forgetModal"> Quên mật khẩu?</a>
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" name="pass" placeholder="Nhập mật khẩu" >
                         </div>
 
-                        <button type="submit" class="btn-login-page">
-                            Đăng Nhập 
-                        </button>
-
-                        <!-- Đăng nhập bằng google -->
-                        <div class="google-login-container">
-                            <div class="divider">
-                                <span>hoặc đăng nhập với</span>
+                        <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                                <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
                             </div>
-                            <a href="#" class="btn-google">
-                                <i class="fa fa-google"></i>
-                                Đăng nhập bằng Google
+                            <a href="#" class="text-decoration-none text-primary" data-bs-toggle="modal" data-bs-target="#forgetModal">
+                                Quên mật khẩu?
                             </a>
                         </div>
                         
-                        <!-- Chưa có tài khoản -> đăng ký -->
-                        <div class="signup-link">
-                            Chưa có tài khoản? <a href="register.jsp" class="link-dk">Đăng ký ngay</a>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3 mt-3">Đăng Nhập</button>
+
+                        <div class="text-center text-muted-option mb-3 mt-2">hoặc đăng nhập với </div>
+
+                        <a href="#" class="btn btn-outline-danger w-100 mb-3 mt-2">
+                            <i class="fa fa-google"></i> Đăng nhập bằng Google
+                        </a>
+
+                        <div class="text-center">
+                            <p>Chưa có tài khoản? 
+                                <a href="register.jsp" class="fw-bold text-primary">Đăng ký ngay</a>
+                            </p>
                         </div>
                     </form>
-                </div>    
+                </div>
             </div>
         </div>
+    </div>
 
-       <!-- Modal Quên mật khẩu -->
-<div class="modal fade" id="forgetModal" tabindex="-1" role="dialog" aria-labelledby="forgetModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content custom-modal">
-      
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-primary font-weight-bold" id="forgetModalLabel">
-          🔑 Quên mật khẩu
-        </h5>
-        <button type="button" class="close btn-close" data-dismiss="modal" aria-label="Đóng">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      
-      <div class="modal-body">
-        <p class="text-muted mb-3">
-          Vui lòng nhập email để nhận mã OTP khôi phục mật khẩu.
-        </p>
-        <form action="${pageContext.request.contextPath}/sendOtp" method="post">
-          <div class="form-group">
-            <input type="email" class="form-control input-custom" id="email" name="email" placeholder="📧 Nhập email của bạn" required>
+    <!-- Modal Quên mật khẩu -->
+    <div class="modal fade" id="forgetModal" tabindex="-1" aria-labelledby="forgetModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          
+          <div class="modal-header border-0">
+            <h5 class="modal-title text-primary fw-bold" id="forgetModalLabel">🔑 Quên mật khẩu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
           </div>
-          <button type="submit" class="btn btn-gradient w-100 mt-3">Gửi OTP</button>
-        </form>
+          
+          <div class="modal-body">
+            <p class="text-muted mb-3">Vui lòng nhập email để nhận mã OTP khôi phục mật khẩu.</p>
+            <form action="${pageContext.request.contextPath}/sendOtp" method="post">
+              <div class="mb-3">
+                <input type="email" class="form-control" id="email" name="email" placeholder="📧 Nhập email của bạn" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Gửi OTP</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-
-        <!-- Bootstrap JS and jquery -->
-        <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+ <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>
         <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>
-    </body>
+</body>
 </html>
+   
