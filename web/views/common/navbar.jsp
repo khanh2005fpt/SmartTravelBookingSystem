@@ -20,15 +20,15 @@
                 
                 <!-- Thêm nút đăng nhập / đăng ký -->
                 
-                <li class="nav-item ml-lg-5 ml-5">
+                <li class="nav-item ml-lg-5 ml-5 " ">
                     <a href="login.jsp" class="btn btn-login1"> 
-                        <i class="bi bi-person"></i>
+                        
                         Đăng nhập</a>
                     
                 </li>
                
                    <li class="nav-item ml-lg-3">
-                    <a href="register.jsp" class="btn btn-register1 ">Đăng ký</a>
+                    <a href="register.jsp" class="btn btn-register1 "   >Đăng ký</a>
                 </li> 
              
                 

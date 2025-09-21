@@ -10091,5 +10091,8 @@ textarea.form-control {
     content: none !important;
 }
 
+.footer .list-unstyled li::before {
+    content: none !important;
+}
 
 

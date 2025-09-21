@@ -203,7 +203,7 @@ public class registerServlet extends HttpServlet {
             String signUpResult = userDAO.Signup(UserName, PassWord, Email, FullName, Phone);
             if ("Success".equals(userDAO.getStatus())) {
                 session.setAttribute("mess", "Đăng kí thành công! Xin vui lòng đăng nhậppp .");
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
             } else {
                 session.setAttribute("errorMess", signUpResult);
                 response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");

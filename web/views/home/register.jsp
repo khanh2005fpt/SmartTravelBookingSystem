@@ -44,8 +44,8 @@
 
                 <div class="register-container mb-5">
                     <!-- Logo -->
-                    <div class="text-center mb-5 logo">
-                        <h1 class="fw-bold text-primary">🏝️ Island Travel</h1>
+                    <div class="text-center_register mb-5 logo">
+                        <h1 class="fw-bold ">🏝️ Island Travel</h1>
                         <p class="text-muted">Khám phá thiên đường biển đảo</p>
                     </div>
 

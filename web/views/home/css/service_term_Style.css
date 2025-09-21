@@ -88,7 +88,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
             border-radius: 15px 15px 0 0;
         }
 
-        h1 {
+        .service-page h1 {
             font-size: 2.5rem;
             color: #0077be;
             text-align: center;
@@ -97,7 +97,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
             padding-bottom: 15px;
         }
 
-        h1::after {
+       .service-page  h1::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -110,7 +110,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
             font-size: 30px;
         }
 
-        h2 {
+       .service-page h2 {
             color: #0077be;
             font-size: 1.4rem;
             margin: 35px 0 20px 0;
@@ -121,31 +121,31 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
             transition: all 0.3s ease;
         }
 
-        h2:hover {
+       .service-page h2:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 170, 255, 0.2);
         }
 
-        p {
+       .service-page p {
             margin-bottom: 15px;
             text-align: justify;
             color: #444;
             padding: 0 5px;
         }
 
-        ul {
+       .service-page ul {
             padding-left: 25px;
             margin-bottom: 20px;
         }
 
-        li {
+        .service-page li {
             margin-bottom: 12px;
             color: #444;
             position: relative;
             padding-left: 10px;
         }
 
-        li::before {
+       .service-page li::before {
           content: none !important;
             color: #00aaff;
             font-size: 0.8em;
@@ -155,7 +155,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
         }
 
         /* Styling đặc biệt cho section liên hệ */
-        h2:last-of-type {
+        .service-page h2:last-of-type {
             background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
             color: white;
             border-left: 4px solid #00cec9;
@@ -266,3 +266,43 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 body.service-page li::before {
     content: none !important;
 }
+
+
+  /*  btn login and register at homepage*/
+    .btn-login1 {
+       background: linear-gradient(45deg, #FFAB91, #F4511E); /* cam đào -> cam đậm */ /* cam đào -> cam đậm */
+      color: #fff;
+        padding: 5px 12px !important;
+   font-size: 0.9rem !important;
+      border-radius: 6px;
+      font-weight: 500;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* bóng nhẹ */
+      transition: all 0.2s ease;
+   
+        
+
+    }
+
+    .btn-register1 {
+      background: linear-gradient(45deg, #64B5F6, #1E88E5); /* xanh nhạt -> xanh đậm */
+      color: #fff;
+   padding: 5px 12px !important;
+   font-size: 0.9rem !important;
+      border-radius: 6px;
+      font-weight: 500;
+      border: none;
+       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+      max-width: 100px;
+      width: 100%;
+    }
+
+    .btn-login1:hover {
+      background-color: #E64A19;
+    }
+
+    .btn-register1:hover {
+     background-color: #0D47A1;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.25);
+    }

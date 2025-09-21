@@ -27,7 +27,7 @@
          
           <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style.css">
     </head>
-    <body   >
+    <body  class="service-page"  >
        <%@ include file="/views/common/navbar.jsp" %>
         <!-- KẾT THÚC nav -->
           <header>

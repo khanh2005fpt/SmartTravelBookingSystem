@@ -221,33 +221,34 @@ input::placeholder {
 .login-container .form-check {
   margin: 0;
 }
-
-
-    /*---------------------------------------------------------------------------------------*/
-
+  /*  --------------------------------------------------------------------------------------/
   /*  btn login and register at homepage*/
     .btn-login1 {
        background: linear-gradient(45deg, #FFAB91, #F4511E); /* cam đào -> cam đậm */ /* cam đào -> cam đậm */
       color: #fff;
-      padding: 8px 20px;
+        padding: 5px 12px;
+   font-size: 0.9rem;
       border-radius: 6px;
       font-weight: 500;
       border: none;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* bóng nhẹ */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* bóng nhẹ */
       transition: all 0.2s ease;
-    ;
+   
+        
 
     }
 
     .btn-register1 {
       background: linear-gradient(45deg, #64B5F6, #1E88E5); /* xanh nhạt -> xanh đậm */
       color: #fff;
-      padding: 8px 20px;
+   padding: 5px 12px ;
+   font-size: 0.9rem ;
       border-radius: 6px;
       font-weight: 500;
       border: none;
        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
       transition: all 0.2s ease;
+      
     }
 
     .btn-login1:hover {
@@ -258,6 +259,9 @@ input::placeholder {
      background-color: #0D47A1;
       box-shadow: 0 6px 10px rgba(0,0,0,0.25);
     }
+
+
+ 
     /*---------------------------------------------------------------------------------------*/
 
     /* Tùy biến modal */
@@ -267,7 +271,7 @@ input::placeholder {
         box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         background: linear-gradient(135deg, #f9fdfd, #e8f9f9, #d0f3f3);
     }
-
+ 
     /* Nút đóng */
     .custom-modal .btn-close {
         font-size: 24px;
