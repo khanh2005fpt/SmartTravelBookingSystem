@@ -28,13 +28,15 @@ go
 -- Bảng Islands
 CREATE TABLE Islands (
     islandId INT IDENTITY(1,1) PRIMARY KEY,
-    islandName VARCHAR(100) NOT NULL,
-    country VARCHAR(100) NOT NULL,
-    description TEXT,
-    bestSeason VARCHAR(50),
-    activities TEXT,
-    imageUrl VARCHAR(255)
+    islandName NVARCHAR(100) NOT NULL,
+    country NVARCHAR(100) NOT NULL,
+    description NVARCHAR(500),
+    bestSeason NVARCHAR(50),
+    activities NVARCHAR(255),
+    imageUrl NVARCHAR(255)
 );
+
+
 select * from Islands where 1=1 and islandName like 'Phu Quoc'
 go
 
@@ -43,13 +45,19 @@ CREATE TABLE Hotels (
     hotelId INT IDENTITY(1,1) PRIMARY KEY,
     islandId INT NOT NULL,
     hotelName VARCHAR(100) NOT NULL,
-	roomType VARCHAR(50),
-     pricePerNight DECIMAL(10,3),
+    roomType VARCHAR(50),
+    pricePerNight DECIMAL(10,3),
     roomsAvailable INT,
     rating DECIMAL(3,1),
+    imageUrl VARCHAR(255), -- đường dẫn ảnh khách sạn
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
+
+
 go
+select * from hotels a join islands b on a.islandId = b.islandId
 
 -- Bảng VehiclesToIsland (phương tiện đến đảo)
 CREATE TABLE VehiclesToIsland (
@@ -106,6 +114,8 @@ CREATE TABLE IslandVehicles (
     availability BIT DEFAULT 1,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
 go
 
 --  Bảng Trips (gói tour tổng quan)
@@ -180,6 +190,7 @@ CREATE TABLE Recommendations (
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
 go
 
 -- bảng logs
@@ -292,18 +303,61 @@ VALUES
 select * from bookings
 INSERT INTO Islands (islandName, country, description, bestSeason, activities, imageUrl)
 VALUES
-('Phu Quoc', 'Vietnam', 'Beautiful island with beaches', 'July-Apr', 'Swimming, Diving, Snorkeling', 'views/home/images/phuquoc.jpg'),
-('Langkawi', 'Malaysia', 'Historical island', 'June-August', 'Sightseeing, Diving', 'views/home/images/Langkawi.jpg'),
-('Phuket', 'Thailand', 'Famous tourist island with vibrant nightlife', 'Oct-July', 'Beach, Snorkeling, Nightlife', 'views/home/images/phuket.jpg'),
-('Bali', 'Indonesia', 'Island known for culture, beaches, and surfing', 'May-March', 'Surfing, Temple Visits, Beach', 'views/home/images/bali.jpg');
+(N'Phú Quốc', N'Vietnam', N'Hòn đảo xinh đẹp với nhiều bãi biển', N'Hạ', N'Bơi lội, Lặn biển, Ngắm san hô', N'views/home/images/phuquoc.jpg'),
+(N'Langkawi', N'Malaysia', N'Hòn đảo lịch sử nổi tiếng', N'Hạ', N'Tham quan, Lặn biển', N'views/home/images/Langkawi.jpg'),
+(N'Phuket', N'Thailand', N'Đảo du lịch nổi tiếng với cuộc sống về đêm sôi động', N'Thu', N'Tắm biển, Lặn, Nightlife', N'views/home/images/phuket.jpg'),
+(N'Bali', N'Indonesia', N'Nổi tiếng với văn hoá, bãi biển và lướt sóng', N'Xuân', N'Lướt sóng, Tham quan đền chùa, Tắm biển', N'views/home/images/bali.jpg'),
+(N'Boracay', N'Philippines', N'Nổi tiếng với bãi cát trắng và cuộc sống về đêm sôi động', N'Đông', N'Tắm biển, Thể thao dưới nước, Nightlife', N'views/home/images/boracay.jpg'),
+(N'Sihanoukville', N'Cambodia', N'Thành phố ven biển với nhiều đảo và bãi biển đẹp', N'Đông', N'Tắm biển, Lặn ngắm san hô, Đi thuyền', N'views/home/images/sihanoukville.jpg'),
+(N'Tioman', N'Malaysia', N'Đảo nhiệt đới với rừng rậm và rạn san hô', N'Hạ', N'Lặn, Leo núi, Ngắm san hô', N'views/home/images/tioman.jpg'),
+(N'Koh Samui', N'Thailand', N'Đảo nổi tiếng với bãi biển, thác nước và chùa chiền', N'Xuân', N'Tắm biển, Tham quan chùa, Nightlife', N'views/home/images/kohsamui.jpg'),
+(N'Nusa Penida', N'Indonesia', N'Đảo có vách đá và làn nước trong xanh tuyệt đẹp', N'Thu', N'Lặn ngắm san hô, Tham quan, Leo núi', N'views/home/images/nusapenida.jpg'),
+(N'Palawan', N'Philippines', N'Nổi tiếng với đầm phá, bãi biển và vách đá vôi', N'Hạ', N'Đi thuyền đảo, Kayak, Lặn ngắm san hô', N'views/home/images/palawan.jpg');
 
 --3.hotel
 
-INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating)
+INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, imageUrl)
 VALUES
-(1, 'VARIA Hotel','Standard', 350.000, 20, 4.5),
-(1, 'Cape panwa','Deluxe', 734.129, 15, 4.0),
-(2, 'Mandarin Oriental','Standard King', 999.999, 10, 4.2);
+-- Phu Quoc
+(1, 'Vinpearl Resort Phu Quoc', 'Deluxe Ocean View', 150.000, 30, 4.6, 'views/home/images/hotels/vinpearl_pq_main.jpg'),
+(1, 'Salinda Resort Phu Quoc', 'Luxury Suite', 200.000, 15, 4.8, 'views/home/images/hotels/salinda_pq_main.jpg'),
+
+-- Langkawi
+(2, 'Berjaya Langkawi Resort', 'Chalet by the Sea', 120.000, 25, 4.4, 'views/home/images/hotels/berjaya_langkawi_main.jpg'),
+(2, 'The Datai Langkawi', 'Premium Villa', 250.000, 10, 4.9, 'views/home/images/hotels/datai_langkawi_main.jpg'),
+
+-- Phuket
+(3, 'Amari Phuket', 'Superior Ocean Wing', 110.000, 40, 4.5, 'views/home/images/hotels/amari_phuket_main.jpg'),
+(3, 'The Shore at Katathani', 'Pool Villa', 220.000, 12, 4.8, 'views/home/images/hotels/shore_katathani_main.jpg'),
+
+-- Bali
+(4, 'Bali Mandira Beach Resort', 'Deluxe Cottage', 130.000, 20, 4.5, 'views/home/images/hotels/mandira_bali_main.jpg'),
+(4, 'Four Seasons Bali at Sayan', 'Riverfront Villa', 300.000, 8, 4.9, 'views/home/images/hotels/fourseasons_bali_main.jpg'),
+
+-- Boracay
+(5, 'Shangri-La Boracay', 'Luxury Suite', 280.000, 10, 4.9, 'views/home/images/hotels/shangrila_boracay_main.jpg'),
+(5, 'Henann Lagoon Resort', 'Deluxe Pool View', 100.000, 35, 4.3, 'views/home/images/hotels/henann_boracay_main.jpg'),
+
+-- Sihanoukville
+(6, 'Independence Hotel Resort', 'Sea View Suite', 140.000, 18, 4.2, 'views/home/images/hotels/independence_sihanoukville_main.jpg'),
+(6, 'Sokha Beach Resort', 'Deluxe Twin', 95.000, 40, 4.4, 'views/home/images/hotels/sokha_sihanoukville_main.jpg'),
+
+-- Tioman
+(7, 'Japamala Resort', 'Tree Top Chalet', 160.000, 12, 4.7, 'views/home/images/hotels/japamala_tioman_main.jpg'),
+(7, 'Berjaya Tioman Resort', 'Garden View Room', 90.000, 25, 4.1, 'views/home/images/hotels/berjaya_tioman_main.jpg'),
+
+-- Koh Samui
+(8, 'Banyan Tree Samui', 'Pool Villa', 270.000, 15, 4.9, 'views/home/images/hotels/banyan_samui_main.jpg'),
+(8, 'Chaweng Regent Beach Resort', 'Deluxe Bungalow', 120.000, 30, 4.4, 'views/home/images/hotels/chaweng_samui_main.jpg'),
+
+-- Nusa Penida
+(9, 'Semabu Hills Hotel', 'Ocean View Room', 110.000, 20, 4.3, 'views/home/images/hotels/semabu_penida_main.jpg'),
+(9, 'Maua Nusa Penida', 'Luxury Villa', 190.000, 12, 4.6, 'views/home/images/hotels/maua_penida_main.jpg'),
+
+-- Palawan
+(10, 'El Nido Resorts Miniloc Island', 'Beachfront Cottage', 200.000, 15, 4.8, 'views/home/images/hotels/miniloc_palawan_main.jpg'),
+(10, 'Astoria Palawan', 'Deluxe Garden View', 130.000, 25, 4.5, 'views/home/images/hotels/astoria_palawan_main.jpg');
+
 
 
 -- vehicle to island

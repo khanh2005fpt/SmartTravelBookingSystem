@@ -45,26 +45,26 @@
                                             <form action="SearchIslandController" method="get" class="search-property-1">
                                                 <div class="row no-gutters">
 
-                                                    <!-- Tên đảo -->
-                                                    <div class="col-md d-flex">
-                                                        <div class="form-group p-4 border-0">
-                                                            <label for="islandName">Tên đảo</label>
-                                                            <div class="form-field">
-                                                                <div class="icon"><span class="fa fa-search"></span></div>
-                                                                <input type="text" name="islandName" id="islandName"
-                                                                       class="form-control" placeholder="Nhập tên đảo...">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
                                                     <!-- Quốc gia -->
                                                     <div class="col-md d-flex">
                                                         <div class="form-group p-4">
                                                             <label for="country">Quốc gia</label>
                                                             <div class="form-field">
                                                                 <div class="icon"><span class="fa fa-globe"></span></div>
-                                                                <input type="text" name="country" id="country"
-                                                                       class="form-control" placeholder="Nhập quốc gia...">
+                                                                <select name="country" id="country" class="form-control">
+                                                                    <option value="" ${empty param.country ? 'selected' : ''}>-- Chọn quốc gia --</option>
+                                                                    <option value="Vietnam" ${param.country == 'Vietnam' ? 'selected' : ''}>Việt Nam</option>
+                                                                    <option value="Thailand" ${param.country == 'Thailand' ? 'selected' : ''}>Thái Lan</option>
+                                                                    <option value="Malaysia" ${param.country == 'Malaysia' ? 'selected' : ''}>Malaysia</option>
+                                                                    <option value="Singapore" ${param.country == 'Singapore' ? 'selected' : ''}>Singapore</option>
+                                                                    <option value="Indonesia" ${param.country == 'Indonesia' ? 'selected' : ''}>Indonesia</option>
+                                                                    <option value="Philippines" ${param.country == 'Philippines' ? 'selected' : ''}>Philippines</option>
+                                                                    <option value="Cambodia" ${param.country == 'Cambodia' ? 'selected' : ''}>Campuchia</option>
+                                                                    <option value="Laos" ${param.country == 'Laos' ? 'selected' : ''}>Lào</option>
+                                                                    <option value="Myanmar" ${param.country == 'Myanmar' ? 'selected' : ''}>Myanmar</option>
+                                                                    <option value="Brunei" ${param.country == 'Brunei' ? 'selected' : ''}>Brunei</option>
+                                                                    <option value="Timor-Leste" ${param.country == 'Timor-Leste' ? 'selected' : ''}>Đông Timor (Timor-Leste)</option>
+                                                                </select>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -76,11 +76,11 @@
                                                             <div class="form-field">
                                                                 <div class="icon"><span class="fa fa-sun"></span></div>
                                                                 <select name="bestSeason" id="bestSeason" class="form-control">
-                                                                    <option value="">--Chọn mùa--</option>
-                                                                    <option value="Xuân">Xuân</option>
-                                                                    <option value="Hạ">Hạ</option>
-                                                                    <option value="Thu">Thu</option>
-                                                                    <option value="Đông">Đông</option>
+                                                                    <option value="" ${empty param.bestSeason ? 'selected' : ''}>--Chọn mùa--</option>
+                                                                    <option value="Xuân" ${param.bestSeason == 'Xuân' ? 'selected' : ''}>Xuân</option>
+                                                                    <option value="Hạ" ${param.bestSeason == 'Hạ' ? 'selected' : ''}>Hạ</option>
+                                                                    <option value="Thu" ${param.bestSeason == 'Thu' ? 'selected' : ''}>Thu</option>
+                                                                    <option value="Đông" ${param.bestSeason == 'Đông' ? 'selected' : ''}>Đông</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -97,6 +97,7 @@
                                                     </div>
                                                 </div>
                                             </form>
+
                                         </div> <!-- end tab -->
                                     </div>
                                 </div>
@@ -108,74 +109,7 @@
 
 
 
-        <section class="ftco-section img ftco-select-destination" style="background-image: url(${pageContext.request.contextPath}/views/home/images/bg_3.jpg);">
-            <div class="container">
-                <div class="row justify-content-center pb-4">
-                    <div class="col-md-12 heading-section text-center ftco-animate">
-                        <span class="subheading">Pacific Cung cấp Địa điểm</span>
-                        <h2 class="mb-4">Chọn Điểm đến của Bạn</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="container container-2">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="carousel-destination owl-carousel ftco-animate">
-                            <div class="item">
-                                <div class="project-destination">
-                                    <a href="#" class="img" style="background-image: url(${pageContext.request.contextPath}/views/home/images/place-1.jpg);">
-                                        <div class="text">
-                                            <h3>Philippines</h3>
-                                            <span>8 Tour</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="project-destination">
-                                    <a href="#" class="img" style="background-image: url(${pageContext.request.contextPath}/views/home/images/place-2.jpg);">
-                                        <div class="text">
-                                            <h3>Canada</h3>
-                                            <span>2 Tour</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="project-destination">
-                                    <a href="#" class="img" style="background-image: url(${pageContext.request.contextPath}/views/home/images/place-3.jpg);">
-                                        <div class="text">
-                                            <h3>Thái Lan</h3>
-                                            <span>5 Tour</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="project-destination">
-                                    <a href="#" class="img" style="background-image: url(${pageContext.request.contextPath}/views/home/images/place-4.jpg);">
-                                        <div class="text">
-                                            <h3>Úc</h3>
-                                            <span>5 Tour</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="project-destination">
-                                    <a href="#" class="img" style="background-image: url(${pageContext.request.contextPath}/views/home/images/place-5.jpg);">
-                                        <div class="text">
-                                            <h3>Hy Lạp</h3>
-                                            <span>7 Tour</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+   
 
         <section class="ftco-section">
             <div class="container">
@@ -247,7 +181,7 @@
                                     </li>
                                 </c:forEach>
 
-                                
+
                                 <c:if test="${currentPage < totalPages}">
                                     <li class="page-item">
                                         <a class="page-link" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Next</a>
