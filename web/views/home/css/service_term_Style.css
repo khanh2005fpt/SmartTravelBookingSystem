@@ -146,7 +146,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
         }
 
         li::before {
-            content: "▶";
+          content: none !important;
             color: #00aaff;
             font-size: 0.8em;
             position: absolute;
@@ -256,3 +256,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
         p, li {
             font-size: 1rem;
         }
+        
+        
+.navbar-nav li.nav-item::before {
+    content: none !important;
+}
+
+
+body.service-page li::before {
+    content: none !important;
+}

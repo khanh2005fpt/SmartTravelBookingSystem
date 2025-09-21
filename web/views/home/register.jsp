@@ -21,117 +21,112 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap/bootstrap.min.css">
 
     </head>
-    <body>
-
-        <div class="container-fluid row">
-            <!-- image of register page -->   
-
-            <div class="left-panel col-lg-7 p-0">
-                <div class="img-regis">
-                    <img src="${pageContext.request.contextPath}/views/home/images/register_pic1.jpg" alt="Island">
-                </div>
+   <body>
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            
+            <!-- Cột hình ảnh -->
+            <div class="right-panel col-lg-7 d-none d-lg-block p-0">
+                <img src="${pageContext.request.contextPath}/views/home/images/register_pic1.jpg" 
+                     alt="Island" class="w-100 h-100 object-fit-cover">
             </div>
 
+            <!-- Cột form -->
+            <div class="col-lg-5 d-flex flex-column justify-content-center align-items-center p-4 bg-light">
+                
+                <!-- Nút về trang chủ -->
+            <div class="d-flex justify-content-end mb-5" style="max-width: 480px; width: 100%;">
+                    <a href="index.jsp" class="btn btn-outline-primary ">
+                        <i class="fa fa-home"></i> Trang Chủ
+                    </a>
+                    
+                </div>
 
-
-
-
-            <!-- content of register page -->   
-            <div class="right-panel col-lg-5">
-                <a href="index.jsp" class="btn-home">
-                    <i class="fa fa-home"></i> Trang Chủ
-                </a>
-             
-                <div class="register-container">
-                    <div class="logo"> 
-                        <h1> 🏝️  Island Travel</h1>
-                        <p>Khám phá thiên đường biển đảo</p>
+                <div class="register-container mb-5">
+                    <!-- Logo -->
+                    <div class="text-center mb-5 logo">
+                        <h1 class="fw-bold text-primary">🏝️ Island Travel</h1>
+                        <p class="text-muted">Khám phá thiên đường biển đảo</p>
                     </div>
 
-                    <!--Thong bao loi -->         
-           <%
-    String error = (String) session.getAttribute("errorMess");
-    if (error != null) {
-%>
-    <div id="errorAlert" class="alert alert-danger" role="alert">
-        <%= error %>
-    </div>
-    <script>
-        // Sau 5 giây thì ẩn alert
-        setTimeout(function () {
-            var alertBox = document.getElementById("errorAlert");
-            if (alertBox) {
-                alertBox.style.display = "none";
-            }
-        }, 3000);
-    </script>
-<%
-        // Xóa thông báo để tránh bị hiển thị lại khi reload trang
-        session.removeAttribute("errorMess");
-    }
-%>
+                    <!-- Thông báo lỗi -->
+                    <%
+                        String error = (String) session.getAttribute("errorMess");
+                        if (error != null) {
+                    %>
+                        <div id="errorAlert" class="alert alert-danger" role="alert">
+                            <%= error %>
+                        </div>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("errorAlert");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 3000);
+                        </script>
+                    <%
+                            session.removeAttribute("errorMess");
+                        }
+                    %>
 
-
-                    <!--Form dang ky -->
-
+                    <!-- Form đăng ký -->
                     <form action="${pageContext.request.contextPath}/register" method="post">
-                        <div class="form-group">
-                            <span class="icon">👤</span>
-                            <input type="text" id="username" name="username" placeholder="Tên đăng nhập">
+                        <div class="mb-4 input-group">
+                            <span class="input-group-text">👤</span>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Tên đăng nhập">
                         </div>
 
-                        <div class="form-group">
-                            <span class="icon">🔒</span>
-                            <input type="password" id="password" name="password" placeholder="Tối thiểu 8-20 kí tự" >
+                        <div class="mb-4 input-group">
+                            <span class="input-group-text">🔒</span>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Tối thiểu 8-20 kí tự">
                         </div>
 
-                        <div class="form-group">
-                            <span class="icon">🔐</span>
-                            <input type="password" id="rePassword" name="rePassword" placeholder="Nhập lại mật khẩu" >
+                        <div class="mb-4 input-group">
+                            <span class="input-group-text">🔐</span>
+                            <input type="password" class="form-control" id="rePassword" name="rePassword" placeholder="Nhập lại mật khẩu">
                         </div>
 
-                        <div class="form-group">
-                            <span class="icon">📧</span>
-                            <input type="email" id="email" name="email" placeholder="Email" >
+                        <div class="mb-4 input-group">
+                            <span class="input-group-text">📧</span>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email">
                         </div>
 
-                        <div class="form-group">
-                            <span class="icon">👤</span>
-                            <input type="text" id="fullName" name="fullName" placeholder="Họ và tên" >
+                        <div class="mb-4 input-group">
+                            <span class="input-group-text">👤</span>
+                            <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Họ và tên">
                         </div>
 
-                        <div class="form-group">
-                            <span class="icon">📱</span>
-                            <input type="tel" id="phone" name="phoneNumber" placeholder="Số diện thoại" >
+                        <div class="mb-4 input-group">
+                            <span class="input-group-text">📱</span>
+                            <input type="tel" class="form-control" id="phone" name="phoneNumber" placeholder="Số điện thoại">
                         </div>
 
-                        <div class="check_box">
-                            <input type="checkbox" id="terms" required>
-                            <label for="terms">Tôi đồng ý với <a href="Service_Terms.jsp" target="_blank">những điều khoản dịch vụ </a></label>
+                        <!-- Checkbox -->
+                        <div class="form-check mb-4 ml-3">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                Tôi đồng ý với <a href="Service_Terms.jsp" target="_blank">điều khoản dịch vụ</a>
+                            </label>
                         </div>
-                        <button  type="submit" class="register-btn">Đăng Ký</button>
 
+                        <button type="submit" class="btn btn-primary w-100">Đăng Ký</button>
                     </form>
-                    <div class="login-link">
+
+                    <!-- Link đăng nhập -->
+                    <div class="login-link text-center mt-3 text_login">
                         <p>Đã có tài khoản? <a href="login.jsp">Đăng nhập</a></p>
                     </div>
                 </div>
-
-
-
             </div>
-
-
-            <!-- Bootstrap JS and jquery (bundle đã gồm Popper.js) -->
+        </div>
+    </div>
+                        
+              <!-- Bootstrap JS and jquery (bundle đã gồm Popper.js) -->
             <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>
-            <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>
+            <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>              
+                        
+</body>
 
-
-
-            <!-- thong bao loi javaScript -->
-            <script>
-
-            </script>
-
-    </body>
 </html>
+        
