@@ -11,10 +11,19 @@
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/SearchIslandController" class="nav-link">Trang chủ</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/about.jsp" class="nav-link">Giới thiệu</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/destination.jsp" class="nav-link">Điểm đến</a></li>
-                <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/hotel.jsp" class="nav-link">Khách sạn</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/blog.jsp" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/contact.jsp" class="nav-link">Liên hệ</a></li>
                 <!-- Thêm nút đăng nhập / đăng ký -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" 
+                       aria-haspopup="true" aria-expanded="false">Dịch vụ</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown04">
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/flight.jsp">Vé máy bay</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/hotel.jsp">Khách sạn</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/transport.jsp">Vé phương tiện di chuyển đến đảo</a>
+                    </div>
+                </li>
+
                 <li class="nav-item ml-2">
                     <a href="login.jsp" class="btn btn-success">Đăng nhập</a>
                 </li>
