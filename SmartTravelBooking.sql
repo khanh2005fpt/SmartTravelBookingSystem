@@ -200,7 +200,6 @@ CREATE TABLE Tokens (
     TokenValue NVARCHAR(100) NOT NULL,
     ExpiryDate DATETIME NOT NULL,
     IsUsed BIT DEFAULT 0,
-    CreatedDate DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 go
@@ -404,6 +403,8 @@ INSERT INTO UserPromotions (userId, promoId)
 VALUES
 (4, 1),
 (4, 2);
+
+
 
 
 -------------------------------------------------------------------------------------------------------

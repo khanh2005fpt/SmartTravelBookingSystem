@@ -5,8 +5,8 @@
 
 package controller.account;
 
-import Model.User;
-import DAO.userDao;
+import model.User;
+import dao.userDao;
 
 import java.io.IOException;
 import java.io.PrintWriter;

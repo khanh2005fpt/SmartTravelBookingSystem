@@ -2,18 +2,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package DAO;
+package dao;
 
 /**
  *
  * @author nqagh
  */
-  import Model.Token;
+  import model.Token;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import utils.DBContext;
 public class tokenDao extends DBContext {
@@ -23,26 +25,36 @@ public class tokenDao extends DBContext {
          return INSTANCE;
      }
      
+     public String getFormatDate (LocalDateTime myDateObj){
+         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyY-MM-dd HH:mm:ss");
+         String formattedDate =myDateObj.format(myFormatObj);
+         return formattedDate;
+     }
+     
      // luu token moi
      
-     public void saveToken(int userId , String tokenValue ,LocalDateTime expiryDate){
+     public boolean insertToken(Token tokenForget){
          
          try{
-             String sqlToken ="INSERT INTO Tokens (UserId, TokenValue, ExpiryDate, IsUsed, CreatedDate) VALUES (?, ?, ?, 0, GETDATE())";
+             String sqlToken ="INSERT INTO Tokens (UserId, TokenValue, ExpiryDate, IsUsed) VALUES (?, ?, ?, ?)";
              try(PreparedStatement ps = connection.prepareStatement(sqlToken)){
-                   ps.setInt(1, userId);
-                   ps.setString(2, tokenValue);
-                   ps.setTimestamp(3, Timestamp.valueOf(expiryDate));
-                   ps.executeUpdate();
+                   ps.setInt(1,tokenForget.getUserId());
+                   ps.setString(2, tokenForget.getTokenValue());
+                   ps.setTimestamp(3, Timestamp.valueOf(getFormatDate(tokenForget.getExpiryDate())));
+                   ps.setBoolean(4, tokenForget.isUsed());
+ 
+                  return ps.executeUpdate() >0;
              }
          }catch(SQLException e){
                String errorMessage = "Lỗi khi luu token: " + e.getMessage();
          }
+         return false;
      }
      
      //lay token theo value 
-     
-     public Optional <Token> getToken(String tokenValue){
+    
+     /*
+       public Optional <Token> getToken(String tokenValue){
                 try{
                        String sqlGetToken = "SELECT * FROM Tokens WHERE TokenValue =?";
                     try(PreparedStatement ps = connection.prepareStatement(sqlGetToken)){
@@ -72,6 +84,8 @@ public class tokenDao extends DBContext {
                 return Optional.empty();
      }
      
+     */
+   
      // danh dau token da su dung
        public void markTokenAsUsed(String tokenValue ){
          

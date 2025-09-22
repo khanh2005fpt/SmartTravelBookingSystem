@@ -5,9 +5,10 @@
 
 package controller.account;
 
-import DAO.tokenDao;
-import DAO.userDao;
-import Model.User;
+import dao.tokenDao;
+import dao.userDao;
+import model.Token;
+import model.User;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,7 +17,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.time.LocalDateTime;
+
+
 
 /**
  *
@@ -25,11 +27,13 @@ import java.time.LocalDateTime;
 @WebServlet(name="requestPassword", urlPatterns={"/requestPassword"})
 public class requestPassword extends HttpServlet {
     private userDao UserDao ;
+     tokenDao TokenDao;
     
     @Override
      public void init() throws ServletException {
         try {
             UserDao = userDao.INSTANCE;
+               TokenDao = tokenDao.getInstance();
             System.out.println("userDao initialized successfully in requestPasswordServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in requestPassword: " + e.getMessage());
@@ -108,37 +112,46 @@ public class requestPassword extends HttpServlet {
        resetService service = new resetService();
        String otp = service.generateOtp();
        String token = service.generateToken();
-       
-       // luu token vao db
-         tokenDao TokensDao = new tokenDao();
-         TokensDao.saveToken(user.getUserId(), token, service.expireDateTime());
          
        // link reset co token
-          String linkReset = "http://localhost:9090/SWP391_Group3_SE1957-KS/views/home/resetPassword?token="+token;
-       
-       // gui email otp + link
-       service.sendEmail(email, linkReset, user.getFullName(), otp);
-        
-       // luu OTP tam vao session (de xac thuc sau khi user nhap)
-       session.setAttribute("otp", otp);
-       session.setAttribute("userId", user.getUserId());
-       
-       // gui thong bao thanh cong
-       session.setAttribute("successMessage", "Mã OTP đã gửi đến Email của bạn!");
+         String linkReset = "http://localhost:9090/SWP391_Group3_SE1957-KS/views/home/resetPassword?token="+token;
+        boolean isSent = service.sendEmail(email, linkReset, user.getFullName(), otp);
+         if(isSent){
+            Token tokenForget = new Token(user.getUserId(), token, service.expireDateTime(), false);
+            boolean isInserted = TokenDao.insertToken(tokenForget);
+            
+            if(isInserted){
+                 session.setAttribute("successMessage", "Mã OTP đã gửi đến Email của bạn!");
        response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
-        
-           
-           
-       }catch(Exception e){
+            }else {
+                 session.setAttribute("errorEmail", "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử gửi lại yêu cầu.");
+       response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+            }
+            
+         }else {
+             session.setAttribute("errorEmail", "Không thể gửi OTP qua email. Vui lòng thử lại.");
+       response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+         }
+       
+       
+        }catch(Exception e){
             e.printStackTrace();
         session.setAttribute("errorEmail", "Có lỗi xảy ra, vui lòng thử lại sau!");
         response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
        }
-      
-       
- 
        
        
+       
+       
+       
+       
+       
+       
+       
+       
+     
+       
+  
     }
 
     /** 

@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Model;
+package model;
 
 /**
  *
@@ -10,26 +10,36 @@ package Model;
  */
 
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
 
 public class Token {
     private int tokenId;
     private int userId;
     private String tokenValue;
-    private Date ExpiryDate;
+    private LocalDateTime ExpiryDate;
     private boolean isUsed;
-    private Date CreatedDate;
+
 
     public Token() {
     }
 
-    public Token(int tokenId, int userId, String tokenValue, Date  ExpiryDate, boolean isUsed, Date CreatedDate) {
+    public Token(int tokenId, int userId, String tokenValue, LocalDateTime ExpiryDate, boolean isUsed) {
         this.tokenId = tokenId;
         this.userId = userId;
         this.tokenValue = tokenValue;
         this. ExpiryDate =  ExpiryDate;
         this.isUsed = isUsed;
-        this.CreatedDate = CreatedDate;
+       
+    }
+    
+       public Token( int userId, String tokenValue, LocalDateTime  ExpiryDate, boolean isUsed) {
+       
+        this.userId = userId;
+        this.tokenValue = tokenValue;
+        this. ExpiryDate =  ExpiryDate;
+        this.isUsed = isUsed;
+     
     }
 
     
@@ -58,11 +68,11 @@ public class Token {
         this.tokenValue = tokenValue;
     }
 
-    public Date getExpiryDate() {
+    public LocalDateTime getExpiryDate() {
         return  ExpiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(LocalDateTime  expiryDate) {
         this. ExpiryDate = expiryDate;
     }
 
@@ -74,17 +84,10 @@ public class Token {
         this.isUsed = isUsed;
     }
 
-    public Date getCreatedDate() {
-        return CreatedDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.CreatedDate = createdDate;
-    }
-
+   
     @Override
     public String toString() {
-        return "Tokens{" + "tokenId=" + tokenId + ", userId=" + userId + ", tokenValue=" + tokenValue + ", expiryDate=" +  ExpiryDate + ", isUsed=" + isUsed + ", createdDate=" + CreatedDate + '}';
+        return "Tokens{" + "tokenId=" + tokenId + ", userId=" + userId + ", tokenValue=" + tokenValue + ", expiryDate=" +  ExpiryDate + ", isUsed=" + isUsed + '}';
     }
     
     

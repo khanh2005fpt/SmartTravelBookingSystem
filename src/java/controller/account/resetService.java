@@ -29,7 +29,7 @@ public class resetService {
     
     // Sinh OTP 6 chữ số
       public static final SecureRandom random = new SecureRandom(); 
-      private final int LIMIT_MINUS =10;
+      private final int LIMIT_MINUS =5;
       
     public String generateOtp() {
         int otp = 100000 + random.nextInt(900000); // từ 100000 -> 999999
@@ -49,13 +49,13 @@ public class resetService {
         return LocalDateTime.now().isAfter(time);
     }
     // send email den link resetpassword
-    public void sendEmail(String to , String link , String name , String otp)
+    public boolean sendEmail(String to , String link , String name , String otp)
     {
         //thiet lap cac ket noi may chu http
         Properties props = new Properties();
         //email.smtp.host : dia chi may chu gmail
         props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smpt.port", "587");
+        props.put("mail.smtp.port", "587");
         //mail.smtp.auth ket noi yeu cau phai xac thuc
         props.put("mail.smtp.auth", "true");
        // mail.smtp.starttle.enable : giup bao thong tin giua sever -> client
@@ -72,7 +72,7 @@ public class resetService {
        
       try{
           
-           Session session = Session.getInstance(props);
+           Session session = Session.getInstance(props , auth);
         // gui cho email  1 van ban html
          MimeMessage msg= new MimeMessage(session);
           msg.addHeader("Content-type","text/html ; charset=UTF-8");
@@ -83,17 +83,63 @@ public class resetService {
            msg.setSubject("Reset Password" , "UTF-8");
              String content = "<h3>Xin chào " + name + "</h3>"
                     + "<p>Mã OTP của bạn là: <b>" + otp + "</b></p>"
+                    + "<p>Mã này có hiệu lực trong 5 phút.</p>" +
+                    "<p>Vui lòng không chia sẻ mã OTP này với bất kỳ ai.</p>"
                     + "<p>Hoặc click link sau để mở trang nhập OTP trực tiếp:</p>"
                     + "<a href=\"" + link + "\">Reset password</a>";
            
            
-          msg.setContent(content , "text/html , charset=UTF-8");
+          msg.setContent(content , "text/html ; charset=UTF-8");
           Transport.send(msg);
-          System.out.println("Gửi email thành cônggg");
+          System.out.println("Gửi email thành cônggg" +"" + to);
+          return true;
       }catch(Exception e){
           System.out.println("Lỗi gửi email!");
           System.out.println(e);
+        
       }              
-                
+              return false;    
     }
+    /*
+    fix loi
+      public static void main(String[] args) {
+       resetService reset = new resetService();
+        // Test tạo OTP
+        String otp = reset.generateOtp();
+        String token = reset.generateToken();
+        System.out.println("Mã OTP: " + otp);   
+
+        // Test thời gian hết hạn
+        LocalDateTime expiryTime = reset.expireDateTime();
+        System.out.println("Thời gian hết hạn: " + expiryTime);
+
+        // Test gửi OTP qua email
+        String toEmail = "nqaghuyyy6969@gmail.com";
+        String fullName = "Nguyen Quang Huy";
+        String link = "http://localhost:9090/SWP391_Group3_SE1957-KS/views/home/resetPassword?token="+token;
+        boolean isSent = reset.sendEmail(toEmail,link, fullName, otp);
+        System.out.println(isSent ? "Gửi email OTP thành công." : "Gửi email OTP thất bại.");
+    
+    }
+    */
+       public static void main(String[] args) {
+       resetService reset = new resetService();
+        // Test tạo OTP
+        String otp = reset.generateOtp();
+        String token = reset.generateToken();
+        System.out.println("Mã OTP: " + otp);   
+
+        // Test thời gian hết hạn
+        LocalDateTime expiryTime = reset.expireDateTime();
+        System.out.println("Thời gian hết hạn: " + expiryTime);
+
+        // Test gửi OTP qua email
+        String toEmail = "nqaghuyyy6969@gmail.com";
+        String fullName = "Nguyen Quang Huy";
+        String link = "http://localhost:9090/SWP391_Group3_SE1957-KS/views/home/resetPassword?token="+token;
+        boolean isSent = reset.sendEmail(toEmail,link, fullName, otp);
+        System.out.println(isSent ? "Gửi email OTP thành công." : "Gửi email OTP thất bại.");
+    
+    }
+    
 }
