@@ -131,7 +131,7 @@ public class IslandDao extends DBContext {
 
     public static void main(String[] args) {
         IslandDao id = new IslandDao();
-        List<Island> i = id.searchIslands("Phu Quoc", "Vietnam", "July-Apr");
+        List<Island> i = id.searchIslands("", "", "Xuân");
         System.out.println(i.toString());
     }
 }

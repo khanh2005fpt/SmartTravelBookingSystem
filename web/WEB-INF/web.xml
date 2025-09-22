@@ -8,6 +8,10 @@
         <servlet-name>SearchIslandController</servlet-name>
         <servlet-class>controller.home.SearchIslandController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>HotelsController</servlet-name>
+        <servlet-class>controller.services.HotelsController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Hello</servlet-name>
         <url-pattern>/Hello</url-pattern>
@@ -15,5 +19,9 @@
     <servlet-mapping>
         <servlet-name>SearchIslandController</servlet-name>
         <url-pattern>/SearchIslandController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HotelsController</servlet-name>
+        <url-pattern>/HotelsController</url-pattern>
     </servlet-mapping>
 </web-app>
