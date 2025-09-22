@@ -187,6 +187,35 @@ public class userDao extends DBContext {
           }
           return false;
      }
+     
+  // token password , lay email
+        public User getUserByEmail(String email){
+            try{
+                 String sql ="Select * from Users where email=?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                return new User(
+                rs.getInt(1),
+                rs.getString(2),
+                   rs.getString(3),
+                         rs.getString(4),
+                         rs.getString(5),
+                              rs.getString(6),
+                              rs.getString(7),
+                              rs.getTimestamp(8),
+                               rs.getString(9)
+
+                
+                );
+            }
+            }catch(SQLException e){
+                System.out.println(e);
+            }
+           
+            return null;
+        }
    
    
     
