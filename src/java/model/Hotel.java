@@ -14,14 +14,14 @@ public class Hotel {
     private String country;
     private String imageUrl;
     private String roomType;
-    private double pricePerNight;
+    private int pricePerNight;
     private int roomAvailable;
     private double rating;
 
     public Hotel() {
     }
     
-    public Hotel(int hotelId, String hotelName, String country, String imageUrl, String roomType, double pricePerNight, int roomAvailable, double rating) {
+    public Hotel(int hotelId, String hotelName, String country, String imageUrl, String roomType, int pricePerNight, int roomAvailable, double rating) {
         this.hotelId = hotelId;
         this.hotelName = hotelName;
         this.country = country;
@@ -73,11 +73,11 @@ public class Hotel {
         this.roomType = roomType;
     }
 
-    public double getPricePerNight() {
+    public int getPricePerNight() {
         return pricePerNight;
     }
 
-    public void setPricePerNight(double pricePerNight) {
+    public void setPricePerNight(int pricePerNight) {
         this.pricePerNight = pricePerNight;
     }
 

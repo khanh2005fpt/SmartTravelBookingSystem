@@ -31,7 +31,7 @@ public class HotelDao extends DBContext {
                 h.setCountry(rs.getString("country"));
                 h.setImageUrl(rs.getString("hotelImageUrl"));
                 h.setRoomType(rs.getString("roomType"));
-                h.setPricePerNight(rs.getDouble("pricePerNight"));
+                h.setPricePerNight(rs.getInt("pricePerNight"));
                 h.setRoomAvailable(rs.getInt("roomAvailable"));
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
@@ -73,12 +73,12 @@ public class HotelDao extends DBContext {
                 ps.setString(idx++, "%" + roomType + "%");
             }
             if (minPrice != null && !minPrice.isEmpty() && maxPrice != null && !maxPrice.isEmpty()) {
-                ps.setDouble(idx++, Double.parseDouble(minPrice));
-                ps.setDouble(idx++, Double.parseDouble(maxPrice));
+                ps.setInt(idx++, Integer.parseInt(minPrice));
+                ps.setInt(idx++, Integer.parseInt(maxPrice));
             } else if (minPrice != null && !minPrice.isEmpty()) {
-                ps.setDouble(idx++, Double.parseDouble(minPrice));
+                ps.setInt(idx++, Integer.parseInt(minPrice));
             } else if (maxPrice != null && !maxPrice.isEmpty()) {
-                ps.setDouble(idx++, Double.parseDouble(maxPrice));
+                ps.setInt(idx++, Integer.parseInt(maxPrice));
             }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -88,7 +88,7 @@ public class HotelDao extends DBContext {
                 h.setCountry(rs.getString("country"));
                 h.setImageUrl(rs.getString("hotelImageUrl"));
                 h.setRoomType(rs.getString("roomType"));
-                h.setPricePerNight(rs.getDouble("pricePerNight"));
+                h.setPricePerNight(rs.getInt("pricePerNight"));
                 h.setRoomAvailable(rs.getInt("roomsAvailable"));
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
@@ -115,7 +115,7 @@ public class HotelDao extends DBContext {
                         rs.getString("country"),
                         rs.getString("imageUrl"),
                         rs.getString("roomType"),
-                        rs.getDouble("pricePerNight"),
+                        rs.getInt("pricePerNight"),
                         rs.getInt("roomAvailable"),
                         rs.getDouble("rating")
                 ));

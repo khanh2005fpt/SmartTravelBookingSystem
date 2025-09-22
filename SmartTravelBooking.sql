@@ -47,12 +47,14 @@ CREATE TABLE Hotels (
     hotelName VARCHAR(100) NOT NULL,
     roomType VARCHAR(50) NOT NULL
         CHECK (roomType IN ('Standard', 'Deluxe', 'Suite', 'Family')),
-    pricePerNight DECIMAL(10,3),
+    pricePerNight INT,
     roomsAvailable INT,
     rating DECIMAL(3,1),
     hotelImageUrl VARCHAR(255), -- đường dẫn ảnh khách sạn
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
 
 
 
@@ -303,60 +305,65 @@ VALUES
 select * from bookings
 INSERT INTO Islands (islandName, country, description, bestSeason, activities, imageUrl)
 VALUES
-(N'Phú Quốc', N'Vietnam', N'Hòn đảo xinh đẹp với nhiều bãi biển', N'Hạ', N'Bơi lội, Lặn biển, Ngắm san hô', N'views/home/images/phuquoc.jpg'),
-(N'Langkawi', N'Malaysia', N'Hòn đảo lịch sử nổi tiếng', N'Hạ', N'Tham quan, Lặn biển', N'views/home/images/Langkawi.jpg'),
-(N'Phuket', N'Thailand', N'Đảo du lịch nổi tiếng với cuộc sống về đêm sôi động', N'Thu', N'Tắm biển, Lặn, Nightlife', N'views/home/images/phuket.jpg'),
-(N'Bali', N'Indonesia', N'Nổi tiếng với văn hoá, bãi biển và lướt sóng', N'Xuân', N'Lướt sóng, Tham quan đền chùa, Tắm biển', N'views/home/images/bali.jpg'),
-(N'Boracay', N'Philippines', N'Nổi tiếng với bãi cát trắng và cuộc sống về đêm sôi động', N'Đông', N'Tắm biển, Thể thao dưới nước, Nightlife', N'views/home/images/boracay.jpg'),
-(N'Sihanoukville', N'Cambodia', N'Thành phố ven biển với nhiều đảo và bãi biển đẹp', N'Đông', N'Tắm biển, Lặn ngắm san hô, Đi thuyền', N'views/home/images/sihanoukville.jpg'),
-(N'Tioman', N'Malaysia', N'Đảo nhiệt đới với rừng rậm và rạn san hô', N'Hạ', N'Lặn, Leo núi, Ngắm san hô', N'views/home/images/tioman.jpg'),
-(N'Koh Samui', N'Thailand', N'Đảo nổi tiếng với bãi biển, thác nước và chùa chiền', N'Xuân', N'Tắm biển, Tham quan chùa, Nightlife', N'views/home/images/kohsamui.jpg'),
-(N'Nusa Penida', N'Indonesia', N'Đảo có vách đá và làn nước trong xanh tuyệt đẹp', N'Thu', N'Lặn ngắm san hô, Tham quan, Leo núi', N'views/home/images/nusapenida.jpg'),
-(N'Palawan', N'Philippines', N'Nổi tiếng với đầm phá, bãi biển và vách đá vôi', N'Hạ', N'Đi thuyền đảo, Kayak, Lặn ngắm san hô', N'views/home/images/palawan.jpg');
-select * from Islands
+(N'Phú Quốc', N'Vietnam', N'Hòn đảo xinh đẹp với nhiều bãi biển', N'Hạ', N'Bơi lội, Lặn biển, Ngắm san hô', N'views/home/images/islands/phuquoc.jpg'),
+(N'Langkawi', N'Malaysia', N'Hòn đảo lịch sử nổi tiếng', N'Hạ', N'Tham quan, Lặn biển', N'views/home/images/islands/Langkawi.jpg'),
+(N'Phuket', N'Thailand', N'Đảo du lịch nổi tiếng với cuộc sống về đêm sôi động', N'Thu', N'Tắm biển, Lặn, Nightlife', N'views/home/images/islands/phuket.jpg'),
+(N'Bali', N'Indonesia', N'Nổi tiếng với văn hoá, bãi biển và lướt sóng', N'Xuân', N'Lướt sóng, Tham quan đền chùa, Tắm biển', N'views/home/images/islands/bali.jpg'),
+(N'Boracay', N'Philippines', N'Nổi tiếng với bãi cát trắng và cuộc sống về đêm sôi động', N'Đông', N'Tắm biển, Thể thao dưới nước, Nightlife', N'views/home/images/islands/boracay.jpg'),
+(N'Sihanoukville', N'Cambodia', N'Thành phố ven biển với nhiều đảo và bãi biển đẹp', N'Đông', N'Tắm biển, Lặn ngắm san hô, Đi thuyền', N'views/home/images/islands/sihanoukville.jpg'),
+(N'Tioman', N'Malaysia', N'Đảo nhiệt đới với rừng rậm và rạn san hô', N'Hạ', N'Lặn, Leo núi, Ngắm san hô', N'views/home/images/islands/tioman.jpg'),
+(N'Koh Samui', N'Thailand', N'Đảo nổi tiếng với bãi biển, thác nước và chùa chiền', N'Xuân', N'Tắm biển, Tham quan chùa, Nightlife', N'views/home/images/islands/kohsamui.jpg'),
+(N'Nusa Penida', N'Indonesia', N'Đảo có vách đá và làn nước trong xanh tuyệt đẹp', N'Thu', N'Lặn ngắm san hô, Tham quan, Leo núi', N'views/home/images/islands/nusapenida.jpg'),
+(N'Palawan', N'Philippines', N'Nổi tiếng với đầm phá, bãi biển và vách đá vôi', N'Hạ', N'Đi thuyền đảo, Kayak, Lặn ngắm san hô', N'views/home/images/islands/palawan.jpg');
+select * from hotels
+
+
 --3.hotel
 
 INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl)
 VALUES
 -- Phu Quoc
-(1, 'Vinpearl Resort Phu Quoc', 'Deluxe', 150.000, 30, 4.6, 'views/home/images/hotels/vinpearl_pq_main.jpg'),
-(1, 'Salinda Resort Phu Quoc', 'Suite', 200.000, 15, 4.8, 'views/home/images/hotels/salinda_pq_main.jpg'),
+(1, 'Vinpearl Resort Phu Quoc', 'Deluxe', 150000, 30, 4.6, 'views/home/images/hotels/vinpearl_pq_main.jpg'),
+(1, 'Salinda Resort Phu Quoc', 'Suite', 200000, 15, 4.8, 'views/home/images/hotels/salinda_pq_main.jpg'),
 
 -- Langkawi
-(2, 'Berjaya Langkawi Resort', 'Suite', 120.000, 25, 4.4, 'views/home/images/hotels/berjaya_langkawi_main.jpg'),
-(2, 'The Datai Langkawi', 'Suite', 250.000, 10, 4.9, 'views/home/images/hotels/datai_langkawi_main.jpg'),
+(2, 'Berjaya Langkawi Resort', 'Suite', 120000, 25, 4.4, 'views/home/images/hotels/berjaya_langkawi_main.jpg'),
+(2, 'The Datai Langkawi', 'Suite', 250000, 10, 4.9, 'views/home/images/hotels/datai_langkawi_main.jpg'),
 
 -- Phuket
-(3, 'Amari Phuket', 'Standard', 110.000, 40, 4.5, 'views/home/images/hotels/amari_phuket_main.jpg'),
-(3, 'The Shore at Katathani', 'Suite', 220.000, 12, 4.8, 'views/home/images/hotels/shore_katathani_main.jpg'),
+(3, 'Amari Phuket', 'Standard', 110000, 40, 4.5, 'views/home/images/hotels/amari_phuket_main.jpg'),
+(3, 'The Shore at Katathani', 'Suite', 220000, 12, 4.8, 'views/home/images/hotels/shore_katathani_main.jpg'),
 
 -- Bali
-(4, 'Bali Mandira Beach Resort', 'Family', 130.000, 20, 4.5, 'views/home/images/hotels/mandira_bali_main.jpg'),
-(4, 'Four Seasons Bali at Sayan', 'Suite', 300.000, 8, 4.9, 'views/home/images/hotels/fourseasons_bali_main.jpg'),
+(4, 'Bali Mandira Beach Resort', 'Family', 130000, 20, 4.5, 'views/home/images/hotels/mandira_bali_main.jpg'),
+(4, 'Four Seasons Bali at Sayan', 'Suite', 300000, 8, 4.9, 'views/home/images/hotels/fourseasons_bali_main.jpg'),
 
 -- Boracay
-(5, 'Shangri-La Boracay', 'Family', 280.000, 10, 4.9, 'views/home/images/hotels/shangrila_boracay_main.jpg'),
-(5, 'Henann Lagoon Resort', 'Deluxe', 100.000, 35, 4.3, 'views/home/images/hotels/henann_boracay_main.jpg'),
+(5, 'Shangri-La Boracay', 'Family', 280000, 10, 4.9, 'views/home/images/hotels/shangrila_boracay_main.jpg'),
+(5, 'Henann Lagoon Resort', 'Deluxe', 100000, 35, 4.3, 'views/home/images/hotels/henann_boracay_main.jpg'),
 
 -- Sihanoukville
-(6, 'Independence Hotel Resort', 'Suite', 140.000, 18, 4.2, 'views/home/images/hotels/independence_sihanoukville_main.jpg'),
-(6, 'Sokha Beach Resort', 'Standard', 95.000, 40, 4.4, 'views/home/images/hotels/sokha_sihanoukville_main.jpg'),
+(6, 'Independence Hotel Resort', 'Suite', 140000, 18, 4.2, 'views/home/images/hotels/independence_sihanoukville_main.jpg'),
+(6, 'Sokha Beach Resort', 'Standard', 95000, 40, 4.4, 'views/home/images/hotels/sokha_sihanoukville_main.jpg'),
 
 -- Tioman
-(7, 'Japamala Resort', 'Suite', 160.000, 12, 4.7, 'views/home/images/hotels/japamala_tioman_main.jpg'),
-(7, 'Berjaya Tioman Resort', 'Standard', 90.000, 25, 4.1, 'views/home/images/hotels/berjaya_tioman_main.jpg'),
+(7, 'Japamala Resort', 'Suite', 160000, 12, 4.7, 'views/home/images/hotels/japamala_tioman_main.jpg'),
+(7, 'Berjaya Tioman Resort', 'Standard', 90000, 25, 4.1, 'views/home/images/hotels/berjaya_tioman_main.jpg'),
 
 -- Koh Samui
-(8, 'Banyan Tree Samui', 'Suite', 270.000, 15, 4.9, 'views/home/images/hotels/banyan_samui_main.jpg'),
-(8, 'Chaweng Regent Beach Resort', 'Deluxe', 120.000, 30, 4.4, 'views/home/images/hotels/chaweng_samui_main.jpg'),
+(8, 'Banyan Tree Samui', 'Suite', 270000, 15, 4.9, 'views/home/images/hotels/banyan_samui_main.jpg'),
+(8, 'Chaweng Regent Beach Resort', 'Deluxe', 120000, 30, 4.4, 'views/home/images/hotels/chaweng_samui_main.jpg'),
 
 -- Nusa Penida
-(9, 'Semabu Hills Hotel', 'Standard', 110.000, 20, 4.3, 'views/home/images/hotels/semabu_penida_main.jpg'),
-(9, 'Maua Nusa Penida', 'Suite', 190.000, 12, 4.6, 'views/home/images/hotels/maua_penida_main.jpg'),
+(9, 'Semabu Hills Hotel', 'Standard', 110000, 20, 4.3, 'views/home/images/hotels/semabu_penida_main.jpg'),
+(9, 'Maua Nusa Penida', 'Suite', 190000, 12, 4.6, 'views/home/images/hotels/maua_penida_main.jpg'),
 
 -- Palawan
-(10, 'El Nido Resorts Miniloc Island', 'Suite', 200.000, 15, 4.8, 'views/home/images/hotels/miniloc_palawan_main.jpg'),
-(10, 'Astoria Palawan', 'Deluxe', 130.000, 25, 4.5, 'views/home/images/hotels/astoria_palawan_main.jpg');
+(10, 'El Nido Resorts Miniloc Island', 'Suite', 200000, 15, 4.8, 'views/home/images/hotels/miniloc_palawan_main.jpg'),
+(10, 'Astoria Palawan', 'Deluxe', 130000, 25, 4.5, 'views/home/images/hotels/astoria_palawan_main.jpg');
+
+-- Xem dữ liệu
+select * from Hotels;
 
 
 -- vehicle to island
