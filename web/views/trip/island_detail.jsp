@@ -4,30 +4,64 @@
 <html lang="vi">
     <head>
         <%@ include file="/views/common/css.jsp" %>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     </head>
     <body>
         <!-- Header -->
         <%@ include file="/views/common/navbar.jsp" %>
-        
+
         <!-- Main Content -->
         <main class="container py-5">
             <!-- Island Overview -->
-            <section class="mb-5">
-                <div class="row">
-                    <div class="col-md-6 mb-4 mb-md-0">
-                        <img src="https://via.placeholder.com/600x400" alt="Island Image" class="img-fluid rounded shadow">
-                    </div>
+            <section class="my-5 p-4 rounded-3 shadow-lg bg-white">
+                <div class="row align-items-center g-4">
+                    <!-- Island Image -->
                     <div class="col-md-6">
-                        <h2 class="h2 mb-4">Đảo Phú Quốc</h2>
-                        <p class="text-muted mb-4">
-                            Phú Quốc là hòn đảo lớn nhất Việt Nam, nổi tiếng với những bãi biển cát trắng, nước biển trong xanh và những khu rừng nhiệt đới xanh mướt. Đây là điểm đến lý tưởng cho những ai yêu thích thiên nhiên và muốn trải nghiệm văn hóa địa phương.
-                        </p>
-                        <div class="d-flex align-items-center mb-4">
-                            <span class="text-warning">★★★★★</span>
-                            <span class="ms-2 text-muted">(4.8/5 từ 1200 đánh giá)</span>
+                        <div class="position-relative overflow-hidden rounded-3 shadow-sm">
+                            <img src="${island.imageUrl}" alt="${island.islandName}" class="img-fluid w-100 object-fit-cover"
+                                 style="transition: transform 0.4s ease-in-out; height: 300px;">
+                            <div class="position-absolute top-0 start-0 w-100 h-100" 
+                                 style="background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3)); transition: opacity 0.3s;"
+                                 onmouseover="this.style.opacity = '0.8'" onmouseout="this.style.opacity = '1'"></div>
                         </div>
-                        <button class="btn btn-primary px-4">Đặt tour ngay</button>
+                    </div>
+
+                    <!-- Island Information -->
+                    <div class="col-md-6">
+                        <h2 class="display-5 fw-bold text-primary mb-3">${island.islandName}</h2>
+                        <p class="text-muted mb-4 lead" style="line-height: 1.6;">${island.description}</p>
+
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-geo-alt-fill text-danger me-3 fs-5"></i>
+                                <div>
+                                    <strong class="d-block text-dark">Quốc gia</strong>
+                                    <span class="text-muted">${island.country}</span>
+                                </div>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-calendar-event-fill text-success me-3 fs-5"></i>
+                                <div>
+                                    <strong class="d-block text-dark">Mùa đẹp nhất</strong>
+                                    <span class="text-muted">${island.bestSeason}</span>
+                                </div>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-activity text-info me-3 fs-5"></i>
+                                <div>
+                                    <strong class="d-block text-dark">Hoạt động</strong>
+                                    <span class="text-muted">${island.activities}</span>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <a href="BookingServlet?islandId=${island.islandId}" 
+                           class="btn btn-primary btn-lg fw-medium shadow-sm d-inline-flex align-items-center"
+                           style="transition: all 0.3s ease;">
+                            <i class="bi bi-cart-plus-fill me-2"></i>Đặt tour ngay
+                        </a>
                     </div>
                 </div>
             </section>
@@ -76,6 +110,99 @@
             </section>
 
             <!-- Services Section -->
+
+            <!-- Hotels Section -->
+            <section class="mb-5">
+                <h2 class="h3 mb-4">Khách sạn nổi bật</h2>
+                <div class="row">
+                    <!-- Hotel 1 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="web/views/home/images/hotels/vinpearl_pq_main.jpg" 
+                                 alt="Vinpearl Resort Phu Quoc" class="card-img-top">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">Vinpearl Resort Phú Quốc</h3>
+                                <p class="card-text text-muted">Khu nghỉ dưỡng 5 sao với hồ bơi lớn, bãi biển riêng và tiện nghi cao cấp.</p>
+                                <p class="text-primary fw-bold">Giá từ 3.000.000 VNĐ/đêm</p>
+                                <button class="btn btn-outline-primary w-100">Đặt phòng</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Hotel 2 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="web/views/home/images/hotels/salinda_pq.jpg" 
+                                 alt="Salinda Resort" class="card-img-top">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">Salinda Resort</h3>
+                                <p class="card-text text-muted">Resort boutique nổi tiếng với phong cách sang trọng và ẩm thực tinh tế.</p>
+                                <p class="text-primary fw-bold">Giá từ 2.500.000 VNĐ/đêm</p>
+                                <button class="btn btn-outline-primary w-100">Đặt phòng</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Hotel 3 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="web/views/home/images/hotels/mango_bay.jpg" 
+                                 alt="Mango Bay Resort" class="card-img-top">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">Mango Bay Resort</h3>
+                                <p class="card-text text-muted">Không gian gần gũi thiên nhiên, bungalow gỗ hướng biển lãng mạn.</p>
+                                <p class="text-primary fw-bold">Giá từ 1.800.000 VNĐ/đêm</p>
+                                <button class="btn btn-outline-primary w-100">Đặt phòng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vehicles Section -->
+            <section class="mb-5">
+                <h2 class="h3 mb-4">Thuê xe du lịch</h2>
+                <div class="row">
+                    <!-- Vehicle 1 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="web/views/home/images/vehicles/scooter.jpg" 
+                                 alt="Thuê xe máy" class="card-img-top">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">Xe máy</h3>
+                                <p class="card-text text-muted">Tự do khám phá đảo với xe máy đời mới, tiết kiệm chi phí.</p>
+                                <p class="text-primary fw-bold">150.000 VNĐ/ngày</p>
+                                <button class="btn btn-outline-primary w-100">Thuê ngay</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Vehicle 2 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="web/views/home/images/vehicles/car.jpg" 
+                                 alt="Thuê ô tô" class="card-img-top">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">Ô tô 4-7 chỗ</h3>
+                                <p class="card-text text-muted">Phù hợp gia đình/nhóm nhỏ, có lái hoặc tự lái.</p>
+                                <p class="text-primary fw-bold">800.000 VNĐ/ngày</p>
+                                <button class="btn btn-outline-primary w-100">Thuê ngay</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Vehicle 3 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="web/views/home/images/vehicles/bus.jpg" 
+                                 alt="Thuê xe bus" class="card-img-top">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">Xe bus du lịch</h3>
+                                <p class="card-text text-muted">Xe bus 16-45 chỗ, đưa đón sân bay, tour theo đoàn.</p>
+                                <p class="text-primary fw-bold">2.500.000 VNĐ/ngày</p>
+                                <button class="btn btn-outline-primary w-100">Thuê ngay</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="mb-5">
                 <h2 class="h3 mb-4">Dịch vụ khác</h2>
                 <div class="row">
@@ -129,6 +256,7 @@
                     </div>
                 </div>
             </section>
+
         </main>
 
         <!-- Footer -->

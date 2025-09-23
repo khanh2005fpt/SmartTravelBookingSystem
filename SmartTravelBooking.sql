@@ -302,20 +302,69 @@ VALUES
 ('quanghuy123', 'huyvipmn5', 'huynqhe182510@fpt.edu.vn', 'David Huy', '0982706236', 'CUSTOMER');
 
 --2.island
+
 select * from bookings
 INSERT INTO Islands (islandName, country, description, bestSeason, activities, imageUrl)
 VALUES
-(N'Phú Quốc', N'Vietnam', N'Hòn đảo xinh đẹp với nhiều bãi biển', N'Hạ', N'Bơi lội, Lặn biển, Ngắm san hô', N'views/home/images/islands/phuquoc.jpg'),
-(N'Langkawi', N'Malaysia', N'Hòn đảo lịch sử nổi tiếng', N'Hạ', N'Tham quan, Lặn biển', N'views/home/images/islands/Langkawi.jpg'),
-(N'Phuket', N'Thailand', N'Đảo du lịch nổi tiếng với cuộc sống về đêm sôi động', N'Thu', N'Tắm biển, Lặn, Nightlife', N'views/home/images/islands/phuket.jpg'),
-(N'Bali', N'Indonesia', N'Nổi tiếng với văn hoá, bãi biển và lướt sóng', N'Xuân', N'Lướt sóng, Tham quan đền chùa, Tắm biển', N'views/home/images/islands/bali.jpg'),
-(N'Boracay', N'Philippines', N'Nổi tiếng với bãi cát trắng và cuộc sống về đêm sôi động', N'Đông', N'Tắm biển, Thể thao dưới nước, Nightlife', N'views/home/images/islands/boracay.jpg'),
-(N'Sihanoukville', N'Cambodia', N'Thành phố ven biển với nhiều đảo và bãi biển đẹp', N'Đông', N'Tắm biển, Lặn ngắm san hô, Đi thuyền', N'views/home/images/islands/sihanoukville.jpg'),
-(N'Tioman', N'Malaysia', N'Đảo nhiệt đới với rừng rậm và rạn san hô', N'Hạ', N'Lặn, Leo núi, Ngắm san hô', N'views/home/images/islands/tioman.jpg'),
-(N'Koh Samui', N'Thailand', N'Đảo nổi tiếng với bãi biển, thác nước và chùa chiền', N'Xuân', N'Tắm biển, Tham quan chùa, Nightlife', N'views/home/images/islands/kohsamui.jpg'),
-(N'Nusa Penida', N'Indonesia', N'Đảo có vách đá và làn nước trong xanh tuyệt đẹp', N'Thu', N'Lặn ngắm san hô, Tham quan, Leo núi', N'views/home/images/islands/nusapenida.jpg'),
-(N'Palawan', N'Philippines', N'Nổi tiếng với đầm phá, bãi biển và vách đá vôi', N'Hạ', N'Đi thuyền đảo, Kayak, Lặn ngắm san hô', N'views/home/images/islands/palawan.jpg');
-select * from hotels
+(N'Phú Quốc', N'Vietnam', 
+ N'Phú Quốc là hòn đảo lớn nhất Việt Nam, nổi tiếng với bãi cát trắng mịn, nước biển trong xanh và những rặng san hô đa dạng. Du khách có thể tham quan các làng chài truyền thống, trải nghiệm câu cá, lặn biển, khám phá vườn tiêu và thưởng thức hải sản tươi ngon.', 
+ N'Hạ', 
+ N'Bơi lội, Lặn biển, Ngắm san hô, Tham quan làng chài, Khám phá vườn tiêu', 
+ N'views/home/images/islands/phuquoc.jpg'),
+
+(N'Langkawi', N'Malaysia', 
+ N'Langkawi là quần đảo nằm ở bờ biển phía Tây Bắc Malaysia, nổi bật với phong cảnh thiên nhiên tươi đẹp, rừng mưa nhiệt đới và những bãi biển hoang sơ. Du khách có thể tham gia các tour khám phá đảo, đi cáp treo ngắm toàn cảnh, hoặc trải nghiệm các hoạt động dưới nước.', 
+ N'Hạ', 
+ N'Tham quan, Lặn biển, Đi cáp treo, Khám phá rừng mưa', 
+ N'views/home/images/islands/Langkawi.jpg'),
+
+(N'Phuket', N'Thailand', 
+ N'Phuket là hòn đảo lớn nhất Thái Lan, nổi tiếng với bãi biển Patong sôi động, các khu phố ẩm thực, và nightlife náo nhiệt. Du khách có thể thư giãn trên bãi biển, tham gia các môn thể thao dưới nước, hoặc khám phá các ngôi chùa và khu di tích văn hóa.', 
+ N'Thu', 
+ N'Tắm biển, Lặn biển, Nightlife, Tham quan chùa, Tham gia các tour đảo', 
+ N'views/home/images/islands/phuket.jpg'),
+
+(N'Bali', N'Indonesia', 
+ N'Bali nổi tiếng với văn hóa Hindu độc đáo, nhiều ngôi đền cổ kính và cảnh quan thiên nhiên tuyệt đẹp. Hòn đảo này còn hấp dẫn du khách với các bãi biển lý tưởng để lướt sóng, trải nghiệm yoga, và khám phá các làng nghề truyền thống.', 
+ N'Xuân', 
+ N'Lướt sóng, Tham quan đền chùa, Tắm biển, Yoga, Khám phá làng nghề', 
+ N'views/home/images/islands/bali.jpg'),
+
+(N'Boracay', N'Philippines', 
+ N'Boracay là hòn đảo nhỏ nhưng nổi tiếng với bãi cát trắng mịn trải dài, nước biển trong xanh và hoạt động nightlife sôi động. Du khách có thể tham gia các môn thể thao dưới nước, đi thuyền ngắm hoàng hôn, hoặc thư giãn tại các resort sang trọng ven biển.', 
+ N'Đông', 
+ N'Tắm biển, Thể thao dưới nước, Nightlife, Tham quan đảo bằng thuyền', 
+ N'views/home/images/islands/boracay.jpg'),
+
+(N'Sihanoukville', N'Cambodia', 
+ N'Sihanoukville là thành phố ven biển của Campuchia với nhiều bãi biển đẹp và các đảo nhỏ xung quanh. Du khách có thể tắm biển, lặn ngắm san hô, đi thuyền khám phá các đảo hoang sơ, và trải nghiệm ẩm thực địa phương.', 
+ N'Đông', 
+ N'Tắm biển, Lặn ngắm san hô, Đi thuyền, Tham quan đảo', 
+ N'views/home/images/islands/sihanoukville.jpg'),
+
+(N'Tioman', N'Malaysia', 
+ N'Tioman là hòn đảo nhiệt đới nổi tiếng với rừng rậm, rạn san hô đa dạng và thiên nhiên hoang sơ. Du khách có thể lặn biển ngắm san hô, leo núi khám phá rừng, hoặc tham gia các hoạt động dã ngoại ngoài trời.', 
+ N'Hạ', 
+ N'Lặn biển, Leo núi, Ngắm san hô, Khám phá rừng nhiệt đới', 
+ N'views/home/images/islands/tioman.jpg'),
+
+(N'Koh Samui', N'Thailand', 
+ N'Koh Samui là hòn đảo nổi tiếng với bãi biển cát trắng, thác nước tuyệt đẹp và các ngôi chùa linh thiêng. Du khách có thể tắm biển, tham quan chùa, trải nghiệm spa truyền thống Thái, và thưởng thức ẩm thực địa phương.', 
+ N'Xuân', 
+ N'Tắm biển, Tham quan chùa, Nightlife, Spa truyền thống, Tham quan thác nước', 
+ N'views/home/images/islands/kohsamui.jpg'),
+
+(N'Nusa Penida', N'Indonesia', 
+ N'Nusa Penida nổi bật với vách đá cao, nước biển trong xanh và các điểm lặn ngắm san hô tuyệt đẹp. Hòn đảo hoang sơ này thích hợp cho những ai yêu thiên nhiên và thích khám phá các cảnh quan độc đáo.', 
+ N'Thu', 
+ N'Lặn biển, Ngắm san hô, Tham quan vách đá, Leo núi, Khám phá thiên nhiên', 
+ N'views/home/images/islands/nusapenida.jpg'),
+
+(N'Palawan', N'Philippines', 
+ N'Palawan là hòn đảo nổi tiếng với đầm phá xanh ngọc, bãi biển đẹp và các vách đá vôi kỳ vĩ. Du khách có thể tham gia tour island-hopping, chèo kayak, khám phá hang động và trải nghiệm cuộc sống ven biển.', 
+ N'Hạ', 
+ N'Đi thuyền đảo, Kayak, Lặn ngắm san hô, Khám phá hang động, Tham gia tour island-hopping', 
+ N'views/home/images/islands/palawan.jpg');
 
 
 --3.hotel

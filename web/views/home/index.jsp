@@ -135,17 +135,16 @@
                                         <i class="fa fa-map-marker"></i> Vị trí: ${island.country}
                                     </p>
                                     <p class="card-text">
-                                        <strong>Mùa tốt để tham gia:</strong> ${island.bestSeason}
+                                        <strong>Mùa tốt để tham gia:</strong> Mùa ${island.bestSeason}
                                     </p>
                                     <p class="card-text">
                                         <strong>Hoạt động:</strong> ${island.activities}
                                     </p>
-                                    <p class="card-text">${island.description}</p>
                                 </div>
 
                                 <!-- Footer -->
                                 <div class="card-footer bg-white border-0">
-                                    <a href="#" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                    <a href="${pageContext.request.contextPath}/IslandDetailController?detailId=${island.islandId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
                                 </div>
                             </div>
                         </div>

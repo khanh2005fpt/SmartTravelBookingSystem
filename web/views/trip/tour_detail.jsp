@@ -7,16 +7,6 @@
 
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Một số style custom để giống giao diện iVIVU */
-        .badge-rating { font-size: 1rem; }
-        .price-old { text-decoration: line-through; color: #6c757d; }
-        .price-current { color: #dc3545; font-size: 1.5rem; font-weight: bold; }
-        .feature-list i { margin-right: 8px; color: #007bff; }
-        .itinerary-day { margin-bottom: 1.5rem; }
-        .itinerary-day h5 { font-weight: bold; }
-        .section-title { margin-top: 2rem; margin-bottom: 1rem; font-weight: bold; font-size: 1.25rem; }
-    </style>
 </head>
 <body class="bg-light">
 

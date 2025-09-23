@@ -41,6 +41,29 @@ public class IslandDao extends DBContext {
         return list;
     }
 
+    public Island getIslandById(int id) {
+        String sql = "SELECT * FROM Islands WHERE islandId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id); 
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) { // chỉ cần lấy 1 island thôi
+                Island i = new Island();
+                i.setIslandId(rs.getInt("islandId"));
+                i.setIslandName(rs.getString("islandName"));
+                i.setCountry(rs.getString("country"));
+                i.setDescription(rs.getString("description"));
+                i.setBestSeason(rs.getString("bestSeason"));
+                i.setActivities(rs.getString("activities"));
+                i.setImageUrl(rs.getString("imageUrl"));
+                return i; // trả về Island
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // không tìm thấy thì trả về null
+    }
+
     public List<Island> searchIslands(String name, String country, String season) {
         List<Island> list = new ArrayList<>();
         String sql = "SELECT * FROM Islands WHERE 1=1";
@@ -57,7 +80,7 @@ public class IslandDao extends DBContext {
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-         
+
             int idx = 1;
             if (name != null && !name.isEmpty()) {
                 ps.setString(idx++, "%" + name + "%");
@@ -86,7 +109,7 @@ public class IslandDao extends DBContext {
         }
         return list;
     }
-    
+
     public List<Island> getIslandsByPage(int page, int pageSize) {
         List<Island> list = new ArrayList<>();
         String sql = "Select * from Islands order by islandId offset ? rows fetch next ? rows only";
@@ -113,7 +136,7 @@ public class IslandDao extends DBContext {
 
         return list;
     }
-    
+
     public int getTotalIslands() {
         int total = 0;
         String sql = "select count(*) from Islands";
