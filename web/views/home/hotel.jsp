@@ -80,7 +80,7 @@
                                             <label>Giá tối thiểu</label>
                                             <div class="form-field">
                                                 <input type="number" name="minPrice" value="${param.minPrice}" 
-                                                       class="form-control" placeholder="kVNĐ">
+                                                       class="form-control" placeholder="VNĐ" min="1">
                                             </div>
                                         </div>
                                     </div>
@@ -91,7 +91,7 @@
                                             <label>Giá tối đa</label>
                                             <div class="form-field">
                                                 <input type="number" name="maxPrice" value="${param.maxPrice}" 
-                                                       class="form-control" placeholder="kVNĐ">
+                                                       class="form-control" placeholder="VNĐ" min="1">
                                             </div>
                                         </div>
                                     </div>
@@ -123,14 +123,30 @@
                             <div class="project-wrap hotel">
                                 <a href="#" class="img" 
                                    style="background-image: url('${pageContext.request.contextPath}/${hotel.imageUrl}');">
-                                <span class="price">${hotel.pricePerNight}đ/đêm</span>
+                                    <span class="price">${hotel.pricePerNight}đ/đêm</span>
                                 </a>
                                 <div class="text p-4">
                                     <p class="star mb-2">
-                                        <c:forEach begin="1" end="${hotel.rating}" var="i">
-                                            <span class="fa fa-star"></span>
+                                        <c:set var="fullStars" value="${hotel.rating - (hotel.rating % 1)}" />
+                                        <c:set var="hasHalfStar" value="${hotel.rating % 1 >= 0.5}" />
+                                        <c:set var="emptyStars" value="${5 - fullStars - (hasHalfStar ? 1 : 0)}" />
+
+                                        <!-- Sao đầy -->
+                                        <c:forEach begin="1" end="${fullStars}" var="i">
+                                            <span class="fa fa-star text-warning"></span>
+                                        </c:forEach>
+
+                                        <!-- Sao nửa -->
+                                        <c:if test="${hasHalfStar}">
+                                            <span class="fa fa-star-half-o text-warning"></span>
+                                        </c:if>
+
+                                        <!-- Sao rỗng -->
+                                        <c:forEach begin="1" end="${emptyStars}" var="i">
+                                            <span class="fa fa-star-o text-warning"></span>
                                         </c:forEach>
                                     </p>
+
                                     <h3><a href="#">${hotel.hotelName}</a></h3>
                                     <p class="location"><span class="fa fa-map-marker"></span> ${hotel.country}</p>
                                     <ul>
