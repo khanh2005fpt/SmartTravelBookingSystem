@@ -114,7 +114,9 @@ public class requestPassword extends HttpServlet {
        String token = service.generateToken();
          
        // link reset co token
-         String linkReset = "http://localhost:9090/SWP391_Group3_SE1957-KS/views/home/resetPassword?token="+token;
+String linkReset = "http://localhost:9090/SWP391_Group3_SE1957-KS/resetPassword?token=" + token;
+
+
         boolean isSent = service.sendEmail(email, linkReset, user.getFullName(), otp);
          if(isSent){
             Token tokenForget = new Token(user.getUserId(), token, service.expireDateTime(), false);
@@ -141,14 +143,7 @@ public class requestPassword extends HttpServlet {
        }
        
        
-       
-       
-       
-       
-       
-       
-       
-       
+  
      
        
   

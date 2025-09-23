@@ -85,13 +85,13 @@ public class resetService {
                     + "<p>Mã OTP của bạn là: <b>" + otp + "</b></p>"
                     + "<p>Mã này có hiệu lực trong 5 phút.</p>" +
                     "<p>Vui lòng không chia sẻ mã OTP này với bất kỳ ai.</p>"
-                    + "<p>Hoặc click link sau để mở trang nhập OTP trực tiếp:</p>"
-                    + "<a href=\"" + link + "\">Reset password</a>";
+                    + "<p>Vui lòng click link sau để mở trang nhập OTP trực tiếp:</p>"
+                    + "<a href=\"" + link + "\">Click Here</a>";
            
            
           msg.setContent(content , "text/html ; charset=UTF-8");
           Transport.send(msg);
-          System.out.println("Gửi email thành cônggg" +"" + to);
+          System.out.println("Gửi email thành cônggg" + " " + to);
           return true;
       }catch(Exception e){
           System.out.println("Lỗi gửi email!");
@@ -122,24 +122,5 @@ public class resetService {
     
     }
     */
-       public static void main(String[] args) {
-       resetService reset = new resetService();
-        // Test tạo OTP
-        String otp = reset.generateOtp();
-        String token = reset.generateToken();
-        System.out.println("Mã OTP: " + otp);   
-
-        // Test thời gian hết hạn
-        LocalDateTime expiryTime = reset.expireDateTime();
-        System.out.println("Thời gian hết hạn: " + expiryTime);
-
-        // Test gửi OTP qua email
-        String toEmail = "nqaghuyyy6969@gmail.com";
-        String fullName = "Nguyen Quang Huy";
-        String link = "http://localhost:9090/SWP391_Group3_SE1957-KS/views/home/resetPassword?token="+token;
-        boolean isSent = reset.sendEmail(toEmail,link, fullName, otp);
-        System.out.println(isSent ? "Gửi email OTP thành công." : "Gửi email OTP thất bại.");
-    
-    }
-    
+      
 }

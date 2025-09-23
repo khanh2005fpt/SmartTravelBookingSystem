@@ -8,6 +8,17 @@
   <title>Reset Password</title>
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/animate.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.carousel.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.theme.default.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/magnific-popup.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap-datepicker.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/jquery.timepicker.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/flaticon.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap/bootstrap.min.css">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -110,7 +121,7 @@
 <body>
   <div class="reset-container">
     <h2>🔑Reset Password</h2>
-    <form action="reset-password" method="post">
+    <form action="${pageContext.request.contextPath}/resetPassword" method="post">
       <!-- OTP -->
       <div class="otp-group">
         <input type="text" maxlength="1" inputmode="numeric" required>
@@ -120,13 +131,46 @@
         <input type="text" maxlength="1" inputmode="numeric" required>
         <input type="text" maxlength="1" inputmode="numeric" required>
       </div>
+      
+       <!-- Thông báo lỗi input -->
+       
+       <% String error = (String) session.getAttribute("errorPass"); %>
+        <% if (error != null) { %>
+                        <div id="errorAlert" class="alert alert-danger alert_style" role="alert">
+                            <%= error %>
+                        </div>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("errorAlert");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 3000);
+                        </script>
+                        <% session.removeAttribute("errorEmail"); %>
+                        <% } %>
+       
+       
       <!-- Password -->
+        
+      <!-- lay emai de hien thi -->
+      <%
+          String email = (String) session.getAttribute("resetEmail");
+
+          %>
+          
+          
+        <div class="form-group">
+            <input type="email" id="email" name="email" value="<%= email%>" readonly/>
+        <label for="password">Email</label>
+      </div>
+      
       <div class="form-group">
-        <input type="password" id="password" name="password" required placeholder=" ">
+        <input type="password" id="password" name="password"  placeholder=" ">
         <label for="password">Mật khẩu mới</label>
       </div>
       <div class="form-group">
-        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder=" ">
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" ">
         <label for="confirmPassword">Nhập lại mật khẩu</label>
       </div>
       <button type="submit" class="btn-submit">Xác nhận</button>
@@ -149,5 +193,9 @@
       });
     });
   </script>
+  
+   <!-- Bootstrap JS -->
+    <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>
+    <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

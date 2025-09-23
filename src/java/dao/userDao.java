@@ -3,12 +3,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
+
 import model.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.CallableStatement;
+import model.Token;
 import utils.DBContext;
 
 /**
@@ -16,12 +18,12 @@ import utils.DBContext;
  * @author nqagh
  */
 public class userDao extends DBContext {
-    public static userDao INSTANCE = new userDao();
-    
-    
-    public String status ;
 
-        public String getStatus() {
+    public static userDao INSTANCE = new userDao();
+
+    public String status;
+
+    public String getStatus() {
         return status;
     }
 
@@ -29,194 +31,247 @@ public class userDao extends DBContext {
         this.status = status;
     }
 
-  // dang ky  
- public String Signup(String username, String password, String email, String fullName, String phone) {
-    try {
-        
-        String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-        
-    
-        String sql = "INSERT INTO Users (username, password, email, fullName, phone) VALUES (?, ?, ?, ?, ?)";
-        
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, username);
-            stmt.setString(2, passwordHash);
-            stmt.setString(3, email);
-            stmt.setString(4, fullName);
-            stmt.setString(5, phone);
-            
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                status="Success"; 
-                return status;
-            } else {
-                status="Error";
-                return status;
+    // dang ky  
+    public String Signup(String username, String password, String email, String fullName, String phone) {
+        try {
+
+            String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+
+            String sql = "INSERT INTO Users (username, password, email, fullName, phone) VALUES (?, ?, ?, ?, ?)";
+
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setString(1, username);
+                stmt.setString(2, passwordHash);
+                stmt.setString(3, email);
+                stmt.setString(4, fullName);
+                stmt.setString(5, phone);
+
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    status = "Success";
+                    return status;
+                } else {
+                    status = "Error";
+                    return status;
+                }
             }
+        } catch (SQLException e) {
+            String errorMessage = "Lỗi khi đăng ký: " + e.getMessage();
+            System.out.println(errorMessage);
+            return "Error: " + errorMessage;
         }
-    } catch (SQLException e) {
-        String errorMessage = "Lỗi khi đăng ký: " + e.getMessage();
-        System.out.println(errorMessage);
-        return "Error: " + errorMessage;
     }
-}
- 
-   // dang nhappp
- 
-  public User loginSystem(String username, String password) {
-    String sql = "SELECT * FROM Users WHERE username = ?";
 
-    try {
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, username);
+    // dang nhappp
+    public User loginSystem(String username, String password) {
+        String sql = "SELECT * FROM Users WHERE username = ?";
 
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            User user = new User();
-            user.setUsername(rs.getString("username"));
-            user.setPassword(rs.getString("password")); // lấy hash từ DB
-            user.setStatus(rs.getString("status"));
-            String storedPassword = user.getPassword();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, username);
 
-            // So sánh password plain text 
-            if (password != null && password.equals(storedPassword)) {
-                return user;
-            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password")); // lấy hash từ DB
+                user.setStatus(rs.getString("status"));
+                String storedPassword = user.getPassword();
 
-            // So sánh password với hash BCrypt
-            try {
-                if (BCrypt.checkpw(password, storedPassword)) {
+                // So sánh password plain text 
+                if (password != null && password.equals(storedPassword)) {
                     return user;
                 }
-            } catch (Exception e) {
-                System.out.println("BCrypt Verify error: " + e);
+
+                // So sánh password với hash BCrypt
+                try {
+                    if (BCrypt.checkpw(password, storedPassword)) {
+                        return user;
+                    }
+                } catch (Exception e) {
+                    System.out.println("BCrypt Verify error: " + e);
+                }
             }
+        } catch (SQLException sq) {
+            sq.printStackTrace();
         }
-    } catch (SQLException sq) {
-        sq.printStackTrace();
+
+        return null; // Sai username hoặc password
     }
 
-    return null; // Sai username hoặc password
-}
-
-  
- // check userName ton tai
- 
-   public boolean checkUsernameExist (String username){
-       String sqlExist = "SELECT COUNT (*)FROM Users WHERE username=? ";
-          try(PreparedStatement stmt = connection.prepareStatement(sqlExist)){
+    // check userName ton tai
+    public boolean checkUsernameExist(String username) {
+        String sqlExist = "SELECT COUNT (*)FROM Users WHERE username=? ";
+        try (PreparedStatement stmt = connection.prepareStatement(sqlExist)) {
             stmt.setString(1, username);
-              try(ResultSet rs = stmt.executeQuery()) {
-                  if(rs.next()){
-                      //dem ban ghi > 0 la ton tai
-                      return rs.getInt(1)>0;
-              
-              }
-          } 
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    //dem ban ghi > 0 la ton tai
+                    return rs.getInt(1) > 0;
 
-        }catch (SQLException e) {
-               System.out.println("Lỗi khi kiểm tra Username: " + e.getMessage());
-                e.printStackTrace();
-           
-          } 
-          return false;
-   }
-  // check email ton tai
-  
-    public boolean checkEmailExist (String email){
-       String sqlExist = "SELECT COUNT (*)FROM Users WHERE email=? ";
-          try(PreparedStatement stmt = connection.prepareStatement(sqlExist)){
-            stmt.setString(1, email);
-              try(ResultSet rs = stmt.executeQuery()) {
-                  if(rs.next()){
-                      //dem ban ghi > 0 la ton tai
-                      return rs.getInt(1)>0;
-              
-              }
-          } 
+                }
+            }
 
-        }catch (SQLException e) {
-               System.out.println("Lỗi khi kiểm tra Email: " + e.getMessage());
-                e.printStackTrace();
-          
-          }
-              return false;
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi kiểm tra Username: " + e.getMessage());
+            e.printStackTrace();
+
+        }
+        return false;
     }
-          
-   // check fullname ton tai
-   
-     public boolean checkFullnameExist (String fullName){
-       String sqlExist = "SELECT COUNT (*)FROM Users WHERE fullName=? ";
-          try(PreparedStatement stmt = connection.prepareStatement(sqlExist)){
-            stmt.setString(1,fullName );
-              try(ResultSet rs = stmt.executeQuery()) {
-                  if(rs.next()){
-                      //dem ban ghi > 0 la ton tai
-                      return rs.getInt(1)>0;
-              
-              }
-          } 
+    // check email ton tai
 
-        }catch (SQLException e) {
-               System.out.println("Lỗi khi kiểm tra fullName: " + e.getMessage());
-                e.printStackTrace();
-              
-          }
-          return false;
-     }
-     
-  // check phone ton tai
-     
-        
-     public boolean checkPhoneExist (String phone){
-       String sqlExist = "SELECT COUNT (*)FROM Users WHERE phone=? ";
-          try(PreparedStatement stmt = connection.prepareStatement(sqlExist)){
-            stmt.setString(1,phone );
-              try(ResultSet rs = stmt.executeQuery()) {
-                  if(rs.next()){
-                      //dem ban ghi > 0 la ton tai
-                      return rs.getInt(1)>0;
-              
-              }
-          } 
+    public boolean checkEmailExist(String email) {
+        String sqlExist = "SELECT COUNT (*)FROM Users WHERE email=? ";
+        try (PreparedStatement stmt = connection.prepareStatement(sqlExist)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    //dem ban ghi > 0 la ton tai
+                    return rs.getInt(1) > 0;
 
-        }catch (SQLException e) {
-               System.out.println("Lỗi khi kiểm tra phone: " + e.getMessage());
-                e.printStackTrace();
-              
-          }
-          return false;
-     }
-     
-  // token password , lay email
-        public User getUserByEmail(String email){
-            try{
-                 String sql ="Select * from Users where email=?";
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi kiểm tra Email: " + e.getMessage());
+            e.printStackTrace();
+
+        }
+        return false;
+    }
+
+    // check fullname ton tai
+    public boolean checkFullnameExist(String fullName) {
+        String sqlExist = "SELECT COUNT (*)FROM Users WHERE fullName=? ";
+        try (PreparedStatement stmt = connection.prepareStatement(sqlExist)) {
+            stmt.setString(1, fullName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    //dem ban ghi > 0 la ton tai
+                    return rs.getInt(1) > 0;
+
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi kiểm tra fullName: " + e.getMessage());
+            e.printStackTrace();
+
+        }
+        return false;
+    }
+
+    // check phone ton tai
+    public boolean checkPhoneExist(String phone) {
+        String sqlExist = "SELECT COUNT (*)FROM Users WHERE phone=? ";
+        try (PreparedStatement stmt = connection.prepareStatement(sqlExist)) {
+            stmt.setString(1, phone);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    //dem ban ghi > 0 la ton tai
+                    return rs.getInt(1) > 0;
+
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi kiểm tra phone: " + e.getMessage());
+            e.printStackTrace();
+
+        }
+        return false;
+    }
+
+    // token password , lay email
+    public User getUserByEmail(String email) {
+        try {
+            String sql = "Select * from Users where email=?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 return new User(
-                rs.getInt(1),
-                rs.getString(2),
-                   rs.getString(3),
-                         rs.getString(4),
-                         rs.getString(5),
-                              rs.getString(6),
-                              rs.getString(7),
-                              rs.getTimestamp(8),
-                               rs.getString(9)
-
-                
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getString(6),
+                        rs.getString(7),
+                        rs.getTimestamp(8),
+                        rs.getString(9)
                 );
             }
-            }catch(SQLException e){
-                System.out.println(e);
-            }
-           
-            return null;
+        } catch (SQLException e) {
+            System.out.println(e);
         }
-   
-   
-    
+
+        return null;
+    }
+
+    // lay userById
+    public User getUserById(int userId) {
+        try {
+            String sql = "SELECT * FROM Users WHERE userId = ? ";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, userId);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    return new User(
+                            rs.getInt(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getString(4),
+                            rs.getString(5),
+                            rs.getString(6),
+                            rs.getString(7),
+                            rs.getTimestamp(8),
+                            rs.getString(9)
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+
+    // update password
+    public void updatePassword(String email, String password) {
+        try {
+            String sqlPass = "UPDATE Users\n"
+                    + "SET Password = ?\n"
+                    + "WHERE Email = ?";
+            try (PreparedStatement ps = connection.prepareStatement(sqlPass)) {
+                ps.setString(1, email);
+                ps.setString(2, password);
+
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+    }
+    // update status
+
+    public void updateStatus(Token tokenForget) {
+        try {
+            String sqlStatus = "UPDATE Tokens \n"
+                    + "SET isUsed= ? \n"
+                    + "WHERE  TokenValue = ?";
+            try (PreparedStatement ps = connection.prepareStatement(sqlStatus)) {
+                ps.setString(1, tokenForget.getTokenValue());
+                ps.setBoolean(2, tokenForget.isIsUsed());
+
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+    }
+
 }

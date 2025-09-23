@@ -76,9 +76,11 @@ public class Token {
         this. ExpiryDate = expiryDate;
     }
 
-    public boolean isUsed() {
+    public boolean isIsUsed() {
         return isUsed;
     }
+
+   
 
     public void setUsed(boolean isUsed) {
         this.isUsed = isUsed;

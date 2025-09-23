@@ -52,7 +52,7 @@
                             <p class="text-muted-logo">Khám phá nhịp sống biển đảo</p>
                         </div>
 
-                        <!-- Thông báo lỗi va gui email thanh cong -->
+                        <!-- Thông báo lỗi  -->
 
 
                         <% String error = (String) session.getAttribute("errorMess"); %>
@@ -72,11 +72,21 @@
                         </script>
                         <% session.removeAttribute("errorEmail"); %>
                         <% } %>
+               <!-- Thông báo lỗi gui email thanh cong -->           
 
                         <% if (success != null) { %>
-                        <div class="alert alert-success alert_style" role="alert">
+                        <div id="successAlert" class="alert alert-success alert_style" role="alert">
                             <%= success %>
                         </div>
+                        
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("successAlert");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 3000);
+                        </script>
                         <% session.removeAttribute("successMessage"); %>
                         <% } %>
 
