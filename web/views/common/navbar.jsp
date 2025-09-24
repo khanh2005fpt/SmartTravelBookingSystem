@@ -69,7 +69,7 @@
         <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
         <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/views/home/index.jsp"><i class="bi bi-box-arrow-right mr-2"></i> Đăng xuất</a>
+        <a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout"><i class="bi bi-box-arrow-right mr-2"></i> Đăng xuất</a>
     </div>
 </li>
                 <%
