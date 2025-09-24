@@ -4,6 +4,7 @@
  */
 package dao;
 
+import java.security.SecureRandom;
 import model.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -273,5 +274,51 @@ public class userDao extends DBContext {
         }
 
     }
+    
+    // generate random password
+    
+    public String generateRandomPassword(int lenght){
+        final String CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+         
+        for(int i = 0 ; i < lenght ; i++){
+            int idx = random.nextInt(CHARACTER.length());
+            sb.append(CHARACTER.charAt(idx));
+        }
+        return sb.toString();
+    }
+    
+    // Auto dky cho user
+      public String AutoSignupByGoogle(String username, String password, String email, String fullName, String phone) {
+        try {
+
+            String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+
+            String sql = "INSERT INTO Users (username, password, email, fullName, phone) VALUES (?, ?, ?, ?, ?)";
+
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setString(1, username);
+                stmt.setString(2, passwordHash);
+                stmt.setString(3, email);
+                stmt.setString(4, fullName);
+                stmt.setString(5, null);
+
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    status = "Success";
+                    return status;
+                } else {
+                    status = "Error";
+                    return status;
+                }
+            }
+        } catch (SQLException e) {
+            String errorMessage = "Lỗi khi đăng ký: " + e.getMessage();
+            System.out.println(errorMessage);
+            return "Error: " + errorMessage;
+        }
+    }
+   
 
 }

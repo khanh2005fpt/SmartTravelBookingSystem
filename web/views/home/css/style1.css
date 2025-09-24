@@ -194,11 +194,13 @@ input::placeholder {
 .login-container .btn-primary {
     background: linear-gradient(135deg, #01b6b4, #01908F);
   border: none;
+  font-size: 16px;
   
 }
 
 .login-container .btn-primary:hover {
   background-color: #017c7b;
+.login-container .options {
 }
 
 
@@ -325,3 +327,35 @@ input::placeholder {
     .alert_style{
         text-align: center;
     }
+    
+    
+    .btn-google {      
+  color: #002752;    
+  border: 2px solid #fff;    
+  border-radius: 6px;
+ 
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-google:hover {
+  
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+.btn-google:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 2px;
+}
+

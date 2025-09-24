@@ -84,8 +84,7 @@ public class registerServlet extends HttpServlet {
         String Email = request.getParameter("email");
         String FullName = request.getParameter("fullName");
         String Phone = request.getParameter("phoneNumber");
-    HttpSession session = request.getSession();
-      
+        HttpSession session = request.getSession();
 
         // check null and rong input
         if (UserName == null || UserName.isEmpty()
@@ -95,10 +94,9 @@ public class registerServlet extends HttpServlet {
                 || FullName == null || FullName.isEmpty()
                 || Phone == null || Phone.isEmpty()) {
 
-         
-    session.setAttribute("errorMess", "Thiếu các thông tin bắt buộc, vui lòng nhập đầy đủ!");
-    response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
-    return;
+            session.setAttribute("errorMess", "Thiếu các thông tin bắt buộc, vui lòng nhập đầy đủ!");
+            response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+            return;
 
         }
 
@@ -109,9 +107,12 @@ public class registerServlet extends HttpServlet {
             String error = null;
             switch (field) {
                 case "username":
-                    if (!UserName.matches("^[a-zA-Z][a-zA-Z0-9_]*$")) {
-                        error = "Tên đăng nhập chỉ chứa chữ, số, dấu _ và bắt đầu bằng chữ cái!";
-                    } else if (UserName.length() < 3 || UserName.length() > 20) {
+                    boolean isNormalUser = UserName.matches("^[a-zA-Z][a-zA-Z0-9_]*$");
+                    boolean isEmailUser = UserName.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
+                    if (!isNormalUser && !isEmailUser) {
+                        error = "Tên đăng nhập phải là chữ/số/_ (bắt đầu bằng chữ) hoặc email hợp lệ!";
+                    } else if (isNormalUser && (UserName.length() < 3 || UserName.length() > 20)) {
                         error = "Tên đăng nhập phải từ 3-20 ký tự!";
                     }
                     break;
@@ -150,10 +151,10 @@ public class registerServlet extends HttpServlet {
             }
 
             if (error != null) {
-               
-    session.setAttribute("errorMess", error);
-    response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
-    return;
+
+                session.setAttribute("errorMess", error);
+                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                return;
             }
         }
 
@@ -162,9 +163,9 @@ public class registerServlet extends HttpServlet {
         boolean emailExist = userDAO.checkEmailExist(Email);
         boolean fullNamelExist = userDAO.checkFullnameExist(FullName);
         boolean phoneExist = userDAO.checkPhoneExist(Phone);
-            
+
         try {
-           
+
             if (userNameExist && emailExist && fullNamelExist && phoneExist) {
                 session.setAttribute("errorMess", "Tài khoản này đã tồn tại!");
                 response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
@@ -210,7 +211,7 @@ public class registerServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-          session.setAttribute("errorMess", "Đăng kí thất bại: " + e.getMessage());
+            session.setAttribute("errorMess", "Đăng kí thất bại: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
         }
     }
@@ -220,7 +221,7 @@ public class registerServlet extends HttpServlet {
      *
      * @return a String containing servlet description
      */
-    @Override
+    @Override   
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>

@@ -13,7 +13,7 @@ CREATE TABLE Users (
     role VARCHAR(20) CHECK (role IN ('CUSTOMER','ADMIN','SERVICE PROVIDER','BOOKING MANAGER')) DEFAULT 'CUSTOMER',
 
     createdAt DATETIME DEFAULT GETDATE()
-	 status VARCHAR(10) CHECK (status IN ('ACTIVE','LOCKED')) DEFAULT 'ACTIVE',
+	status VARCHAR(10) CHECK (status IN ('ACTIVE','LOCKED')) DEFAULT 'ACTIVE',
 );
 go
 
@@ -405,8 +405,12 @@ VALUES
 (4, 2);
 
 select * from dbo.Tokens
-
+select *from dbo.Users
 Truncate TABLE Tokens
+
+ALTER TABLE Users
+ALTER COLUMN fullName NVARCHAR(100);
+
 
 -------------------------------------------------------------------------------------------------------
 

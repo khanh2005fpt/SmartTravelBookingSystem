@@ -70,7 +70,7 @@
                                 }
                             }, 3000);
                         </script>
-                        <% session.removeAttribute("errorEmail"); %>
+                        <% session.removeAttribute("errorMess"); %>
                         <% } %>
                <!-- Thông báo lỗi gui email thanh cong -->           
 
@@ -117,8 +117,16 @@
 
                             <div class="text-center text-muted-option mb-3 mt-2">hoặc đăng nhập với </div>
 
-                            <a href="#" class="btn btn-outline-danger w-100 mb-3 mt-2">
-                                <i class="fa fa-google"></i> Đăng nhập bằng Google
+                            <a href="https://accounts.google.com/o/oauth2/auth?scope=email profile openid
+
+&redirect_uri=http://localhost:9090/SWP391_Group3_SE1957-KS/login
+
+&response_type=code
+
+&client_id=552818851773-6psek03psq9r6tnpec86rgs6hrbhqqql.apps.googleusercontent.com
+
+&approval_prompt=force" class="btn btn-google w-100 mb-3 mt-2">
+                               <img src="${pageContext.request.contextPath}/views/home/images/google_logo.png"  alt="Google" style="width:20px; height:20px; margin-right:8px;"> Đăng nhập bằng Google
                             </a>
 
                             <div class="text-center">
