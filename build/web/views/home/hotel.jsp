@@ -122,7 +122,7 @@
                         <div class="col-md-4 ftco-animate">
                             <div class="project-wrap hotel">
                                 <a href="#" class="img" 
-                                   style="background-image: url('${pageContext.request.contextPath}/${hotel.imageUrl}');">
+                                   style="background-image: url('${pageContext.request.contextPath}/${hotel.hotelImageUrl}');">
                                     <span class="price">${hotel.pricePerNight}đ/đêm</span>
                                 </a>
                                 <div class="text p-4">

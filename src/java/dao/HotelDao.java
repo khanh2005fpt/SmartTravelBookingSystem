@@ -27,12 +27,13 @@ public class HotelDao extends DBContext {
             while (rs.next()) {
                 Hotel h = new Hotel();
                 h.setHotelId(rs.getInt("hotelId"));
+                h.setIslandId(rs.getInt("islandId"));
                 h.setHotelName(rs.getString("hotelName"));
                 h.setCountry(rs.getString("country"));
-                h.setImageUrl(rs.getString("hotelImageUrl"));
+                h.setHotelImageUrl(rs.getString("hotelImageUrl"));
                 h.setRoomType(rs.getString("roomType"));
                 h.setPricePerNight(rs.getInt("pricePerNight"));
-                h.setRoomAvailable(rs.getInt("roomAvailable"));
+                h.setRoomAvailable(rs.getInt("roomsAvailable"));
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
@@ -40,6 +41,32 @@ public class HotelDao extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+    
+     public List<Hotel> getListHotelsById(int id) {
+        List<Hotel> list = new ArrayList<>();
+        String sql = "select * from hotels a join islands b on a.islandId = b.islandId where b.islandId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id); 
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) { // lấy nhiều island
+                Hotel h = new Hotel();
+                h.setHotelId(rs.getInt("hotelId"));
+                h.setIslandId(rs.getInt("islandId"));
+                h.setHotelName(rs.getString("hotelName"));
+                h.setCountry(rs.getString("country"));
+                h.setHotelImageUrl(rs.getString("hotelImageUrl"));
+                h.setRoomType(rs.getString("roomType"));
+                h.setPricePerNight(rs.getInt("pricePerNight"));
+                h.setRoomAvailable(rs.getInt("roomsAvailable"));
+                h.setRating(rs.getDouble("rating"));
+                list.add(h);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list; 
     }
 
     public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) {
@@ -86,7 +113,7 @@ public class HotelDao extends DBContext {
                 h.setHotelId(rs.getInt("hotelId"));
                 h.setHotelName(rs.getString("hotelName"));
                 h.setCountry(rs.getString("country"));
-                h.setImageUrl(rs.getString("hotelImageUrl"));
+                h.setHotelImageUrl(rs.getString("hotelImageUrl"));
                 h.setRoomType(rs.getString("roomType"));
                 h.setPricePerNight(rs.getInt("pricePerNight"));
                 h.setRoomAvailable(rs.getInt("roomsAvailable"));
@@ -111,9 +138,10 @@ public class HotelDao extends DBContext {
             while (rs.next()) {
                 list.add(new Hotel(
                         rs.getInt("hotelId"),
+                        rs.getInt("islandId"),
                         rs.getString("hotelName"),
                         rs.getString("country"),
-                        rs.getString("imageUrl"),
+                        rs.getString("hotelImageUrl"),
                         rs.getString("roomType"),
                         rs.getInt("pricePerNight"),
                         rs.getInt("roomAvailable"),
@@ -144,7 +172,11 @@ public class HotelDao extends DBContext {
 
     public static void main(String[] args) {
         HotelDao hd = new HotelDao();
-        List<Hotel> h = hd.searchHotels("Vietnam", "", "", "200.000");
-        System.out.println(h.toString());
+//        List<Hotel> h = hd.searchHotels("Vietnam", "", "", "200000");
+            List<Hotel> h = hd.getListHotelsById(1);
+    
+              System.out.println(h.toString());
+     
+      
     }
 }

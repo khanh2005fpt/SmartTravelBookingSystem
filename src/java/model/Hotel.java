@@ -10,9 +10,10 @@ package model;
  */
 public class Hotel {
     private int hotelId;
+    private int islandId;
     private String hotelName;
     private String country;
-    private String imageUrl;
+    private String hotelImageUrl;
     private String roomType;
     private int pricePerNight;
     private int roomAvailable;
@@ -20,17 +21,20 @@ public class Hotel {
 
     public Hotel() {
     }
-    
-    public Hotel(int hotelId, String hotelName, String country, String imageUrl, String roomType, int pricePerNight, int roomAvailable, double rating) {
+
+    public Hotel(int hotelId, int islandId, String hotelName, String country, String hotelImageUrl, String roomType, int pricePerNight, int roomAvailable, double rating) {
         this.hotelId = hotelId;
+        this.islandId = islandId;
         this.hotelName = hotelName;
         this.country = country;
-        this.imageUrl = imageUrl;
+        this.hotelImageUrl = hotelImageUrl;
         this.roomType = roomType;
         this.pricePerNight = pricePerNight;
         this.roomAvailable = roomAvailable;
         this.rating = rating;
     }
+    
+   
     
     
     public int getHotelId() {
@@ -41,6 +45,14 @@ public class Hotel {
         this.hotelId = hotelId;
     }
 
+    public int getIslandId() {
+        return islandId;
+    }
+
+    public void setIslandId(int islandId) {
+        this.islandId = islandId;
+    }
+    
     public String getHotelName() {
         return hotelName;
     }
@@ -57,12 +69,12 @@ public class Hotel {
         this.country = country;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getHotelImageUrl() {
+        return hotelImageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setHotelImageUrl(String hotelImageUrl) {
+        this.hotelImageUrl = hotelImageUrl;
     }
 
     public String getRoomType() {
@@ -99,8 +111,10 @@ public class Hotel {
 
     @Override
     public String toString() {
-        return "Hotel{" + "hotelId=" + hotelId + ", hotelName=" + hotelName + ", country=" + country + ", imageUrl=" + imageUrl + ", roomType=" + roomType + ", pricePerNight=" + pricePerNight + ", roomAvailable=" + roomAvailable + ", rating=" + rating + '}' + "\n";
+        return "Hotel{" + "hotelId=" + hotelId + ", islandId=" + islandId + ", hotelName=" + hotelName + ", country=" + country + ", hotelImageUrl=" + hotelImageUrl + ", roomType=" + roomType + ", pricePerNight=" + pricePerNight + ", roomAvailable=" + roomAvailable + ", rating=" + rating + '}' + "\n";
     }
+
+    
     
     
 }

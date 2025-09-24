@@ -21,7 +21,7 @@
                     <div class="col-md-6">
                         <div class="position-relative overflow-hidden rounded-3 shadow-sm">
                             <img src="${island.imageUrl}" alt="${island.islandName}" class="img-fluid w-100 object-fit-cover"
-                                 style="transition: transform 0.4s ease-in-out; height: 300px;">
+                                 style="transition: transform 0.4s ease-in-out; height: 100%;">
                             <div class="position-absolute top-0 start-0 w-100 h-100" 
                                  style="background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3)); transition: opacity 0.3s;"
                                  onmouseover="this.style.opacity = '0.8'" onmouseout="this.style.opacity = '1'"></div>
@@ -113,49 +113,69 @@
 
             <!-- Hotels Section -->
             <section class="mb-5">
-                <h2 class="h3 mb-4">Khách sạn nổi bật</h2>
-                <div class="row">
-                    <!-- Hotel 1 -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="web/views/home/images/hotels/vinpearl_pq_main.jpg" 
-                                 alt="Vinpearl Resort Phu Quoc" class="card-img-top">
-                            <div class="card-body">
-                                <h3 class="h5 card-title">Vinpearl Resort Phú Quốc</h3>
-                                <p class="card-text text-muted">Khu nghỉ dưỡng 5 sao với hồ bơi lớn, bãi biển riêng và tiện nghi cao cấp.</p>
-                                <p class="text-primary fw-bold">Giá từ 3.000.000 VNĐ/đêm</p>
-                                <button class="btn btn-outline-primary w-100">Đặt phòng</button>
+                <h2 class="h3 mb-4 text-primary fw-bold border-bottom pb-2">🏨 Khách sạn nổi bật</h2>
+                <div class="row g-4">
+                    <c:choose>
+                        <c:when test="${not empty hotels}">
+                            <c:forEach var="hotel" items="${hotels}">
+                                <div class="col-md-4">
+                                    <div class="card h-100 shadow-lg border-0 rounded-3 overflow-hidden">
+                                        <!-- Ảnh khách sạn -->
+                                        <div class="position-relative">
+                                            <img src="${pageContext.request.contextPath}/${hotel.hotelImageUrl}"
+                                                 alt="${hotel.hotelName}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                                            <span class="badge bg-success position-absolute top-0 end-0 m-2 px-3 py-2">
+                                                ${hotel.roomType}
+                                            </span>
+                                        </div>
+
+                                        <!-- Nội dung -->
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title fw-bold text-dark">${hotel.hotelName}</h5>
+
+
+                                            <!-- Phòng trống -->
+                                            <p class="mb-1"><strong>Phòng trống:</strong> 
+                                                <span class="text-success">${hotel.roomAvailable}</span>
+                                            </p>
+
+                                            <!-- Đánh giá -->
+                                            <p class="mb-1">
+                                                <strong>Đánh giá:</strong>
+                                                <c:forEach begin="1" end="5" var="i">
+                                                    <i class="bi ${i <= hotel.rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'}"></i>
+                                                </c:forEach>
+                                                <span class="text-muted">(${hotel.rating})</span>
+                                            </p>
+                                            
+                                            
+                                            <!-- Giá -->
+                                            <p class="text-danger fw-bold fs-5 mb-2">
+                                                ${hotel.pricePerNight} VNĐ<span class="text-muted fs-6">/đêm</span>
+                                            </p>
+
+                                            <!-- Nút đặt phòng -->
+                                            <div class="mt-auto">
+                                                <button class="btn btn-primary w-100 rounded-pill">
+                                                    Đặt phòng ngay
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="col-12 text-center text-muted py-5">
+                                <i class="bi bi-house-x fs-1 d-block mb-3"></i>
+                                Hiện chưa có khách sạn nào cho đảo này.
                             </div>
-                        </div>
-                    </div>
-                    <!-- Hotel 2 -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="web/views/home/images/hotels/salinda_pq.jpg" 
-                                 alt="Salinda Resort" class="card-img-top">
-                            <div class="card-body">
-                                <h3 class="h5 card-title">Salinda Resort</h3>
-                                <p class="card-text text-muted">Resort boutique nổi tiếng với phong cách sang trọng và ẩm thực tinh tế.</p>
-                                <p class="text-primary fw-bold">Giá từ 2.500.000 VNĐ/đêm</p>
-                                <button class="btn btn-outline-primary w-100">Đặt phòng</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Hotel 3 -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="web/views/home/images/hotels/mango_bay.jpg" 
-                                 alt="Mango Bay Resort" class="card-img-top">
-                            <div class="card-body">
-                                <h3 class="h5 card-title">Mango Bay Resort</h3>
-                                <p class="card-text text-muted">Không gian gần gũi thiên nhiên, bungalow gỗ hướng biển lãng mạn.</p>
-                                <p class="text-primary fw-bold">Giá từ 1.800.000 VNĐ/đêm</p>
-                                <button class="btn btn-outline-primary w-100">Đặt phòng</button>
-                            </div>
-                        </div>
-                    </div>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </section>
+
+
 
             <!-- Vehicles Section -->
             <section class="mb-5">
@@ -164,7 +184,7 @@
                     <!-- Vehicle 1 -->
                     <div class="col-md-4 mb-4">
                         <div class="card shadow-sm">
-                            <img src="web/views/home/images/vehicles/scooter.jpg" 
+                            <img src="${pageContext.request.contextPath}/views/home/images/vehicles/scooter.jpg" 
                                  alt="Thuê xe máy" class="card-img-top">
                             <div class="card-body">
                                 <h3 class="h5 card-title">Xe máy</h3>
@@ -177,7 +197,7 @@
                     <!-- Vehicle 2 -->
                     <div class="col-md-4 mb-4">
                         <div class="card shadow-sm">
-                            <img src="web/views/home/images/vehicles/car.jpg" 
+                            <img src="${pageContext.request.contextPath}/views/home/images/vehicles/car.jpg" 
                                  alt="Thuê ô tô" class="card-img-top">
                             <div class="card-body">
                                 <h3 class="h5 card-title">Ô tô 4-7 chỗ</h3>
@@ -190,7 +210,7 @@
                     <!-- Vehicle 3 -->
                     <div class="col-md-4 mb-4">
                         <div class="card shadow-sm">
-                            <img src="web/views/home/images/vehicles/bus.jpg" 
+                            <img src="${pageContext.request.contextPath}/views/home/images/vehicles/bus.jpg" 
                                  alt="Thuê xe bus" class="card-img-top">
                             <div class="card-body">
                                 <h3 class="h5 card-title">Xe bus du lịch</h3>
