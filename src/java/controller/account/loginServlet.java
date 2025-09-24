@@ -89,6 +89,7 @@ public class loginServlet extends HttpServlet {
         if (existing != null) {
             // user ton tai -> login
             session.setAttribute("user", existing);
+                  session.setAttribute("loginSuccess", "oke");
             response.sendRedirect(request.getContextPath() + "/views/home/destination.jsp");
             return;
         } else {
@@ -105,6 +106,7 @@ public class loginServlet extends HttpServlet {
 
                 //login
                 session.setAttribute("user", newUser);
+                session.setAttribute("loginSuccess", "oke");
                 response.sendRedirect(request.getContextPath() + "/views/home/destination.jsp");
             } else {
                 session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
@@ -157,7 +159,7 @@ public class loginServlet extends HttpServlet {
 
         //login thanh cong
         session.setAttribute("user", user);
-        session.setAttribute("success", "Đăng nhập thành công!");
+        session.setAttribute("loginSuccess", "oke");
         response.sendRedirect(request.getContextPath() + "/views/home/destination.jsp");
 
     }

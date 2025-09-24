@@ -200,7 +200,12 @@ input::placeholder {
 
 .login-container .btn-primary:hover {
   background-color: #017c7b;
+}
+
 .login-container .options {
+    display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 
@@ -333,7 +338,6 @@ input::placeholder {
   color: #002752;    
   border: 2px solid #fff;    
   border-radius: 6px;
- 
   font-weight: 600;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   transition: all 0.2s ease;

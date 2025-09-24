@@ -56,7 +56,7 @@
 
 
                         <% String error = (String) session.getAttribute("errorMess"); %>
-                        <% String success = (String) session.getAttribute("successMessage"); %>
+                      
 
                         <% if (error != null) { %>
                         <div id="errorAlert" class="alert alert-danger alert_style" role="alert">
@@ -73,7 +73,7 @@
                         <% session.removeAttribute("errorMess"); %>
                         <% } %>
                <!-- Thông báo lỗi gui email thanh cong -->           
-
+  <% String success = (String) session.getAttribute("successMessage"); %>
                         <% if (success != null) { %>
                         <div id="successAlert" class="alert alert-success alert_style" role="alert">
                             <%= success %>

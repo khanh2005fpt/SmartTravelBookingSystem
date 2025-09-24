@@ -198,12 +198,14 @@ public class registerServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
         }
 
+         
         // dang ky 
+        
         try {
 
             String signUpResult = userDAO.Signup(UserName, PassWord, Email, FullName, Phone);
             if ("Success".equals(userDAO.getStatus())) {
-                session.setAttribute("mess", "Đăng kí thành công! Xin vui lòng đăng nhậppp .");
+                session.setAttribute("successMessage", "Đăng kí thành công! Xin vui lòng đăng nhậppp .");
                 response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
             } else {
                 session.setAttribute("errorMess", signUpResult);
