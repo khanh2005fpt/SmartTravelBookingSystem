@@ -6,6 +6,7 @@ package controller.home;
 
 import dao.HotelDao;
 import dao.IslandDao;
+import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Hotel;
 import model.Island;
+import model.Tour;
 
 /**
  *
@@ -74,14 +76,14 @@ public class IslandDetailController extends HttpServlet {
             Island island = dao.getIslandById(id);
             HotelDao hd = new HotelDao();
             List<Hotel> listH = hd.getListHotelsById(id);
+            TourDao td = new TourDao();
+            List<Tour> listT = td.getListToursById(id);
 
             if (island != null) {
-                if (listH == null) {
-                    listH = new ArrayList<>();
-                }
 
                 request.setAttribute("island", island);
                 request.setAttribute("hotels", listH);
+                request.setAttribute("tours", listT);
                 request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
             } else {
                 response.sendRedirect("error.jsp");

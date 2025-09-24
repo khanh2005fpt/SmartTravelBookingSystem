@@ -40,6 +40,17 @@ CREATE TABLE Islands (
 select * from Islands where 1=1 and islandName like 'Phu Quoc'
 go
 
+CREATE TABLE Tours (
+    tourId INT PRIMARY KEY IDENTITY(1,1),
+    islandId INT NOT NULL,
+    tourName NVARCHAR(255) NOT NULL,
+    description NVARCHAR(MAX),
+    price INT CHECK(price >= 0),  -- dùng INT lưu VNĐ
+	tourImageUrl NVARCHAR(500),  
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId)
+);
+
+
 -- Bảng Hotels
 CREATE TABLE Hotels (
     hotelId INT IDENTITY(1,1) PRIMARY KEY,
@@ -59,7 +70,7 @@ CREATE TABLE Hotels (
 
 
 go
-select * from hotels a join islands b on a.islandId = b.islandId
+select * from hotels a join islands b on a.islandId = b.islandId where a.islandId = 1
 
 -- Bảng VehiclesToIsland (phương tiện đến đảo)
 CREATE TABLE VehiclesToIsland (
@@ -392,6 +403,79 @@ VALUES
 
 
 --3.hotel
+-- Phú Quốc (islandId = 1)
+select * from islands
+INSERT INTO Tours (islandId, tourName, description, price, imageUrl) VALUES
+-- Phú Quốc (islandId = 1)
+(1, N'Tour Nghỉ dưỡng Phú Quốc 3N2Đ', 
+ N'Tham quan Vinpearl Safari, Bãi Sao, Chợ đêm Dinh Cậu.', 
+ 3500000, 
+ N'views/home/images/tours/phuquoc_nghiduong.jpg'),
+
+(1, N'Tour Lặn biển Phú Quốc 4N3Đ', 
+ N'Lặn ngắm san hô Hòn Móng Tay, câu cá đêm, BBQ trên biển.', 
+ 5000000, 
+ N'views/home/images/tours/phuquoc_lanbien.jpg'),
+
+(1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', 
+ N'Thăm làng chài Hàm Ninh, thưởng thức đặc sản nước mắm, tắm biển.', 
+ 2500000, 
+ N'views/home/images/tours/phuquoc_vanhoabiens.jpg'),
+
+-- Langkawi (islandId = 2)
+(2, N'Tour Khám phá Langkawi 4N3Đ', 
+ N'Trải nghiệm cầu treo SkyBridge, tắm biển Pantai Cenang, mua sắm duty-free.', 
+ 4500000, 
+ N'views/home/images/tours/langkawi_khampha.jpg'),
+
+-- Phuket (islandId = 3)
+(3, N'Tour Khám phá Phuket 4N3Đ', 
+ N'Thăm đảo Phi Phi, phố cổ Phuket, show Simon Cabaret.', 
+ 5500000, 
+ N'views/home/images/tours/phuket_khampha.jpg'),
+
+(3, N'Tour Biển Phuket 3N2Đ', 
+ N'Tắm biển Patong, du thuyền vịnh Phang Nga.', 
+ 4200000, 
+ N'views/home/images/tours/phuket_bien.jpg'),
+
+-- Bali (islandId = 4)
+(4, N'Tour Văn hóa & Biển Bali 5N4Đ', 
+ N'Thăm đền Tanah Lot, ruộng bậc thang Tegallalang, nghỉ dưỡng tại Kuta Beach.', 
+ 9000000, 
+ N'views/home/images/tours/bali_vanhoabien.jpg'),
+
+(4, N'Tour Nghỉ dưỡng Bali 4N3Đ', 
+ N'Spa truyền thống, yoga, biển Jimbaran, ngắm hoàng hôn Uluwatu.', 
+ 7500000, 
+ N'views/home/images/tours/bali_nghiduong.jpg'),
+
+-- Boracay (islandId = 5)
+(5, N'Tour Biển Boracay 4N3Đ', 
+ N'Tắm biển White Beach, lặn ngắm san hô, tham gia tiệc đêm sôi động.', 
+ 6000000, 
+ N'views/home/images/tours/boracay_bien.jpg'),
+
+(5, N'Tour Nghỉ dưỡng Boracay 3N2Đ', 
+ N'Tham quan Diniwid Beach, chèo thuyền buồm Paraw.', 
+ 4500000, 
+ N'views/home/images/tours/boracay_nghiduong.jpg'),
+
+-- Koh Samui (islandId = 8)
+(8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', 
+ N'Thăm Big Buddha Temple, thác Na Muang, chợ đêm Fisherman’s Village.', 
+ 6500000, 
+ N'views/home/images/tours/kohsamui_nghiduong.jpg'),
+
+(8, N'Tour Biển Koh Samui 3N2Đ', 
+ N'Tắm biển Chaweng, snorkeling, du thuyền quanh đảo.', 
+ 5000000, 
+ N'views/home/images/tours/kohsamui_bien.jpg'),
+
+(8, N'Tour Văn hóa Koh Samui 5N4Đ', 
+ N'Thăm chùa Wat Plai Laem, trải nghiệm massage Thái, ẩm thực địa phương.', 
+ 8000000, 
+ N'views/home/images/tours/kohsamui_vanhoaspa.jpg');
 
 INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl)
 VALUES

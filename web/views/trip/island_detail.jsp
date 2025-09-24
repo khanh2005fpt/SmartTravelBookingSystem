@@ -18,20 +18,16 @@
             <section class="my-5 p-4 rounded-3 shadow-lg bg-white">
                 <div class="row align-items-center g-4">
                     <!-- Island Image -->
-                    <div class="col-md-6">
-                        <div class="position-relative overflow-hidden rounded-3 shadow-sm">
-                            <img src="${island.imageUrl}" alt="${island.islandName}" class="img-fluid w-100 object-fit-cover"
-                                 style="transition: transform 0.4s ease-in-out; height: 100%;">
-                            <div class="position-absolute top-0 start-0 w-100 h-100" 
-                                 style="background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3)); transition: opacity 0.3s;"
-                                 onmouseover="this.style.opacity = '0.8'" onmouseout="this.style.opacity = '1'"></div>
-                        </div>
+                    <div style="height:500px;" class="col-md-6">
+                        <img src="${island.imageUrl}" alt="${island.islandName}" 
+                             class="img-fluid w-100 h-100 object-fit-cover rounded-3 shadow-sm">
                     </div>
+
 
                     <!-- Island Information -->
                     <div class="col-md-6">
                         <h2 class="display-5 fw-bold text-primary mb-3">${island.islandName}</h2>
-                        <p class="text-muted mb-4 lead" style="line-height: 1.6;">${island.description}</p>
+                        <p class="text-muted mb-4 lead">${island.description}</p>
 
                         <ul class="list-unstyled mb-4">
                             <li class="mb-3 d-flex align-items-center">
@@ -68,52 +64,76 @@
 
             <!-- Tours Section -->
             <section class="mb-5">
-                <h2 class="h3 mb-4">Các tour du lịch</h2>
-                <div class="row">
-                    <!-- Tour Card 1 -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="https://via.placeholder.com/300x200" alt="Tour Image" class="card-img-top">
-                            <div class="card-body">
-                                <h3 class="h5 card-title">Tour khám phá 4 đảo</h3>
-                                <p class="card-text text-muted">Trải nghiệm lặn ngắm san hô, câu cá và thưởng thức hải sản tươi ngon tại 4 hòn đảo đẹp nhất Phú Quốc.</p>
-                                <p class="text-primary fw-bold">2.500.000 VNĐ/người</p>
-                                <button class="btn btn-primary w-100">Xem chi tiết</button>
+                <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️Các tour du lịch</h2>
+                <div class="row g-4">
+                    <c:choose>
+                        <c:when test="${empty tours}">
+                            <div class="col-12">
+                                <div class="alert alert-warning text-center rounded-3 shadow-sm py-4">
+                                    <h5 class="mb-1">😥 Hiện chưa có tour nào</h5>
+                                    <p class="mb-0">Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <!-- Tour Card 2 -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="https://via.placeholder.com/300x200" alt="Tour Image" class="card-img-top">
-                            <div class="card-body">
-                                <h3 class="h5 card-title">Tour Sunset Vinpearl</h3>
-                                <p class="card-text text-muted">Ngắm hoàng hôn tuyệt đẹp tại Vinpearl, kết hợp tham quan công viên chủ đề và ẩm thực cao cấp.</p>
-                                <p class="text-primary fw-bold">1.800.000 VNĐ/người</p>
-                                <button class="btn btn-primary w-100">Xem chi tiết</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Tour Card 3 -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="https://via.placeholder.com/300x200" alt="Tour Image" class="card-img-top">
-                            <div class="card-body">
-                                <h3 class="h5 card-title">Tour làng chài Rạch Vẹm</h3>
-                                <p class="card-text text-muted">Khám phá cuộc sống làng chài, thưởng thức hải sản tươi sống và chèo thuyền kayak.</p>
-                                <p class="text-primary fw-bold">1.200.000 VNĐ/người</p>
-                                <button class="btn btn-primary w-100">Xem chi tiết</button>
-                            </div>
-                        </div>
-                    </div>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="tour" items="${tours}">
+                                <div class="col-sm-6 col-lg-4 mb-4">
+                                    <div class="card h-100 border-0 shadow-lg rounded-3 overflow-hidden">
+                                        <!-- Ảnh tour -->
+                                        <div class="ratio ratio-16x9">
+                                          
+                                              
+                                                    <img src="${pageContext.request.contextPath}/${tour.tourImageUrl}" 
+                                                         alt="${tour.tourName}" 
+                                                         class="card-img-top object-fit-cover">
+                                         
+                                              
+                                        </div>
+
+                                        <!-- Nội dung -->
+                                        <div class="card-body d-flex flex-column">
+                                            <h3 class="h5 card-title fw-semibold text-dark">
+                                                ${tour.tourName}
+                                            </h3>
+                                            <p class="card-text text-muted small mb-3">
+                                                ${tour.description}
+                                            </p>
+
+                                            <c:choose>
+                                                <c:when test="${tour.price == 0}">
+                                                    <p class="text-success fw-bold fs-6 mb-3">Miễn phí</p>
+                                                </c:when>
+                                                <c:when test="${tour.price < 1000000}">
+                                                    <p class="text-info fw-bold fs-6 mb-3">
+                                                        Ưu đãi: ${tour.price} VNĐ/người
+                                                    </p>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <p class="text-primary fw-bold fs-5 mb-3">
+                                                        ${tour.price} VNĐ/người
+                                                    </p>
+                                                </c:otherwise>
+                                            </c:choose>
+
+                                            <a href="tourDetails?id=${tour.tourId}" 
+                                               class="btn btn-primary mt-auto w-100 rounded-pill">
+                                                Xem chi tiết
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </section>
 
-            <!-- Services Section -->
+
+
 
             <!-- Hotels Section -->
             <section class="mb-5">
-                <h2 class="h3 mb-4 text-primary fw-bold border-bottom pb-2">🏨 Khách sạn nổi bật</h2>
+                <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Khách sạn nổi bật</h2>
                 <div class="row g-4">
                     <c:choose>
                         <c:when test="${not empty hotels}">
@@ -147,8 +167,8 @@
                                                 </c:forEach>
                                                 <span class="text-muted">(${hotel.rating})</span>
                                             </p>
-                                            
-                                            
+
+
                                             <!-- Giá -->
                                             <p class="text-danger fw-bold fs-5 mb-2">
                                                 ${hotel.pricePerNight} VNĐ<span class="text-muted fs-6">/đêm</span>
