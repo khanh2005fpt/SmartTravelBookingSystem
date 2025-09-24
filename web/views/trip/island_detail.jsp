@@ -53,7 +53,7 @@
                             </li>
                         </ul>
 
-                        <a href="BookingServlet?islandId=${island.islandId}" 
+                        <a href="#toursSection" 
                            class="btn btn-primary btn-lg fw-medium shadow-sm d-inline-flex align-items-center"
                            style="transition: all 0.3s ease;">
                             <i class="bi bi-cart-plus-fill me-2"></i>Đặt tour ngay
@@ -63,8 +63,8 @@
             </section>
 
             <!-- Tours Section -->
-            <section class="mb-5">
-                <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️Các tour du lịch</h2>
+            <section id="toursSection" class="mb-5">
+                <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Các tour du lịch</h2>
                 <div class="row g-4">
                     <c:choose>
                         <c:when test="${empty tours}">
@@ -81,13 +81,13 @@
                                     <div class="card h-100 border-0 shadow-lg rounded-3 overflow-hidden">
                                         <!-- Ảnh tour -->
                                         <div class="ratio ratio-16x9">
-                                          
-                                              
-                                                    <img src="${pageContext.request.contextPath}/${tour.tourImageUrl}" 
-                                                         alt="${tour.tourName}" 
-                                                         class="card-img-top object-fit-cover">
-                                         
-                                              
+
+
+                                            <img src="${pageContext.request.contextPath}/${tour.tourImageUrl}" 
+                                                 alt="${tour.tourName}" 
+                                                 class="card-img-top object-fit-cover">
+
+
                                         </div>
 
                                         <!-- Nội dung -->
@@ -99,26 +99,16 @@
                                                 ${tour.description}
                                             </p>
 
-                                            <c:choose>
-                                                <c:when test="${tour.price == 0}">
-                                                    <p class="text-success fw-bold fs-6 mb-3">Miễn phí</p>
-                                                </c:when>
-                                                <c:when test="${tour.price < 1000000}">
-                                                    <p class="text-info fw-bold fs-6 mb-3">
-                                                        Ưu đãi: ${tour.price} VNĐ/người
-                                                    </p>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <p class="text-primary fw-bold fs-5 mb-3">
-                                                        ${tour.price} VNĐ/người
-                                                    </p>
-                                                </c:otherwise>
-                                            </c:choose>
 
-                                            <a href="tourDetails?id=${tour.tourId}" 
-                                               class="btn btn-primary mt-auto w-100 rounded-pill">
-                                                Xem chi tiết
-                                            </a>
+                                            <div class="mt-auto">
+                                                <p class="text-primary fw-bold fs-5 mb-2 text-end">
+                                                    ${tour.price} VNĐ/người
+                                                </p>
+                                                <a href="TourDetailController?tourid=${tour.tourId}" 
+                                                   class="btn btn-primary w-100 rounded-pill">
+                                                    Xem chi tiết
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -166,19 +156,21 @@
                                                     <i class="bi ${i <= hotel.rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'}"></i>
                                                 </c:forEach>
                                                 <span class="text-muted">(${hotel.rating})</span>
-                                            </p>
+                                            </p> 
 
 
                                             <!-- Giá -->
-                                            <p class="text-danger fw-bold fs-5 mb-2">
-                                                ${hotel.pricePerNight} VNĐ<span class="text-muted fs-6">/đêm</span>
-                                            </p>
-
-                                            <!-- Nút đặt phòng -->
                                             <div class="mt-auto">
-                                                <button class="btn btn-primary w-100 rounded-pill">
-                                                    Đặt phòng ngay
-                                                </button>
+                                                <p class="text-danger fw-bold fs-5 mb-2 text-end">
+                                                    ${hotel.pricePerNight} VNĐ<span class="text-muted fs-6">/đêm</span>
+                                                </p>
+
+                                                <!-- Nút đặt phòng -->
+                                                <div class="mt-auto">
+                                                    <button class="btn btn-primary w-100 rounded-pill">
+                                                        Đặt phòng ngay
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

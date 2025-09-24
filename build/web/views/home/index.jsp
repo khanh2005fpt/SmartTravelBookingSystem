@@ -109,7 +109,7 @@
 
 
 
-   
+
 
         <section class="ftco-section">
             <div class="container">
@@ -120,35 +120,47 @@
                     </div>
                 </div>
                 <div class="row">
-                    <c:forEach var="island" items="${islands}">
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <!-- Ảnh -->
-                                <img src="${pageContext.request.contextPath}/${island.imageUrl}" 
-                                     class="card-img-top" alt="${island.islandName}" 
-                                     style="height: 200px; object-fit: cover;">
-
-                                <!-- Nội dung -->
-                                <div class="card-body">
-                                    <h5 class="card-title">${island.islandName}</h5>
-                                    <p class="card-text text-muted">
-                                        <i class="fa fa-map-marker"></i> Vị trí: ${island.country}
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Mùa tốt để tham gia:</strong> Mùa ${island.bestSeason}
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Hoạt động:</strong> ${island.activities}
-                                    </p>
-                                </div>
-
-                                <!-- Footer -->
-                                <div class="card-footer bg-white border-0">
-                                    <a href="${pageContext.request.contextPath}/IslandDetailController?detailId=${island.islandId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                    <c:choose>
+                        <c:when test="${empty islands}">
+                             <div class="col-12">
+                                <div class="text-center rounded-3 py-4">
+                                    <h5 class="mb-1">Không có đảo nào ở quốc gia này</h5>
+                                    <p class="mb-0">Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>
                                 </div>
                             </div>
-                        </div>
-                    </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="island" items="${islands}">
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 shadow-sm">
+                                        <!-- Ảnh -->
+                                        <img src="${pageContext.request.contextPath}/${island.imageUrl}" 
+                                             class="card-img-top" alt="${island.islandName}" 
+                                             style="height: 200px; object-fit: cover;">
+
+                                        <!-- Nội dung -->
+                                        <div class="card-body">
+                                            <h5 class="card-title">${island.islandName}</h5>
+                                            <p class="card-text text-muted">
+                                                <i class="fa fa-map-marker"></i> Vị trí: ${island.country}
+                                            </p>
+                                            <p class="card-text">
+                                                <strong>Mùa tốt để tham gia:</strong> Mùa ${island.bestSeason}
+                                            </p>
+                                            <p class="card-text">
+                                                <strong>Hoạt động:</strong> ${island.activities}
+                                            </p>
+                                        </div>
+
+                                        <!-- Footer -->
+                                        <div class="card-footer bg-white border-0">
+                                            <a href="${pageContext.request.contextPath}/IslandDetailController?detailId=${island.islandId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
                     <!-- Pagination -->
 
 

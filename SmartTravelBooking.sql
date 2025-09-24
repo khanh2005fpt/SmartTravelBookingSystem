@@ -50,6 +50,14 @@ CREATE TABLE Tours (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId)
 );
 
+CREATE TABLE TourItinerary (
+    itineraryId INT PRIMARY KEY IDENTITY(1,1),
+    tourId INT NOT NULL,
+    dayNumber INT NOT NULL,         -- Ngày 1, Ngày 2, ...
+    title NVARCHAR(255) NOT NULL,   -- Ví dụ: "Ngày 1: HCM → Singapore"
+    description NVARCHAR(MAX),      -- Nội dung chi tiết
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
+);
 
 -- Bảng Hotels
 CREATE TABLE Hotels (
@@ -315,6 +323,8 @@ VALUES
 --2.island
 
 select * from bookings
+select * from islands
+
 INSERT INTO Islands (islandName, country, description, bestSeason, activities, imageUrl)
 VALUES
 (N'Phú Quốc', N'Vietnam', 
@@ -405,7 +415,8 @@ VALUES
 --3.hotel
 -- Phú Quốc (islandId = 1)
 select * from islands
-INSERT INTO Tours (islandId, tourName, description, price, imageUrl) VALUES
+select * from tours
+INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) VALUES
 -- Phú Quốc (islandId = 1)
 (1, N'Tour Nghỉ dưỡng Phú Quốc 3N2Đ', 
  N'Tham quan Vinpearl Safari, Bãi Sao, Chợ đêm Dinh Cậu.', 
@@ -476,6 +487,32 @@ INSERT INTO Tours (islandId, tourName, description, price, imageUrl) VALUES
  N'Thăm chùa Wat Plai Laem, trải nghiệm massage Thái, ẩm thực địa phương.', 
  8000000, 
  N'views/home/images/tours/kohsamui_vanhoaspa.jpg');
+ select * from tours
+INSERT INTO TourItinerary (tourId, dayNumber, title, description) VALUES
+-- Tour 1: Phú Quốc 3N2Đ
+(1, 1, N'Ngày 1: Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Đón khách, tham quan Vinpearl Safari.'),
+(1, 2, N'Ngày 2: Khám phá Phú Quốc', N'Tắm biển Bãi Sao, tham quan Nhà tù Phú Quốc, thưởng thức hải sản.'),
+(1, 3, N'Ngày 3: Phú Quốc → Hà Nội', N'Tự do mua sắm tại chợ đêm Dinh Cậu, trả phòng, bay về Hà Nội.'),
+
+-- Tour 2: Phú Quốc 4N3Đ
+(2, 1, N'Ngày 1: Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Nhận phòng khách sạn, tham quan Dinh Cậu.'),
+(2, 2, N'Ngày 2: Lặn biển', N'Lặn ngắm san hô tại Hòn Móng Tay, Hòn Gầm Ghì.'),
+(2, 3, N'Ngày 3: Câu cá & BBQ', N'Trải nghiệm câu cá đêm và tiệc BBQ trên biển.'),
+(2, 4, N'Ngày 4: Phú Quốc → Hà Nội', N'Mua đặc sản nước mắm, trả phòng, bay về Hà Nội.'),
+
+-- Tour 3: Phú Quốc 2N1Đ
+(3, 1, N'Ngày 1: Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Thăm làng chài Hàm Ninh, trải nghiệm làm nước mắm.'),
+(3, 2, N'Ngày 2: Phú Quốc → Hà Nội', N'Tắm biển, ăn hải sản, trả phòng, bay về Hà Nội.'),
+
+-- Tour 4: Langkawi 4N3Đ
+(4, 1, N'Ngày 1: Hà Nội → Langkawi', N'Tập trung tại sân bay Nội Bài, bay đến Langkawi. Đón khách, nhận phòng, tự do khám phá.'),
+(4, 2, N'Ngày 2: SkyBridge', N'Trải nghiệm cầu treo SkyBridge, cáp treo Langkawi.'),
+(4, 3, N'Ngày 3: Biển & Shopping', N'Tắm biển Pantai Cenang, mua sắm duty-free.'),
+(4, 4, N'Ngày 4: Langkawi → Hà Nội', N'Trả phòng khách sạn, ra sân bay, bay về Hà Nội.');
+
+select * from Tours
+
+
 
 INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl)
 VALUES
