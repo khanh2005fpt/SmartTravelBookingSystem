@@ -11,7 +11,8 @@ CREATE TABLE Users (
     fullName VARCHAR(100),
     phone NVARCHAR(20),
     role VARCHAR(20) CHECK (role IN ('CUSTOMER','ADMIN','SERVICE PROVIDER','BOOKING MANAGER', 'STAFF')) DEFAULT 'CUSTOMER',
-    createdAt DATETIME DEFAULT GETDATE()
+    createdAt DATETIME DEFAULT GETDATE(),
+	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
 );
 go
 
@@ -139,17 +140,6 @@ CREATE TABLE IslandVehicles (
 
 go
 
---  Bảng Trips (gói tour tổng quan)
-CREATE TABLE Trips (
-    tripId INT IDENTITY(1,1) PRIMARY KEY,
-    tripName NVARCHAR(100) NOT NULL,
-    description NVARCHAR(MAX),
-    basePrice DECIMAL(10,3),          -- giá cơ bản của gói tour
-    startDate DATE,
-    endDate DATE,
-    createdAt DATETIME DEFAULT GETDATE()
-);
-go
 
 -- Bảng Bookings (đặt tour hoặc dịch vụ lẻ)
 CREATE TABLE Bookings (
@@ -490,27 +480,27 @@ INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) VALUES
  select * from tours
 INSERT INTO TourItinerary (tourId, dayNumber, title, description) VALUES
 -- Tour 1: Phú Quốc 3N2Đ
-(1, 1, N'Ngày 1: Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Đón khách, tham quan Vinpearl Safari.'),
-(1, 2, N'Ngày 2: Khám phá Phú Quốc', N'Tắm biển Bãi Sao, tham quan Nhà tù Phú Quốc, thưởng thức hải sản.'),
-(1, 3, N'Ngày 3: Phú Quốc → Hà Nội', N'Tự do mua sắm tại chợ đêm Dinh Cậu, trả phòng, bay về Hà Nội.'),
+(1, 1, N'Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Đón khách, tham quan Vinpearl Safari.'),
+(1, 2, N'Khám phá Phú Quốc', N'Tắm biển Bãi Sao, tham quan Nhà tù Phú Quốc, thưởng thức hải sản.'),
+(1, 3, N'Phú Quốc → Hà Nội', N'Tự do mua sắm tại chợ đêm Dinh Cậu, trả phòng, bay về Hà Nội.'),
 
 -- Tour 2: Phú Quốc 4N3Đ
-(2, 1, N'Ngày 1: Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Nhận phòng khách sạn, tham quan Dinh Cậu.'),
-(2, 2, N'Ngày 2: Lặn biển', N'Lặn ngắm san hô tại Hòn Móng Tay, Hòn Gầm Ghì.'),
-(2, 3, N'Ngày 3: Câu cá & BBQ', N'Trải nghiệm câu cá đêm và tiệc BBQ trên biển.'),
-(2, 4, N'Ngày 4: Phú Quốc → Hà Nội', N'Mua đặc sản nước mắm, trả phòng, bay về Hà Nội.'),
+(2, 1, N'Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Nhận phòng khách sạn, tham quan Dinh Cậu.'),
+(2, 2, N'Lặn biển', N'Lặn ngắm san hô tại Hòn Móng Tay, Hòn Gầm Ghì.'),
+(2, 3, N'Câu cá & BBQ', N'Trải nghiệm câu cá đêm và tiệc BBQ trên biển.'),
+(2, 4, N'Phú Quốc → Hà Nội', N'Mua đặc sản nước mắm, trả phòng, bay về Hà Nội.'),
 
 -- Tour 3: Phú Quốc 2N1Đ
-(3, 1, N'Ngày 1: Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Thăm làng chài Hàm Ninh, trải nghiệm làm nước mắm.'),
-(3, 2, N'Ngày 2: Phú Quốc → Hà Nội', N'Tắm biển, ăn hải sản, trả phòng, bay về Hà Nội.'),
+(3, 1, N'Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Thăm làng chài Hàm Ninh, trải nghiệm làm nước mắm.'),
+(3, 2, N'Phú Quốc → Hà Nội', N'Tắm biển, ăn hải sản, trả phòng, bay về Hà Nội.'),
 
 -- Tour 4: Langkawi 4N3Đ
-(4, 1, N'Ngày 1: Hà Nội → Langkawi', N'Tập trung tại sân bay Nội Bài, bay đến Langkawi. Đón khách, nhận phòng, tự do khám phá.'),
-(4, 2, N'Ngày 2: SkyBridge', N'Trải nghiệm cầu treo SkyBridge, cáp treo Langkawi.'),
-(4, 3, N'Ngày 3: Biển & Shopping', N'Tắm biển Pantai Cenang, mua sắm duty-free.'),
-(4, 4, N'Ngày 4: Langkawi → Hà Nội', N'Trả phòng khách sạn, ra sân bay, bay về Hà Nội.');
+(4, 1, N'Hà Nội → Langkawi', N'Tập trung tại sân bay Nội Bài, bay đến Langkawi. Đón khách, nhận phòng, tự do khám phá.'),
+(4, 2, N'SkyBridge', N'Trải nghiệm cầu treo SkyBridge, cáp treo Langkawi.'),
+(4, 3, N'Biển & Shopping', N'Tắm biển Pantai Cenang, mua sắm duty-free.'),
+(4, 4, N'Langkawi → Hà Nội', N'Trả phòng khách sạn, ra sân bay, bay về Hà Nội.');
 
-select * from Tours
+select * from TourItinerary
 
 
 

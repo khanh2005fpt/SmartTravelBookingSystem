@@ -41,7 +41,7 @@
                                 <i class="bi bi-calendar-event-fill text-success me-3 fs-5"></i>
                                 <div>
                                     <strong class="d-block text-dark">Mùa đẹp nhất</strong>
-                                    <span class="text-muted">${island.bestSeason}</span>
+                                    <span class="text-muted">Mùa ${island.bestSeason}</span>
                                 </div>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
@@ -167,9 +167,52 @@
 
                                                 <!-- Nút đặt phòng -->
                                                 <div class="mt-auto">
-                                                    <button class="btn btn-primary w-100 rounded-pill">
+                                                    <!-- Button đặt phòng -->
+                                                    <button class="btn btn-primary w-100 rounded-pill" 
+                                                            data-toggle="modal" data-target="#bookingModal${hotel.hotelId}">
                                                         Đặt phòng ngay
                                                     </button>
+
+                                                    <!-- Modal điền thông tin -->
+                                                    <div class="modal fade" id="bookingModal${hotel.hotelId}" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel${hotel.hotelId}" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="bookingModalLabel${hotel.hotelId}">Đặt phòng: ${hotel.hotelName}</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <form action="${pageContext.request.contextPath}/bookRoom" method="post">
+                                                                        <input type="hidden" name="hotelId" value="${hotel.hotelId}">
+                                                                        <div class="form-group mb-3">
+                                                                            <label for="guestName${hotel.hotelId}">Tên khách hàng</label>
+                                                                            <input type="text" class="form-control" id="guestName${hotel.hotelId}" name="guestName" required>
+                                                                        </div>
+                                                                        <div class="form-group mb-3">
+                                                                            <label for="guestEmail${hotel.hotelId}">Email</label>
+                                                                            <input type="email" class="form-control" id="guestEmail${hotel.hotelId}" name="guestEmail" required>
+                                                                        </div>
+                                                                        <div class="form-group mb-3">
+                                                                            <label for="checkIn${hotel.hotelId}">Ngày nhận phòng</label>
+                                                                            <input type="date" class="form-control" id="checkIn${hotel.hotelId}" name="checkIn" required>
+                                                                        </div>
+                                                                        <div class="form-group mb-3">
+                                                                            <label for="checkOut${hotel.hotelId}">Ngày trả phòng</label>
+                                                                            <input type="date" class="form-control" id="checkOut${hotel.hotelId}" name="checkOut" required>
+                                                                        </div>
+                                                                        <div class="form-group mb-3">
+                                                                            <label for="roomCount${hotel.hotelId}">Số phòng</label>
+                                                                            <input type="number" class="form-control" id="roomCount${hotel.hotelId}" name="roomCount" min="1" max="${hotel.roomAvailable}" required>
+                                                                        </div>
+                                                                        <button type="submit" class="btn btn-success w-100">Xác nhận đặt phòng</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -191,7 +234,7 @@
 
             <!-- Vehicles Section -->
             <section class="mb-5">
-                <h2 class="h3 mb-4">Thuê xe du lịch</h2>
+                <h2 class="h3 mb-4">Thuê xe trong đảo</h2>
                 <div class="row">
                     <!-- Vehicle 1 -->
                     <div class="col-md-4 mb-4">
