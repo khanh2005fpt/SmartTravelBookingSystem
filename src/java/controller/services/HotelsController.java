@@ -6,6 +6,7 @@
 package controller.services;
 
 import dao.HotelDao;
+import dao.IslandDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import model.Country;
 import model.Hotel;
 
 /**
@@ -92,7 +94,8 @@ public class HotelsController extends HttpServlet {
                 page = 1;
             }
         }
-
+        IslandDao id = new IslandDao();
+        List<Country> countries = id.getAllCountries();
         HotelDao dao = new HotelDao();
         List<Hotel> hotels = dao.searchHotels(country, roomType, minPriceStr, maxPriceStr);
 
@@ -109,6 +112,7 @@ public class HotelsController extends HttpServlet {
         }
 
         // Gửi dữ liệu sang JSP
+        request.setAttribute("countries", countries);
         request.setAttribute("hotels", pagedHotels);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);

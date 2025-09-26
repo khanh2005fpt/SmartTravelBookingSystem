@@ -53,22 +53,15 @@
                                                                 <div class="icon"><span class="fa fa-globe"></span></div>
                                                                 <select name="country" id="country" class="form-control">
                                                                     <option value="" ${empty param.country ? 'selected' : ''}>-- Chọn quốc gia --</option>
-                                                                    <option value="Vietnam" ${param.country == 'Vietnam' ? 'selected' : ''}>Việt Nam</option>
-                                                                    <option value="Thailand" ${param.country == 'Thailand' ? 'selected' : ''}>Thái Lan</option>
-                                                                    <option value="Malaysia" ${param.country == 'Malaysia' ? 'selected' : ''}>Malaysia</option>
-                                                                    <option value="Singapore" ${param.country == 'Singapore' ? 'selected' : ''}>Singapore</option>
-                                                                    <option value="Indonesia" ${param.country == 'Indonesia' ? 'selected' : ''}>Indonesia</option>
-                                                                    <option value="Philippines" ${param.country == 'Philippines' ? 'selected' : ''}>Philippines</option>
-                                                                    <option value="Cambodia" ${param.country == 'Cambodia' ? 'selected' : ''}>Campuchia</option>
-                                                                    <option value="Laos" ${param.country == 'Laos' ? 'selected' : ''}>Lào</option>
-                                                                    <option value="Myanmar" ${param.country == 'Myanmar' ? 'selected' : ''}>Myanmar</option>
-                                                                    <option value="Brunei" ${param.country== 'Brunei' ? 'selected' : ''}>Brunei</option>
-                                                                    <option value="Timor-Leste" ${param.country == 'Timor-Leste' ? 'selected' : ''}>Đông Timor (Timor-Leste)</option>
-                                                                </select>
+                                                                        <c:forEach var="c" items="${countries}">
+                                                                            <option value="${c.countryName}" ${param.country == c.countryName ? 'selected' : ''}>${c.countryName}</option>
+                                                                        </c:forEach>
+                                                                    </select>
+                                                          
                                                             </div>
                                                         </div>
                                                     </div>
-                                                                
+
                                                     <!-- Mùa đẹp nhất -->
                                                     <div class="col-md d-flex">
                                                         <div class="form-group p-4">
@@ -122,7 +115,7 @@
                 <div class="row">
                     <c:choose>
                         <c:when test="${empty islands}">
-                             <div class="col-12">
+                            <div class="col-12">
                                 <div class="text-center rounded-3 py-4">
                                     <h5 class="mb-1">Không có đảo nào ở quốc gia này</h5>
                                     <p class="mb-0">Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>

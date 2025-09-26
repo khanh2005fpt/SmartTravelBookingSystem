@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import model.Country;
 import model.Island;
 
 /**
@@ -62,7 +63,7 @@ public class SearchIslandController extends HttpServlet {
 
         String country = request.getParameter("country");
         String bestSeason = request.getParameter("bestSeason");
-
+        
 // Lấy số trang hiện tại từ request, mặc định trang 1
         int page = 1;
         String pageParam = request.getParameter("page");
@@ -76,7 +77,7 @@ public class SearchIslandController extends HttpServlet {
 
         int pageSize = 6; // số đảo mỗi trang
         IslandDao id = new IslandDao();
-
+        List<Country> countries = id.getAllCountries();
 // Lấy tổng số đảo theo điều kiện tìm kiếm
         int totalIslands = id.getTotalIslands(); // nếu muốn search kết hợp, cần viết thêm getTotalIslandsSearch
         int totalPages = (int) Math.ceil((double) totalIslands / pageSize);
@@ -94,7 +95,7 @@ public class SearchIslandController extends HttpServlet {
         if (fromIndex <= toIndex) {
             pagedList = list.subList(fromIndex, toIndex);
         }
-
+          request.setAttribute("countries", countries);
         request.setAttribute("islands", pagedList);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);

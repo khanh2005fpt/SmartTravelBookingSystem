@@ -11,12 +11,31 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.Country;
 
 /**
  *
  * @author Admin
  */
 public class IslandDao extends DBContext {
+
+    public List<Country> getAllCountries() {
+        List<Country> list = new ArrayList<>();
+        String sql = "SELECT * FROM Countries";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Country c = new Country();
+                c.setCountryId(rs.getInt("countryId"));
+                c.setCountryName(rs.getString("countryName"));
+                list.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     public List<Island> getIslands() {
         List<Island> list = new ArrayList<>();
@@ -45,7 +64,7 @@ public class IslandDao extends DBContext {
         String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE islandId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, id); 
+            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) { // chỉ cần lấy 1 island thôi
                 Island i = new Island();
@@ -149,7 +168,7 @@ public class IslandDao extends DBContext {
     public static void main(String[] args) {
         IslandDao id = new IslandDao();
         List<Island> i = id.searchIslands("Thái Lan", "");
-        
+
         System.out.println(i.toString());
     }
 }
