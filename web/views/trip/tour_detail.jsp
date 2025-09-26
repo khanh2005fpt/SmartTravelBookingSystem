@@ -106,28 +106,49 @@
                 <div class="col-lg-4">
                     <div class="card shadow">
                         <div class="card-body bg-light">
-                            <h5 class="mb-3 text-primary">Giá Tour</h5>
-                            <h4 class="text-primary font-weight-bold">${tour.price} VNĐ</h4>
 
-                            <form>
-                                <div class="form-group mb-3">
-                                    <label for="departureDate">Ngày khởi hành</label>
-                                    <input type="date" class="form-control" id="departureDate" name="departureDate" required>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="adult">Người lớn (> 9 tuổi)</label>
-                                    <input type="number" class="form-control" id="adult" value="2" min="1">
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="child">Trẻ em (2-9 tuổi)</label>
-                                    <input type="number" class="form-control" id="child" value="0" min="0">
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="infant">Trẻ nhỏ (< 2 tuổi)</label>
-                                    <input type="number" class="form-control" id="infant" value="0" min="0">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">Yêu cầu đặt</button>
-                            </form>
+                            <div class="card shadow-sm p-4">
+                                <h5 class="mb-3 text-primary">Giá Tour</h5>
+                                <h4 class="text-primary font-weight-bold">${tour.price} VNĐ</h4>
+
+                                <h5 class="mb-4 text-primary font-weight-bold">🏨 Đặt phòng khách sạn</h5>
+                                <form>
+                                    <div class="form-group mb-3">
+                                        <label for="checkIn"><i class="bi bi-calendar-date"></i> Ngày nhận phòng</label>
+                                        <input type="date" class="form-control" id="checkIn" name="checkIn" required>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="checkOut"><i class="bi bi-calendar-date-fill"></i> Ngày trả phòng</label>
+                                        <input type="date" class="form-control" id="checkOut" name="checkOut" required>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="guests"><i class="bi bi-people"></i> Số khách</label>
+                                            <input type="number" class="form-control" id="guests" value="1" min="1">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="rooms"><i class="bi bi-door-open"></i> Số phòng</label>
+                                            <input type="number" class="form-control" id="rooms" value="1" min="1">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="roomType"><i class="bi bi-house-door"></i> Loại phòng</label>
+                                            <select class="form-control" id="roomType">
+                                                <option>Tiêu chuẩn</option>
+                                                <option>Cao cấp</option>
+                                                <option>Suite</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-block font-weight-bold">
+                                        <i class="bi bi-check-circle"></i> Đặt phòng ngay
+                                    </button>
+                                </form>
+                            </div>
+
+
                         </div>
                     </div>
                 </div>

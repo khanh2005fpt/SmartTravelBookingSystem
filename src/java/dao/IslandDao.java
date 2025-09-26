@@ -20,7 +20,7 @@ public class IslandDao extends DBContext {
 
     public List<Island> getIslands() {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands";
+        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -28,7 +28,7 @@ public class IslandDao extends DBContext {
                 Island i = new Island();
                 i.setIslandId(rs.getInt("islandId"));
                 i.setIslandName(rs.getString("islandName"));
-                i.setCountry(rs.getString("country"));
+                i.setCountryName(rs.getString("countryName"));
                 i.setDescription(rs.getString("description"));
                 i.setBestSeason(rs.getString("bestSeason"));
                 i.setActivities(rs.getString("activities"));
@@ -42,7 +42,7 @@ public class IslandDao extends DBContext {
     }
 
     public Island getIslandById(int id) {
-        String sql = "SELECT * FROM Islands WHERE islandId = ?";
+        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE islandId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id); 
@@ -51,7 +51,7 @@ public class IslandDao extends DBContext {
                 Island i = new Island();
                 i.setIslandId(rs.getInt("islandId"));
                 i.setIslandName(rs.getString("islandName"));
-                i.setCountry(rs.getString("country"));
+                i.setCountryName(rs.getString("countryName"));
                 i.setDescription(rs.getString("description"));
                 i.setBestSeason(rs.getString("bestSeason"));
                 i.setActivities(rs.getString("activities"));
@@ -64,27 +64,21 @@ public class IslandDao extends DBContext {
         return null; // không tìm thấy thì trả về null
     }
 
-    public List<Island> searchIslands(String name, String country, String season) {
+    public List<Island> searchIslands(String country, String season) {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands WHERE 1=1";
+        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE 1=1";
 
-        if (name != null && !name.isEmpty()) {
-            sql += " AND islandName LIKE ?";
-        }
         if (country != null && !country.isEmpty()) {
-            sql += " AND country LIKE ?";
+            sql += " AND b.countryName LIKE ?";
         }
         if (season != null && !season.isEmpty()) {
-            sql += " AND bestSeason = ?";
+            sql += " AND a.bestSeason = ?";
         }
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
 
             int idx = 1;
-            if (name != null && !name.isEmpty()) {
-                ps.setString(idx++, "%" + name + "%");
-            }
             if (country != null && !country.isEmpty()) {
                 ps.setString(idx++, "%" + country + "%");
             }
@@ -97,7 +91,7 @@ public class IslandDao extends DBContext {
                 list.add(new Island(
                         rs.getInt("islandId"),
                         rs.getString("islandName"),
-                        rs.getString("country"),
+                        rs.getString("countryName"),
                         rs.getString("description"),
                         rs.getString("bestSeason"),
                         rs.getString("activities"),
@@ -112,7 +106,7 @@ public class IslandDao extends DBContext {
 
     public List<Island> getIslandsByPage(int page, int pageSize) {
         List<Island> list = new ArrayList<>();
-        String sql = "Select * from Islands order by islandId offset ? rows fetch next ? rows only";
+        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId order by islandId offset ? rows fetch next ? rows only";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -123,7 +117,7 @@ public class IslandDao extends DBContext {
                 list.add(new Island(
                         rs.getInt("islandId"),
                         rs.getString("islandName"),
-                        rs.getString("country"),
+                        rs.getString("countryName"),
                         rs.getString("description"),
                         rs.getString("bestSeason"),
                         rs.getString("activities"),
@@ -154,7 +148,8 @@ public class IslandDao extends DBContext {
 
     public static void main(String[] args) {
         IslandDao id = new IslandDao();
-        List<Island> i = id.searchIslands("", "", "Xuân");
+        List<Island> i = id.searchIslands("Thái Lan", "");
+        
         System.out.println(i.toString());
     }
 }

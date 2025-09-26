@@ -148,7 +148,7 @@
                                     </p>
 
                                     <h3><a href="#">${hotel.hotelName}</a></h3>
-                                    <p class="location"><span class="fa fa-map-marker"></span> ${hotel.country}</p>
+                                    <p class="location"><span class="fa fa-map-marker"></span> ${hotel.countryName}</p>
                                     <ul>
                                         <li><span class="flaticon-shower"></span>${hotel.roomAvailable}</li>
                                         <li><span class="flaticon-king-size"></span>${hotel.roomType}</li>

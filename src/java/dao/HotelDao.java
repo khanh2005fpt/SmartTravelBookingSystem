@@ -20,7 +20,7 @@ public class HotelDao extends DBContext {
 
     public List<Hotel> getHotels() {
         List<Hotel> list = new ArrayList<>();
-        String sql = "select * from hotels a join islands b on a.islandId = b.islandId";
+        String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -29,7 +29,7 @@ public class HotelDao extends DBContext {
                 h.setHotelId(rs.getInt("hotelId"));
                 h.setIslandId(rs.getInt("islandId"));
                 h.setHotelName(rs.getString("hotelName"));
-                h.setCountry(rs.getString("country"));
+                h.setCountryName(rs.getString("countryName"));
                 h.setHotelImageUrl(rs.getString("hotelImageUrl"));
                 h.setRoomType(rs.getString("roomType"));
                 h.setPricePerNight(rs.getInt("pricePerNight"));
@@ -45,7 +45,7 @@ public class HotelDao extends DBContext {
     
      public List<Hotel> getListHotelsById(int id) {
         List<Hotel> list = new ArrayList<>();
-        String sql = "select * from hotels a join islands b on a.islandId = b.islandId where b.islandId = ?";
+        String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id); 
@@ -55,7 +55,7 @@ public class HotelDao extends DBContext {
                 h.setHotelId(rs.getInt("hotelId"));
                 h.setIslandId(rs.getInt("islandId"));
                 h.setHotelName(rs.getString("hotelName"));
-                h.setCountry(rs.getString("country"));
+                h.setCountryName(rs.getString("countryName"));
                 h.setHotelImageUrl(rs.getString("hotelImageUrl"));
                 h.setRoomType(rs.getString("roomType"));
                 h.setPricePerNight(rs.getInt("pricePerNight"));
@@ -71,10 +71,10 @@ public class HotelDao extends DBContext {
 
     public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) {
         List<Hotel> list = new ArrayList<>();
-        String sql = "select * from Hotels a join Islands b on a.islandId = b.islandId where 1=1";
+        String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where 1=1";
 
         if (country != null && !country.isEmpty()) {
-            sql += " and country like ?";
+            sql += " and c.countryName like ?";
         }
 
         if (roomType != null && !roomType.isEmpty()) {
@@ -112,7 +112,7 @@ public class HotelDao extends DBContext {
                 Hotel h = new Hotel();
                 h.setHotelId(rs.getInt("hotelId"));
                 h.setHotelName(rs.getString("hotelName"));
-                h.setCountry(rs.getString("country"));
+                h.setCountryName(rs.getString("countryName"));
                 h.setHotelImageUrl(rs.getString("hotelImageUrl"));
                 h.setRoomType(rs.getString("roomType"));
                 h.setPricePerNight(rs.getInt("pricePerNight"));

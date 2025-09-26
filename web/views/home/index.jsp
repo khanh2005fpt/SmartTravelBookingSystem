@@ -62,7 +62,7 @@
                                                                     <option value="Cambodia" ${param.country == 'Cambodia' ? 'selected' : ''}>Campuchia</option>
                                                                     <option value="Laos" ${param.country == 'Laos' ? 'selected' : ''}>Lào</option>
                                                                     <option value="Myanmar" ${param.country == 'Myanmar' ? 'selected' : ''}>Myanmar</option>
-                                                                    <option value="Brunei" ${param.country == 'Brunei' ? 'selected' : ''}>Brunei</option>
+                                                                    <option value="Brunei" ${param.country== 'Brunei' ? 'selected' : ''}>Brunei</option>
                                                                     <option value="Timor-Leste" ${param.country == 'Timor-Leste' ? 'selected' : ''}>Đông Timor (Timor-Leste)</option>
                                                                 </select>
                                                             </div>
@@ -142,7 +142,7 @@
                                         <div class="card-body">
                                             <h5 class="card-title">${island.islandName}</h5>
                                             <p class="card-text text-muted">
-                                                <i class="fa fa-map-marker"></i> Vị trí: ${island.country}
+                                                <i class="fa fa-map-marker"></i> Vị trí: ${island.countryName}
                                             </p>
                                             <p class="card-text">
                                                 <strong>Mùa tốt để tham gia:</strong> Mùa ${island.bestSeason}

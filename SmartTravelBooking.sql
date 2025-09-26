@@ -12,7 +12,7 @@ CREATE TABLE Users (
     phone NVARCHAR(20),
     role VARCHAR(20) CHECK (role IN ('CUSTOMER','ADMIN','SERVICE PROVIDER','BOOKING MANAGER', 'STAFF')) DEFAULT 'CUSTOMER',
     createdAt DATETIME DEFAULT GETDATE(),
-	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
+	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE',
 );
 go
 
@@ -26,15 +26,24 @@ CREATE TABLE UserProfiles (
 );
 go 
 
+CREATE TABLE Countries (
+    countryId INT IDENTITY(1,1) PRIMARY KEY,
+    countryName NVARCHAR(100) UNIQUE NOT NULL,
+);
+go
+
+
+
 -- Bảng Islands
 CREATE TABLE Islands (
     islandId INT IDENTITY(1,1) PRIMARY KEY,
     islandName NVARCHAR(100) NOT NULL,
-    country NVARCHAR(100) NOT NULL,
+    countryId INT NOT NULL,
     description NVARCHAR(500),
     bestSeason NVARCHAR(50),
     activities NVARCHAR(255),
-    imageUrl NVARCHAR(255)
+    imageUrl NVARCHAR(255),
+    FOREIGN KEY (countryId) REFERENCES Countries(countryId)
 );
 
 
@@ -80,19 +89,6 @@ CREATE TABLE Hotels (
 
 go
 select * from hotels a join islands b on a.islandId = b.islandId where a.islandId = 1
-
--- Bảng VehiclesToIsland (phương tiện đến đảo)
-CREATE TABLE VehiclesToIsland (
-    vehicleId INT IDENTITY(1,1) PRIMARY KEY,
-    islandId INT NOT NULL,
-    vehicleType NVARCHAR(50) CHECK (vehicleType IN ('CAR','BOAT')),
-    providerName NVARCHAR(100),
-    pricePerDay DECIMAL(10,3),
-    capacity INT,
-    description NVARCHAR(255),
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId)
-);
-go
 
 
 
@@ -151,12 +147,12 @@ CREATE TABLE Bookings (
     bookingDate DATETIME DEFAULT GETDATE(),
     checkIn DATE,
     checkOut DATE,
-    totalAmount DECIMAL(10,3),
+    totalAmount INT,
     status VARCHAR(20) CHECK (status IN ('CONFIRMED','CANCELLED','PENDING')) DEFAULT 'PENDING',
     FOREIGN KEY (userId) REFERENCES Users(userId),
-    FOREIGN KEY (tripsId) REFERENCES Trips(tripId) ON DELETE CASCADE
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
 );
-
+drop table bookings
 -- Bảng Payments
   
 CREATE TABLE Payments (
@@ -250,7 +246,7 @@ CREATE TABLE Notifications (
 );
 go
 
--- favourite trips , servies
+-- favourite services
 CREATE TABLE Favorites (
     favoriteId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
@@ -313,11 +309,25 @@ VALUES
 --2.island
 
 select * from bookings
-select * from islands
+select * from islands a join countries b on a.countryId = b.countryId
 
-INSERT INTO Islands (islandName, country, description, bestSeason, activities, imageUrl)
+INSERT INTO Countries (countryName) VALUES
+(N'Việt Nam'),
+(N'Lào'),
+(N'Campuchia'),
+(N'Thái Lan'),
+(N'Myanmar'),
+(N'Malaysia'),
+(N'Singapore'),
+(N'Indonesia'),
+(N'Philippines'),
+(N'Brunei'),
+(N'Đông Timor');
+select * from Countries
+
+INSERT INTO Islands (islandName, countryId, description, bestSeason, activities, imageUrl)
 VALUES
-(N'Phú Quốc', N'Vietnam', 
+(N'Phú Quốc', 1, 
  N'Phú Quốc là hòn đảo lớn nhất Việt Nam, nổi tiếng với bãi cát trắng mịn, 
  nước biển trong xanh và những rặng san hô đa dạng. Du khách có thể tham 
  quan các làng chài truyền thống, trải nghiệm câu cá, lặn biển, khám phá 
@@ -326,7 +336,7 @@ VALUES
  N'Bơi lội, Lặn biển, Ngắm san hô, Tham quan làng chài, Khám phá vườn tiêu', 
  N'views/home/images/islands/phuquoc.jpg'),
 
-(N'Langkawi', N'Malaysia', 
+(N'Langkawi', 6, 
  N'Langkawi là quần đảo nằm ở bờ biển phía Tây Bắc Malaysia, nổi bật với 
  phong cảnh thiên nhiên tươi đẹp, rừng mưa nhiệt đới và những bãi biển 
  hoang sơ. Du khách có thể tham gia các tour khám phá đảo, đi cáp treo 
@@ -335,7 +345,7 @@ VALUES
  N'Tham quan, Lặn biển, Đi cáp treo, Khám phá rừng mưa', 
  N'views/home/images/islands/Langkawi.jpg'),
 
-(N'Phuket', N'Thailand', 
+(N'Phuket', 4, 
  N'Phuket là hòn đảo lớn nhất Thái Lan, nổi tiếng với bãi biển Patong sôi động, 
  các khu phố ẩm thực, và nightlife náo nhiệt. Du khách có thể thư giãn trên bãi 
  biển, tham gia các môn thể thao dưới nước, hoặc khám phá các ngôi chùa và khu 
@@ -344,7 +354,7 @@ VALUES
  N'Tắm biển, Lặn biển, Nightlife, Tham quan chùa, Tham gia các tour đảo', 
  N'views/home/images/islands/phuket.jpg'),
 
-(N'Bali', N'Indonesia', 
+(N'Bali', 8, 
  N'Bali nổi tiếng với văn hóa Hindu độc đáo, nhiều ngôi đền cổ kính và cảnh quan 
  thiên nhiên tuyệt đẹp. Hòn đảo này còn hấp dẫn du khách với các bãi biển lý tưởng 
  để lướt sóng, trải nghiệm yoga, và khám phá các làng nghề truyền thống.', 
@@ -352,7 +362,7 @@ VALUES
  N'Lướt sóng, Tham quan đền chùa, Tắm biển, Yoga, Khám phá làng nghề', 
  N'views/home/images/islands/bali.jpg'),
 
-(N'Boracay', N'Philippines', 
+(N'Boracay', 9, 
  N'Boracay là hòn đảo nhỏ nhưng nổi tiếng với bãi cát trắng mịn trải dài, 
  nước biển trong xanh và hoạt động nightlife sôi động. Du khách có thể tham gia 
  các môn thể thao dưới nước, đi thuyền ngắm hoàng hôn, hoặc thư giãn tại các 
@@ -361,7 +371,7 @@ VALUES
  N'Tắm biển, Thể thao dưới nước, Nightlife, Tham quan đảo bằng thuyền', 
  N'views/home/images/islands/boracay.jpg'),
 
-(N'Sihanoukville', N'Cambodia', 
+(N'Sihanoukville', 3, 
  N'Sihanoukville là thành phố ven biển của Campuchia với nhiều bãi biển 
  đẹp và các đảo nhỏ xung quanh. Du khách có thể tắm biển, lặn ngắm san hô, 
  đi thuyền khám phá các đảo hoang sơ, và trải nghiệm ẩm thực địa phương.', 
@@ -369,7 +379,7 @@ VALUES
  N'Tắm biển, Lặn ngắm san hô, Đi thuyền, Tham quan đảo', 
  N'views/home/images/islands/sihanoukville.jpg'),
 
-(N'Tioman', N'Malaysia', 
+(N'Tioman', 6, 
  N'Tioman là hòn đảo nhiệt đới nổi tiếng với rừng rậm, rạn san hô đa dạng 
  và thiên nhiên hoang sơ. Du khách có thể lặn biển ngắm san hô, leo núi 
  khám phá rừng, hoặc tham gia các hoạt động dã ngoại ngoài trời.', 
@@ -377,7 +387,7 @@ VALUES
  N'Lặn biển, Leo núi, Ngắm san hô, Khám phá rừng nhiệt đới', 
  N'views/home/images/islands/tioman.jpg'),
 
-(N'Koh Samui', N'Thailand', 
+(N'Koh Samui', 4, 
  N'Koh Samui là hòn đảo nổi tiếng với bãi biển cát trắng, thác nước tuyệt đẹp 
  và các ngôi chùa linh thiêng. Du khách có thể tắm biển, tham quan chùa, 
  trải nghiệm spa truyền thống Thái, và thưởng thức ẩm thực địa phương.', 
@@ -385,7 +395,7 @@ VALUES
  N'Tắm biển, Tham quan chùa, Nightlife, Spa truyền thống, Tham quan thác nước', 
  N'views/home/images/islands/kohsamui.jpg'),
 
-(N'Nusa Penida', N'Indonesia', 
+(N'Nusa Penida', 8, 
  N'Nusa Penida nổi bật với vách đá cao, nước biển trong xanh và các điểm lặn 
  ngắm san hô tuyệt đẹp. Hòn đảo hoang sơ này thích hợp cho những ai yêu thiên 
  nhiên và thích khám phá các cảnh quan độc đáo.', 
@@ -393,7 +403,7 @@ VALUES
  N'Lặn biển, Ngắm san hô, Tham quan vách đá, Leo núi, Khám phá thiên nhiên', 
  N'views/home/images/islands/nusapenida.jpg'),
 
-(N'Palawan', N'Philippines', 
+(N'Palawan', 9, 
  N'Palawan là hòn đảo nổi tiếng với đầm phá xanh ngọc, bãi biển đẹp và các 
  vách đá vôi kỳ vĩ. Du khách có thể tham gia tour island-hopping, chèo kayak, 
  khám phá hang động và trải nghiệm cuộc sống ven biển.', 

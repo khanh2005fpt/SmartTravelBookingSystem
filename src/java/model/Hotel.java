@@ -12,7 +12,7 @@ public class Hotel {
     private int hotelId;
     private int islandId;
     private String hotelName;
-    private String country;
+    private String countryName;
     private String hotelImageUrl;
     private String roomType;
     private int pricePerNight;
@@ -22,11 +22,11 @@ public class Hotel {
     public Hotel() {
     }
 
-    public Hotel(int hotelId, int islandId, String hotelName, String country, String hotelImageUrl, String roomType, int pricePerNight, int roomAvailable, double rating) {
+    public Hotel(int hotelId, int islandId, String hotelName, String countryName, String hotelImageUrl, String roomType, int pricePerNight, int roomAvailable, double rating) {
         this.hotelId = hotelId;
         this.islandId = islandId;
         this.hotelName = hotelName;
-        this.country = country;
+        this.countryName = countryName;
         this.hotelImageUrl = hotelImageUrl;
         this.roomType = roomType;
         this.pricePerNight = pricePerNight;
@@ -61,12 +61,12 @@ public class Hotel {
         this.hotelName = hotelName;
     }
 
-    public String getCountry() {
-        return country;
+    public String getCountryName() {
+        return countryName;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
     }
 
     public String getHotelImageUrl() {
@@ -111,7 +111,7 @@ public class Hotel {
 
     @Override
     public String toString() {
-        return "Hotel{" + "hotelId=" + hotelId + ", islandId=" + islandId + ", hotelName=" + hotelName + ", country=" + country + ", hotelImageUrl=" + hotelImageUrl + ", roomType=" + roomType + ", pricePerNight=" + pricePerNight + ", roomAvailable=" + roomAvailable + ", rating=" + rating + '}' + "\n";
+        return "Hotel{" + "hotelId=" + hotelId + ", islandId=" + islandId + ", hotelName=" + hotelName + ", countryName=" + countryName + ", hotelImageUrl=" + hotelImageUrl + ", roomType=" + roomType + ", pricePerNight=" + pricePerNight + ", roomAvailable=" + roomAvailable + ", rating=" + rating + '}' + "\n";
     }
 
     

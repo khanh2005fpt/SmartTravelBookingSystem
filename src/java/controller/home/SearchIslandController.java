@@ -59,7 +59,7 @@ public class SearchIslandController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String islandName = request.getParameter("islandName");
+
         String country = request.getParameter("country");
         String bestSeason = request.getParameter("bestSeason");
 
@@ -82,7 +82,7 @@ public class SearchIslandController extends HttpServlet {
         int totalPages = (int) Math.ceil((double) totalIslands / pageSize);
 
 // Lấy danh sách đảo theo tìm kiếm + phân trang
-        List<Island> list = id.searchIslands(islandName, country, bestSeason);
+        List<Island> list = id.searchIslands(country, bestSeason);
 
 // Lấy subset cho trang hiện tại
         int fromIndex = (page - 1) * pageSize;
