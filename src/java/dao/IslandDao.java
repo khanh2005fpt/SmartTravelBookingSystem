@@ -48,10 +48,12 @@ public class IslandDao extends DBContext {
                 i.setIslandId(rs.getInt("islandId"));
                 i.setIslandName(rs.getString("islandName"));
                 i.setCountryName(rs.getString("countryName"));
-                i.setDescription(rs.getString("description"));
+                i.setShortDescription(rs.getString("shortDescription"));
+                i.setLongDescription(rs.getString("longDescription"));
                 i.setBestSeason(rs.getString("bestSeason"));
                 i.setActivities(rs.getString("activities"));
                 i.setImageUrl(rs.getString("imageUrl"));
+                i.setLocation(rs.getString("location"));
                 list.add(i);
             }
         } catch (Exception e) {
@@ -71,10 +73,12 @@ public class IslandDao extends DBContext {
                 i.setIslandId(rs.getInt("islandId"));
                 i.setIslandName(rs.getString("islandName"));
                 i.setCountryName(rs.getString("countryName"));
-                i.setDescription(rs.getString("description"));
+                i.setShortDescription(rs.getString("shortDescription"));
+                i.setLongDescription(rs.getString("longDescription"));
                 i.setBestSeason(rs.getString("bestSeason"));
                 i.setActivities(rs.getString("activities"));
                 i.setImageUrl(rs.getString("imageUrl"));
+                i.setLocation(rs.getString("location"));
                 return i; // trả về Island
             }
         } catch (Exception e) {
@@ -111,10 +115,12 @@ public class IslandDao extends DBContext {
                         rs.getInt("islandId"),
                         rs.getString("islandName"),
                         rs.getString("countryName"),
-                        rs.getString("description"),
+                        rs.getString("shortDescription"),
+                        rs.getString("longDescription"),
                         rs.getString("bestSeason"),
                         rs.getString("activities"),
-                        rs.getString("imageUrl")
+                        rs.getString("imageUrl"),
+                        rs.getString("location")
                 ));
             }
         } catch (Exception e) {
@@ -137,10 +143,12 @@ public class IslandDao extends DBContext {
                         rs.getInt("islandId"),
                         rs.getString("islandName"),
                         rs.getString("countryName"),
-                        rs.getString("description"),
+                        rs.getString("shortDescription"),
+                        rs.getString("longDescription"),
                         rs.getString("bestSeason"),
                         rs.getString("activities"),
-                        rs.getString("imageUrl")
+                        rs.getString("imageUrl"),
+                        rs.getString("location")
                 ));
             }
         } catch (SQLException e) {

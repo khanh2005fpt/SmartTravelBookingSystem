@@ -42,17 +42,9 @@
                                                 <div class="icon"><span class="fa fa-globe"></span></div>
                                                 <select name="country" id="country" class="form-control">
                                                     <option value="" ${empty param.country ? 'selected' : ''}>-- Chọn quốc gia --</option>
-                                                    <option value="Vietnam" ${param.country == 'Vietnam' ? 'selected' : ''}>Việt Nam</option>
-                                                    <option value="Thailand" ${param.country == 'Thailand' ? 'selected' : ''}>Thái Lan</option>
-                                                    <option value="Malaysia" ${param.country == 'Malaysia' ? 'selected' : ''}>Malaysia</option>
-                                                    <option value="Singapore" ${param.country == 'Singapore' ? 'selected' : ''}>Singapore</option>
-                                                    <option value="Indonesia" ${param.country == 'Indonesia' ? 'selected' : ''}>Indonesia</option>
-                                                    <option value="Philippines" ${param.country == 'Philippines' ? 'selected' : ''}>Philippines</option>
-                                                    <option value="Cambodia" ${param.country == 'Cambodia' ? 'selected' : ''}>Campuchia</option>
-                                                    <option value="Laos" ${param.country == 'Laos' ? 'selected' : ''}>Lào</option>
-                                                    <option value="Myanmar" ${param.country == 'Myanmar' ? 'selected' : ''}>Myanmar</option>
-                                                    <option value="Brunei" ${param.country == 'Brunei' ? 'selected' : ''}>Brunei</option>
-                                                    <option value="Timor-Leste" ${param.country == 'Timor-Leste' ? 'selected' : ''}>Đông Timor (Timor-Leste)</option>
+                                                    <c:forEach var="c" items="${countries}">
+                                                        <option value="${c.countryName}" ${param.country == c.countryName ? 'selected' : ''}>${c.countryName}</option>
+                                                    </c:forEach>
                                                 </select>
                                             </div>
                                         </div>
@@ -118,45 +110,58 @@
         <section class="ftco-section">
             <div class="container">
                 <div class="row">
-                    <c:forEach var="hotel" items="${hotels}">
-                        <div class="col-md-4 ftco-animate">
-                            <div class="project-wrap hotel">
-                                <a href="#" class="img" 
-                                   style="background-image: url('${pageContext.request.contextPath}/${hotel.hotelImageUrl}');">
-                                    <span class="price">${hotel.pricePerNight}đ/đêm</span>
-                                </a>
-                                <div class="text p-4">
-                                    <p class="star mb-2">
-                                        <c:set var="fullStars" value="${hotel.rating - (hotel.rating % 1)}" />
-                                        <c:set var="hasHalfStar" value="${hotel.rating % 1 >= 0.5}" />
-                                        <c:set var="emptyStars" value="${5 - fullStars - (hasHalfStar ? 1 : 0)}" />
-
-                                        <!-- Sao đầy -->
-                                        <c:forEach begin="1" end="${fullStars}" var="i">
-                                            <span class="fa fa-star text-warning"></span>
-                                        </c:forEach>
-
-                                        <!-- Sao nửa -->
-                                        <c:if test="${hasHalfStar}">
-                                            <span class="fa fa-star-half-o text-warning"></span>
-                                        </c:if>
-
-                                        <!-- Sao rỗng -->
-                                        <c:forEach begin="1" end="${emptyStars}" var="i">
-                                            <span class="fa fa-star-o text-warning"></span>
-                                        </c:forEach>
-                                    </p>
-
-                                    <h3><a href="#">${hotel.hotelName}</a></h3>
-                                    <p class="location"><span class="fa fa-map-marker"></span> ${hotel.countryName}</p>
-                                    <ul>
-                                        <li><span class="flaticon-shower"></span>${hotel.roomAvailable}</li>
-                                        <li><span class="flaticon-king-size"></span>${hotel.roomType}</li>
-                                    </ul>
+                    <c:choose>
+                        <c:when test="${empty hotels}">
+                            <div class="col-12">
+                                <div class="text-center rounded-3 py-4">
+                                    <h5 class="mb-1">Không có khách sạn ở quốc gia này</h5>
+                                    <p class="mb-0">Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>
                                 </div>
                             </div>
-                        </div>
-                    </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="hotel" items="${hotels}">
+                                <div class="col-md-4 ftco-animate">
+                                    <div class="project-wrap hotel">
+                                        <a href="#" class="img" 
+                                           style="background-image: url('${pageContext.request.contextPath}/${hotel.hotelImageUrl}');">
+                                            <span class="price">${hotel.pricePerNight}đ/đêm</span>
+                                        </a>
+                                        <div class="text p-4">
+                                            <p class="star mb-2">
+                                                <c:set var="fullStars" value="${hotel.rating - (hotel.rating % 1)}" />
+                                                <c:set var="hasHalfStar" value="${hotel.rating % 1 >= 0.5}" />
+                                                <c:set var="emptyStars" value="${5 - fullStars - (hasHalfStar ? 1 : 0)}" />
+
+                                                <!-- Sao đầy -->
+                                                <c:forEach begin="1" end="${fullStars}" var="i">
+                                                    <span class="fa fa-star text-warning"></span>
+                                                </c:forEach>
+
+                                                <!-- Sao nửa -->
+                                                <c:if test="${hasHalfStar}">
+                                                    <span class="fa fa-star-half-o text-warning"></span>
+                                                </c:if>
+
+                                                <!-- Sao rỗng -->
+                                                <c:forEach begin="1" end="${emptyStars}" var="i">
+                                                    <span class="fa fa-star-o text-warning"></span>
+                                                </c:forEach>
+                                            </p>
+
+                                            <h3><a href="#">${hotel.hotelName}</a></h3>
+                                            <p class="location"><span class="fa fa-map-marker"></span> ${hotel.countryName}</p>
+                                            <ul>
+                                                <li><span class="flaticon-shower"></span>${hotel.roomAvailable}</li>
+                                                <li><span class="flaticon-king-size"></span>${hotel.roomType}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
+
                 </div>
 
                 <!-- Phân trang -->

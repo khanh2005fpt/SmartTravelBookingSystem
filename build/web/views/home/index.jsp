@@ -53,11 +53,11 @@
                                                                 <div class="icon"><span class="fa fa-globe"></span></div>
                                                                 <select name="country" id="country" class="form-control">
                                                                     <option value="" ${empty param.country ? 'selected' : ''}>-- Chọn quốc gia --</option>
-                                                                        <c:forEach var="c" items="${countries}">
-                                                                            <option value="${c.countryName}" ${param.country == c.countryName ? 'selected' : ''}>${c.countryName}</option>
-                                                                        </c:forEach>
-                                                                    </select>
-                                                          
+                                                                    <c:forEach var="c" items="${countries}">
+                                                                        <option value="${c.countryName}" ${param.country == c.countryName ? 'selected' : ''}>${c.countryName}</option>
+                                                                    </c:forEach>
+                                                                </select>
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -125,31 +125,31 @@
                         <c:otherwise>
                             <c:forEach var="island" items="${islands}">
                                 <div class="col-md-4 mb-4">
-                                    <div class="card h-100 shadow-sm">
+                                    <div class="card h-100 shadow-lg border-0 rounded-3">
                                         <!-- Ảnh -->
                                         <img src="${pageContext.request.contextPath}/${island.imageUrl}" 
-                                             class="card-img-top" alt="${island.islandName}" 
-                                             style="height: 200px; object-fit: cover;">
+                                             class="card-img-top rounded-top-3" alt="${island.islandName}" 
+                                             style="height: 220px; object-fit: cover;">
 
                                         <!-- Nội dung -->
-                                        <div class="card-body">
-                                            <h5 class="card-title">${island.islandName}</h5>
-                                            <p class="card-text text-muted">
-                                                <i class="fa fa-map-marker"></i> Vị trí: ${island.countryName}
-                                            </p>
-                                            <p class="card-text">
-                                                <strong>Mùa tốt để tham gia:</strong> Mùa ${island.bestSeason}
-                                            </p>
-                                            <p class="card-text">
-                                                <strong>Hoạt động:</strong> ${island.activities}
-                                            </p>
-                                        </div>
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title fw-bold text-primary mb-2">${island.islandName}</h5>
 
-                                        <!-- Footer -->
-                                        <div class="card-footer bg-white border-0">
-                                            <a href="${pageContext.request.contextPath}/IslandDetailController?detailId=${island.islandId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                            <p class="card-text text-muted small mb-2">
+                                                <i class="fa fa-map-marker text-danger"></i> ${island.countryName}
+                                            </p>
+
+                                            <p class="card-text text-secondary small mb-2">
+                                                ${island.shortDescription}
+                                            </p>
+
+                                            <!-- Đẩy footer xuống cuối card -->
+                                            <div class="mt-auto pt-2">
+                                                <a href="${pageContext.request.contextPath}/IslandDetailController?detailId=${island.islandId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                            </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </c:forEach>
                         </c:otherwise>

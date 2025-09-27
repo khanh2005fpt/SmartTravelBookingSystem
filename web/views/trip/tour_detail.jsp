@@ -16,7 +16,7 @@
         <div class="container py-5">
             <div class="row g-4">
                 <!-- Cột nội dung tour -->
-                <div class="col-lg-8">
+                <div class="col-lg-7">
 
                     <!-- Card tổng tour -->
                     <div class="card shadow-lg rounded mb-4 border-primary">
@@ -103,55 +103,50 @@
 
 
                 <!-- Cột sidebar -->
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="card shadow">
                         <div class="card-body bg-light">
 
                             <div class="card shadow-sm p-4">
-                                <h5 class="mb-3 text-primary">Giá Tour</h5>
-                                <h4 class="text-primary font-weight-bold">${tour.price} VNĐ</h4>
-
-                                <h5 class="mb-4 text-primary font-weight-bold">🏨 Đặt phòng khách sạn</h5>
+                               
+                                <h5 class="mb-4 text-primary font-weight-bold">✈️ Đặt Tour Ngay</h5>
                                 <form>
                                     <div class="form-group mb-3">
-                                        <label for="checkIn"><i class="bi bi-calendar-date"></i> Ngày nhận phòng</label>
-                                        <input type="date" class="form-control" id="checkIn" name="checkIn" required>
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <label for="checkOut"><i class="bi bi-calendar-date-fill"></i> Ngày trả phòng</label>
-                                        <input type="date" class="form-control" id="checkOut" name="checkOut" required>
+                                        <label for="departureDate"><i class="bi bi-calendar-event"></i> Ngày khởi hành</label>
+                                        <input type="date" class="form-control" id="departureDate" name="departureDate" required>
                                     </div>
 
                                     <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                            <label for="guests"><i class="bi bi-people"></i> Số khách</label>
-                                            <input type="number" class="form-control" id="guests" value="1" min="1">
+                                        <div class="form-group col-md-4 d-flex flex-column">
+                                            <label for="adult"><i class="bi bi-person-fill"></i> Người lớn</label>
+                                            <input type="number" class="form-control mt-auto" id="adult" name="adult" value="1" min="1" required>
                                         </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="rooms"><i class="bi bi-door-open"></i> Số phòng</label>
-                                            <input type="number" class="form-control" id="rooms" value="1" min="1">
+                                        <div class="form-group col-md-4 d-flex flex-column">
+                                            <label for="child"><i class="bi bi-person"></i> Trẻ em (6-11 tuổi)</label>
+                                            <input type="number" class="form-control" id="child" name="child" value="0" min="0">
                                         </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="roomType"><i class="bi bi-house-door"></i> Loại phòng</label>
-                                            <select class="form-control" id="roomType">
-                                                <option>Tiêu chuẩn</option>
-                                                <option>Cao cấp</option>
-                                                <option>Suite</option>
-                                            </select>
+                                        <div class="form-group col-md-4 d-flex flex-column">
+                                            <label for="infant"><i class="bi bi-person-badge"></i> Trẻ nhỏ (&lt; 6 tuổi)</label>
+                                            <input type="number" class="form-control" id="infant" name="infant" value="0" min="0">
                                         </div>
                                     </div>
 
+                                   
+                                    
+                                     <h5 class="mb-3 text-primary">Giá Tour</h5>
+                                <h4 class="text-primary font-weight-bold">${tour.price} VNĐ</h4>
+
+
                                     <button type="submit" class="btn btn-primary btn-block font-weight-bold">
-                                        <i class="bi bi-check-circle"></i> Đặt phòng ngay
+                                        <i class="bi bi-check-circle"></i> Đặt Tour Ngay
                                     </button>
                                 </form>
                             </div>
 
-
                         </div>
                     </div>
                 </div>
+
 
             </div>
         </div>

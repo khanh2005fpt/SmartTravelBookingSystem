@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <html lang="vi">
     <head>
         <%@ include file="/views/common/css.jsp" %>
@@ -27,14 +28,14 @@
                     <!-- Island Information -->
                     <div class="col-md-6">
                         <h2 class="display-5 fw-bold text-primary mb-3">${island.islandName}</h2>
-                        <p class="text-muted mb-4 lead">${island.description}</p>
+                        <p class="text-muted mb-4 lead">${island.longDescription}</p>
 
                         <ul class="list-unstyled mb-4">
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="bi bi-geo-alt-fill text-danger me-3 fs-5"></i>
                                 <div>
-                                    <strong class="d-block text-dark">Quốc gia</strong>
-                                    <span class="text-muted">${island.country}</span>
+                                    <strong class="d-block text-dark">Vị trí</strong>
+                                    <span class="text-muted">${island.location}</span>
                                 </div>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
@@ -56,7 +57,7 @@
                         <a href="#toursSection" 
                            class="btn btn-primary btn-lg fw-medium shadow-sm d-inline-flex align-items-center"
                            style="transition: all 0.3s ease;">
-                            <i class="bi bi-cart-plus-fill me-2"></i>Đặt tour ngay
+                            <i class="bi bi-cart-plus-fill me-2"></i>Khám phá tours
                         </a>
                     </div>
                 </div>
@@ -81,13 +82,9 @@
                                     <div class="card h-100 border-0 shadow-lg rounded-3 overflow-hidden">
                                         <!-- Ảnh tour -->
                                         <div class="ratio ratio-16x9">
-
-
                                             <img src="${pageContext.request.contextPath}/${tour.tourImageUrl}" 
                                                  alt="${tour.tourName}" 
                                                  class="card-img-top object-fit-cover">
-
-
                                         </div>
 
                                         <!-- Nội dung -->
@@ -99,10 +96,19 @@
                                                 ${tour.description}
                                             </p>
 
+                                            <!-- Thông tin thêm -->
+<!--                                            <ul class="list-unstyled small mb-3 text-muted">
+                                                <li>⏳ Thời gian: <span class="fw-semibold text-dark">ngày</span></li>
+                                                <li>📍 Điểm khởi hành: <span class="fw-semibold text-dark"></span></li>
+                                                <li>👥 Còn lại: <span class="fw-semibold text-dark"></span> chỗ</li>
+                                            </ul>-->
 
                                             <div class="mt-auto">
                                                 <p class="text-primary fw-bold fs-5 mb-2 text-end">
-                                                    ${tour.price} VNĐ/người
+                                                   Giá tour: 
+                                                   <fmt:setLocale value="vi_VN" />
+
+                                                   <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
                                                 </p>
                                                 <a href="TourDetailController?tourid=${tour.tourId}" 
                                                    class="btn btn-primary w-100 rounded-pill">
@@ -117,6 +123,7 @@
                     </c:choose>
                 </div>
             </section>
+
 
 
 
@@ -162,7 +169,11 @@
                                             <!-- Giá -->
                                             <div class="mt-auto">
                                                 <p class="text-danger fw-bold fs-5 mb-2 text-end">
-                                                    ${hotel.pricePerNight} VNĐ<span class="text-muted fs-6">/đêm</span>
+                                                    <fmt:setLocale value="vi_VN" />
+
+                                                   <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/>
+                                                   VND<span class="text-muted fs-6">/đêm</span>
+                                               
                                                 </p>
 
                                                 <!-- Nút đặt phòng -->

@@ -39,17 +39,19 @@ CREATE TABLE Islands (
     islandId INT IDENTITY(1,1) PRIMARY KEY,
     islandName NVARCHAR(100) NOT NULL,
     countryId INT NOT NULL,
-    description NVARCHAR(500),
+    shortDescription NVARCHAR(500),
+    longDescription NVARCHAR(MAX),
     bestSeason NVARCHAR(50),
     activities NVARCHAR(255),
     imageUrl NVARCHAR(255),
+    location NVARCHAR(500) NULL,
     FOREIGN KEY (countryId) REFERENCES Countries(countryId)
 );
 
 
+select * from countries
 select * from Islands where 1=1 and islandName like 'Phu Quoc'
 go
-
 CREATE TABLE Tours (
     tourId INT PRIMARY KEY IDENTITY(1,1),
     islandId INT NOT NULL,
@@ -68,6 +70,7 @@ CREATE TABLE TourItinerary (
     description NVARCHAR(MAX),      -- Nội dung chi tiết
     FOREIGN KEY (tourId) REFERENCES Tours(tourId)
 );
+select*from TourItinerary
 
 -- Bảng Hotels
 CREATE TABLE Hotels (
@@ -325,91 +328,87 @@ INSERT INTO Countries (countryName) VALUES
 (N'Đông Timor');
 select * from Countries
 
-INSERT INTO Islands (islandName, countryId, description, bestSeason, activities, imageUrl)
+INSERT INTO Islands (islandName, countryId, shortDescription, longDescription, bestSeason, activities, imageUrl, location)
 VALUES
 (N'Phú Quốc', 1, 
- N'Phú Quốc là hòn đảo lớn nhất Việt Nam, nổi tiếng với bãi cát trắng mịn, 
- nước biển trong xanh và những rặng san hô đa dạng. Du khách có thể tham 
- quan các làng chài truyền thống, trải nghiệm câu cá, lặn biển, khám phá 
- vườn tiêu và thưởng thức hải sản tươi ngon.', 
- N'Hạ', 
- N'Bơi lội, Lặn biển, Ngắm san hô, Tham quan làng chài, Khám phá vườn tiêu', 
- N'views/home/images/islands/phuquoc.jpg'),
+ N'Đảo lớn nhất Việt Nam, nổi tiếng với bãi biển đẹp và hải sản tươi ngon.',
+ N'Phú Quốc là hòn đảo lớn nhất Việt Nam, nổi tiếng với bãi cát trắng mịn, nước biển trong xanh và những rặng san hô đa dạng. Du khách có thể tham quan các làng chài truyền thống, trải nghiệm câu cá, lặn biển, khám phá vườn tiêu và thưởng thức hải sản tươi ngon.',
+ N'Hạ',
+ N'Bơi lội, Lặn biển, Ngắm san hô, Tham quan làng chài, Khám phá vườn tiêu',
+ N'views/home/images/islands/phuquoc.jpg',
+ N'Xã Dương Đông, Thành phố Phú Quốc, Tỉnh Kiên Giang, Việt Nam'),
 
-(N'Langkawi', 6, 
- N'Langkawi là quần đảo nằm ở bờ biển phía Tây Bắc Malaysia, nổi bật với 
- phong cảnh thiên nhiên tươi đẹp, rừng mưa nhiệt đới và những bãi biển 
- hoang sơ. Du khách có thể tham gia các tour khám phá đảo, đi cáp treo 
- ngắm toàn cảnh, hoặc trải nghiệm các hoạt động dưới nước.', 
- N'Hạ', 
- N'Tham quan, Lặn biển, Đi cáp treo, Khám phá rừng mưa', 
- N'views/home/images/islands/Langkawi.jpg'),
+(N'Langkawi', 6,
+ N'Quần đảo đẹp của Malaysia với rừng mưa nhiệt đới và biển hoang sơ.',
+ N'Langkawi là quần đảo nằm ở bờ biển phía Tây Bắc Malaysia, nổi bật với phong cảnh thiên nhiên tươi đẹp, rừng mưa nhiệt đới và những bãi biển hoang sơ. Du khách có thể tham gia các tour khám phá đảo, đi cáp treo ngắm toàn cảnh, hoặc trải nghiệm các hoạt động dưới nước.',
+ N'Hạ',
+ N'Tham quan, Lặn biển, Đi cáp treo, Khám phá rừng mưa',
+ N'views/home/images/islands/langkawi.jpg',
+ N'Quận Langkawi, Bang Kedah, Malaysia'),
 
-(N'Phuket', 4, 
- N'Phuket là hòn đảo lớn nhất Thái Lan, nổi tiếng với bãi biển Patong sôi động, 
- các khu phố ẩm thực, và nightlife náo nhiệt. Du khách có thể thư giãn trên bãi 
- biển, tham gia các môn thể thao dưới nước, hoặc khám phá các ngôi chùa và khu 
- di tích văn hóa.', 
- N'Thu', 
- N'Tắm biển, Lặn biển, Nightlife, Tham quan chùa, Tham gia các tour đảo', 
- N'views/home/images/islands/phuket.jpg'),
+(N'Phuket', 4,
+ N'Hòn đảo du lịch nổi tiếng nhất Thái Lan với biển đẹp và nightlife sôi động.',
+ N'Phuket là hòn đảo lớn nhất Thái Lan, nổi tiếng với bãi biển Patong sôi động, các khu phố ẩm thực, và nightlife náo nhiệt. Du khách có thể thư giãn trên bãi biển, tham gia các môn thể thao dưới nước, hoặc khám phá các ngôi chùa và khu di tích văn hóa.',
+ N'Thu',
+ N'Tắm biển, Lặn biển, Nightlife, Tham quan chùa, Tour đảo',
+ N'views/home/images/islands/phuket.jpg',
+ N'Phường Patong, Huyện Kathu, Tỉnh Phuket, Thái Lan'),
 
-(N'Bali', 8, 
- N'Bali nổi tiếng với văn hóa Hindu độc đáo, nhiều ngôi đền cổ kính và cảnh quan 
- thiên nhiên tuyệt đẹp. Hòn đảo này còn hấp dẫn du khách với các bãi biển lý tưởng 
- để lướt sóng, trải nghiệm yoga, và khám phá các làng nghề truyền thống.', 
- N'Xuân', 
- N'Lướt sóng, Tham quan đền chùa, Tắm biển, Yoga, Khám phá làng nghề', 
- N'views/home/images/islands/bali.jpg'),
+(N'Bali', 8,
+ N'Đảo thiên đường của Indonesia, nổi tiếng với văn hóa Hindu và đền chùa cổ.',
+ N'Bali nổi tiếng với văn hóa Hindu độc đáo, nhiều ngôi đền cổ kính và cảnh quan thiên nhiên tuyệt đẹp. Hòn đảo này còn hấp dẫn du khách với các bãi biển lý tưởng để lướt sóng, trải nghiệm yoga, và khám phá các làng nghề truyền thống.',
+ N'Xuân',
+ N'Lướt sóng, Tham quan đền chùa, Tắm biển, Yoga, Khám phá làng nghề',
+ N'views/home/images/islands/bali.jpg',
+ N'Huyện Badung, Tỉnh Bali, Indonesia'),
 
-(N'Boracay', 9, 
- N'Boracay là hòn đảo nhỏ nhưng nổi tiếng với bãi cát trắng mịn trải dài, 
- nước biển trong xanh và hoạt động nightlife sôi động. Du khách có thể tham gia 
- các môn thể thao dưới nước, đi thuyền ngắm hoàng hôn, hoặc thư giãn tại các 
- resort sang trọng ven biển.', 
- N'Đông', 
- N'Tắm biển, Thể thao dưới nước, Nightlife, Tham quan đảo bằng thuyền', 
- N'views/home/images/islands/boracay.jpg'),
+(N'Boracay', 9,
+ N'Đảo nhỏ của Philippines nổi tiếng với bãi cát trắng và nightlife.',
+ N'Boracay là hòn đảo nhỏ nhưng nổi tiếng với bãi cát trắng mịn trải dài, nước biển trong xanh và hoạt động nightlife sôi động. Du khách có thể tham gia các môn thể thao dưới nước, đi thuyền ngắm hoàng hôn, hoặc thư giãn tại các resort sang trọng ven biển.',
+ N'Đông',
+ N'Tắm biển, Thể thao dưới nước, Nightlife, Tham quan đảo bằng thuyền',
+ N'views/home/images/islands/boracay.jpg',
+ N'Barangay Balabag, Thị trấn Malay, Tỉnh Aklan, Philippines'),
 
-(N'Sihanoukville', 3, 
- N'Sihanoukville là thành phố ven biển của Campuchia với nhiều bãi biển 
- đẹp và các đảo nhỏ xung quanh. Du khách có thể tắm biển, lặn ngắm san hô, 
- đi thuyền khám phá các đảo hoang sơ, và trải nghiệm ẩm thực địa phương.', 
- N'Đông', 
- N'Tắm biển, Lặn ngắm san hô, Đi thuyền, Tham quan đảo', 
- N'views/home/images/islands/sihanoukville.jpg'),
+(N'Sihanoukville', 3,
+ N'Thành phố biển nổi tiếng của Campuchia với nhiều bãi tắm và đảo nhỏ.',
+ N'Sihanoukville là thành phố ven biển của Campuchia với nhiều bãi biển đẹp và các đảo nhỏ xung quanh. Du khách có thể tắm biển, lặn ngắm san hô, đi thuyền khám phá các đảo hoang sơ, và trải nghiệm ẩm thực địa phương.',
+ N'Đông',
+ N'Tắm biển, Lặn ngắm san hô, Đi thuyền, Tham quan đảo',
+ N'views/home/images/islands/sihanoukville.jpg',
+ N'Phường 3, Thành phố Preah Sihanouk, Tỉnh Preah Sihanouk, Campuchia'),
 
-(N'Tioman', 6, 
- N'Tioman là hòn đảo nhiệt đới nổi tiếng với rừng rậm, rạn san hô đa dạng 
- và thiên nhiên hoang sơ. Du khách có thể lặn biển ngắm san hô, leo núi 
- khám phá rừng, hoặc tham gia các hoạt động dã ngoại ngoài trời.', 
- N'Hạ', 
- N'Lặn biển, Leo núi, Ngắm san hô, Khám phá rừng nhiệt đới', 
- N'views/home/images/islands/tioman.jpg'),
+(N'Tioman', 6,
+ N'Hòn đảo nhiệt đới nổi tiếng của Malaysia với rừng rậm và san hô.',
+ N'Tioman là hòn đảo nhiệt đới nổi tiếng với rừng rậm, rạn san hô đa dạng và thiên nhiên hoang sơ. Du khách có thể lặn biển ngắm san hô, leo núi khám phá rừng, hoặc tham gia các hoạt động dã ngoại ngoài trời.',
+ N'Hạ',
+ N'Lặn biển, Leo núi, Ngắm san hô, Khám phá rừng nhiệt đới',
+ N'views/home/images/islands/tioman.jpg',
+ N'Mukim Tioman, Quận Rompin, Bang Pahang, Malaysia'),
 
-(N'Koh Samui', 4, 
- N'Koh Samui là hòn đảo nổi tiếng với bãi biển cát trắng, thác nước tuyệt đẹp 
- và các ngôi chùa linh thiêng. Du khách có thể tắm biển, tham quan chùa, 
- trải nghiệm spa truyền thống Thái, và thưởng thức ẩm thực địa phương.', 
- N'Xuân', 
- N'Tắm biển, Tham quan chùa, Nightlife, Spa truyền thống, Tham quan thác nước', 
- N'views/home/images/islands/kohsamui.jpg'),
+(N'Koh Samui', 4,
+ N'Đảo lớn thứ hai Thái Lan với spa, chùa chiền và nightlife.',
+ N'Koh Samui là hòn đảo nổi tiếng với bãi biển cát trắng, thác nước tuyệt đẹp và các ngôi chùa linh thiêng. Du khách có thể tắm biển, tham quan chùa, trải nghiệm spa truyền thống Thái, và thưởng thức ẩm thực địa phương.',
+ N'Xuân',
+ N'Tắm biển, Tham quan chùa, Nightlife, Spa truyền thống, Tham quan thác nước',
+ N'views/home/images/islands/kohsamui.jpg',
+ N'Xã Bo Phut, Huyện Ko Samui, Tỉnh Surat Thani, Thái Lan'),
 
-(N'Nusa Penida', 8, 
- N'Nusa Penida nổi bật với vách đá cao, nước biển trong xanh và các điểm lặn 
- ngắm san hô tuyệt đẹp. Hòn đảo hoang sơ này thích hợp cho những ai yêu thiên 
- nhiên và thích khám phá các cảnh quan độc đáo.', 
- N'Thu', 
- N'Lặn biển, Ngắm san hô, Tham quan vách đá, Leo núi, Khám phá thiên nhiên', 
- N'views/home/images/islands/nusapenida.jpg'),
+(N'Nusa Penida', 8,
+ N'Đảo hoang sơ của Indonesia nổi bật với vách đá và biển xanh.',
+ N'Nusa Penida nổi bật với vách đá cao, nước biển trong xanh và các điểm lặn ngắm san hô tuyệt đẹp. Hòn đảo hoang sơ này thích hợp cho những ai yêu thiên nhiên và thích khám phá các cảnh quan độc đáo.',
+ N'Thu',
+ N'Lặn biển, Ngắm san hô, Tham quan vách đá, Leo núi, Khám phá thiên nhiên',
+ N'views/home/images/islands/nusapenida.jpg',
+ N'Huyện Klungkung, Tỉnh Bali, Indonesia'),
 
-(N'Palawan', 9, 
- N'Palawan là hòn đảo nổi tiếng với đầm phá xanh ngọc, bãi biển đẹp và các 
- vách đá vôi kỳ vĩ. Du khách có thể tham gia tour island-hopping, chèo kayak, 
- khám phá hang động và trải nghiệm cuộc sống ven biển.', 
- N'Hạ', 
- N'Đi thuyền đảo, Kayak, Lặn ngắm san hô, Khám phá hang động, Tham gia tour island-hopping', 
- N'views/home/images/islands/palawan.jpg');
+(N'Palawan', 9,
+ N'Hòn đảo đẹp nhất Philippines với đầm phá xanh ngọc và vách đá vôi.',
+ N'Palawan là hòn đảo nổi tiếng với đầm phá xanh ngọc, bãi biển đẹp và các vách đá vôi kỳ vĩ. Du khách có thể tham gia tour island-hopping, chèo kayak, khám phá hang động và trải nghiệm cuộc sống ven biển.',
+ N'Hạ',
+ N'Đi thuyền đảo, Kayak, Lặn ngắm san hô, Khám phá hang động, Island-hopping',
+ N'views/home/images/islands/palawan.jpg',
+ N'Thành phố Puerto Princesa, Tỉnh Palawan, Philippines');
 
 
 --3.hotel
