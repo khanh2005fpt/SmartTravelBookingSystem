@@ -12,9 +12,11 @@ CREATE TABLE Users (
     phone NVARCHAR(20),
     role VARCHAR(20) CHECK (role IN ('CUSTOMER','ADMIN','SERVICE PROVIDER','BOOKING MANAGER', 'STAFF')) DEFAULT 'CUSTOMER',
     createdAt DATETIME DEFAULT GETDATE(),
-	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE',
+	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
 );
 go
+
+select * from islands
 
 
 
@@ -45,7 +47,7 @@ CREATE TABLE Islands (
     activities NVARCHAR(255),
     imageUrl NVARCHAR(255),
     location NVARCHAR(500) NULL,
-    FOREIGN KEY (countryId) REFERENCES Countries(countryId)
+    FOREIGN KEY (countryId) REFERENCES Countries(countryId) ON DELETE CASCADE
 );
 
 
@@ -59,7 +61,7 @@ CREATE TABLE Tours (
     description NVARCHAR(MAX),
     price INT CHECK(price >= 0),  -- dùng INT lưu VNĐ
 	tourImageUrl NVARCHAR(500),  
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId)
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
 CREATE TABLE TourItinerary (
@@ -68,8 +70,10 @@ CREATE TABLE TourItinerary (
     dayNumber INT NOT NULL,         -- Ngày 1, Ngày 2, ...
     title NVARCHAR(255) NOT NULL,   -- Ví dụ: "Ngày 1: HCM → Singapore"
     description NVARCHAR(MAX),      -- Nội dung chi tiết
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
 );
+
+
 select*from TourItinerary
 
 -- Bảng Hotels
@@ -118,7 +122,7 @@ CREATE TABLE Flights (
     arrivalTime DATETIME NOT NULL,
     price DECIMAL(10,3) NOT NULL,
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
-    FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId)
+    FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 GO
 
@@ -132,7 +136,7 @@ CREATE TABLE IslandVehicles (
     modelName NVARCHAR(100),
     pricePerDay DECIMAL(10,3),
     capacity INT,
-    availability BIT DEFAULT 1,
+    availability INT,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
@@ -140,22 +144,49 @@ CREATE TABLE IslandVehicles (
 go
 
 
--- Bảng Bookings (đặt tour hoặc dịch vụ lẻ)
 CREATE TABLE Bookings (
     bookingId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','FLIGHT','VEHICLE')) NULL,  -- dịch vụ riêng lẻ
-    refId INT NOT NULL,         -- id của hotel/flight/vehicle
-    tripsId INT NOT NULL,        -- id của gói tour (package)
+    customerId INT NOT NULL,
+    price INT, 
     bookingDate DATETIME DEFAULT GETDATE(),
-    checkIn DATE,
-    checkOut DATE,
-    totalAmount INT,
-    status VARCHAR(20) CHECK (status IN ('CONFIRMED','CANCELLED','PENDING')) DEFAULT 'PENDING',
-    FOREIGN KEY (userId) REFERENCES Users(userId),
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
+    FOREIGN KEY (customerId) REFERENCES Users(userId)
 );
-drop table bookings
+
+CREATE TABLE BookingDetails (
+    bookingDetailId INT IDENTITY(1,1) PRIMARY KEY,
+    bookingId INT NOT NULL,
+    tourId INT NULL,
+    hotelId INT NULL,
+    flightId INT NULL,
+    vehicleId INT NULL,
+    adultQuantity INT NOT NULL,
+    childQuantity INT NOT NULL,
+    departureDate DATE NOT NULL,
+    unitPrice INT NOT NULL,
+    totalPrice AS (
+        (adultQuantity * unitPrice) + 
+        (childQuantity * unitPrice * 0.7)
+    ) PERSISTED,
+
+    FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE,
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId),
+    FOREIGN KEY (hotelId) REFERENCES Hotels(hotelId),
+    FOREIGN KEY (flightId) REFERENCES Flights(flightId),
+    FOREIGN KEY (vehicleId) REFERENCES IslandVehicles(vehicleId)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- Bảng Payments
   
 CREATE TABLE Payments (
@@ -558,13 +589,6 @@ VALUES
 -- Xem dữ liệu
 select * from Hotels;
 
-
--- vehicle to island
-INSERT INTO VehiclesToIsland (islandId, vehicleType, providerName, pricePerDay, capacity, description)
-VALUES
-(1, 'BOAT', 'Phuket Ferry', 100.000, 20, 'Ferry from mainland to phuket'),
-(2, 'CAR', 'Phu Quoc Car Service', 70.000,6, 'Private car rental');
- 
 -- arilines
 
 INSERT INTO Airlines (airlineName, iataCode, country, hotline, logoUrl)
@@ -580,41 +604,64 @@ VALUES
 ('VJ456', 2, 'Ho Chi Minh', 'Phuket', 2, '2025-10-21 18:30', '2025-10-21 23:00', 850.000);
 select * from flights
 -- vehicle insland
-INSERT INTO IslandVehicles (islandId, companyName, vehicleType, modelName, pricePerDay, capacity)
+-- Phú Quốc (islandId = 1)
+INSERT INTO IslandVehicles (islandId, companyName, vehicleType, modelName, pricePerDay, capacity, availability)
 VALUES
-(1, 'Phu Quoc Rentals', 'MOTORBIKE', 'Honda Air Blade', 15.000, 2),
-(2, 'Con Dao Rentals', 'CAR', 'Toyota Innova', 50.000, 4)
--- trips
+(1, N'Phú Quốc Travel Co.', 'CAR', N'Toyota Innova', 45.000, 7, 10),
+(1, N'Phú Quốc Motorbike', 'MOTORBIKE', N'Honda AirBlade', 12.000, 2, 25),
+(1, N'Phú Quốc Green Mobility', 'ELECTRIC_CART', N'EV Shuttle 8 chỗ', 60.000, 8, 5),
+(1, N'Phú Quốc Bicycle Rental', 'BICYCLE', N'City Bike', 5.000, 1, 40);
 
-INSERT INTO Trips (tripName, description, basePrice, startDate, endDate)
-VALUES
-('Phu Quoc Adventure', '3-day adventure on Phu Quoc island', 520.000, '2025-11-01', '2025-11-03'),
-('Bali History Tour', '2-day historical tour', 879.899, '2025-11-05', '2025-11-06');
+-- Langkawi (islandId = 2)
+(2, N'Langkawi Rent-A-Car', 'CAR', N'Nissan Almera', 40.000, 5, 15),
+(2, N'Langkawi Scooter Hub', 'SCOOTER', N'Yamaha NMax', 15.000, 2, 20),
+(2, N'Langkawi Eco Transport', 'BICYCLE', N'Mountain Bike', 7.000, 1, 30);
 
--- trip services
+-- Phuket (islandId = 3)
+(3, N'Phuket Car Rental', 'CAR', N'Toyota Vios', 42.000, 5, 12),
+(3, N'Phuket Scooter Service', 'SCOOTER', N'Honda Click 125i', 14.000, 2, 35),
+(3, N'Phuket E-Mobility', 'ELECTRIC_CART', N'Golf Cart 6 seats', 55.000, 6, 6);
 
-INSERT INTO TripServices (tripId, serviceType, refId)
-VALUES
-(1, 'HOTEL', 1),
-(1, 'FLIGHT', 2),
-(1, 'VEHICLE', 1),
-(2, 'HOTEL', 3),
-(2, 'FLIGHT', 2);
+-- Bali (islandId = 4)
+(4, N'Bali Car Hire', 'CAR', N'Toyota Avanza', 48.000, 7, 14),
+(4, N'Bali Bike Adventures', 'MOTORBIKE', N'Honda CRF150L', 18.000, 2, 20),
+(4, N'Bali Cycling Tours', 'BICYCLE', N'MTB Trek 3700', 8.000, 1, 25);
 
---  TripItineraries
-INSERT INTO TripItineraries (tripId, dayNumber, activity, location)
-VALUES
-(1, 1, 'Tham quan bãi biển Sunrise', 'Bãi biển Sunrise'),
-(1, 2, 'Leo núi và chụp ảnh', 'Núi Dragon');
+-- Boracay (islandId = 5)
+(5, N'Boracay Car Hire', 'CAR', N'Hyundai Accent', 38.000, 5, 8),
+(5, N'Boracay Scooter Zone', 'SCOOTER', N'Honda Beat', 13.000, 2, 20),
+(5, N'Boracay E-Rides', 'ELECTRIC_CART', N'EV Cart 4 seats', 50.000, 4, 5);
+
+-- Sihanoukville (islandId = 6)
+(6, N'Sihanoukville Car Rental', 'CAR', N'Kia Morning', 35.000, 4, 10),
+(6, N'Sihanoukville Bikes', 'MOTORBIKE', N'Honda Wave Alpha', 10.000, 2, 30),
+(6, N'Sihanoukville Bicycle Club', 'BICYCLE', N'City Bike', 6.000, 1, 15);
+
+-- Tioman (islandId = 7)
+(7, N'Tioman Car Rental', 'CAR', N'Toyota Rush', 46.000, 7, 5),
+(7, N'Tioman Eco Bikes', 'BICYCLE', N'MTB Merida', 9.000, 1, 20),
+(7, N'Tioman Motorbike Hire', 'MOTORBIKE', N'Yamaha XSR 155', 17.000, 2, 12);
+
+-- Koh Samui (islandId = 8)
+(8, N'Koh Samui Car Service', 'CAR', N'Mitsubishi Xpander', 50.000, 7, 10),
+(8, N'Koh Samui Scooter Center', 'SCOOTER', N'Honda PCX', 16.000, 2, 22),
+(8, N'Koh Samui Bicycle Rental', 'BICYCLE', N'Road Bike Giant', 9.000, 1, 18);
+
+-- Nusa Penida (islandId = 9)
+(9, N'Nusa Penida Cars', 'CAR', N'Toyota Avanza', 47.000, 7, 7),
+(9, N'Nusa Penida Scooters', 'SCOOTER', N'Honda Vario 150', 14.000, 2, 25),
+(9, N'Nusa Penida Eco Tours', 'BICYCLE', N'MTB Polygon', 7.500, 1, 12);
+
+-- Palawan (islandId = 10)
+(10, N'Palawan Car Rental', 'CAR', N'Toyota Fortuner', 60.000, 7, 6),
+(10, N'Palawan Motorbike Hire', 'MOTORBIKE', N'Honda XR150L', 20.000, 2, 15),
+(10, N'Palawan Bicycle Service', 'BICYCLE', N'Trekking Bike', 8.000, 1, 10);
 
 
--- bookings
 
-INSERT INTO Bookings 
-(userId, serviceType, refId, tripsId, checkIn, checkOut, totalAmount, status)
-VALUES
-(4, 'FLIGHT', 1, 1, '2025-11-01', '2025-11-03', 567.150, 'CONFIRMED'),
-(4, 'HOTEL', 2, 2, '2025-12-16', '2025-12-19', 380.000, 'PENDING');
+
+
+
 
 -- payments
 

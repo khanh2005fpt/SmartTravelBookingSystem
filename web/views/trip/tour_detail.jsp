@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <html lang="vi">
     <head>
         <%@ include file="/views/common/css.jsp" %>
@@ -19,7 +21,7 @@
                 <div class="col-lg-7">
 
                     <!-- Card tổng tour -->
-                    <div class="card shadow-lg rounded mb-4 border-primary">
+                    <div class="card shadow-lg rounded mb-4 border">
                         <div class="card-body bg-light">
 
                             <!-- Tiêu đề tour -->
@@ -32,10 +34,10 @@
                             </div>
 
                             <!-- Hình ảnh chính -->
-                            <div class="mb-4">
+                            <div class="mb-4" style="width:100%; height:500px; overflow:hidden;">
                                 <img src="${tour.tourImageUrl}" 
                                      alt="${tour.tourName}" 
-                                     class="img-fluid w-100 rounded shadow-sm border border-primary">
+                                     class="img-fluid w-100 h-100 rounded shadow-sm border border-primary">
                             </div>
 
                             <!-- Mô tả tour -->
@@ -104,50 +106,44 @@
 
                 <!-- Cột sidebar -->
                 <div class="col-lg-5">
-                    <div class="card shadow">
-                        <div class="card-body bg-light">
-
-                            <div class="card shadow-sm p-4">
-                               
-                                <h5 class="mb-4 text-primary font-weight-bold">✈️ Đặt Tour Ngay</h5>
-                                <form>
-                                    <div class="form-group mb-3">
-                                        <label for="departureDate"><i class="bi bi-calendar-event"></i> Ngày khởi hành</label>
-                                        <input type="date" class="form-control" id="departureDate" name="departureDate" required>
-                                    </div>
-
-                                    <div class="form-row">
-                                        <div class="form-group col-md-4 d-flex flex-column">
-                                            <label for="adult"><i class="bi bi-person-fill"></i> Người lớn</label>
-                                            <input type="number" class="form-control mt-auto" id="adult" name="adult" value="1" min="1" required>
-                                        </div>
-                                        <div class="form-group col-md-4 d-flex flex-column">
-                                            <label for="child"><i class="bi bi-person"></i> Trẻ em (6-11 tuổi)</label>
-                                            <input type="number" class="form-control" id="child" name="child" value="0" min="0">
-                                        </div>
-                                        <div class="form-group col-md-4 d-flex flex-column">
-                                            <label for="infant"><i class="bi bi-person-badge"></i> Trẻ nhỏ (&lt; 6 tuổi)</label>
-                                            <input type="number" class="form-control" id="infant" name="infant" value="0" min="0">
-                                        </div>
-                                    </div>
-
-                                   
-                                    
-                                     <h5 class="mb-3 text-primary">Giá Tour</h5>
-                                <h4 class="text-primary font-weight-bold">${tour.price} VNĐ</h4>
 
 
-                                    <button type="submit" class="btn btn-primary btn-block font-weight-bold">
-                                        <i class="bi bi-check-circle"></i> Đặt Tour Ngay
-                                    </button>
-                                </form>
+
+                    <div class="card shadow-sm p-4">
+
+                        <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
+
+                        <form action="" method="">
+
+
+                            <div class="mb-3">
+                                <label class="form-label">Ngày khởi hành</label>
+                                <input type="date" class="form-control" name="departureDate" required>
                             </div>
 
-                        </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label class="form-label">Người lớn ( > 15 tuổi)</label>
+                                    <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Trẻ em ( <= 15 tuổi)</label>
+                                    <input type="number" class="form-control" name="childQty" min="0" value="0" required>
+                                </div>
+                            </div>
+                            <h5 class="mb-3 text-primary mt-4">Giá Tour</h5>
+
+                            <h4 class="text-primary font-weight-bold mb-3">
+                                <fmt:setLocale value="vi_VN" />
+                                <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ</h4>
+                            <button type="submit" class="btn btn-primary btn-block font-weight-bold">
+                                <i class="bi bi-check-circle"></i> Đặt Tour Ngay
+                            </button>
+                        </form>
+
+
                     </div>
                 </div>
-
-
             </div>
         </div>
 
@@ -155,5 +151,8 @@
 
         <!-- Bootstrap 5 JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+
+        <%@ include file="/views/common/script.jsp" %>
     </body>
 </html>
