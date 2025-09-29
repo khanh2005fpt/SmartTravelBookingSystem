@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Tour;
+import model.TourActivities;
 import model.TourItinerary;
 
 /**
@@ -65,11 +66,10 @@ public class TourDetailController extends HttpServlet {
             TourDao tourDao = new TourDao();
             Tour tour = tourDao.getTourDetailById(tourId);
             List<TourItinerary> itineraries = tourDao.getListTourItineriesById(tourId);
-
             // Gửi dữ liệu sang JSP
              if (tour != null)
              {
-                  request.setAttribute("tour", tour);
+            request.setAttribute("tour", tour);
             request.setAttribute("itineraries", itineraries);
 
             // forward sang trang detail.jsp

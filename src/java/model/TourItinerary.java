@@ -4,6 +4,8 @@
  */
 package model;
 
+import java.util.List;
+
 /**
  *
  * @author Admin
@@ -12,19 +14,21 @@ public class TourItinerary {
     private int itineraryId;     
     private int tourId;          
     private int dayNumber;       
-    private String title;       
-    private String description;  
+    private String title;   
+    private List<TourActivities> activities;
 
     public TourItinerary() {
     }
 
-    public TourItinerary(int itineraryId, int tourId, int dayNumber, String title, String description) {
+    public TourItinerary(int itineraryId, int tourId, int dayNumber, String title, List<TourActivities> activities) {
         this.itineraryId = itineraryId;
         this.tourId = tourId;
         this.dayNumber = dayNumber;
         this.title = title;
-        this.description = description;
+        this.activities = activities;
     }
+
+    
 
     public int getItineraryId() {
         return itineraryId;
@@ -58,18 +62,21 @@ public class TourItinerary {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public List<TourActivities> getActivities() {
+        return activities;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setActivities(List<TourActivities> activities) {
+        this.activities = activities;
     }
 
     @Override
     public String toString() {
-        return "TourItinerary{" + "itineraryId=" + itineraryId + ", tourId=" + tourId + ", dayNumber=" + dayNumber + ", title=" + title + ", description=" + description + '}' + "\n";
+        return "TourItinerary{" + "itineraryId=" + itineraryId + ", tourId=" + tourId + ", dayNumber=" + dayNumber + ", title=" + title + ", activities=" + activities + '}' + "\n";
     }
+    
+    
+    
     
     
 }

@@ -61,13 +61,23 @@
                                         <div id="collapse${iti.dayNumber}" 
                                              class="accordion-collapse collapse" 
                                              aria-labelledby="heading${iti.dayNumber}" 
-                                             >
+                                             data-bs-parent="#accordionExample">
+
                                             <div class="accordion-body">
-                                                ${iti.description}
+                                                <ul class="list-group list-group-flush">
+                                                    <c:forEach var="act" items="${iti.activities}">
+                                                        <li class="list-group-item">
+                                                            <strong>${act.activityOrder}. ${act.activityTitle}</strong><br>
+                                                            <small class="text-muted">${act.description}</small>
+                                                        </li>
+                                                    </c:forEach>
+                                                </ul>
                                             </div>
+
                                         </div>
                                     </div>
                                 </c:forEach>
+
                             </div>
 
 
@@ -76,25 +86,38 @@
                             <ul class="list-group shadow-sm rounded border border-primary">
                                 <li class="list-group-item">
                                     <i class="bi bi-airplane-fill text-primary mr-2"></i>
-                                    Vận chuyển: Vé máy bay khứ hồi, xe đưa đón tham quan theo chương trình …
+                                    Vận chuyển: Vé máy bay khứ hồi, xe đưa đón, tàu cao tốc/phà ra đảo …
                                 </li>
                                 <li class="list-group-item">
                                     <i class="bi bi-building text-primary mr-2"></i>
-                                    Khách sạn: tiêu chuẩn 3-4 sao địa phương …
+                                    Khách sạn & lưu trú: Tiêu chuẩn 2-4 sao, phụ thu phòng đơn nếu đi lẻ …
                                 </li>
                                 <li class="list-group-item">
                                     <i class="bi bi-cup-hot text-primary mr-2"></i>
-                                    Bữa ăn theo chương trình, hướng dẫn viên tiếng Việt …
+                                    Ăn uống: Bữa ăn theo chương trình, đặc sản địa phương, nước uống …
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="bi bi-people-fill text-primary mr-2"></i>
+                                    Hướng dẫn viên & dịch vụ: HDV tiếng Việt/Anh, bảo hiểm, vé tham quan …
                                 </li>
                                 <li class="list-group-item">
                                     <i class="bi bi-wallet2 text-primary mr-2"></i>
-                                    Phụ thu phòng đơn, hành lý gửi, chi phí phát sinh …
+                                    Chi phí không bao gồm: Hành lý ký gửi, ăn uống ngoài chương trình, chi phí cá nhân …
                                 </li>
                                 <li class="list-group-item">
                                     <i class="bi bi-exclamation-triangle-fill text-primary mr-2"></i>
-                                    Điều kiện hủy, thay đổi …
+                                    Điều kiện hủy & thay đổi: Chính sách hoàn/huỷ, phí đổi ngày/đổi tên …
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="bi bi-file-earmark-text-fill text-primary mr-2"></i>
+                                    Giấy tờ & thủ tục: CMND/CCCD, hộ chiếu còn hạn, visa (nếu cần) …
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="bi bi-sun-fill text-primary mr-2"></i>
+                                    Lưu ý đặc biệt: Ảnh hưởng thời tiết, sức khỏe cho hoạt động biển, trẻ em/người già cần giám hộ …
                                 </li>
                             </ul>
+
 
 
                         </div> <!-- /card-body -->

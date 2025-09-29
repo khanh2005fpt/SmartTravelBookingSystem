@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.Tour;
+import model.TourActivities;
 import model.TourItinerary;
 
 /**
@@ -42,14 +43,14 @@ public class TourDao extends DBContext {
         }
         return list;
     }
-    
-     public Tour getTourDetailById(int id) {
+
+    public Tour getTourDetailById(int id) {
         String sql = "select * from tours where tourId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()) { 
+            if (rs.next()) {
                 Tour t = new Tour();
                 t.setTourId(rs.getInt("tourId"));
                 t.setIslandId(rs.getInt("islandId"));
@@ -67,7 +68,7 @@ public class TourDao extends DBContext {
 
     public List<TourItinerary> getListTourItineriesById(int id) {
         List<TourItinerary> list = new ArrayList<>();
-        String sql = "select * from TourItinerary where tourId = ?";
+        String sql = "select * from TourItinerary where tourId = ? order by dayNumber";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
@@ -78,8 +79,30 @@ public class TourDao extends DBContext {
                 tourI.setTourId(rs.getInt("tourId"));
                 tourI.setDayNumber(rs.getInt("dayNumber"));
                 tourI.setTitle(rs.getString("title"));
-                tourI.setDescription(rs.getString("description"));
+                tourI.setActivities(getListTourActivitiesByItineraryId(tourI.getItineraryId()));
                 list.add(tourI);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<TourActivities> getListTourActivitiesByItineraryId(int id) {
+        List<TourActivities> list = new ArrayList<>();
+        String sql = "select * from TourActivities where itineraryId = ? order by activityOrder";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) { // lấy nhiều island
+                TourActivities tourA = new TourActivities();
+                tourA.setActivityId(rs.getInt("activityId"));
+                tourA.setItineraryId(rs.getInt("itineraryId"));
+                tourA.setActivityOrder(rs.getInt("activityOrder"));
+                tourA.setActivityTitle(rs.getString("activityTitle"));
+                tourA.setDescription(rs.getString("description"));
+                list.add(tourA);
             }
         } catch (Exception e) {
             e.printStackTrace();

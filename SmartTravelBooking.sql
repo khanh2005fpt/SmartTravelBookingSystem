@@ -57,7 +57,7 @@ go
 CREATE TABLE Tours (
     tourId INT PRIMARY KEY IDENTITY(1,1),
     islandId INT NOT NULL,
-    tourName NVARCHAR(255) NOT NULL,
+    tourName NVARCHAR(255) UNIQUE NOT NULL,
     description NVARCHAR(MAX),
     price INT CHECK(price >= 0),  -- dùng INT lưu VNĐ
 	tourImageUrl NVARCHAR(500),  
@@ -69,10 +69,19 @@ CREATE TABLE TourItinerary (
     tourId INT NOT NULL,
     dayNumber INT NOT NULL,         -- Ngày 1, Ngày 2, ...
     title NVARCHAR(255) NOT NULL,   -- Ví dụ: "Ngày 1: HCM → Singapore"
-    description NVARCHAR(MAX),      -- Nội dung chi tiết
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE,
+    CONSTRAINT UQ_TourItinerary_Tour_Day UNIQUE (tourId, dayNumber)
 );
 
+CREATE TABLE TourActivities (
+    activityId INT IDENTITY(1,1) PRIMARY KEY,
+    itineraryId INT NOT NULL,
+    activityOrder INT UNIQUE NOT NULL,           -- Thứ tự hiển thị
+    activityTitle NVARCHAR(255), -- Ví dụ: "Wonder Park"
+    description NVARCHAR(MAX),   -- Mô tả chi tiết
+    FOREIGN KEY (itineraryId) REFERENCES TourItinerary(itineraryId),
+	CONSTRAINT UQ_TourActivities_Tour_Day UNIQUE (itineraryId, activityOrder)
+);
 
 select*from TourItinerary
 
@@ -174,18 +183,6 @@ CREATE TABLE BookingDetails (
     FOREIGN KEY (flightId) REFERENCES Flights(flightId),
     FOREIGN KEY (vehicleId) REFERENCES IslandVehicles(vehicleId)
 );
-
-
-
-
-
-
-
-
-
-
-
-
 
 -- Bảng Payments
   
@@ -475,11 +472,6 @@ INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) VALUES
  5500000, 
  N'views/home/images/tours/phuket_khampha.jpg'),
 
-(3, N'Tour Biển Phuket 3N2Đ', 
- N'Tắm biển Patong, du thuyền vịnh Phang Nga.', 
- 4200000, 
- N'views/home/images/tours/phuket_bien.jpg'),
-
 -- Bali (islandId = 4)
 (4, N'Tour Văn hóa & Biển Bali 5N4Đ', 
  N'Thăm đền Tanah Lot, ruộng bậc thang Tegallalang, nghỉ dưỡng tại Kuta Beach.', 
@@ -497,48 +489,82 @@ INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) VALUES
  6000000, 
  N'views/home/images/tours/boracay_bien.jpg'),
 
-(5, N'Tour Nghỉ dưỡng Boracay 3N2Đ', 
- N'Tham quan Diniwid Beach, chèo thuyền buồm Paraw.', 
- 4500000, 
- N'views/home/images/tours/boracay_nghiduong.jpg'),
-
 -- Koh Samui (islandId = 8)
 (8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', 
  N'Thăm Big Buddha Temple, thác Na Muang, chợ đêm Fisherman’s Village.', 
  6500000, 
  N'views/home/images/tours/kohsamui_nghiduong.jpg'),
 
-(8, N'Tour Biển Koh Samui 3N2Đ', 
- N'Tắm biển Chaweng, snorkeling, du thuyền quanh đảo.', 
- 5000000, 
- N'views/home/images/tours/kohsamui_bien.jpg'),
-
 (8, N'Tour Văn hóa Koh Samui 5N4Đ', 
  N'Thăm chùa Wat Plai Laem, trải nghiệm massage Thái, ẩm thực địa phương.', 
  8000000, 
  N'views/home/images/tours/kohsamui_vanhoaspa.jpg');
  select * from tours
-INSERT INTO TourItinerary (tourId, dayNumber, title, description) VALUES
+ drop table Tours
+ select * from TourItinerary
+INSERT INTO TourItinerary (tourId, dayNumber, title) VALUES
 -- Tour 1: Phú Quốc 3N2Đ
-(1, 1, N'Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Đón khách, tham quan Vinpearl Safari.'),
-(1, 2, N'Khám phá Phú Quốc', N'Tắm biển Bãi Sao, tham quan Nhà tù Phú Quốc, thưởng thức hải sản.'),
-(1, 3, N'Phú Quốc → Hà Nội', N'Tự do mua sắm tại chợ đêm Dinh Cậu, trả phòng, bay về Hà Nội.'),
+(1, 1, N'Hà Nội → Phú Quốc'),
+(1, 2, N'Khám phá Phú Quốc'),
+(1, 3, N'Phú Quốc → Hà Nội'),
 
 -- Tour 2: Phú Quốc 4N3Đ
-(2, 1, N'Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Nhận phòng khách sạn, tham quan Dinh Cậu.'),
-(2, 2, N'Lặn biển', N'Lặn ngắm san hô tại Hòn Móng Tay, Hòn Gầm Ghì.'),
-(2, 3, N'Câu cá & BBQ', N'Trải nghiệm câu cá đêm và tiệc BBQ trên biển.'),
-(2, 4, N'Phú Quốc → Hà Nội', N'Mua đặc sản nước mắm, trả phòng, bay về Hà Nội.'),
+(2, 1, N'Hà Nội → Phú Quốc'),
+(2, 2, N'Lặn biển'),
+(2, 3, N'Câu cá & BBQ'),
+(2, 4, N'Phú Quốc → Hà Nội'),
 
 -- Tour 3: Phú Quốc 2N1Đ
-(3, 1, N'Hà Nội → Phú Quốc', N'Tập trung tại sân bay Nội Bài, bay đến Phú Quốc. Thăm làng chài Hàm Ninh, trải nghiệm làm nước mắm.'),
-(3, 2, N'Phú Quốc → Hà Nội', N'Tắm biển, ăn hải sản, trả phòng, bay về Hà Nội.'),
+(3, 1, N'Hà Nội → Phú Quốc'),
+(3, 2, N'Phú Quốc → Hà Nội'),
 
 -- Tour 4: Langkawi 4N3Đ
-(4, 1, N'Hà Nội → Langkawi', N'Tập trung tại sân bay Nội Bài, bay đến Langkawi. Đón khách, nhận phòng, tự do khám phá.'),
-(4, 2, N'SkyBridge', N'Trải nghiệm cầu treo SkyBridge, cáp treo Langkawi.'),
-(4, 3, N'Biển & Shopping', N'Tắm biển Pantai Cenang, mua sắm duty-free.'),
-(4, 4, N'Langkawi → Hà Nội', N'Trả phòng khách sạn, ra sân bay, bay về Hà Nội.');
+(4, 1, N'Hà Nội → Langkawi'),
+(4, 2, N'SkyBridge'),
+(4, 3, N'Biển & Shopping'),
+(4, 4, N'Langkawi → Hà Nội'),
+
+-- Tour 5: Phuket 4N3Đ
+(5, 1, N'Đến Phuket'),
+(5, 2, N'Tham quan đảo Phi Phi'),
+(5, 3, N'Phố cổ Phuket - Show Simon Cabaret'),
+(5, 4, N'Trả khách'),
+
+(6, 1, N'Đền Tanah Lot'),
+(6, 2, N'Tegallalang Rice Terrace'),
+(6, 3, N'Kuta Beach'),
+(6, 4, N'Tham quan Ubud'),
+(6, 5, N'Trả khách'),
+
+(8, 1, N'Spa truyền thống'),
+(8, 2, N'Yoga - Jimbaran Beach'),
+(8, 3, N'Uluwatu Sunset'),
+(8, 4, N'Trả khách'),
+
+(9, 1, N'White Beach'),
+(9, 2, N'Lặn ngắm san hô'),
+(9, 3, N'Tiệc đêm'),
+(9, 4, N'Trả khách'),
+
+(10, 1, N'Diniwid Beach'),
+(10, 2, N'Chèo thuyền Paraw'),
+(10, 3, N'Trả khách'),
+
+(11, 1, N'Big Buddha Temple'),
+(11, 2, N'Thác Na Muang'),
+(11, 3, N'Fisherman’s Village'),
+(11, 4, N'Trả khách'),
+
+(12, 1, N'Chaweng Beach'),
+(12, 2, N'Snorkeling - Du thuyền quanh đảo'),
+(12, 3, N'Trả khách'),
+
+(13, 1, N'Wat Plai Laem'),
+(13, 2, N'Massage Thái'),
+(13, 3, N'Ẩm thực địa phương'),
+(13, 4, N'Tham quan đảo xung quanh'),
+(13, 5, N'Trả khách');
+
 
 select * from TourItinerary
 
