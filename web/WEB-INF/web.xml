@@ -4,8 +4,40 @@
         <servlet-name>Hello</servlet-name>
         <servlet-class>controller.account.Hello</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SearchIslandController</servlet-name>
+        <servlet-class>controller.home.SearchIslandController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>HotelsController</servlet-name>
+        <servlet-class>controller.services.HotelsController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>IslandDetailController</servlet-name>
+        <servlet-class>controller.home.IslandDetailController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TourDetailController</servlet-name>
+        <servlet-class>controller.services.TourDetailController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Hello</servlet-name>
         <url-pattern>/Hello</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SearchIslandController</servlet-name>
+        <url-pattern>/SearchIslandController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HotelsController</servlet-name>
+        <url-pattern>/HotelsController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>IslandDetailController</servlet-name>
+        <url-pattern>/IslandDetailController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TourDetailController</servlet-name>
+        <url-pattern>/TourDetailController</url-pattern>
     </servlet-mapping>
 </web-app>

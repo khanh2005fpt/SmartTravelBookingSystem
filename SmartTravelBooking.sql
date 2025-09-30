@@ -10,12 +10,13 @@ CREATE TABLE Users (
     email VARCHAR(100) UNIQUE NOT NULL,
     fullName VARCHAR(100),
     phone NVARCHAR(20),
-    role VARCHAR(20) CHECK (role IN ('CUSTOMER','ADMIN','SERVICE PROVIDER','BOOKING MANAGER')) DEFAULT 'CUSTOMER',
-
-    createdAt DATETIME DEFAULT GETDATE()
-	status VARCHAR(10) CHECK (status IN ('ACTIVE','LOCKED')) DEFAULT 'ACTIVE',
+    role VARCHAR(20) CHECK (role IN ('CUSTOMER','ADMIN','BOOKING MANAGER', 'STAFF')) DEFAULT 'CUSTOMER',
+    createdAt DATETIME DEFAULT GETDATE(),
+	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
 );
 go
+
+select * from islands
 
 
 
@@ -27,43 +28,84 @@ CREATE TABLE UserProfiles (
 );
 go 
 
+CREATE TABLE Countries (
+    countryId INT IDENTITY(1,1) PRIMARY KEY,
+    countryName NVARCHAR(100) UNIQUE NOT NULL,
+);
+go
+
+
+
 -- Bảng Islands
 CREATE TABLE Islands (
     islandId INT IDENTITY(1,1) PRIMARY KEY,
-    islandName VARCHAR(100) NOT NULL,
-    country VARCHAR(100) NOT NULL,
-    description TEXT,
-    bestSeason VARCHAR(50),
-    activities TEXT,
-    imageUrl VARCHAR(255)
+    islandName NVARCHAR(100) NOT NULL,
+    countryId INT NOT NULL,
+    shortDescription NVARCHAR(500),
+    longDescription NVARCHAR(MAX),
+    bestSeason NVARCHAR(50),
+    activities NVARCHAR(255),
+    imageUrl NVARCHAR(255),
+    location NVARCHAR(500) NULL,
+    FOREIGN KEY (countryId) REFERENCES Countries(countryId) ON DELETE CASCADE
 );
+
+
+select * from countries
+select * from Islands where 1=1 and islandName like 'Phu Quoc'
 go
+CREATE TABLE Tours (
+    tourId INT PRIMARY KEY IDENTITY(1,1),
+    islandId INT NOT NULL,
+    tourName NVARCHAR(255) UNIQUE NOT NULL,
+    description NVARCHAR(MAX),
+    price INT CHECK(price >= 0),  -- dùng INT lưu VNĐ
+	tourImageUrl NVARCHAR(500),  
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+CREATE TABLE TourItinerary (
+    itineraryId INT PRIMARY KEY IDENTITY(1,1),
+    tourId INT NOT NULL,
+    dayNumber INT NOT NULL,         -- Ngày 1, Ngày 2, ...
+    title NVARCHAR(255) NOT NULL,   -- Ví dụ: "Ngày 1: HCM → Singapore"
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE,
+    CONSTRAINT UQ_TourItinerary_Tour_Day UNIQUE (tourId, dayNumber)
+);
+
+
+CREATE TABLE TourActivities (
+    activityId INT IDENTITY(1,1) PRIMARY KEY,
+    itineraryId INT NOT NULL,
+    activityOrder INT  NOT NULL,           -- Thứ tự hiển thị
+    activityTitle NVARCHAR(255), -- Ví dụ: "Wonder Park"
+    description NVARCHAR(MAX),   -- Mô tả chi tiết
+    FOREIGN KEY (itineraryId) REFERENCES TourItinerary(itineraryId),
+	CONSTRAINT UQ_TourActivities_Tour_Day UNIQUE (itineraryId, activityOrder)
+);
+
+select*from TourItinerary
 
 -- Bảng Hotels
 CREATE TABLE Hotels (
     hotelId INT IDENTITY(1,1) PRIMARY KEY,
     islandId INT NOT NULL,
     hotelName VARCHAR(100) NOT NULL,
-	roomType VARCHAR(50),
-     pricePerNight DECIMAL(10,3),
+    roomType VARCHAR(50) NOT NULL
+        CHECK (roomType IN ('Standard', 'Deluxe', 'Suite', 'Family')),
+    pricePerNight INT,
     roomsAvailable INT,
     rating DECIMAL(3,1),
+    hotelImageUrl VARCHAR(255), -- đường dẫn ảnh khách sạn
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-go
 
--- Bảng VehiclesToIsland (phương tiện đến đảo)
-CREATE TABLE VehiclesToIsland (
-    vehicleId INT IDENTITY(1,1) PRIMARY KEY,
-    islandId INT NOT NULL,
-    vehicleType NVARCHAR(50) CHECK (vehicleType IN ('CAR','BOAT')),
-    providerName NVARCHAR(100),
-    pricePerDay DECIMAL(10,3),
-    capacity INT,
-    description NVARCHAR(255),
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId)
-);
+
+
+
+
 go
+select * from hotels a join islands b on a.islandId = b.islandId where a.islandId = 1
 
 
 
@@ -90,7 +132,7 @@ CREATE TABLE Flights (
     arrivalTime DATETIME NOT NULL,
     price DECIMAL(10,3) NOT NULL,
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
-    FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId)
+    FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 GO
 
@@ -104,37 +146,43 @@ CREATE TABLE IslandVehicles (
     modelName NVARCHAR(100),
     pricePerDay DECIMAL(10,3),
     capacity INT,
-    availability BIT DEFAULT 1,
+    availability INT,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
 go
 
---  Bảng Trips (gói tour tổng quan)
-CREATE TABLE Trips (
-    tripId INT IDENTITY(1,1) PRIMARY KEY,
-    tripName NVARCHAR(100) NOT NULL,
-    description NVARCHAR(MAX),
-    basePrice DECIMAL(10,3),          -- giá cơ bản của gói tour
-    startDate DATE,
-    endDate DATE,
-    createdAt DATETIME DEFAULT GETDATE()
-);
-go
 
--- Bảng Bookings (đặt tour hoặc dịch vụ lẻ)
 CREATE TABLE Bookings (
     bookingId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','FLIGHT','VEHICLE')) NULL,  -- dịch vụ riêng lẻ
-    refId INT NOT NULL,         -- id của hotel/flight/vehicle
-    tripsId INT NOT NULL,        -- id của gói tour (package)
+    customerId INT NOT NULL,
+    price INT, 
     bookingDate DATETIME DEFAULT GETDATE(),
-    checkIn DATE,
-    checkOut DATE,
-    totalAmount DECIMAL(10,3),
-    status VARCHAR(20) CHECK (status IN ('CONFIRMED','CANCELLED','PENDING')) DEFAULT 'PENDING',
-    FOREIGN KEY (userId) REFERENCES Users(userId),
-    FOREIGN KEY (tripsId) REFERENCES Trips(tripId) ON DELETE CASCADE
+    FOREIGN KEY (customerId) REFERENCES Users(userId)
+);
+
+CREATE TABLE BookingDetails (
+    bookingDetailId INT IDENTITY(1,1) PRIMARY KEY,
+    bookingId INT NOT NULL,
+    tourId INT NULL,
+    hotelId INT NULL,
+    flightId INT NULL,
+    vehicleId INT NULL,
+    adultQuantity INT NOT NULL,
+    childQuantity INT NOT NULL,
+    departureDate DATE NOT NULL,
+    unitPrice INT NOT NULL,
+    totalPrice AS (
+        (adultQuantity * unitPrice) + 
+        (childQuantity * unitPrice * 0.7)
+    ) PERSISTED,
+
+    FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE,
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId),
+    FOREIGN KEY (hotelId) REFERENCES Hotels(hotelId),
+    FOREIGN KEY (flightId) REFERENCES Flights(flightId),
+    FOREIGN KEY (vehicleId) REFERENCES IslandVehicles(vehicleId)
 );
 
 -- Bảng Payments
@@ -181,6 +229,7 @@ CREATE TABLE Recommendations (
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
 go
 
 -- bảng logs
@@ -228,7 +277,7 @@ CREATE TABLE Notifications (
 );
 go
 
--- favourite trips , servies
+-- favourite services
 CREATE TABLE Favorites (
     favoriteId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
@@ -271,47 +320,292 @@ CREATE TABLE UserPromotions (
 
 -- Admin
 
- INSERT INTO Users (username, password, email, fullName, phone, role)
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('admin1', 'admin123!', 'admin1@example.com', 'Admin', '0987654321', 'ADMIN');
+('admin1', 'admin123!', 'admin1@example.com', 'Admin', '0987654321', 'ADMIN', 'ACTIVE');
+
 -- Booking Manager
-INSERT INTO Users (username, password, email, fullName, phone, role)
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('bookingmanager1', 'managerpass123!', 'nqaghuyyy6969@gmail.com', 'Booking Manager', '0369409004', 'BOOKING MANAGER');
+('bookingmanager1', 'managerpass123!', 'nqaghuyyy6969@gmail.com', 'Booking Manager', '0369409004', 'BOOKING MANAGER', 'ACTIVE');
 
 -- Service Provider
-INSERT INTO Users (username, password, email, fullName, phone, role)
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('provider1', 'providerpass123!', 'provider@example.com', 'Service Provider', '0987654321', 'SERVICE PROVIDER');
+('provider1', 'providerpass123!', 'provider@example.com', 'Staff', '0987654321', 'STAFF', 'ACTIVE');
 
-INSERT INTO Users (username, password, email, fullName, phone, role)
+-- Customer
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('quanghuy123', 'huyvipmn5', 'huynqhe182510@fpt.edu.vn', 'David Huy', '0982706236', 'CUSTOMER');
+('quanghuy123', 'huyvipmn5', 'huynqhe182510@fpt.edu.vn', 'David Huy', '0982706236', 'CUSTOMER', 'ACTIVE');
+
+select * from dbo.Users
+DELETE FROM Users;
+DBCC CHECKIDENT ('Users', RESEED, 0);
 
 --2.island
+
 select * from bookings
-INSERT INTO Islands (islandName, country, description, bestSeason, activities, imageUrl)
+select * from islands a join countries b on a.countryId = b.countryId
+
+INSERT INTO Countries (countryName) VALUES
+(N'Việt Nam'),
+(N'Lào'),
+(N'Campuchia'),
+(N'Thái Lan'),
+(N'Myanmar'),
+(N'Malaysia'),
+(N'Singapore'),
+(N'Indonesia'),
+(N'Philippines'),
+(N'Brunei'),
+(N'Đông Timor');
+select * from Countries
+
+INSERT INTO Islands (islandName, countryId, shortDescription, longDescription, bestSeason, activities, imageUrl, location)
 VALUES
-('Phu Quoc', 'Vietnam', 'Beautiful island with beaches', 'July-Apr', 'Swimming, Diving, Snorkeling', 'views/home/images/phuquoc.jpg'),
-('Langkawi', 'Malaysia', 'Historical island', 'June-August', 'Sightseeing, Diving', 'views/home/images/Langkawi.jpg'),
-('Phuket', 'Thailand', 'Famous tourist island with vibrant nightlife', 'Oct-July', 'Beach, Snorkeling, Nightlife', 'views/home/images/phuket.jpg'),
-('Bali', 'Indonesia', 'Island known for culture, beaches, and surfing', 'May-March', 'Surfing, Temple Visits, Beach', 'views/home/images/bali.jpg');
+(N'Phú Quốc', 1, 
+ N'Đảo lớn nhất Việt Nam, nổi tiếng với bãi biển đẹp và hải sản tươi ngon.',
+ N'Phú Quốc là hòn đảo lớn nhất Việt Nam, nổi tiếng với bãi cát trắng mịn, nước biển trong xanh và những rặng san hô đa dạng. Du khách có thể tham quan các làng chài truyền thống, trải nghiệm câu cá, lặn biển, khám phá vườn tiêu và thưởng thức hải sản tươi ngon.',
+ N'Hạ',
+ N'Bơi lội, Lặn biển, Ngắm san hô, Tham quan làng chài, Khám phá vườn tiêu',
+ N'views/home/images/islands/phuquoc.jpg',
+ N'Xã Dương Đông, Thành phố Phú Quốc, Tỉnh Kiên Giang, Việt Nam'),
+
+(N'Langkawi', 6,
+ N'Quần đảo đẹp của Malaysia với rừng mưa nhiệt đới và biển hoang sơ.',
+ N'Langkawi là quần đảo nằm ở bờ biển phía Tây Bắc Malaysia, nổi bật với phong cảnh thiên nhiên tươi đẹp, rừng mưa nhiệt đới và những bãi biển hoang sơ. Du khách có thể tham gia các tour khám phá đảo, đi cáp treo ngắm toàn cảnh, hoặc trải nghiệm các hoạt động dưới nước.',
+ N'Hạ',
+ N'Tham quan, Lặn biển, Đi cáp treo, Khám phá rừng mưa',
+ N'views/home/images/islands/langkawi.jpg',
+ N'Quận Langkawi, Bang Kedah, Malaysia'),
+
+(N'Phuket', 4,
+ N'Hòn đảo du lịch nổi tiếng nhất Thái Lan với biển đẹp và nightlife sôi động.',
+ N'Phuket là hòn đảo lớn nhất Thái Lan, nổi tiếng với bãi biển Patong sôi động, các khu phố ẩm thực, và nightlife náo nhiệt. Du khách có thể thư giãn trên bãi biển, tham gia các môn thể thao dưới nước, hoặc khám phá các ngôi chùa và khu di tích văn hóa.',
+ N'Thu',
+ N'Tắm biển, Lặn biển, Nightlife, Tham quan chùa, Tour đảo',
+ N'views/home/images/islands/phuket.jpg',
+ N'Phường Patong, Huyện Kathu, Tỉnh Phuket, Thái Lan'),
+
+(N'Bali', 8,
+ N'Đảo thiên đường của Indonesia, nổi tiếng với văn hóa Hindu và đền chùa cổ.',
+ N'Bali nổi tiếng với văn hóa Hindu độc đáo, nhiều ngôi đền cổ kính và cảnh quan thiên nhiên tuyệt đẹp. Hòn đảo này còn hấp dẫn du khách với các bãi biển lý tưởng để lướt sóng, trải nghiệm yoga, và khám phá các làng nghề truyền thống.',
+ N'Xuân',
+ N'Lướt sóng, Tham quan đền chùa, Tắm biển, Yoga, Khám phá làng nghề',
+ N'views/home/images/islands/bali.jpg',
+ N'Huyện Badung, Tỉnh Bali, Indonesia'),
+
+(N'Boracay', 9,
+ N'Đảo nhỏ của Philippines nổi tiếng với bãi cát trắng và nightlife.',
+ N'Boracay là hòn đảo nhỏ nhưng nổi tiếng với bãi cát trắng mịn trải dài, nước biển trong xanh và hoạt động nightlife sôi động. Du khách có thể tham gia các môn thể thao dưới nước, đi thuyền ngắm hoàng hôn, hoặc thư giãn tại các resort sang trọng ven biển.',
+ N'Đông',
+ N'Tắm biển, Thể thao dưới nước, Nightlife, Tham quan đảo bằng thuyền',
+ N'views/home/images/islands/boracay.jpg',
+ N'Barangay Balabag, Thị trấn Malay, Tỉnh Aklan, Philippines'),
+
+(N'Sihanoukville', 3,
+ N'Thành phố biển nổi tiếng của Campuchia với nhiều bãi tắm và đảo nhỏ.',
+ N'Sihanoukville là thành phố ven biển của Campuchia với nhiều bãi biển đẹp và các đảo nhỏ xung quanh. Du khách có thể tắm biển, lặn ngắm san hô, đi thuyền khám phá các đảo hoang sơ, và trải nghiệm ẩm thực địa phương.',
+ N'Đông',
+ N'Tắm biển, Lặn ngắm san hô, Đi thuyền, Tham quan đảo',
+ N'views/home/images/islands/sihanoukville.jpg',
+ N'Phường 3, Thành phố Preah Sihanouk, Tỉnh Preah Sihanouk, Campuchia'),
+
+(N'Tioman', 6,
+ N'Hòn đảo nhiệt đới nổi tiếng của Malaysia với rừng rậm và san hô.',
+ N'Tioman là hòn đảo nhiệt đới nổi tiếng với rừng rậm, rạn san hô đa dạng và thiên nhiên hoang sơ. Du khách có thể lặn biển ngắm san hô, leo núi khám phá rừng, hoặc tham gia các hoạt động dã ngoại ngoài trời.',
+ N'Hạ',
+ N'Lặn biển, Leo núi, Ngắm san hô, Khám phá rừng nhiệt đới',
+ N'views/home/images/islands/tioman.jpg',
+ N'Mukim Tioman, Quận Rompin, Bang Pahang, Malaysia'),
+
+(N'Koh Samui', 4,
+ N'Đảo lớn thứ hai Thái Lan với spa, chùa chiền và nightlife.',
+ N'Koh Samui là hòn đảo nổi tiếng với bãi biển cát trắng, thác nước tuyệt đẹp và các ngôi chùa linh thiêng. Du khách có thể tắm biển, tham quan chùa, trải nghiệm spa truyền thống Thái, và thưởng thức ẩm thực địa phương.',
+ N'Xuân',
+ N'Tắm biển, Tham quan chùa, Nightlife, Spa truyền thống, Tham quan thác nước',
+ N'views/home/images/islands/kohsamui.jpg',
+ N'Xã Bo Phut, Huyện Ko Samui, Tỉnh Surat Thani, Thái Lan'),
+
+(N'Nusa Penida', 8,
+ N'Đảo hoang sơ của Indonesia nổi bật với vách đá và biển xanh.',
+ N'Nusa Penida nổi bật với vách đá cao, nước biển trong xanh và các điểm lặn ngắm san hô tuyệt đẹp. Hòn đảo hoang sơ này thích hợp cho những ai yêu thiên nhiên và thích khám phá các cảnh quan độc đáo.',
+ N'Thu',
+ N'Lặn biển, Ngắm san hô, Tham quan vách đá, Leo núi, Khám phá thiên nhiên',
+ N'views/home/images/islands/nusapenida.jpg',
+ N'Huyện Klungkung, Tỉnh Bali, Indonesia'),
+
+(N'Palawan', 9,
+ N'Hòn đảo đẹp nhất Philippines với đầm phá xanh ngọc và vách đá vôi.',
+ N'Palawan là hòn đảo nổi tiếng với đầm phá xanh ngọc, bãi biển đẹp và các vách đá vôi kỳ vĩ. Du khách có thể tham gia tour island-hopping, chèo kayak, khám phá hang động và trải nghiệm cuộc sống ven biển.',
+ N'Hạ',
+ N'Đi thuyền đảo, Kayak, Lặn ngắm san hô, Khám phá hang động, Island-hopping',
+ N'views/home/images/islands/palawan.jpg',
+ N'Thành phố Puerto Princesa, Tỉnh Palawan, Philippines');
+
 
 --3.hotel
+-- Phú Quốc (islandId = 1)
+select * from islands
+select * from tours
+INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) VALUES
+-- Phú Quốc (islandId = 1)
+(1, N'Tour Nghỉ dưỡng Phú Quốc 3N2Đ', 
+ N'Tham quan Vinpearl Safari, Bãi Sao, Chợ đêm Dinh Cậu.', 
+ 3500000, 
+ N'views/home/images/tours/phuquoc_nghiduong.jpg'),
 
-INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating)
-VALUES
-(1, 'VARIA Hotel','Standard', 350.000, 20, 4.5),
-(1, 'Cape panwa','Deluxe', 734.129, 15, 4.0),
-(2, 'Mandarin Oriental','Standard King', 999.999, 10, 4.2);
+(1, N'Tour Lặn biển Phú Quốc 4N3Đ', 
+ N'Lặn ngắm san hô Hòn Móng Tay, câu cá đêm, BBQ trên biển.', 
+ 5000000, 
+ N'views/home/images/tours/phuquoc_lanbien.jpg'),
 
+(1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', 
+ N'Thăm làng chài Hàm Ninh, thưởng thức đặc sản nước mắm, tắm biển.', 
+ 2500000, 
+ N'views/home/images/tours/phuquoc_vanhoabiens.jpg'),
 
--- vehicle to island
-INSERT INTO VehiclesToIsland (islandId, vehicleType, providerName, pricePerDay, capacity, description)
-VALUES
-(1, 'BOAT', 'Phuket Ferry', 100.000, 20, 'Ferry from mainland to phuket'),
-(2, 'CAR', 'Phu Quoc Car Service', 70.000,6, 'Private car rental');
+-- Langkawi (islandId = 2)
+(2, N'Tour Khám phá Langkawi 4N3Đ', 
+ N'Trải nghiệm cầu treo SkyBridge, tắm biển Pantai Cenang, mua sắm duty-free.', 
+ 4500000, 
+ N'views/home/images/tours/langkawi_khampha.jpg'),
+
+-- Phuket (islandId = 3)
+(3, N'Tour Khám phá Phuket 4N3Đ', 
+ N'Thăm đảo Phi Phi, phố cổ Phuket, show Simon Cabaret.', 
+ 5500000, 
+ N'views/home/images/tours/phuket_khampha.jpg'),
+
+-- Bali (islandId = 4)
+(4, N'Tour Văn hóa & Biển Bali 5N4Đ', 
+ N'Thăm đền Tanah Lot, ruộng bậc thang Tegallalang, nghỉ dưỡng tại Kuta Beach.', 
+ 9000000, 
+ N'views/home/images/tours/bali_vanhoabien.jpg'),
+
+(4, N'Tour Nghỉ dưỡng Bali 4N3Đ', 
+ N'Spa truyền thống, yoga, biển Jimbaran, ngắm hoàng hôn Uluwatu.', 
+ 7500000, 
+ N'views/home/images/tours/bali_nghiduong.jpg'),
+
+-- Boracay (islandId = 5)
+(5, N'Tour Biển Boracay 4N3Đ', 
+ N'Tắm biển White Beach, lặn ngắm san hô, tham gia tiệc đêm sôi động.', 
+ 6000000, 
+ N'views/home/images/tours/boracay_bien.jpg'),
+
+-- Koh Samui (islandId = 8)
+(8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', 
+ N'Thăm Big Buddha Temple, thác Na Muang, chợ đêm Fisherman’s Village.', 
+ 6500000, 
+ N'views/home/images/tours/kohsamui_nghiduong.jpg'),
+
+(8, N'Tour Văn hóa Koh Samui 5N4Đ', 
+ N'Thăm chùa Wat Plai Laem, trải nghiệm massage Thái, ẩm thực địa phương.', 
+ 8000000, 
+ N'views/home/images/tours/kohsamui_vanhoaspa.jpg');
+ select * from tours
  
+ select * from TourItinerary
+INSERT INTO TourItinerary (tourId, dayNumber, title) VALUES
+-- Tour 1: Phú Quốc 3N2Đ
+(1, 1, N'Hà Nội → Phú Quốc'),
+(1, 2, N'Khám phá Phú Quốc'),
+(1, 3, N'Phú Quốc → Hà Nội'),
+
+-- Tour 2: Phú Quốc 4N3Đ
+(2, 1, N'Hà Nội → Phú Quốc'),
+(2, 2, N'Lặn biển'),
+(2, 3, N'Câu cá & BBQ'),
+(2, 4, N'Phú Quốc → Hà Nội'),
+
+-- Tour 3: Phú Quốc 2N1Đ
+(3, 1, N'Hà Nội → Phú Quốc'),
+(3, 2, N'Phú Quốc → Hà Nội'),
+
+-- Tour 4: Langkawi 4N3Đ
+(4, 1, N'Hà Nội → Langkawi'),
+(4, 2, N'SkyBridge'),
+(4, 3, N'Biển & Shopping'),
+(4, 4, N'Langkawi → Hà Nội'),
+
+-- Tour 5: Phuket 4N3Đ
+(5, 1, N'Đến Phuket'),
+(5, 2, N'Tham quan đảo Phi Phi'),
+(5, 3, N'Phố cổ Phuket - Show Simon Cabaret'),
+(5, 4, N'Trả khách'),
+
+(6, 1, N'Đền Tanah Lot'),
+(6, 2, N'Tegallalang Rice Terrace'),
+(6, 3, N'Kuta Beach'),
+(6, 4, N'Tham quan Ubud'),
+(6, 5, N'Trả khách'),
+
+(8, 1, N'Spa truyền thống'),
+(8, 2, N'Yoga - Jimbaran Beach'),
+(8, 3, N'Uluwatu Sunset'),
+(8, 4, N'Trả khách'),
+
+(9, 1, N'White Beach'),
+(9, 2, N'Lặn ngắm san hô'),
+(9, 3, N'Tiệc đêm'),
+(9, 4, N'Trả khách'),
+
+(10, 1, N'Diniwid Beach'),
+(10, 2, N'Chèo thuyền Paraw'),
+(10, 3, N'Trả khách');
+
+
+select * from TourItinerary
+
+
+
+INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl)
+VALUES
+-- Phu Quoc
+(1, 'Vinpearl Resort Phu Quoc', 'Deluxe', 150000, 30, 4.6, 'views/home/images/hotels/vinpearl_pq_main.jpg'),
+(1, 'Salinda Resort Phu Quoc', 'Suite', 200000, 15, 4.8, 'views/home/images/hotels/salinda_pq_main.jpg'),
+
+-- Langkawi
+(2, 'Berjaya Langkawi Resort', 'Suite', 120000, 25, 4.4, 'views/home/images/hotels/berjaya_langkawi_main.jpg'),
+(2, 'The Datai Langkawi', 'Suite', 250000, 10, 4.9, 'views/home/images/hotels/datai_langkawi_main.jpg'),
+
+-- Phuket
+(3, 'Amari Phuket', 'Standard', 110000, 40, 4.5, 'views/home/images/hotels/amari_phuket_main.jpg'),
+(3, 'The Shore at Katathani', 'Suite', 220000, 12, 4.8, 'views/home/images/hotels/shore_katathani_main.jpg'),
+
+-- Bali
+(4, 'Bali Mandira Beach Resort', 'Family', 130000, 20, 4.5, 'views/home/images/hotels/mandira_bali_main.jpg'),
+(4, 'Four Seasons Bali at Sayan', 'Suite', 300000, 8, 4.9, 'views/home/images/hotels/fourseasons_bali_main.jpg'),
+
+-- Boracay
+(5, 'Shangri-La Boracay', 'Family', 280000, 10, 4.9, 'views/home/images/hotels/shangrila_boracay_main.jpg'),
+(5, 'Henann Lagoon Resort', 'Deluxe', 100000, 35, 4.3, 'views/home/images/hotels/henann_boracay_main.jpg'),
+
+-- Sihanoukville
+(6, 'Independence Hotel Resort', 'Suite', 140000, 18, 4.2, 'views/home/images/hotels/independence_sihanoukville_main.jpg'),
+(6, 'Sokha Beach Resort', 'Standard', 95000, 40, 4.4, 'views/home/images/hotels/sokha_sihanoukville_main.jpg'),
+
+-- Tioman
+(7, 'Japamala Resort', 'Suite', 160000, 12, 4.7, 'views/home/images/hotels/japamala_tioman_main.jpg'),
+(7, 'Berjaya Tioman Resort', 'Standard', 90000, 25, 4.1, 'views/home/images/hotels/berjaya_tioman_main.jpg'),
+
+-- Koh Samui
+(8, 'Banyan Tree Samui', 'Suite', 270000, 15, 4.9, 'views/home/images/hotels/banyan_samui_main.jpg'),
+(8, 'Chaweng Regent Beach Resort', 'Deluxe', 120000, 30, 4.4, 'views/home/images/hotels/chaweng_samui_main.jpg'),
+
+-- Nusa Penida
+(9, 'Semabu Hills Hotel', 'Standard', 110000, 20, 4.3, 'views/home/images/hotels/semabu_penida_main.jpg'),
+(9, 'Maua Nusa Penida', 'Suite', 190000, 12, 4.6, 'views/home/images/hotels/maua_penida_main.jpg'),
+
+-- Palawan
+(10, 'El Nido Resorts Miniloc Island', 'Suite', 200000, 15, 4.8, 'views/home/images/hotels/miniloc_palawan_main.jpg'),
+(10, 'Astoria Palawan', 'Deluxe', 130000, 25, 4.5, 'views/home/images/hotels/astoria_palawan_main.jpg');
+
+-- Xem dữ liệu
+select * from Hotels;
+select * from dbo.TourActivities
 -- arilines
 
 INSERT INTO Airlines (airlineName, iataCode, country, hotline, logoUrl)
@@ -327,41 +621,64 @@ VALUES
 ('VJ456', 2, 'Ho Chi Minh', 'Phuket', 2, '2025-10-21 18:30', '2025-10-21 23:00', 850.000);
 select * from flights
 -- vehicle insland
-INSERT INTO IslandVehicles (islandId, companyName, vehicleType, modelName, pricePerDay, capacity)
+-- Phú Quốc (islandId = 1)
+INSERT INTO IslandVehicles (islandId, companyName, vehicleType, modelName, pricePerDay, capacity, availability)
 VALUES
-(1, 'Phu Quoc Rentals', 'MOTORBIKE', 'Honda Air Blade', 15.000, 2),
-(2, 'Con Dao Rentals', 'CAR', 'Toyota Innova', 50.000, 4)
--- trips
+(1, N'Phú Quốc Travel Co.', 'CAR', N'Toyota Innova', 45.000, 7, 10),
+(1, N'Phú Quốc Motorbike', 'MOTORBIKE', N'Honda AirBlade', 12.000, 2, 25),
+(1, N'Phú Quốc Green Mobility', 'ELECTRIC_CART', N'EV Shuttle 8 chỗ', 60.000, 8, 5),
+(1, N'Phú Quốc Bicycle Rental', 'BICYCLE', N'City Bike', 5.000, 1, 40);
 
-INSERT INTO Trips (tripName, description, basePrice, startDate, endDate)
-VALUES
-('Phu Quoc Adventure', '3-day adventure on Phu Quoc island', 520.000, '2025-11-01', '2025-11-03'),
-('Bali History Tour', '2-day historical tour', 879.899, '2025-11-05', '2025-11-06');
+-- Langkawi (islandId = 2)
+(2, N'Langkawi Rent-A-Car', 'CAR', N'Nissan Almera', 40.000, 5, 15),
+(2, N'Langkawi Scooter Hub', 'SCOOTER', N'Yamaha NMax', 15.000, 2, 20),
+(2, N'Langkawi Eco Transport', 'BICYCLE', N'Mountain Bike', 7.000, 1, 30);
 
--- trip services
+-- Phuket (islandId = 3)
+(3, N'Phuket Car Rental', 'CAR', N'Toyota Vios', 42.000, 5, 12),
+(3, N'Phuket Scooter Service', 'SCOOTER', N'Honda Click 125i', 14.000, 2, 35),
+(3, N'Phuket E-Mobility', 'ELECTRIC_CART', N'Golf Cart 6 seats', 55.000, 6, 6);
 
-INSERT INTO TripServices (tripId, serviceType, refId)
-VALUES
-(1, 'HOTEL', 1),
-(1, 'FLIGHT', 2),
-(1, 'VEHICLE', 1),
-(2, 'HOTEL', 3),
-(2, 'FLIGHT', 2);
+-- Bali (islandId = 4)
+(4, N'Bali Car Hire', 'CAR', N'Toyota Avanza', 48.000, 7, 14),
+(4, N'Bali Bike Adventures', 'MOTORBIKE', N'Honda CRF150L', 18.000, 2, 20),
+(4, N'Bali Cycling Tours', 'BICYCLE', N'MTB Trek 3700', 8.000, 1, 25);
 
---  TripItineraries
-INSERT INTO TripItineraries (tripId, dayNumber, activity, location)
-VALUES
-(1, 1, 'Tham quan bãi biển Sunrise', 'Bãi biển Sunrise'),
-(1, 2, 'Leo núi và chụp ảnh', 'Núi Dragon');
+-- Boracay (islandId = 5)
+(5, N'Boracay Car Hire', 'CAR', N'Hyundai Accent', 38.000, 5, 8),
+(5, N'Boracay Scooter Zone', 'SCOOTER', N'Honda Beat', 13.000, 2, 20),
+(5, N'Boracay E-Rides', 'ELECTRIC_CART', N'EV Cart 4 seats', 50.000, 4, 5);
+
+-- Sihanoukville (islandId = 6)
+(6, N'Sihanoukville Car Rental', 'CAR', N'Kia Morning', 35.000, 4, 10),
+(6, N'Sihanoukville Bikes', 'MOTORBIKE', N'Honda Wave Alpha', 10.000, 2, 30),
+(6, N'Sihanoukville Bicycle Club', 'BICYCLE', N'City Bike', 6.000, 1, 15);
+
+-- Tioman (islandId = 7)
+(7, N'Tioman Car Rental', 'CAR', N'Toyota Rush', 46.000, 7, 5),
+(7, N'Tioman Eco Bikes', 'BICYCLE', N'MTB Merida', 9.000, 1, 20),
+(7, N'Tioman Motorbike Hire', 'MOTORBIKE', N'Yamaha XSR 155', 17.000, 2, 12);
+
+-- Koh Samui (islandId = 8)
+(8, N'Koh Samui Car Service', 'CAR', N'Mitsubishi Xpander', 50.000, 7, 10),
+(8, N'Koh Samui Scooter Center', 'SCOOTER', N'Honda PCX', 16.000, 2, 22),
+(8, N'Koh Samui Bicycle Rental', 'BICYCLE', N'Road Bike Giant', 9.000, 1, 18);
+
+-- Nusa Penida (islandId = 9)
+(9, N'Nusa Penida Cars', 'CAR', N'Toyota Avanza', 47.000, 7, 7),
+(9, N'Nusa Penida Scooters', 'SCOOTER', N'Honda Vario 150', 14.000, 2, 25),
+(9, N'Nusa Penida Eco Tours', 'BICYCLE', N'MTB Polygon', 7.500, 1, 12);
+
+-- Palawan (islandId = 10)
+(10, N'Palawan Car Rental', 'CAR', N'Toyota Fortuner', 60.000, 7, 6),
+(10, N'Palawan Motorbike Hire', 'MOTORBIKE', N'Honda XR150L', 20.000, 2, 15),
+(10, N'Palawan Bicycle Service', 'BICYCLE', N'Trekking Bike', 8.000, 1, 10);
 
 
--- bookings
 
-INSERT INTO Bookings 
-(userId, serviceType, refId, tripsId, checkIn, checkOut, totalAmount, status)
-VALUES
-(4, 'FLIGHT', 1, 1, '2025-11-01', '2025-11-03', 567.150, 'CONFIRMED'),
-(4, 'HOTEL', 2, 2, '2025-12-16', '2025-12-19', 380.000, 'PENDING');
+
+
+
 
 -- payments
 
@@ -404,13 +721,62 @@ VALUES
 (4, 1),
 (4, 2);
 
-select * from dbo.Tokens
+select * from dbo.TourActivities
 select *from dbo.Users
 Truncate TABLE Tokens
 
 ALTER TABLE Users
 ALTER COLUMN fullName NVARCHAR(100);
 
+--activity
 
+
+INSERT INTO TourActivities (itineraryId, activityOrder, activityTitle, description) VALUES
+(1, 1, N'Khởi hành từ Hà Nội', N'Bay từ Hà Nội đến Phú Quốc, nhận phòng khách sạn.'),
+(2, 1, N'Tham quan Vinpearl Safari', N'Khám phá vườn thú bán hoang dã lớn nhất Việt Nam.'),
+(2, 2, N'Tắm biển Bãi Sao', N'Tận hưởng bãi biển đẹp nhất Phú Quốc.'),
+(2, 3, N'Chợ đêm Dinh Cậu', N'Thưởng thức hải sản và mua sắm.'),
+(3, 1, N'Trả phòng', N'Trả phòng khách sạn, khởi hành về Hà Nội.'),
+
+-- Tour 2: Phú Quốc 4N3Đ
+(4, 1, N'Khởi hành từ Hà Nội', N'Đến Phú Quốc, nhận phòng khách sạn.'),
+(5, 1, N'Lặn ngắm san hô', N'Trải nghiệm lặn biển tại Hòn Móng Tay.'),
+(5, 2, N'Tắm biển', N'Tự do nghỉ ngơi tại resort.'),
+(6, 1, N'Câu cá đêm', N'Thử thách câu cá trên biển.'),
+(6, 2, N'BBQ hải sản', N'Thưởng thức tiệc BBQ trên bãi biển.'),
+(7, 1, N'Trả phòng', N'Về Hà Nội.'),
+
+-- Tour 3: Phú Quốc 2N1Đ
+(8, 1, N'Khởi hành', N'Bay từ Hà Nội đến Phú Quốc.'),
+(8, 2, N'Thăm làng chài Hàm Ninh', N'Tìm hiểu đời sống ngư dân và thưởng thức hải sản.'),
+(9, 1, N'Trả phòng', N'Trở về Hà Nội.'),
+
+-- Tour 4: Langkawi 4N3Đ
+(10, 1, N'Khởi hành', N'Bay từ Hà Nội đến Langkawi.'),
+(11, 1, N'Tham quan SkyBridge', N'Chiêm ngưỡng cây cầu treo nổi tiếng.'),
+(12, 1, N'Tắm biển Pantai Cenang', N'Tắm biển và tham gia trò chơi nước.'),
+(12, 2, N'Shopping Duty-free', N'Mua sắm tại các cửa hàng miễn thuế.'),
+(13, 1, N'Trở về Hà Nội', N'Kết thúc tour.'),
+
+-- Tour 5: Phuket 4N3Đ
+(14, 1, N'Đến Phuket', N'Đón khách tại sân bay và nhận phòng khách sạn.'),
+(15, 1, N'Tham quan đảo Phi Phi', N'Tham gia tour du thuyền thăm đảo Phi Phi.'),
+(16, 1, N'Phố cổ Phuket', N'Dạo chơi và tham quan kiến trúc cổ.'),
+(16, 2, N'Simon Cabaret Show', N'Thưởng thức show diễn nổi tiếng tại Phuket.'),
+(17, 1, N'Trả khách', N'Kết thúc hành trình.'),
+
+-- Tour 6: Bali
+(18, 1, N'Xuất phát từ Hà Nội', N'Tập trung tại sân bay Nội Bài, làm thủ tục khởi hành.'),
+(18, 2, N'Đến Phuket', N'Hướng dẫn viên đón đoàn, nhận phòng khách sạn và nghỉ ngơi.'),
+(19, 1, N'Du thuyền ra đảo Phi Phi', N'Tham quan vịnh Maya nổi tiếng.'),
+(19, 2, N'Lặn biển ngắm san hô', N'Trải nghiệm snorkeling tại vịnh Loh Samah.'),
+(19, 3, N'Tham quan Viking Cave', N'Khám phá hang động nổi tiếng.'),
+(20, 1, N'Du thuyền vịnh Phang Nga', N'Tham quan đảo James Bond nổi tiếng.'),
+(20, 2, N'Chèo kayak hang động', N'Trải nghiệm chèo kayak tại hòn đảo đá vôi.'),
+(20, 3, N'Dùng bữa trưa trên du thuyền', N'Thưởng thức hải sản địa phương.'),
+(21, 1, N'Tham quan chùa Wat Chalong', N'Ngôi chùa lớn nhất ở Phuket.'),
+(21, 2, N'Tượng Phật Lớn Big Buddha', N'Chiêm ngưỡng bức tượng Phật cao 45m.'),
+(21, 3, N'Tắm biển Patong', N'Thư giãn và vui chơi trên bãi biển Patong.'),
+(22, 1, N'Ra sân bay', N'Làm thủ tục bay về Hà Nội, kết thúc tour.');
 -------------------------------------------------------------------------------------------------------
 

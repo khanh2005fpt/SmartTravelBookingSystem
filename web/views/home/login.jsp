@@ -142,7 +142,7 @@
 
 
         <!-- Modal Quên mật khẩu -->
-        <div class="modal fade" id="forgetModal" tabindex="-1" role="dialog" aria-labelledby="forgetModalLabel" aria-hidden="true">
+      <div class="modal fade" id="forgetModal" tabindex="-1" role="dialog" aria-labelledby="forgetModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content custom-modal">
 
@@ -156,42 +156,54 @@
                     </div>
 
                     <div class="modal-body">
+                       <!-- thong bao loi trong modal -->
+                        <% String errorEmail = (String) session.getAttribute("errorEmail"); %>
+                        <% if (errorEmail != null) { %>
+                        <div id="errorAlert" class="alert alert-danger alert_style"><%= errorEmail %></div>
+                        <% } %>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("errorAlert");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 3000);
+                        </script>
+
+
                         <p class="text-muted mb-3">
                             Vui lòng nhập email để nhận mã OTP khôi phục mật khẩu.
                         </p>
 
-
-
-
                         <form action="${pageContext.request.contextPath}/requestPassword" method="POST">
                             <div class="form-group">
-                                <input type="email" class="form-control input-custom" id="email" name="email" placeholder="📧 Nhập email của bạn" >
+                                <input type="email" class="form-control input-custom" id="email" name="email" placeholder="📧 Nhập email của bạn">
                                 <button type="submit" class="btn btn-gradient w-100 mt-3">Gửi OTP</button>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     <!-- thong bao k ton tai va de trong email
     --> 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        <% 
-         String errorEmail = (String) session.getAttribute("errorEmail");
-         if (errorEmail != null) { 
-        %>
-            var modal = new bootstrap.Modal(document.getElementById('forgetModal'), {
-                backdrop: false   // tắt nền tối
+     <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            <% 
+                boolean hasError = (session.getAttribute("errorEmail") != null);
+        
+                if (hasError) { 
+            %>
+                var myModal = new bootstrap.Modal(document.getElementById('forgetModal'));
+                myModal.show();
+            <% 
+                    // xoa session sau khi hien thi
+                    session.removeAttribute("errorEmail");
+            
+                } 
+            %>
             });
-            modal.show();
-            alert("<%= errorEmail %>");
-        <% 
-         session.removeAttribute("errorEmail"); 
-         } 
-        %>
-        });
-    </script>
+        </script>
 
 
     <!-- Bootstrap JS -->

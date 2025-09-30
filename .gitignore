@@ -11,3 +11,6 @@
 # NetBeans
 nbproject/private/
 build/
+# Ignore real config & constants (secret)
+src/java/config/config.properties
+src/java/constant/Iconstant.java
