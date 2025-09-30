@@ -97,18 +97,18 @@
                                             </p>
 
                                             <!-- Thông tin thêm -->
-<!--                                            <ul class="list-unstyled small mb-3 text-muted">
-                                                <li>⏳ Thời gian: <span class="fw-semibold text-dark">ngày</span></li>
-                                                <li>📍 Điểm khởi hành: <span class="fw-semibold text-dark"></span></li>
-                                                <li>👥 Còn lại: <span class="fw-semibold text-dark"></span> chỗ</li>
-                                            </ul>-->
+                                            <!--                                            <ul class="list-unstyled small mb-3 text-muted">
+                                                                                            <li>⏳ Thời gian: <span class="fw-semibold text-dark">ngày</span></li>
+                                                                                            <li>📍 Điểm khởi hành: <span class="fw-semibold text-dark"></span></li>
+                                                                                            <li>👥 Còn lại: <span class="fw-semibold text-dark"></span> chỗ</li>
+                                                                                        </ul>-->
 
                                             <div class="mt-auto">
                                                 <p class="text-primary fw-bold fs-5 mb-2 text-end">
-                                                   Giá tour: 
-                                                   <fmt:setLocale value="vi_VN" />
+                                                    Giá tour: 
+                                                    <fmt:setLocale value="vi_VN" />
 
-                                                   <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
+                                                    <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
                                                 </p>
                                                 <a href="TourDetailController?tourid=${tour.tourId}" 
                                                    class="btn btn-primary w-100 rounded-pill">
@@ -130,6 +130,8 @@
 
             <!-- Hotels Section -->
             <section class="mb-5">
+                <h2 class="h3 mb-4 text-center fw-bold text-primary ">🏝️ Tour du lịch riêng lẻ</h2>
+
                 <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Khách sạn nổi bật</h2>
                 <div class="row g-4">
                     <c:choose>
@@ -171,9 +173,9 @@
                                                 <p class="text-danger fw-bold fs-5 mb-2 text-end">
                                                     <fmt:setLocale value="vi_VN" />
 
-                                                   <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/>
-                                                   VND<span class="text-muted fs-6">/đêm</span>
-                                               
+                                                    <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/>
+                                                    VND<span class="text-muted fs-6">/đêm</span>
+
                                                 </p>
 
                                                 <!-- Nút đặt phòng -->
@@ -181,48 +183,14 @@
                                                     <!-- Button đặt phòng -->
                                                     <button class="btn btn-primary w-100 rounded-pill" 
                                                             data-toggle="modal" data-target="#bookingModal${hotel.hotelId}">
-                                                        Đặt phòng ngay
+                                                        Xem chi tiết
+                                                    </button>
+                                                    <button class="btn btn-primary w-100 rounded-pill" 
+                                                            data-toggle="modal" data-target="#bookingModal${hotel.hotelId}">
+                                                        Chọn
                                                     </button>
 
-                                                    <!-- Modal điền thông tin -->
-                                                    <div class="modal fade" id="bookingModal${hotel.hotelId}" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel${hotel.hotelId}" aria-hidden="true">
-                                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="bookingModalLabel${hotel.hotelId}">Đặt phòng: ${hotel.hotelName}</h5>
-                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <form action="${pageContext.request.contextPath}/bookRoom" method="post">
-                                                                        <input type="hidden" name="hotelId" value="${hotel.hotelId}">
-                                                                        <div class="form-group mb-3">
-                                                                            <label for="guestName${hotel.hotelId}">Tên khách hàng</label>
-                                                                            <input type="text" class="form-control" id="guestName${hotel.hotelId}" name="guestName" required>
-                                                                        </div>
-                                                                        <div class="form-group mb-3">
-                                                                            <label for="guestEmail${hotel.hotelId}">Email</label>
-                                                                            <input type="email" class="form-control" id="guestEmail${hotel.hotelId}" name="guestEmail" required>
-                                                                        </div>
-                                                                        <div class="form-group mb-3">
-                                                                            <label for="checkIn${hotel.hotelId}">Ngày nhận phòng</label>
-                                                                            <input type="date" class="form-control" id="checkIn${hotel.hotelId}" name="checkIn" required>
-                                                                        </div>
-                                                                        <div class="form-group mb-3">
-                                                                            <label for="checkOut${hotel.hotelId}">Ngày trả phòng</label>
-                                                                            <input type="date" class="form-control" id="checkOut${hotel.hotelId}" name="checkOut" required>
-                                                                        </div>
-                                                                        <div class="form-group mb-3">
-                                                                            <label for="roomCount${hotel.hotelId}">Số phòng</label>
-                                                                            <input type="number" class="form-control" id="roomCount${hotel.hotelId}" name="roomCount" min="1" max="${hotel.roomAvailable}" required>
-                                                                        </div>
-                                                                        <button type="submit" class="btn btn-success w-100">Xác nhận đặt phòng</button>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+
 
                                                 </div>
                                             </div>

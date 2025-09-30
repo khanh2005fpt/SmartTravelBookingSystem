@@ -76,14 +76,14 @@ CREATE TABLE TourItinerary (
 CREATE TABLE TourActivities (
     activityId INT IDENTITY(1,1) PRIMARY KEY,
     itineraryId INT NOT NULL,
-    activityOrder INT UNIQUE NOT NULL,           -- Thứ tự hiển thị
+    activityOrder INT NOT NULL,           -- Thứ tự hiển thị
     activityTitle NVARCHAR(255), -- Ví dụ: "Wonder Park"
     description NVARCHAR(MAX),   -- Mô tả chi tiết
     FOREIGN KEY (itineraryId) REFERENCES TourItinerary(itineraryId),
 	CONSTRAINT UQ_TourActivities_Tour_Day UNIQUE (itineraryId, activityOrder)
 );
 
-select*from TourItinerary
+select*from TourActivities a join TourItinerary b on a.itineraryId = b.itineraryId join Tours c on c.tourId = b.tourId
 
 -- Bảng Hotels
 CREATE TABLE Hotels (
@@ -536,37 +536,78 @@ INSERT INTO TourItinerary (tourId, dayNumber, title) VALUES
 (6, 4, N'Tham quan Ubud'),
 (6, 5, N'Trả khách'),
 
-(8, 1, N'Spa truyền thống'),
-(8, 2, N'Yoga - Jimbaran Beach'),
-(8, 3, N'Uluwatu Sunset'),
+(7, 1, N'Spa truyền thống'),
+(7, 2, N'Yoga - Jimbaran Beach'),
+(7, 3, N'Uluwatu Sunset'),
+(7, 4, N'Trả khách'),
+
+(8, 1, N'White Beach'),
+(8, 2, N'Lặn ngắm san hô'),
+(8, 3, N'Tiệc đêm'),
 (8, 4, N'Trả khách'),
 
-(9, 1, N'White Beach'),
-(9, 2, N'Lặn ngắm san hô'),
-(9, 3, N'Tiệc đêm'),
+(9, 1, N'Big Buddha Temple'),
+(9, 2, N'Thác Na Muang'),
+(9, 3, N'Fisherman’s Village'),
 (9, 4, N'Trả khách'),
 
-(10, 1, N'Diniwid Beach'),
-(10, 2, N'Chèo thuyền Paraw'),
-(10, 3, N'Trả khách'),
-
-(11, 1, N'Big Buddha Temple'),
-(11, 2, N'Thác Na Muang'),
-(11, 3, N'Fisherman’s Village'),
-(11, 4, N'Trả khách'),
-
-(12, 1, N'Chaweng Beach'),
-(12, 2, N'Snorkeling - Du thuyền quanh đảo'),
-(12, 3, N'Trả khách'),
-
-(13, 1, N'Wat Plai Laem'),
-(13, 2, N'Massage Thái'),
-(13, 3, N'Ẩm thực địa phương'),
-(13, 4, N'Tham quan đảo xung quanh'),
-(13, 5, N'Trả khách');
+(10, 1, N'Wat Plai Laem'),
+(10, 2, N'Massage Thái'),
+(10, 3, N'Ẩm thực địa phương'),
+(10, 4, N'Tham quan đảo xung quanh'),
+(10, 5, N'Trả khách');
 
 
 select * from TourItinerary
+
+-- Tour 1: Phú Quốc 3N2Đ
+INSERT INTO TourActivities (itineraryId, activityOrder, activityTitle, description) VALUES
+(1, 1, N'Khởi hành từ Hà Nội', N'Bay từ Hà Nội đến Phú Quốc, nhận phòng khách sạn.'),
+(2, 1, N'Tham quan Vinpearl Safari', N'Khám phá vườn thú bán hoang dã lớn nhất Việt Nam.'),
+(2, 2, N'Tắm biển Bãi Sao', N'Tận hưởng bãi biển đẹp nhất Phú Quốc.'),
+(2, 3, N'Chợ đêm Dinh Cậu', N'Thưởng thức hải sản và mua sắm.'),
+(3, 1, N'Trả phòng', N'Trả phòng khách sạn, khởi hành về Hà Nội.'),
+
+-- Tour 2: Phú Quốc 4N3Đ
+(4, 1, N'Khởi hành từ Hà Nội', N'Đến Phú Quốc, nhận phòng khách sạn.'),
+(5, 1, N'Lặn ngắm san hô', N'Trải nghiệm lặn biển tại Hòn Móng Tay.'),
+(5, 2, N'Tắm biển', N'Tự do nghỉ ngơi tại resort.'),
+(6, 1, N'Câu cá đêm', N'Thử thách câu cá trên biển.'),
+(6, 2, N'BBQ hải sản', N'Thưởng thức tiệc BBQ trên bãi biển.'),
+(7, 1, N'Trả phòng', N'Về Hà Nội.'),
+
+-- Tour 3: Phú Quốc 2N1Đ
+(8, 1, N'Khởi hành', N'Bay từ Hà Nội đến Phú Quốc.'),
+(8, 2, N'Thăm làng chài Hàm Ninh', N'Tìm hiểu đời sống ngư dân và thưởng thức hải sản.'),
+(9, 1, N'Trả phòng', N'Trở về Hà Nội.'),
+
+-- Tour 4: Langkawi 4N3Đ
+(10, 1, N'Khởi hành', N'Bay từ Hà Nội đến Langkawi.'),
+(11, 1, N'Tham quan SkyBridge', N'Chiêm ngưỡng cây cầu treo nổi tiếng.'),
+(12, 1, N'Tắm biển Pantai Cenang', N'Tắm biển và tham gia trò chơi nước.'),
+(12, 2, N'Shopping Duty-free', N'Mua sắm tại các cửa hàng miễn thuế.'),
+(13, 1, N'Trở về Hà Nội', N'Kết thúc tour.'),
+
+-- Tour 5: Phuket 4N3Đ
+(14, 1, N'Đến Phuket', N'Đón khách tại sân bay và nhận phòng khách sạn.'),
+(15, 1, N'Tham quan đảo Phi Phi', N'Tham gia tour du thuyền thăm đảo Phi Phi.'),
+(16, 1, N'Phố cổ Phuket', N'Dạo chơi và tham quan kiến trúc cổ.'),
+(16, 2, N'Simon Cabaret Show', N'Thưởng thức show diễn nổi tiếng tại Phuket.'),
+(17, 1, N'Trả khách', N'Kết thúc hành trình.'),
+
+-- Tour 6: Bali
+(18, 1, N'Xuất phát từ Hà Nội', N'Tập trung tại sân bay Nội Bài, làm thủ tục khởi hành.'),
+(18, 2, N'Đến Phuket', N'Hướng dẫn viên đón đoàn, nhận phòng khách sạn và nghỉ ngơi.'),
+(19, 1, N'Du thuyền ra đảo Phi Phi', N'Tham quan vịnh Maya nổi tiếng.'),
+(19, 2, N'Lặn biển ngắm san hô', N'Trải nghiệm snorkeling tại vịnh Loh Samah.'),
+(19, 3, N'Tham quan Viking Cave', N'Khám phá hang động nổi tiếng.'),
+(20, 1, N'Du thuyền vịnh Phang Nga', N'Tham quan đảo James Bond nổi tiếng.'),
+(20, 2, N'Chèo kayak hang động', N'Trải nghiệm chèo kayak tại hòn đảo đá vôi.'),
+(20, 3, N'Dùng bữa trưa trên du thuyền', N'Thưởng thức hải sản địa phương.'),
+(21, 1, N'Tham quan chùa Wat Chalong', N'Ngôi chùa lớn nhất ở Phuket.'),
+(21, 2, N'Tượng Phật Lớn Big Buddha', N'Chiêm ngưỡng bức tượng Phật cao 45m.'),
+(21, 3, N'Tắm biển Patong', N'Thư giãn và vui chơi trên bãi biển Patong.'),
+(22, 1, N'Ra sân bay', N'Làm thủ tục bay về Hà Nội, kết thúc tour.')
 
 
 
