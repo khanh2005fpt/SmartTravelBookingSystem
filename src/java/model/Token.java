@@ -19,21 +19,27 @@ public class Token {
     private String tokenValue;
     private LocalDateTime ExpiryDate;
     private boolean isUsed;
+    private String otpCode;
+    private int attemptCount;
+    
 
 
     public Token() {
     }
-
-    public Token(int tokenId, int userId, String tokenValue, LocalDateTime ExpiryDate, boolean isUsed) {
+    ///construsctor get tokenValue
+    public Token(int tokenId, int userId, String tokenValue, LocalDateTime ExpiryDate, boolean isUsed , String otpCode , int attemptCount) {
         this.tokenId = tokenId;
         this.userId = userId;
         this.tokenValue = tokenValue;
         this. ExpiryDate =  ExpiryDate;
         this.isUsed = isUsed;
+        this.otpCode=otpCode;
+        this.attemptCount=attemptCount;
        
     }
-    
-       public Token( int userId, String tokenValue, LocalDateTime  ExpiryDate, boolean isUsed) {
+
+     //construsctor send email + token
+       public Token( int userId, String tokenValue, LocalDateTime  ExpiryDate, boolean isUsed , String otpCode , int attemptCount) {
        
         this.userId = userId;
         this.tokenValue = tokenValue;
@@ -42,7 +48,21 @@ public class Token {
      
     }
 
-    
+     public String getOtpCode() {
+        return otpCode;
+    }
+
+    public void setOtpCode(String otpCode) {
+        this.otpCode = otpCode;
+    }
+
+    public int getAttemptCount() {
+        return attemptCount;
+    }
+
+    public void setAttemptCount(int attemptCount) {
+        this.attemptCount = attemptCount;
+    }
     // Getters và Setters
     public int getTokenId() {
         return tokenId;
@@ -89,8 +109,10 @@ public class Token {
    
     @Override
     public String toString() {
-        return "Tokens{" + "tokenId=" + tokenId + ", userId=" + userId + ", tokenValue=" + tokenValue + ", expiryDate=" +  ExpiryDate + ", isUsed=" + isUsed + '}';
+        return "Tokens{" + "tokenId=" + tokenId + ", userId=" + userId + ", "
+                + "tokenValue=" + tokenValue + ", expiryDate=" +  ExpiryDate + ", isUsed=" + isUsed +",otpCode="+otpCode+",attemptCount="+attemptCount+   '}';
     }
+    
     
     
 }

@@ -64,7 +64,7 @@ public class registerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        
     }
 
     /**
@@ -144,8 +144,8 @@ public class registerServlet extends HttpServlet {
                     break;
 
                 case "phone":
-                    if (!Phone.matches("^0[0-9]{9}$")) {
-                        error = "Số điện thoại phải bắt đầu từ 0 và có 10 chữ số!";
+                    if (!Phone.matches("^0\\d{9,10}$")) {
+                        error = "Số điện thoại phải bắt đầu từ 0 và phải có 10 or 11 chữ số!";
                     }
                     break;
             }
@@ -205,8 +205,9 @@ public class registerServlet extends HttpServlet {
 
             String signUpResult = userDAO.Signup(UserName, PassWord, Email, FullName, Phone);
             if ("Success".equals(userDAO.getStatus())) {
-                session.setAttribute("successMessage", "Đăng kí thành công! Xin vui lòng đăng nhậppp .");
-                response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+                //set thong tin user
+                session.setAttribute("user", userDAO.getUserByUsername(UserName));
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             } else {
                 session.setAttribute("errorMess", signUpResult);
                 response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");

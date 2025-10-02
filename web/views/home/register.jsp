@@ -44,9 +44,9 @@
 
                 <div class="register-container mb-5">
                     <!-- Logo -->
-                    <div class="text-center_register mb-5 logo">
+                    <div class="text-center_register mb-5  logo">
                         <h1 class="fw-bold ">🏝️ Island Travel</h1>
-                        <p class="text-muted">Khám phá thiên đường biển đảo</p>
+                        <p class="text-muted ml-4">Khám phá thiên đường biển đảo</p>
                     </div>
 
                     <!-- Thông báo lỗi -->
@@ -99,7 +99,7 @@
 
                         <div class="mb-4 input-group">
                             <span class="input-group-text">📱</span>
-                            <input type="tel" class="form-control" id="phone" name="phoneNumber" placeholder="Số điện thoại">
+                            <input type="tel" class="form-control" id="phone" name="phoneNumber" maxlength="11" placeholder="Số điện thoại">
                         </div>
 
                         <!-- Checkbox -->
@@ -121,6 +121,7 @@
             </div>
         </div>
     </div>
+          
                         
               <!-- Bootstrap JS and jquery (bundle đã gồm Popper.js) -->
             <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>

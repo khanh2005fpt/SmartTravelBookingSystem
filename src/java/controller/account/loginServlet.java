@@ -76,6 +76,15 @@ public class loginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        // get error khi user click huy trong login gg
+        String error = request.getParameter("error");
+        if(error!=null){
+             response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+             return;
+        }
+         
+        
         String code = request.getParameter("code");
         googleLogin gg = new googleLogin();
         String accessToken = gg.getToken(code);
@@ -83,14 +92,13 @@ public class loginServlet extends HttpServlet {
         GoogleAccount acc = gg.getUserInfo(accessToken);
         System.out.println(acc);
 
-        HttpSession session = request.getSession();
         //check tk nay da dky chua
         User existing = UserDao.getUserByEmail(acc.getEmail());
         if (existing != null) {
             // user ton tai -> login
             session.setAttribute("user", existing);
-                  session.setAttribute("loginSuccess", "oke");
-            response.sendRedirect(request.getContextPath() + "/views/home/destination.jsp");
+            session.setAttribute("loginSuccess", "oke");
+            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             return;
         } else {
             // user chua co acc --> dky luon cho user
@@ -107,7 +115,7 @@ public class loginServlet extends HttpServlet {
                 //login
                 session.setAttribute("user", newUser);
                 session.setAttribute("loginSuccess", "oke");
-                response.sendRedirect(request.getContextPath() + "/views/home/destination.jsp");
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             } else {
                 session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
                 response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");

@@ -14,3 +14,11 @@ build/
 # Ignore real config & constants (secret)
 src/java/config/config.properties
 src/java/constant/Iconstant.java
+src/java/config/Config.java
+src/java/config/
+#file private & xml,...
+nbproject/build-impl.xml
+nbproject/genfiles.properties
+nbproject/private/private.properties
+nbproject/private/private.xml
+nbproject/build-impl.xml~

@@ -33,15 +33,16 @@
       padding: 30px;
       border-radius: 14px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      width: 340px;
+      width: 360px;
     }
     .reset-container h2 {
       text-align: center;
       margin-bottom: 25px;
       font-size: 30px;
-      font-weight: 600;
+      font-weight: 500;
       color: #222;
       margin-right: 20px;
+      height: 40px;
     }
     /* OTP style */
     .otp-group {
@@ -122,16 +123,28 @@
   <div class="reset-container">
     <h2>🔑Reset Password</h2>
     <form action="${pageContext.request.contextPath}/resetPassword" method="post">
-      <!-- OTP -->
-      <div class="otp-group">
-        <input type="text" maxlength="1" inputmode="numeric" required>
-        <input type="text" maxlength="1" inputmode="numeric" required>
-        <input type="text" maxlength="1" inputmode="numeric" required>
-        <input type="text" maxlength="1" inputmode="numeric" required>
-        <input type="text" maxlength="1" inputmode="numeric" required>
-        <input type="text" maxlength="1" inputmode="numeric" required>
-      </div>
       
+    <%
+      Boolean otpVerified = (Boolean) session.getAttribute("otpVerified");
+    
+    %>
+
+    <% if (otpVerified == null || !otpVerified) { %>
+        <!-- Nhập OTP -->
+        <div class="otp-group">
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-input">
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-input">
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-input">
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-input">
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-input">
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-input">
+        </div>
+        <input type="hidden" id="otp" name="otp">
+    <% } else { %>
+      
+        <input type="hidden" name="otpVerified" value="true">
+    <% } %>
+
        <!-- Thông báo lỗi input -->
        
        <% String error = (String) session.getAttribute("errorPass"); %>
@@ -147,7 +160,7 @@
                                 }
                             }, 3000);
                         </script>
-                        <% session.removeAttribute("errorEmail"); %>
+                        <% session.removeAttribute("errorPass"); %>
                         <% } %>
        
        
@@ -155,13 +168,13 @@
         
       <!-- lay emai de hien thi -->
       <%
-          String email = (String) session.getAttribute("resetEmail");
+          String emailUser = (String) session.getAttribute("resetEmail");
 
           %>
           
           
         <div class="form-group">
-            <input type="email" id="email" name="email" value="<%= email%>" readonly/>
+            <input type="email" id="email" name="email"  value="<%= emailUser %>" readonly/>
         <label for="password">Email</label>
       </div>
       
@@ -175,24 +188,47 @@
       </div>
       <button type="submit" class="btn-submit">Xác nhận</button>
     </form>
+        <!-- Link quay lại login -->
+<div class="text-center mt-3">
+  <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="back-link">
+    <i class="fa fa-arrow-left"></i> Quay lại đăng nhập
+  </a>
+</div>
+        
   </div>
+        
+    
+    
+<script>
+  const otpInputs = document.querySelectorAll(".otp-group input");
+  const otpHidden = document.getElementById("otp");
 
-  <script>
-    // Auto move cursor in OTP inputs
-    const otpInputs = document.querySelectorAll(".otp-group input");
-    otpInputs.forEach((input, index) => {
-      input.addEventListener("input", () => {
-        if (input.value.length === 1 && index < otpInputs.length - 1) {
-          otpInputs[index + 1].focus();
-        }
-      });
-      input.addEventListener("keydown", (e) => {
-        if (e.key === "Backspace" && input.value === "" && index > 0) {
-          otpInputs[index - 1].focus();
-        }
-      });
+  otpInputs.forEach((input, index) => {
+    input.addEventListener("input", () => {
+      // Chỉ cho nhập số
+      input.value = input.value.replace(/[^0-9]/g, "");
+
+      // Nếu nhập xong thì nhảy sang ô kế tiếp
+      if (input.value.length === 1 && index < otpInputs.length - 1) {
+        otpInputs[index + 1].focus();
+      }
     });
-  </script>
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && input.value === "" && index > 0) {
+        otpInputs[index - 1].focus();
+      }
+    });
+  });
+
+  // Khi submit form thì ghép OTP lại
+  document.querySelector("form").addEventListener("submit", function () {
+    let otpValue = "";
+    otpInputs.forEach(input => otpValue += input.value);
+    otpHidden.value = otpValue;
+  });
+</script>
+
   
    <!-- Bootstrap JS -->
     <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>

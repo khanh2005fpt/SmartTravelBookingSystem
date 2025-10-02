@@ -77,7 +77,7 @@ public class resetPassword extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
       String token = request.getParameter("token");
-         
+       
 Token tokenForget = tokenDao.getInstance().checkValidToken(token);
 
 if (tokenForget == null) {
@@ -105,34 +105,99 @@ response.sendRedirect("views/home/resetPassword.jsp");
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        String email = request.getParameter("email");
-        String passoword = request.getParameter("password");
-        String rePassword = request.getParameter("confirmPassword");
-        
-        HttpSession session = request.getSession();
-        //check null
-        if(passoword==null || passoword.isEmpty() || rePassword==null || rePassword.isEmpty() ){
-           session.setAttribute("errorPass", "Vui lòng hãy nhập mật khẩu!");
-           response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
-           return;
-        }
-        // validate password
-        if(!rePassword.equals(passoword)){
-              session.setAttribute("errorPass", "Mật khẩu không khớp nhau!");
-       response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
-       return;
-        }
-        
-          // update is used of token 
-        String tokenValue = (String) session.getAttribute("token");
-                 //update password , status
-          UserDao.updatePassword(email, passoword);
-TokenDao.markTokenAsUsed(tokenValue);
+     String otpInput = request.getParameter("otp");
 
-          //  save user and redirect to home
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        String rePassword = request.getParameter("confirmPassword");
+
+        HttpSession session = request.getSession();
+
+        // get token 
+        String tokenValue = (String) session.getAttribute("token");
+        
+        Token tokenForget = tokenDao.getInstance().checkValidToken(tokenValue);
+
+        if (tokenForget == null) {
+            request.getSession().setAttribute("errorPass", "Mã OTP đã hết hạn. Hãy gửi yêu cầu lại!");
+            response.sendRedirect("views/home/resetPassword.jsp");
+            return;
+        }
+
+        // flag check otp da xac thua chua
+        Boolean otpVerified = (Boolean) session.getAttribute("otpVerified");
+        String otpSession = (String) session.getAttribute("otpSession");
+    
+        // chi check OTP nếu chưa verify
+        if (otpVerified == null || !otpVerified) {
           
-          session.setAttribute("successMessage", "Đổi mật khẩu thành công.");
-          response.sendRedirect("views/home/login.jsp");
+            Integer attempt = (Integer) session.getAttribute("otpAttempt");
+            if (attempt == null) {
+                attempt = 0;
+            }
+
+            if (otpInput == null || otpInput.trim().isEmpty()) {
+                session.setAttribute("errorPass", "Vui lòng nhập OTP!");
+                 response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
+                return;
+            }
+
+            if (!otpInput.equals(otpSession)) {
+                attempt++;
+                session.setAttribute("otpAttempt", attempt);
+                TokenDao.updateOtpAndAttempt(tokenForget.getTokenId(), otpInput, attempt);
+
+                if (attempt >= 3) {
+                    session.invalidate(); // clear het session
+                    HttpSession newSession = request.getSession(true);
+                    newSession.setAttribute("errorMess", "Bạn đã nhập sai OTP quá 3 lần. Vui lòng gửi lại yêu cầu!");
+                    response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+                    return;
+                }
+
+                session.setAttribute("errorPass", "OTP sai! Bạn còn " + (3 - attempt) + " lần thử.");
+                response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
+                return;
+            }
+
+            // OTP dung → set flag 
+            session.setAttribute("otpVerified", true); 
+              response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
+                return; 
+         }   
+         // neu user chua nhap mat khau → quay lai form de nhap mat khau(flow 1&2)
+
+        if (password == null || password.trim().isEmpty()
+                || rePassword == null || rePassword.trim().isEmpty()) {
+            session.setAttribute("errorPass", "Vui lòng nhập mật khẩu và xác nhận!");
+            response.sendRedirect("views/home/resetPassword.jsp");
+            return;
+        }
+    // 4. Check confirm password
+        if (!password.equals(rePassword)) {
+            session.setAttribute("errorPass", "Mật khẩu xác nhận không khớp!");
+            response.sendRedirect("views/home/resetPassword.jsp");
+            return;
+        }
+
+        // update is used of token 
+        //update password , status
+        UserDao.updatePassword(email, password);
+        TokenDao.markTokenAsUsed(tokenValue);
+      
+         // luu otp sau khi doi mat khau thanh cong
+          String otpUsed = request.getParameter("otp");
+          if (otpUsed != null && !otpUsed.trim().isEmpty()) {
+         TokenDao.updateOtpAndAttempt(tokenForget.getTokenId(), otpUsed,0 ); 
+         
+     
+
+}     // clean otp khi doi mk thanh cong 
+          session.removeAttribute("otpSession");
+       
+        //  save user and redirect to home
+        session.setAttribute("successMessage", "Đổi mật khẩu thành công.");
+        response.sendRedirect("views/home/login.jsp");
 
         
     }

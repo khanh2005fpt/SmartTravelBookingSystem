@@ -51,7 +51,6 @@ CREATE TABLE Islands (
 );
 
 
-select * from countries
 select * from Islands where 1=1 and islandName like 'Phu Quoc'
 go
 CREATE TABLE Tours (
@@ -237,10 +236,12 @@ CREATE TABLE Logs (
     LogId INT PRIMARY KEY IDENTITY(1,1),
     UserId INT NOT NULL,
     Action NVARCHAR(100) NOT NULL,
+	Method NVARCHAR(20) NULL,    
     Timestamp DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 go
+
 
 -- Tokens
 CREATE TABLE Tokens (
@@ -249,9 +250,15 @@ CREATE TABLE Tokens (
     TokenValue NVARCHAR(100) NOT NULL,
     ExpiryDate DATETIME NOT NULL,
     IsUsed BIT DEFAULT 0,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+	OtpCode VARCHAR(255) NULL,
+	AttemptCount INT DEFAULT 0,
     FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 go
+
+
+
 
 -- review
 CREATE TABLE Reviews (

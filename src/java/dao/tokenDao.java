@@ -8,16 +8,20 @@ package dao;
  *
  * @author nqagh
  */
+import controller.account.requestPassword;
+import controller.account.resetService;
+import jakarta.servlet.http.HttpSession;
 import model.Token;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-
 import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.UUID;
+import model.User;
 import utils.DBContext;
 
 public class tokenDao extends DBContext {
@@ -34,25 +38,26 @@ public class tokenDao extends DBContext {
         return formattedDate;
     }
 
-    // luu token moi
+      // luu token moi
     public boolean insertToken(Token tokenForget) {
 
         try {
-            String sqlToken = "INSERT INTO Tokens (UserId, TokenValue, ExpiryDate, IsUsed) VALUES (?, ?, ?, ?)";
+            String sqlToken = "INSERT INTO Tokens (UserId, TokenValue, ExpiryDate, IsUsed , OtpCode , AttemptCount) VALUES (?, ?, ?, ? , ? , ?)";
             try (PreparedStatement ps = connection.prepareStatement(sqlToken)) {
                 ps.setInt(1, tokenForget.getUserId());
                 ps.setString(2, tokenForget.getTokenValue());
                 ps.setTimestamp(3, Timestamp.valueOf(tokenForget.getExpiryDate()));
                 ps.setBoolean(4, tokenForget.isIsUsed());
-
+                ps.setString(5,tokenForget.getOtpCode());
+                ps.setInt(6, tokenForget.getAttemptCount());
                 return ps.executeUpdate() > 0;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             String errorMessage = "Lỗi khi luu token: " + e.getMessage();
         }
         return false;
     }
-
     // check validToken
 public Token checkValidToken(String tokenValue) {
     Token token = getTokenByValue(tokenValue);
@@ -113,7 +118,9 @@ public Token checkValidToken(String tokenValue) {
                             rs.getInt("UserId"),
                             rs.getString("TokenValue"),
                             rs.getTimestamp("ExpiryDate").toLocalDateTime(),
-                            rs.getBoolean("IsUsed")
+                            rs.getBoolean("IsUsed"),
+                            rs.getString("OtpCode"),
+                            rs.getInt("AttemptCount")
                     );
                     
 
@@ -126,5 +133,26 @@ public Token checkValidToken(String tokenValue) {
         }
         return null;
     }
+     // update otpcode va attempt cout
+    
+      public void updateOtpAndAttempt(int tokenId , String OtpCode , int AttemptCount){
+            try{
+                String sqlOtp ="UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
+                try(PreparedStatement ps = connection.prepareStatement(sqlOtp)){
+                     ps.setString(1, OtpCode); 
+              
+                     ps.setInt(2, AttemptCount);
+                     ps.setInt(3, tokenId);
+                     
+                     ps.executeUpdate();
+                }
+                
+            }catch(SQLException e){
+                e.printStackTrace();
+                System.out.println(e);
+            }
+      }
+    
+   
 
 }

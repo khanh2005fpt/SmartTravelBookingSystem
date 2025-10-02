@@ -162,7 +162,7 @@
                         <div id="errorAlert" class="alert alert-danger alert_style"><%= errorEmail %></div>
                         <% } %>
                         <script>
-                            setTimeout(function () {
+                            setTimeout(function () {    
                                 var alertBox = document.getElementById("errorAlert");
                                 if (alertBox) {
                                     alertBox.style.display = "none";
