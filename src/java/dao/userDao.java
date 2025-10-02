@@ -77,6 +77,7 @@ public class userDao extends DBContext {
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password")); // lấy hash từ DB
                 user.setStatus(rs.getString("status"));
+                user.setRole(rs.getString("role"));
                 String storedPassword = user.getPassword();
 
                 // So sánh password plain text 
@@ -346,5 +347,5 @@ public class userDao extends DBContext {
         }
     }
    
-
+ 
 }

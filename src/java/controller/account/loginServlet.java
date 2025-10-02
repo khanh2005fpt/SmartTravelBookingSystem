@@ -168,7 +168,7 @@ public class loginServlet extends HttpServlet {
         //login thanh cong
         session.setAttribute("user", user);
         session.setAttribute("loginSuccess", "oke");
-        response.sendRedirect(request.getContextPath() + "/views/home/destination.jsp");
+        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
 
     }
 
@@ -181,5 +181,5 @@ public class loginServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
+   
 }
