@@ -77,7 +77,7 @@ public class userDao extends DBContext {
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password")); // lấy hash từ DB
                 user.setStatus(rs.getString("status"));
-                user.setRole(rs.getString("role"));
+
                 String storedPassword = user.getPassword();
 
                 // So sánh password plain text 
@@ -194,15 +194,15 @@ public class userDao extends DBContext {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 return new User(
-                        rs.getInt(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getString(4),
-                        rs.getString(5),
-                        rs.getString(6),
-                        rs.getString(7),
-                        rs.getTimestamp(8),
-                        rs.getString(9)
+                        rs.getInt("userId"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("fullName"),
+                        rs.getString("phone"),
+                        rs.getInt("roleId"),
+                        rs.getTimestamp("createdAt"),
+                        rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -211,8 +211,9 @@ public class userDao extends DBContext {
 
         return null;
     }
+
     //lay user by username
-      public User getUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         try {
             String sql = "Select * from Users where username=?";
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -220,15 +221,15 @@ public class userDao extends DBContext {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 return new User(
-                        rs.getInt(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getString(4),
-                        rs.getString(5),
-                        rs.getString(6),
-                        rs.getString(7),
-                        rs.getTimestamp(8),
-                        rs.getString(9)
+                        rs.getInt("userId"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("fullName"),
+                        rs.getString("phone"),
+                        rs.getInt("roleId"),
+                        rs.getTimestamp("createdAt"),
+                        rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -247,15 +248,15 @@ public class userDao extends DBContext {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     return new User(
-                            rs.getInt(1),
-                            rs.getString(2),
-                            rs.getString(3),
-                            rs.getString(4),
-                            rs.getString(5),
-                            rs.getString(6),
-                            rs.getString(7),
-                            rs.getTimestamp(8),
-                            rs.getString(9)
+                            rs.getInt("userId"),
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email"),
+                            rs.getString("fullName"),
+                            rs.getString("phone"),
+                            rs.getInt("roleId"),
+                            rs.getTimestamp("createdAt"),
+                            rs.getString("status")
                     );
                 }
             }
@@ -301,23 +302,22 @@ public class userDao extends DBContext {
         }
 
     }
-    
+
     // generate random password
-    
-    public String generateRandomPassword(int lenght){
+    public String generateRandomPassword(int lenght) {
         final String CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
         SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder();
-         
-        for(int i = 0 ; i < lenght ; i++){
+
+        for (int i = 0; i < lenght; i++) {
             int idx = random.nextInt(CHARACTER.length());
             sb.append(CHARACTER.charAt(idx));
         }
         return sb.toString();
     }
-    
+
     // Auto dky cho user
-      public String AutoSignupByGoogle(String username, String password, String email, String fullName, String phone) {
+    public String AutoSignupByGoogle(String username, String password, String email, String fullName, String phone) {
         try {
 
             String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -346,6 +346,16 @@ public class userDao extends DBContext {
             return "Error: " + errorMessage;
         }
     }
-   
- 
+
+    public static void main(String[] args) {
+        userDao dao = new userDao();
+        String email = "nqaghuyyy6969@gmail.com";
+        User existing = dao.getUserByEmail(email);
+        if (existing != null) {
+            System.out.println("ton tai email login thanh cong");
+        } else {
+            System.out.println(" email chưa ton tai co the dky");
+        }
+    }
+
 }

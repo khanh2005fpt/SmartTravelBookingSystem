@@ -77,12 +77,12 @@
                        style="background: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: #0077b6;">
 
                         <i class="bi bi-person-circle mr-2" style="font-size: 20px;"></i>
-                         <span><%= user != null ? user.getRole() : "Khách" %> | 0 Điểm</span>
+                         <span><%= user != null ? user.getFullName() : "Khách" %> | 0 Điểm</span>
                     </a>
 
                     <!-- Menu xổ xuống -->
-                    <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
+                    <div class="dropdown-menu dropdown-menu-right shadow w-75" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                         <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
                         <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
                         <div class="dropdown-divider"></div>
@@ -129,7 +129,7 @@
 <style>
 
     /* -------- Modal Logout -------- */
-    /* Box */
+ 
     .logout-box {
         width: 380px;
         max-width: 100%;
@@ -141,21 +141,20 @@
         text-align: center;
     }
 
-    /* Header */
+
     .logout-header {
         font-size: 1.5rem;
         font-weight: 800;
         color: #1976d2; /* xanh dương */
     }
 
-    /* Nội dung */
     .logout-body h5 {
         font-size: 1rem;
         font-weight: normal;
         color: #000;
     }
 
-    /* Nút Không */
+  
     .btn-cancel {
         background: #fff;
         color: #1976d2;
@@ -171,7 +170,7 @@
         color: #fff !important;
     }
 
-    /* Nút Có */
+
     .btn-logout {
         background: #1976d2;
         color: #fff;
@@ -195,4 +194,7 @@
         opacity: 0.3 !important;
     }
 
-</style>         
+
+    
+    
+</style> 

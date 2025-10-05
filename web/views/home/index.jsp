@@ -123,7 +123,7 @@
     
     setTimeout(function(){
       $('#welcomeModal').modal('hide');
-    }, 3000);
+    }, 2000);
     
   });
 </script>
