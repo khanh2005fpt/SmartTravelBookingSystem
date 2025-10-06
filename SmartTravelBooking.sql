@@ -8,7 +8,7 @@ CREATE TABLE Users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    fullName VARCHAR(100),
+    fullName NVARCHAR(100),
     phone NVARCHAR(20),
   roleId INT NOT NULL DEFAULT 3, 
     createdAt DATETIME DEFAULT GETDATE(),
@@ -16,6 +16,7 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
+
 select * from Users
 --ALTER TABLE Users ADD CONSTRAINT DF_Users_roleId DEFAULT 3 FOR roleId;
 
@@ -34,7 +35,8 @@ select * from CustomerProfiles
 -- Bảng CustomerProfiles
 CREATE TABLE CustomerProfiles (
     profileId INT IDENTITY(1,1) PRIMARY KEY,      
-    userId INT NOT NULL UNIQUE,                   
+    userId INT NOT NULL UNIQUE,  
+	fullName NVARCHAR(255) NULL,
     dateOfBirth DATE NULL,
     gender NVARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')) NULL,
     address NVARCHAR(255) NULL,

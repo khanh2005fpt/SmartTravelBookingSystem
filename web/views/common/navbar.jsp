@@ -66,9 +66,9 @@
                         // Đã đăng nhập → Hiện profile dropdown
                 %>
 
-                <li class="nav-item dropdown ml-lg-5">
+                <li class="nav-item dropdown ml-lg-5 w-auto">
                     <a href="#" 
-                       class="nav-link dropdown-toggle d-flex align-items-center" 
+                       class="nav-link dropdown-toggle d-flex align-items-center  " 
                        id="userDropdown" 
                        role="button" 
                        data-toggle="dropdown" 
@@ -81,7 +81,7 @@
                     </a>
 
                     <!-- Menu xổ xuống -->
-                    <div class="dropdown-menu dropdown-menu-right shadow w-75" aria-labelledby="userDropdown">
+                    <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                         <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
                         <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
@@ -194,7 +194,49 @@
         opacity: 0.3 !important;
     }
 
-
     
+    
+
+/* Dropdown tổng thể */
+.dropdown-menu {
+  min-width: 300px;
+  border-radius: 10px;
+  padding: 6px 0;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /*  tránh lòi màu hover ra ngoài */
+}
+
+/* Các item trong menu */
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent; /* reset mặc định */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin-left: 15px;
+}
+
+/* Khi hover */
+.dropdown-item:hover {
+  background-color: #eaf6ff !important; /* nền xanh nhẹ */
+  color: #0077b6 !important;
+}
+
+
+.dropdown-item i {
+  font-size: 18px;
+  color: #0077b6;
+}
+
+
+.dropdown-item:hover i {
+  color: #0077b6;
+}
+
     
 </style> 

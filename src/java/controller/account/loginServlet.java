@@ -114,6 +114,7 @@ public class loginServlet extends HttpServlet {
 
                 //login
                 session.setAttribute("user", newUser);
+                   session.setAttribute("userId", newUser.getUserId());
                 session.setAttribute("loginSuccess", "oke");
                 response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             } else {
@@ -167,13 +168,14 @@ public class loginServlet extends HttpServlet {
 
         //login thanh cong
         session.setAttribute("user", user);
+        session.setAttribute("userId", user.getUserId());
         session.setAttribute("loginSuccess", "oke");
         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
 
     }
 
     /**
-     * Returns a short description of the servlet.
+     * Returns a short description of the servlet  .
      *
      * @return a String containing servlet description
      */

@@ -39,4 +39,4 @@
 
 <!-- Bootstrap 4 JS -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/profile.css">
