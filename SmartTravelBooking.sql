@@ -96,6 +96,7 @@ CREATE TABLE Hotels (
     roomsAvailable INT,
     rating DECIMAL(3,1),
     hotelImageUrl VARCHAR(255), -- đường dẫn ảnh khách sạn
+	area INT CHECK (area > 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
