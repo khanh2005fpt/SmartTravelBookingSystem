@@ -6,8 +6,6 @@
 package controller.profile;
 
 import dao.EmailDao;
-import dao.userDao;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -17,22 +15,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import model.EmailCustomer;
 import model.User;
 
 /**
  *
  * @author nqagh
  */
-@WebServlet(name="email_Added", urlPatterns={"/email_Added"})
-public class email_Added extends HttpServlet {
-     public EmailDao emailDao;
-    
+@WebServlet(name="saved_Email", urlPatterns={"/saved_Email"})
+public class Secondary_Email extends HttpServlet {
    
-       @Override
+      public EmailDao emailDAO;
+          @Override
     public void init() throws ServletException {
         try {
-          emailDao = EmailDao.INSTANCE;
+         emailDAO = EmailDao.INSTANCE;
         
             System.out.println("emailDao initialized successfully in loginServlet");
         } catch (Exception e) {
@@ -41,7 +37,7 @@ public class email_Added extends HttpServlet {
             throw new ServletException("Failed to initialize information", e);
         }
     }
-   
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -57,10 +53,10 @@ public class email_Added extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet email_Added</title>");  
+            out.println("<title>Servlet saved_Email</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet email_Added at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet saved_Email at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -77,7 +73,10 @@ public class email_Added extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+      
+    
+       
+       
     } 
 
     /** 
@@ -90,49 +89,37 @@ public class email_Added extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        HttpSession session =request.getSession();
-           User user = (User) session.getAttribute("user"); 
-    if (user == null) {
-        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
-        return;
-    }
+          HttpSession session = request.getSession();
+       User user = (User) session.getAttribute("user");
+       Integer userId = user.getUserId();
+       if(userId==null){
+          response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+          return;
+       }
+      
+       
+       String action = request.getParameter("action");
+       if(action==null){
+            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+          return;
+       }
+       
+       if(action.startsWith("delete-")){
+          int emailId = Integer.parseInt(action.split("-")[1]);
+            emailDAO.deleteEmail(emailId);
+            session.setAttribute("successEmail", "Đã xóa email thành công!");
+       }else if(action.startsWith("makePrimary-")){
+              int emailId = Integer.parseInt(action.split("-")[1]);
 
-    Integer userId = user.getUserId();
-    
-     String email = request.getParameter("email");
-     
-     //validate
-        if (email == null || email.trim().isEmpty()) {
-            session.setAttribute("errorEmail", "Vui lòng nhập địa chỉ email hợp lệ!");
-        request.getRequestDispatcher("/views/home/profile.jsp").forward(request, response);
-            return;
-        }
-        // check mail ton tai
-        
-        Boolean exist = emailDao.checkEmailExists(userId, email);
-        if(exist){
-             session.setAttribute("errorEmail", "Email này đã tồn tại!");
-              request.getRequestDispatcher("/views/home/profile.jsp").forward(request, response);
-            return;
-        }
-        
-        // check k them qua 2 mail
-        int totalEmails = emailDao.countEmailsByUserId(userId);
-          if(totalEmails>=2){
-              session.setAttribute("errorEmail", "Bạn chỉ được dùng tối đa 3 email!");
-              request.getRequestDispatcher("/views/home/profile.jsp").forward(request, response);
-            return;
-          }
-        // them email
-        emailDao.addEmail(userId, email);
-        List<EmailCustomer> emailList = emailDao.getEmailsByUserId(userId);
-       request.setAttribute("emailList", emailList);
-       session.setAttribute("successEmail", "Thêm email thành công!");
-       request.getRequestDispatcher("/views/home/profile.jsp").forward(request, response);
-   
+            // Đặt email mới làm chính, đồng bộ Users và UserEmails
+            emailDAO.setPrimaryEmai(user.getUserId(), emailId); 
 
-        
+            // Cập nhật session user để hiển thị profile ngay
+            String newPrimaryEmail = emailDAO.getEmailById(userId);
+            user.setEmail(newPrimaryEmail);
+            session.setAttribute("user", user);
+            session.setAttribute("successEmail", "Đã đặt email chính mới!");
+       }
     }
 
     /** 

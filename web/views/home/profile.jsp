@@ -182,7 +182,7 @@
                     </section>
 <!-- =================== EMAIL SECTION =================== -->
 
-                  <section class="card">
+                  <section class="card p-3 shadow-sm">
                       
                       <!--thong bao them thanh cong email -->  
                          <% String successEmail = (String)session.getAttribute("successEmail") ; %>
@@ -206,59 +206,101 @@
                 <%}%>
           
                       
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h3 class="mb-0">Email</h3>
-        <div>
-            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openEmailModal()">+ Thêm</button>
-            <button type="button" class="btn btn-sm btn-success me-2" onclick="saveEmail()"> Lưu</button>
-            <button type="button" class="btn btn-sm btn-danger" onclick="deleteSelectedEmail()"> Xóa</button>
-        </div>
+  
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h3 class="mb-0">Email</h3>
+    <div>
+      <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openEmailModal()">+ Thêm</button>
     </div>
+  </div>
 
-    <form id="emailForm" action="${pageContext.request.contextPath}/saveEmails" method="post">
-        <div class="email-list">
-            <c:forEach var="email" items="${emailList}">
-                <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
-                    <div>
-                        <input type="checkbox" name="selectedEmails" value="${email.emailId}" class="form-check-input me-2">
-                        <span>${email.email}</span>
-                    </div>
-                    <span class="tag">Email phụ</span>
-                </div>
-            </c:forEach>
+  <div class="border rounded p-3 bg-light mb-3">
+    <strong>Email chính:</strong>
+    <span class="text-primary">${user.email}</span>
+  </div>
+
+  <form id="emailForm" action="${pageContext.request.contextPath}/emailAction" method="post">
+    <div class="email-list">
+      <c:forEach var="email" items="${emailList}">
+        <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+          <div>
+            <span>${email.email}</span>
+          </div>
+          <div>
+            <button type="submit" name="action" value="makePrimary-${email.emailId}" class="btn btn-sm btn-outline-success me-2">
+                <i class="bi bi-check-circle"></i> Đặt làm chính
+            </button>
+            <button type="submit" name="action" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+               <i class="bi bi-trash"></i> Xóa
+            </button>
+          </div>
         </div>
-    </form>
+      </c:forEach>
+
+      <c:if test="${empty emailList}">
+        <p>Chưa có email phụ nào.</p>
+      </c:if>
+    </div>
+  </form>
 </section>
 
 <!-- =================== PHONE SECTION =================== -->
-<section class="card">
+
+
+<section class="card p-3 shadow-sm">
+    <% String successPhone = (String) session.getAttribute("successPhone"); %>
+    <% if (successPhone != null) { %>
+        <div id="successPhoneAlert" class="alert alert-success alert_style" role="alert">
+            <%= successPhone %>
+        </div>
+        <script>
+            setTimeout(function () {
+                var alertBox = document.getElementById("successPhoneAlert");
+                if (alertBox) {
+                    alertBox.style.display = "none";
+                }
+            }, 2000);
+        </script>
+        <% session.removeAttribute("successPhone"); %>
+    <% } %>
+
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h3 class="mb-0">Số di động</h3>
         <div>
             <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openPhoneModal()">+ Thêm</button>
-            <button type="button" class="btn btn-sm btn-success me-2" onclick="savePhone()">Lưu</button>
-            <button type="button" class="btn btn-sm btn-danger" onclick="deleteSelectedPhone()">Xóa</button>
         </div>
     </div>
 
-    <form id="phoneForm" action="${pageContext.request.contextPath}/savePhones" method="post">
+    <div class="border rounded p-3 bg-light mb-3">
+        <strong>Số chính:</strong>
+        <span class="text-primary">${user.phone}</span>
+    </div>
+
+    <form id="phoneForm" action="${pageContext.request.contextPath}/phoneAction" method="post">
         <div class="phone-list">
             <c:forEach var="phone" items="${phoneList}">
                 <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                     <div>
-                        <input type="checkbox" name="selectedPhones" value="${phone.phoneId}" class="form-check-input me-2">
                         <span>${phone.phoneNumber}</span>
                     </div>
-                    <span class="tag">Số phụ</span>
+                    <div>
+                        <button type="submit" name="action" value="makePrimary-${phone.phoneId}" class="btn btn-sm btn-outline-success me-2">
+                            <i class="bi bi-check-circle"></i> Đặt làm chính
+                        </button>
+                        <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i> Xóa
+                        </button>
+                    </div>
                 </div>
             </c:forEach>
+
+            <c:if test="${empty phoneList}">
+                <p>Chưa có số điện thoại phụ nào.</p>
+            </c:if>
         </div>
     </form>
 </section>
-                </div>
 
-            </div>
-        </div>
         
         <!-- =================== MODAL THÊM EMAIL =================== -->
         

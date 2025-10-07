@@ -11,6 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import model.CustomerProfile;
+import model.EmailCustomer;
+import org.apache.jasper.tagplugins.jstl.core.ForEach;
 
 /**
  *
@@ -41,25 +44,47 @@ public class EmailDao extends DBContext{
        }
        
        
-       // lay list userEmail (phu)
+       // lay  userEmail (phu)
        
-       public List<String> getEmailByUserId(int userId){
-           List<String> emails = new ArrayList<>();
-           try{
-               String sqlList ="SELECT email FROM UserEmails WHERE userId =1";
-                try (PreparedStatement ps = connection.prepareStatement(sqlList)){
-                    ps.setInt(1, userId);
-                    ResultSet rs = ps.executeQuery();
-                    while(rs.next()){
-                        emails.add(rs.getString("email"));
-                    }
-                }
-           }catch (SQLException e) {
-            e.printStackTrace();
+     public List<EmailCustomer> getEmailsByUserId(int userId) {
+    List<EmailCustomer> list = new ArrayList<>();
+    String sql = "SELECT emailId, userId, email, isPrimary FROM UserEmails WHERE userId = ?";
+    
+    try ( PreparedStatement stmt = connection.prepareStatement(sql))
+         {
+        stmt.setInt(1, userId);
+        ResultSet rs = stmt.executeQuery();
+        
+        while (rs.next()) {
+            EmailCustomer email = new EmailCustomer();
+            email.setEmailId(rs.getInt("emailId"));
+            email.setUserId(rs.getInt("userId"));
+            email.setEmail(rs.getString("email"));
+            email.setIsPrimary(rs.getBoolean("isPrimary"));
+            list.add(email);
         }
-           return emails;
-       }
-       
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    
+    return list;
+}
+     
+     // Lấy email theo emailId 
+     public String getEmailById(int emailId)
+     { String sql = "SELECT email FROM UserEmails WHERE emailId = ?"; 
+     try ( PreparedStatement stmt = connection.prepareStatement(sql)) 
+     { 
+         stmt.setInt(1, emailId); 
+         ResultSet rs = stmt.executeQuery();
+         if (rs.next()) return rs.getString("email"); 
+     } catch (SQLException e) {
+         e.printStackTrace();
+     } return null; 
+     
+     }
+
        
        //delete email
     public boolean deleteEmail(int emailId) {
@@ -92,6 +117,104 @@ public class EmailDao extends DBContext{
         }
             return false;//chua ton tai
         }   
+  
+       // update email thanh primary email va dong bo voi user
         
+        public void setPrimaryEmai(int userId ,int emailId){
+            String newEmail = getEmailById(emailId);
+            if(newEmail==null) return;
+            
+            
+            
+            try{
+                String sqlReset="UPDATE UserEmails SET isPrimary=0 WHERE userId=? AND isPrimary=1";
+                String sqlSetNew = "UPDATE UserEmails SET isPrimary=1 WHERE emailId=?";
+                // dong bo email o user
+                String sqlUpdateUser = "UPDATE Users SET EMAIL=? WHERE userId=?";
+                
+                //Tắt auto-commit → dùng transaction.(nếu có lỗi thì rollback tránh k đồng bộ )
+                connection.setAutoCommit(false);
+                
+                try(PreparedStatement ps = connection.prepareStatement(sqlReset)){
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
+                 try(PreparedStatement ps = connection.prepareStatement(sqlSetNew)){
+                    ps.setInt(1, emailId);
+                    ps.executeUpdate();
+                }
+                  try(PreparedStatement ps = connection.prepareStatement(sqlUpdateUser)){
+                    ps.setString(1, newEmail);
+                    ps.setInt(2, userId);
+                    ps.executeUpdate();
+                }
+                  //mọi thay đổi được lưu đồng bộ
+                    connection.commit();
+                
+            }catch (SQLException e) {
+            e.printStackTrace();
+            
+        }
+            
+        }
+        
+        //limit them emai va so email dc dung
+        
+        public int countEmailsByUserId(int userId) {
+    int count = 0;
+    String sql = "SELECT COUNT(*) FROM UserEmails WHERE userId = ?";
     
+    try ( PreparedStatement stmt = connection.prepareStatement(sql) ) {
+        stmt.setInt(1, userId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            count = rs.getInt(1);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    
+    return count;
 }
+
+        
+        /*
+        
+        public List<Integer> getEmailIdsByUserId(int userId) {
+    List<Integer> emailIds = new ArrayList<>();
+    String sql = "SELECT emailId FROM UserEmails WHERE userId = ?";
+    
+    try ( PreparedStatement stmt = connection.prepareStatement(sql))
+         {
+        
+        stmt.setInt(1, userId);
+        ResultSet rs = stmt.executeQuery();
+        
+        while (rs.next()) {
+            emailIds.add(rs.getInt("emailId"));
+        }
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    
+    return emailIds;
+}
+*/
+        public static void main(String[] args) {
+            
+           
+          
+    List<EmailCustomer> listEmail = EmailDao.INSTANCE.getEmailsByUserId(2);
+    
+  
+    List<EmailCustomer> list = new ArrayList<>();
+    
+  
+    for (EmailCustomer email : listEmail) {
+         System.out.println(email.getEmailId()+" "+email.getEmail()+" "+email.getUserId());
+    }
+    }
+}
+    
+

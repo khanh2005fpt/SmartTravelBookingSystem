@@ -16,9 +16,18 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
+select * from dbo.UserEmails
+/* lenh reset id_table
+DELETE FROM UserEmails;
+DBCC CHECKIDENT ('UserEmails', RESEED, 0);
+nqaghuyyy6969@gmail.com
+huynqhe182510@fpt.edu.vn
+*/
+
+
 
 select * from Users
---ALTER TABLE Users ADD CONSTRAINT DF_Users_roleId DEFAULT 3 FOR roleId;
+
 
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
@@ -100,6 +109,8 @@ END;
 GO
 
 
+
+SELECT * FROM UserEmails
 CREATE TABLE UserEmails (
     emailId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,

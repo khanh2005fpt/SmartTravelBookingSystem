@@ -12,18 +12,28 @@ public class EmailCustomer {
       private int emailId;
     private int userId;
     private String email;
+    private boolean isPrimary;
 
     public EmailCustomer() {
     }
 
-    public EmailCustomer(int emailId, int userId, String email) {
+    public EmailCustomer(int emailId, int userId, String email , boolean isPrimary) {
         this.emailId = emailId;
         this.userId = userId;
         this.email = email;
+        this.isPrimary=isPrimary;
     }
 
     public int getEmailId() {
         return emailId;
+    }
+
+    public boolean isIsPrimary() {
+        return isPrimary;
+    }
+
+    public void setIsPrimary(boolean isPrimary) {
+        this.isPrimary = isPrimary;
     }
 
     public void setEmailId(int emailId) {
@@ -48,7 +58,9 @@ public class EmailCustomer {
 
     @Override
     public String toString() {
-        return "EmailCustomer{" + "emailId=" + emailId + ", userId=" + userId + ", email=" + email + '}';
+        return "EmailCustomer{" + "emailId=" + emailId + ", userId=" + userId + ", email=" + email + ", isPrimary=" + isPrimary + '}';
     }
+
+   
     
 }
