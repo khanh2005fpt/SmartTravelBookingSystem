@@ -6,11 +6,45 @@
 <%@ page import="model.User" %>
 
 <html lang="vi">
-    <head
+    <head>
         <%@ include file="/views/common/css.jsp" %>
+         
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
 
+           <style>
+         /* tranh bi ghi de color boostrap
+         
+             .modal .btn-primary,
+#addEmailModal .btn-primary {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: #fff !important;
+}
+
+.modal .btn-primary:hover,
+#addEmailModal .btn-primary:hover {
+    background-color: #0069d9 !important;
+    border-color: #0062cc !important;
+}
+                 
+         */
+
+     /* edit input add email*/    
+    #emailInput {
+  height: 50px !important;
+  font-size: 15px;
+  padding: 6px 12px;
+  line-height: 1.2;
+}
+
+#emailInput::placeholder {
+  font-size: 13px;
+  color: #999;
+}
+
+    </style>
+          
     </head>
     <body class="profile" >
         <div class="profile-container">
@@ -146,114 +180,251 @@
                         </form>
 
                     </section>
+<!-- =================== EMAIL SECTION =================== -->
 
-                    <section class="card">
-                        <h3>Email</h3>
-                        <div class="email-list">
-                            <div class="email-item">
-                                <span>1. nqaghuyyy6969@gmail.com</span>
-                                <span class="tag">Nơi nhận thông báo</span>
-                            </div>
-                        </div>
-                        <button class="btn-outline w-25 mt-2">+ Thêm email</button>
-                    </section>
+                  <section class="card">
+                      
+                      <!--thong bao them thanh cong email -->  
+                         <% String successEmail = (String)session.getAttribute("successEmail") ; %>
+                
+                <% if(successEmail !=null){%>
 
-                    <section class="card">
-                        <h3>Số di động</h3>
-                        <button class="btn-outline w-25 mt-2">+ Thêm số di động</button>
-                    </section>
+                <div id="successAlert" class="alert alert-success alert_style" role="alert">
+                    <%=successEmail%>
+                </div>
+                <!-- set time display loi  ------------------------------------------------------>
+                <script>
+                    setTimeout(function () {
+                        var alertBox = document.getElementById("successAlert");
+                        if (alertBox) {
+                            alertBox.style.display = "none";
+                        }
+                    }, 2000);
+                </script>
+                <!-- remove session  -->
+                <% session.removeAttribute("successEmail");%>
+                <%}%>
+          
+                      
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="mb-0">Email</h3>
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openEmailModal()">+ Thêm</button>
+            <button type="button" class="btn btn-sm btn-success me-2" onclick="saveEmail()"> Lưu</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="deleteSelectedEmail()"> Xóa</button>
+        </div>
+    </div>
+
+    <form id="emailForm" action="${pageContext.request.contextPath}/saveEmails" method="post">
+        <div class="email-list">
+            <c:forEach var="email" items="${emailList}">
+                <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                    <div>
+                        <input type="checkbox" name="selectedEmails" value="${email.emailId}" class="form-check-input me-2">
+                        <span>${email.email}</span>
+                    </div>
+                    <span class="tag">Email phụ</span>
+                </div>
+            </c:forEach>
+        </div>
+    </form>
+</section>
+
+<!-- =================== PHONE SECTION =================== -->
+<section class="card">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="mb-0">Số di động</h3>
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openPhoneModal()">+ Thêm</button>
+            <button type="button" class="btn btn-sm btn-success me-2" onclick="savePhone()">Lưu</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="deleteSelectedPhone()">Xóa</button>
+        </div>
+    </div>
+
+    <form id="phoneForm" action="${pageContext.request.contextPath}/savePhones" method="post">
+        <div class="phone-list">
+            <c:forEach var="phone" items="${phoneList}">
+                <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                    <div>
+                        <input type="checkbox" name="selectedPhones" value="${phone.phoneId}" class="form-check-input me-2">
+                        <span>${phone.phoneNumber}</span>
+                    </div>
+                    <span class="tag">Số phụ</span>
+                </div>
+            </c:forEach>
+        </div>
+    </form>
+</section>
                 </div>
 
             </div>
         </div>
+        
         <!-- =================== MODAL THÊM EMAIL =================== -->
+        
+<div class="modal fade" id="addEmailModal" tabindex="-1" role="dialog" aria-labelledby="addEmailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content custom-modal">
 
-        <div id="addEmailModal" class="modal-overlay">
-            <div class="modal-content">
-                <h3>THÊM EMAIL</h3>
-                <p>Thêm email đang sử dụng của bạn để đăng nhập và nhận thông báo </p>
+      <!-- Header -->
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-primary font-weight-bold" id="addEmailModalLabel">
+          ✉️ Thêm Email
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
 
-                <form action="${pageContext.request.contextPath}/addEmail" method="POST">
-                    <label for="emailInput">Email </label>
-                    <input type="email" id="emailInput" name="email" placeholder="Ví dụ: yourname@email.com">
-                    <div class="modal-actions">
-                        <button type="submit" class="btn-save">Lưu</button>
-                        <button type="button" class="btn-cancel" onclick="closeModal()">Hủy</button>
-                    </div>
-
-                </form>
-
-
-
-
-            </div>
-        </div>  
-        <!-- Js thêm email -------------------------------------------------->
-        <script>
-            // Mở modal khi bấm “+ Thêm email”
-            document.querySelector('.btn-outline.w-25.mt-2').addEventListener('click', function () {
-                document.getElementById('addEmailModal').style.display = 'flex';
-            });
-
-            // Đóng modal
-            function closeModal() {
-                document.getElementById('addEmailModal').style.display = 'none';
-            }
-
-            // Đóng khi click ra ngoài modal
-            window.onclick = function (event) {
-                const modal = document.getElementById('addEmailModal');
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            }
-        </script>                  
-
-        <!-- =================== MODAL THÊM Phones =================== -->
-
-        <div id="addPhoneModal" class="modal-overlay">
-            <div class="modal-content">
-                <h3>THÊM SỐ ĐIỆN THOẠI</h3>
-                <p>Thêm số điện thoại đang sử dụng của bạn để đăng nhập và nhận thông báo</p>
-                <form action="${pageContext.request.contextPath}/addPhone" method="post">
-                    <label for="phoneInput">Điện thoại</label>
-                    <div class="phone-group">
-                        <span class="country-code">+84</span>
-                        <input type="text" id="phoneInput" name="phone" placeholder="Ví dụ: 012345678" pattern="[0-9]{9,11}" required>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="submit" class="btn-save">Lưu</button>
-                        <button type="button" class="btn-cancel" onclick="closePhoneModal()">Hủy</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Js them so dien thoai  -------------------------------------------------->  
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- Thông báo lỗi -->
+        <% String errorEmail = (String) session.getAttribute("errorEmail"); %>
+        <% if (errorEmail != null) { %>
+        <div id="errorAlert" class="alert alert-danger alert_style"><%= errorEmail %></div>
+        <% } %>
 
         <script>
-            // Mở modal Thêm số điện thoại
-            document.querySelectorAll('.btn-outline.w-25.mt-2').forEach(btn => {
-                if (btn.textContent.includes('số di động')) {
-                    btn.addEventListener('click', function () {
-                        document.getElementById('addPhoneModal').style.display = 'flex';
-                    });
-                }
-            });
-
-            // Đóng modal
-            function closePhoneModal() {
-                document.getElementById('addPhoneModal').style.display = 'none';
+          
+          setTimeout(function () {
+            var alertBox = document.getElementById("errorAlert");
+            if (alertBox) {
+              alertBox.style.display = "none";
             }
-
-            // Đóng khi click ra ngoài modal
-            window.addEventListener('click', function (event) {
-                const modal = document.getElementById('addPhoneModal');
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
+          }, 2000);
         </script>
+
+        <p class="text-muted mb-3">
+          Nhập địa chỉ email bạn đang sử dụng để đăng nhập và nhận thông báo.
+        </p>
+
+        <!-- Form -->
+        <form action="${pageContext.request.contextPath}/email_Added"  method="POST">
+          <div class="form-group">
+            <label for="emailInput" class="form-label text-primary font-weight-bold" style="font-size:18px;" >Email</label>
+            <input type="email" class="form-control form-control-sm " id="emailInput"
+                   name="email" placeholder="📧 Ví dụ: yourname@email.com" >
+          </div>
+
+          <div class="modal-footer border-0 mt-3 d-flex flex-column">
+            <button type="submit" class="btn btn-primary w-100 mb-2">Lưu</button>
+            <button type="button" class="btn btn-secondary w-100" data-dismiss="modal">Hủy</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- =================== AUTO MỞ MODAL KHI CÓ LỖI =================== -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    <% boolean hasError = (session.getAttribute("errorEmail") != null);
+       if (hasError) { %>
+        $('#addEmailModal').modal('show');
+    <% 
+        
+        session.removeAttribute("errorEmail");
+       } 
+    %>
+  });
+</script>
+ 
+  <!--------- JS MỞ/ĐÓNG MODAL-------------------------------------------------->
+<script>
+function openEmailModal() {
+    $('#addEmailModal').modal('show');
+}
+
+function closeEmailModal() {
+    $('#addEmailModal').modal('hide');
+}
+</script>
+                
+
+   <!-- =================== MODAL THÊM SỐ ĐIỆN THOẠI =================== -->
+<div class="modal fade" id="addPhoneModal" tabindex="-1" role="dialog" aria-labelledby="addPhoneModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content custom-modal">
+
+      <!-- Header -->
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-primary font-weight-bold" id="addPhoneModalLabel">
+          📞 Thêm Số Điện Thoại
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <% String errorPhone = (String) session.getAttribute("errorPhone"); %>
+        <% if (errorPhone != null) { %>
+        <div id="errorPhoneAlert" class="alert alert-danger alert_style"><%= errorPhone %></div>
+        <% } %>
+
+        <script>
+          setTimeout(function () {
+            var alertBox = document.getElementById("errorPhoneAlert");
+            if (alertBox) {
+              alertBox.style.display = "none";
+            }
+          }, 2000);
+        </script>
+
+        <p class="text-muted mb-3">
+          Thêm số điện thoại bạn đang sử dụng để đăng nhập và nhận thông báo.
+        </p>
+
+        <!-- Form -->
+        <form action="${pageContext.request.contextPath}/addPhone" method="POST">
+          <div class="form-group">
+            <label for="phoneInput" class="form-label text-primary font-weight-bold ">Số điện thoại</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">+84</span>
+              </div>
+              <input type="text" class="form-control" id="phoneInput" 
+                     name="phone" placeholder="Ví dụ: 912345678" 
+                     pattern="[0-9]{9,11}" required>
+            </div>
+          </div>
+
+          <div class="modal-footer border-0 mt-3 d-flex flex-column">
+            <button type="submit" class="btn btn-primary w-100 mb-2">Lưu</button>
+            <button type="button" class="btn btn-secondary w-100" data-dismiss="modal">Hủy</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== AUTO MỞ MODAL KHI CÓ LỖI =================== -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    <% boolean hasPhoneError = (session.getAttribute("errorPhone") != null);
+       if (hasPhoneError) { %>
+        $('#addPhoneModal').modal('show');
+    <% 
+        session.removeAttribute("errorPhone");
+       } 
+    %>
+  });
+</script>
+
+<!-- =================== JS MỞ/ĐÓNG MODAL =================== -->
+<script>
+function openPhoneModal() {
+    $('#addPhoneModal').modal('show');
+}
+
+function closePhoneModal() {
+    $('#addPhoneModal').modal('hide');
+}
+</script>
 
 
         <!-- =================== Js for sidebar menu =================== -->               
@@ -286,6 +457,6 @@
             }
         </script>
 
-
+ <%@ include file="/views/common/script.jsp" %>
     </body>
 </html>

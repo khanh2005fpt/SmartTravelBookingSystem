@@ -77,7 +77,7 @@
                        style="background: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: #0077b6;">
 
                         <i class="bi bi-person-circle mr-2" style="font-size: 20px;"></i>
-                         <span><%= user != null ? user.getFullName() : "Khách" %> | 0 Điểm</span>
+                        <span lang="vi"><%= user != null ? user.getFullName() : "Khách" %> | 0 Điểm</span>
                     </a>
 
                     <!-- Menu xổ xuống -->

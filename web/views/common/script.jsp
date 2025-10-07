@@ -7,6 +7,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <!DOCTYPE html>
+       
         <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.2.1.min.js"></script>
         <script src="${pageContext.request.contextPath}/views/home/js/jquery-migrate-3.0.1.min.js"></script>
         <script src="${pageContext.request.contextPath}/views/home/js/popper.min.js"></script>
@@ -21,3 +22,5 @@
         <script src="${pageContext.request.contextPath}/views/home/js/jquery.timepicker.min.js"></script>
         <script src="${pageContext.request.contextPath}/views/home/js/scrollax.min.js"></script>
         <script src="${pageContext.request.contextPath}/views/home/js/main.js"></script>
+
+   
