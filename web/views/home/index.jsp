@@ -1,31 +1,64 @@
-<!DOCTYPE html>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
 <html lang="vi">
     <head>
+        <title>Smart Ticket Booking</title>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
+
         <%@ include file="/views/common/css.jsp" %>
+
     </head>
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
         <!-- KẾT THÚC nav -->
 
-        <div class="hero-wrap js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/bg_5.jpg');">
+
+
+        <!--xu ly modal login thanh cong -->
+        <%
+          String successFlag = (String) session.getAttribute("loginSuccess");
+          if ("oke".equals(successFlag)) {
+        %>
+        <script>
+            $(document).ready(function () {
+                $('#welcomeModal').modal('show'); // Bootstrap 4
+
+                setTimeout(function () {
+                    $('#welcomeModal').modal('hide');
+                }, 2000);
+
+            });
+        </script>
+        <%
+           session.removeAttribute("loginSuccess");
+           }
+        %>
+
+
+
+
+
+        <div class="hero-wrap js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
             <div class="overlay"></div>
             <div class="container">
                 <div class="row no-gutters slider-text js-fullheight align-items-center" data-scrollax-parent="true">
                     <div class="col-md-7 ftco-animate">
-                        <span class="subheading">Chào mừng đến với Pacific</span>
+                        <span class="subheading">Chào mừng đến với Meland</span>
                         <h1 class="mb-4">Khám phá điểm đến yêu thích của bạn cùng chúng tôi</h1>
                         <p class="caps">Du lịch đến bất kỳ nơi nào trên thế giới, mà không cần phải đi vòng quanh</p>
                     </div>
-                    <a href="https://vimeo.com/45830194" class="icon-video popup-vimeo d-flex align-items-center justify-content-center mb-4">
+                    <a href="https://vimeo.com/1103281572" class="icon-video popup-vimeo d-flex align-items-center justify-content-center mb-4">
                         <span class="fa fa-play"></span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <section class="ftco-section ftco-no-pb ftco-no-pt">
+        <section class="ftco-section ftco-no-pb ftco-no-pt mt-5 pt-5">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -38,7 +71,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12 tab-wrap">
-                                    <div class="tab-content" id="v-pills-tabContent">
+                                    <div class="" id="v-pills-tabContent">
 
                                         <!-- Tab tìm kiếm đảo -->
                                         <div class="tab-pane fade show active" id="v-pills-1" role="tabpanel">
@@ -98,7 +131,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
         </section>
+
 
 
 
@@ -304,7 +339,6 @@
         </section>
 
         <%@ include file="/views/common/footer.jsp" %>
-
 
 
         <!-- loader -->

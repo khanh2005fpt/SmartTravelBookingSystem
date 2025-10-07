@@ -8,25 +8,115 @@ CREATE TABLE Users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    fullName VARCHAR(100),
+    fullName NVARCHAR(100),
     phone NVARCHAR(20),
-    role VARCHAR(20) CHECK (role IN ('CUSTOMER','ADMIN','SERVICE PROVIDER','BOOKING MANAGER', 'STAFF')) DEFAULT 'CUSTOMER',
+  roleId INT NOT NULL DEFAULT 3, 
     createdAt DATETIME DEFAULT GETDATE(),
 	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
+	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
 
-select * from islands
+select * from Users
+--ALTER TABLE Users ADD CONSTRAINT DF_Users_roleId DEFAULT 3 FOR roleId;
+
+CREATE TABLE Roles (
+    roleId INT IDENTITY(1,1) PRIMARY KEY,
+    roleName NVARCHAR(50) UNIQUE NOT NULL
+);
+GO
+TRUNCATE TABLE Roles;
+
+INSERT INTO Roles (roleName)
+VALUES ('ADMIN'), ('BOOKING MANAGER'), ('CUSTOMER'), ('STAFF');
 
 
+select * from CustomerProfiles
+-- Bảng CustomerProfiles
+CREATE TABLE CustomerProfiles (
+    profileId INT IDENTITY(1,1) PRIMARY KEY,      
+    userId INT NOT NULL UNIQUE,  
+	fullName NVARCHAR(255) NULL,
+    dateOfBirth DATE NULL,
+    gender NVARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')) NULL,
+    address NVARCHAR(255) NULL,
+    profilePicture NVARCHAR(255) NULL,
+    loyaltyPoints INT DEFAULT 0 CHECK (loyaltyPoints >= 0),
+    membershipLevel NVARCHAR(20) 
+        CHECK (membershipLevel IN ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM')) 
+        DEFAULT 'BRONZE',
 
--- Bảng UserProfiles
-CREATE TABLE UserProfiles (
-    profileId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,              
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
-go 
+GO
+
+--Trigger cộng điểm khi booking hoàn tất
+
+CREATE TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted
+ON Bookings
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Cộng điểm chỉ khi trạng thái chuyển thành COMPLETED
+    UPDATE cp
+    SET cp.loyaltyPoints = cp.loyaltyPoints + (x.totalAmount * 0.05)
+    FROM CustomerProfiles cp
+    INNER JOIN (
+        SELECT 
+            i.customerId,
+            SUM(bd.totalPrice) AS totalAmount
+        FROM inserted i
+        INNER JOIN Bookings b ON i.bookingId = b.bookingId
+        INNER JOIN BookingDetails bd ON b.bookingId = bd.bookingId
+        WHERE i.status = 'COMPLETED'
+        GROUP BY i.customerId
+    ) x ON cp.userId = x.customerId;
+END;
+GO
+
+   
+  ----Trigger cập nhật cấp độ thành viên tự động
+
+	CREATE TRIGGER trg_UpdateMembershipLevel
+ON CustomerProfiles
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE cp
+    SET membershipLevel = 
+        CASE
+            WHEN i.loyaltyPoints >= 10000 THEN 'PLATINUM'
+            WHEN i.loyaltyPoints >= 5000 THEN 'GOLD'
+            WHEN i.loyaltyPoints >= 1000 THEN 'SILVER'
+            ELSE 'BRONZE'
+        END
+    FROM CustomerProfiles cp
+    INNER JOIN inserted i ON cp.customerId = i.customerId;
+END;
+GO
+
+
+CREATE TABLE UserEmails (
+    emailId INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    email NVARCHAR(100) NOT NULL,
+    isPrimary BIT DEFAULT 0, -- Đánh dấu là email chính
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+go
+
+CREATE TABLE UserPhones (
+    phoneId INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    phoneNumber NVARCHAR(20) NOT NULL,
+    isPrimary BIT DEFAULT 0,
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+
 
 CREATE TABLE Countries (
     countryId INT IDENTITY(1,1) PRIMARY KEY,
@@ -51,7 +141,6 @@ CREATE TABLE Islands (
 );
 
 
-select * from countries
 select * from Islands where 1=1 and islandName like 'Phu Quoc'
 go
 CREATE TABLE Tours (
@@ -72,6 +161,7 @@ CREATE TABLE TourItinerary (
     FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE,
     CONSTRAINT UQ_TourItinerary_Tour_Day UNIQUE (tourId, dayNumber)
 );
+
 
 CREATE TABLE TourActivities (
     activityId INT IDENTITY(1,1) PRIMARY KEY,
@@ -150,17 +240,50 @@ CREATE TABLE IslandVehicles (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
-
 go
+
+
+-- trigger check role customer mới đc booking 
+CREATE TRIGGER trg_Booking_CheckCustomer
+ON Bookings
+INSTEAD OF INSERT
+AS
+BEGIN
+    -- Kiểm tra tất cả các user trong insert xem có user nào không phải customer (roleId <> 3)
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN Users u ON i.customerId = u.userId
+        WHERE u.roleId <> 3
+    )
+    BEGIN
+        RAISERROR('Only users with roleId = 3 (CUSTOMER) can create bookings.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    -- Nếu hợp lệ, insert dữ liệu
+    INSERT INTO Bookings (profileId, customerId, price, status, bookingDate)
+    SELECT profileId, customerId, price, status, bookingDate
+    FROM inserted;
+END;
+GO
+
 
 
 CREATE TABLE Bookings (
     bookingId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
+	profileId INT NOT NULL,
+    customerId INT NOT NULL,
     price INT, 
+	status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')) DEFAULT 'PENDING',
     bookingDate DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (userId) REFERENCES Users(userId)
+    FOREIGN KEY (customerId) REFERENCES Users(userId),
+	FOREIGN KEY (profileId) REFERENCES CustomerProfiles (profileId)
+
 );
+go
+
 
 CREATE TABLE BookingDetails (
     bookingDetailId INT IDENTITY(1,1) PRIMARY KEY,
@@ -185,8 +308,22 @@ CREATE TABLE BookingDetails (
     FOREIGN KEY (vehicleId) REFERENCES IslandVehicles(vehicleId)
 );
 
+CREATE TABLE HistoryBooking (
+    history_id INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
+    customer_id INT NOT NULL,                                
+    booking_id INT NULL,                                     
+    action NVARCHAR(50) NOT NULL CHECK (action IN ('CREATED', 'UPDATED', 'CANCELLED')), -- Hành động
+    action_date DATETIME DEFAULT GETDATE(),                   -- Thời điểm hành động
+    note NVARCHAR(255) NULL,                                  -- Ghi chú
+
+    FOREIGN KEY (customer_id) REFERENCES CustomerProfiles(userId) ON DELETE CASCADE,
+    FOREIGN KEY (booking_id) REFERENCES Bookings( bookingId) ON DELETE SET NULL
+);
+GO
+
 -- Bảng Payments
   
+
 CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
@@ -218,10 +355,12 @@ CREATE TABLE Logs (
     LogId INT PRIMARY KEY IDENTITY(1,1),
     UserId INT NOT NULL,
     Action NVARCHAR(100) NOT NULL,
+	Method NVARCHAR(20) NULL,    
     Timestamp DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 go
+
 
 -- Tokens
 CREATE TABLE Tokens (
@@ -231,9 +370,12 @@ CREATE TABLE Tokens (
     ExpiryDate DATETIME NOT NULL,
     IsUsed BIT DEFAULT 0,
     CreatedDate DATETIME DEFAULT GETDATE(),
+	OtpCode VARCHAR(255) NULL,
+	AttemptCount INT DEFAULT 0,
     FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 go
+
 
 -- review
 CREATE TABLE Reviews (
@@ -251,13 +393,69 @@ go
 CREATE TABLE Notifications (
     notificationId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
+    title NVARCHAR(100) NOT NULL,
     message NVARCHAR(500) NOT NULL,
-    type VARCHAR(50) CHECK (type IN ('BOOKING','PAYMENT','PROMOTION','SYSTEM')) DEFAULT 'SYSTEM',
-    isRead BIT DEFAULT 0,
+    type VARCHAR(30) CHECK (type IN ('BOOKING','PAYMENT','PROMOTION','SYSTEM')) DEFAULT 'SYSTEM',
+    isRead BIT DEFAULT 0, -- 0: chưa đọc, 1: đã đọc
     createdAt DATETIME DEFAULT GETDATE(),
+
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
-go
+GO
+
+--- trigger khi thông báo khi người dùng đặt chỗ "chạy khi thêm bản ghi mới vào Bookings"
+
+
+CREATE TRIGGER trg_BookingDetails_Insert
+ON BookingDetails
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT 
+        b.customerId,
+        N'Đặt chỗ thành công',
+        N'Bạn vừa đặt tour "' + t.tourName + 
+        N'" thành công. Mã đặt chỗ của bạn là ' + CAST(b.bookingId AS NVARCHAR(20)) + N'.',
+        'BOOKING'
+    FROM inserted bd
+    JOIN Bookings b ON bd.bookingId = b.bookingId
+    JOIN Tours t ON bd.tourId = t.tourId;
+END;
+GO
+
+
+
+
+
+
+--- triger khi thông báo customer thanh toán "chạy khi cập nhật trạng thái Payments"
+CREATE TRIGGER trg_Payment_Success
+ON Payments
+AFTER UPDATE
+AS
+BEGIN
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT 
+        b.customerId AS userId,
+        N'Thanh toán thành công',
+        N'Giao dịch thanh toán cho tour "' + t.tourName + 
+        N'" (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.',
+        'PAYMENT'
+    FROM inserted p
+    JOIN Bookings b ON p.bookingId = b.bookingId
+    JOIN BookingDetails bd ON b.bookingId = bd.bookingId
+    JOIN Tours t ON bd.tourId = t.tourId
+    WHERE p.status = 'SUCCESS';
+END;
+GO
+
+
+
+-- Users
+select * from Notifications
+
+
 
 -- favourite services
 CREATE TABLE Favorites (
@@ -302,22 +500,28 @@ CREATE TABLE UserPromotions (
 
 -- Admin
 
- INSERT INTO Users (username, password, email, fullName, phone, role)
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('admin1', 'admin123!', 'admin1@example.com', 'Admin', '0987654321', 'ADMIN');
+('admin1', 'admin123!', 'admin1@example.com', 'Admin', '0987654321', 'ADMIN', 'ACTIVE');
+
 -- Booking Manager
-INSERT INTO Users (username, password, email, fullName, phone, role)
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('bookingmanager1', 'managerpass123!', 'nqaghuyyy6969@gmail.com', 'Booking Manager', '0369409004', 'BOOKING MANAGER');
+('bookingmanager1', 'managerpass123!', 'nqaghuyyy6969@gmail.com', 'Booking Manager', '0369409004', 'BOOKING MANAGER', 'ACTIVE');
 
 -- Service Provider
-INSERT INTO Users (username, password, email, fullName, phone, role)
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('provider1', 'providerpass123!', 'provider@example.com', 'Service Provider', '0987654321', 'SERVICE PROVIDER');
+('provider1', 'providerpass123!', 'provider@example.com', 'Staff', '0987654321', 'STAFF', 'ACTIVE');
 
-INSERT INTO Users (username, password, email, fullName, phone, role)
+-- Customer
+INSERT INTO Users (username, password, email, fullName, phone, role, status)
 VALUES 
-('quanghuy123', 'huyvipmn5', 'huynqhe182510@fpt.edu.vn', 'David Huy', '0982706236', 'CUSTOMER');
+('quanghuy123', 'huyvipmn5', 'huynqhe182510@fpt.edu.vn', 'David Huy', '0982706236', 'CUSTOMER', 'ACTIVE');
+
+select * from dbo.Users
+DELETE FROM Users;
+DBCC CHECKIDENT ('Users', RESEED, 0);
 
 --2.island
 
@@ -482,7 +686,7 @@ INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) VALUES
  8000000, 
  N'views/home/images/tours/kohsamui_vanhoaspa.jpg');
  select * from tours
- drop table Tours
+ 
  select * from TourItinerary
 INSERT INTO TourItinerary (tourId, dayNumber, title) VALUES
 -- Tour 1: Phú Quốc 3N2Đ
@@ -637,7 +841,7 @@ VALUES
 
 -- Xem dữ liệu
 select * from Hotels;
-
+select * from dbo.TourActivities
 -- arilines
 select * from TourActivities
 
@@ -753,6 +957,125 @@ INSERT INTO UserPromotions (userId, promoId)
 VALUES
 (4, 1),
 (4, 2);
+
+select * from dbo.TourActivities
+select *from dbo.Users
+Truncate TABLE Roles
+
+ALTER TABLE Users
+ALTER COLUMN fullName NVARCHAR(100);
+
+
+/* test loyaltyPoints and membershipLevel
+
+SELECT u.userId, u.fullName, cp.loyaltyPoints, cp.membershipLevel
+FROM Users u
+JOIN CustomerProfiles cp ON u.userId = cp.userId;
+
+INSERT INTO Bookings (customerId, price, status)
+VALUES (1, 5000000, 'PENDING');
+
+INSERT INTO BookingDetails (bookingId, tourId, adultQuantity, childQuantity, departureDate, unitPrice)
+VALUES (1, 2, 2, 1, '2025-10-15', 2000000);
+
+
+ 
+
+ INSERT INTO CustomerProfiles (userId, loyaltyPoints, membershipLevel)
+VALUES (1, 235, 'BRONZE');
+
+UPDATE Bookings
+SET status = 'COMPLETED'
+WHERE bookingId = 1;
+*/
+
+--activity
+
+
+INSERT INTO TourActivities (itineraryId, activityOrder, activityTitle, description) VALUES
+(1, 1, N'Khởi hành từ Hà Nội', N'Bay từ Hà Nội đến Phú Quốc, nhận phòng khách sạn.'),
+(2, 1, N'Tham quan Vinpearl Safari', N'Khám phá vườn thú bán hoang dã lớn nhất Việt Nam.'),
+(2, 2, N'Tắm biển Bãi Sao', N'Tận hưởng bãi biển đẹp nhất Phú Quốc.'),
+(2, 3, N'Chợ đêm Dinh Cậu', N'Thưởng thức hải sản và mua sắm.'),
+(3, 1, N'Trả phòng', N'Trả phòng khách sạn, khởi hành về Hà Nội.'),
+
+-- Tour 2: Phú Quốc 4N3Đ
+(4, 1, N'Khởi hành từ Hà Nội', N'Đến Phú Quốc, nhận phòng khách sạn.'),
+(5, 1, N'Lặn ngắm san hô', N'Trải nghiệm lặn biển tại Hòn Móng Tay.'),
+(5, 2, N'Tắm biển', N'Tự do nghỉ ngơi tại resort.'),
+(6, 1, N'Câu cá đêm', N'Thử thách câu cá trên biển.'),
+(6, 2, N'BBQ hải sản', N'Thưởng thức tiệc BBQ trên bãi biển.'),
+(7, 1, N'Trả phòng', N'Về Hà Nội.'),
+
+-- Tour 3: Phú Quốc 2N1Đ
+(8, 1, N'Khởi hành', N'Bay từ Hà Nội đến Phú Quốc.'),
+(8, 2, N'Thăm làng chài Hàm Ninh', N'Tìm hiểu đời sống ngư dân và thưởng thức hải sản.'),
+(9, 1, N'Trả phòng', N'Trở về Hà Nội.'),
+
+-- Tour 4: Langkawi 4N3Đ
+(10, 1, N'Khởi hành', N'Bay từ Hà Nội đến Langkawi.'),
+(11, 1, N'Tham quan SkyBridge', N'Chiêm ngưỡng cây cầu treo nổi tiếng.'),
+(12, 1, N'Tắm biển Pantai Cenang', N'Tắm biển và tham gia trò chơi nước.'),
+(12, 2, N'Shopping Duty-free', N'Mua sắm tại các cửa hàng miễn thuế.'),
+(13, 1, N'Trở về Hà Nội', N'Kết thúc tour.'),
+
+-- Tour 5: Phuket 4N3Đ
+(14, 1, N'Đến Phuket', N'Đón khách tại sân bay và nhận phòng khách sạn.'),
+(15, 1, N'Tham quan đảo Phi Phi', N'Tham gia tour du thuyền thăm đảo Phi Phi.'),
+(16, 1, N'Phố cổ Phuket', N'Dạo chơi và tham quan kiến trúc cổ.'),
+(16, 2, N'Simon Cabaret Show', N'Thưởng thức show diễn nổi tiếng tại Phuket.'),
+(17, 1, N'Trả khách', N'Kết thúc hành trình.'),
+
+-- Tour 6: Bali
+(18, 1, N'Xuất phát từ Hà Nội', N'Tập trung tại sân bay Nội Bài, làm thủ tục khởi hành.'),
+(18, 2, N'Đến Phuket', N'Hướng dẫn viên đón đoàn, nhận phòng khách sạn và nghỉ ngơi.'),
+(19, 1, N'Du thuyền ra đảo Phi Phi', N'Tham quan vịnh Maya nổi tiếng.'),
+(19, 2, N'Lặn biển ngắm san hô', N'Trải nghiệm snorkeling tại vịnh Loh Samah.'),
+(19, 3, N'Tham quan Viking Cave', N'Khám phá hang động nổi tiếng.'),
+(20, 1, N'Du thuyền vịnh Phang Nga', N'Tham quan đảo James Bond nổi tiếng.'),
+(20, 2, N'Chèo kayak hang động', N'Trải nghiệm chèo kayak tại hòn đảo đá vôi.'),
+(20, 3, N'Dùng bữa trưa trên du thuyền', N'Thưởng thức hải sản địa phương.'),
+(21, 1, N'Tham quan chùa Wat Chalong', N'Ngôi chùa lớn nhất ở Phuket.'),
+(21, 2, N'Tượng Phật Lớn Big Buddha', N'Chiêm ngưỡng bức tượng Phật cao 45m.'),
+(21, 3, N'Tắm biển Patong', N'Thư giãn và vui chơi trên bãi biển Patong.'),
+(22, 1, N'Ra sân bay', N'Làm thủ tục bay về Hà Nội, kết thúc tour.');
+
+
+--Test trigger notification
+/*
+
+INSERT INTO Bookings (profileId, customerId) 
+VALUES (1, 5);
+select * from dbo.CustomerProfiles
+
+INSERT INTO BookingDetails 
+(bookingId, tourId, hotelId, flightId, vehicleId, adultQuantity, childQuantity, departureDate, unitPrice)
+VALUES
+(2, 1, NULL, NULL, NULL, 2, 1, '2025-10-10', 500);
+
+INSERT INTO BookingDetails 
+(bookingId, tourId, hotelId, flightId, vehicleId, adultQuantity, childQuantity, departureDate, unitPrice)
+VALUES
+(3, 3, NULL, NULL, NULL, 3, 1, '2025-10-10', 700);
+
+
+SELECT * FROM Notifications
+WHERE userId = 5;
+
+
+INSERT INTO Payments (bookingId, amount, method, status)
+VALUES (3, 1000, 'VNPAY', 'PENDING');
+
+select * from dbo.Payments
+
+UPDATE Payments
+SET status = 'SUCCESS'
+WHERE paymentId = 1;  
+
+*/
+
+
+
 
 
 -------------------------------------------------------------------------------------------------------

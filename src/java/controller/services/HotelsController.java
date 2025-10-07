@@ -83,6 +83,7 @@ public class HotelsController extends HttpServlet {
             maxPrice = Double.MAX_VALUE;
         }
 
+        
         // Lấy số trang hiện tại
         int page = 1;
         int pageSize = 6;
