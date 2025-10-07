@@ -1,29 +1,143 @@
 <!DOCTYPE html>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html lang="vi">
     <head>
-        <title>Smart Ticket Booking</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-        <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
-
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="css/animate.css">
-        <link rel="stylesheet" href="css/owl.carousel.min.css">
-        <link rel="stylesheet" href="css/owl.theme.default.min.css">
-        <link rel="stylesheet" href="css/magnific-popup.css">
-        <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-        <link rel="stylesheet" href="css/jquery.timepicker.css">
-        <link rel="stylesheet" href="css/flaticon.css">
-        <link rel="stylesheet" href="css/style.css">
+       <%@ include file="/views/common/css.jsp" %>
     </head>
+    
+    
+ 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/js/bootstrap.min.js"></script>
+
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
         <!-- KẾT THÚC nav -->
+        
+        
+        <!--hien thi modal login thanh cong -->
+          <style>
 
+/* Modal gọn đẹp */
+.welcome-box {
+  width: 420px;
+  max-width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-left: 50px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+  background: #fff;
+  border: none;
+  text-align: center; 
+  height: 350px;
+}
+
+/* Banner */
+.welcome-banner img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+
+
+/* Tiêu đề */
+.welcome-body h4 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #1565c0; /* xanh biển */
+  margin-right: 30px;
+}
+
+
+.welcome-body h4 span {
+  color: #1976d2; /* xanh đậm hơn */
+  margin-left: 30px;
+   
+}
+
+/* Nội dung */
+.welcome-body p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/* Nút CTA */
+.btn-meland {
+  background: #1976d2;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  transition: 0.25s;
+}
+
+.btn-meland:hover {
+  background: #0d47a1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(25,118,210,0.3);
+}
+
+
+    </style>
+
+        <!-- Welcome Modal -->
+<!-- Welcome Modal -->
+<div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content welcome-box">
+
+      <!-- Banner ảnh -->
+      <div class="welcome-banner">
+        <img src="${pageContext.request.contextPath}/views/home/images/wellcome_pic.jpg"  alt="Meland Banner">
+      </div>
+
+      <!-- Nội dung -->
+      <div class="welcome-body text-center p-4">
+        <h4>🌴 Chào mừng đến với <span>MelandBooking</span></h4>
+        <p>
+          Trải nghiệm hệ thống đặt tour - khách sạn thông minh và tận hưởng kỳ nghỉ trọn vẹn cùng chúng tôi! 🏖️ <br>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+        
+     <!--xu ly modal login thanh cong -->
+ <%
+   String successFlag = (String) session.getAttribute("loginSuccess");
+   if ("oke".equals(successFlag)) {
+%>
+<script>
+  $(document).ready(function(){
+    $('#welcomeModal').modal('show'); // Bootstrap 4
+    
+    setTimeout(function(){
+      $('#welcomeModal').modal('hide');
+    }, 3000);
+    
+  });
+</script>
+<%
+   session.removeAttribute("loginSuccess");
+   }
+%>
+
+        
+   
         <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('images/bg_1.jpg');">
             <div class="overlay"></div>
             <div class="container">
@@ -307,21 +421,6 @@
         <!-- loader -->
         <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
 
-        <script src="js/jquery.min.js"></script>
-        <script src="js/jquery-migrate-3.0.1.min.js"></script>
-        <script src="js/popper.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/jquery.easing.1.3.js"></script>
-        <script src="js/jquery.waypoints.min.js"></script>
-        <script src="js/jquery.stellar.min.js"></script>
-        <script src="js/owl.carousel.min.js"></script>
-        <script src="js/jquery.magnific-popup.min.js"></script>
-        <script src="js/jquery.animateNumber.min.js"></script>
-        <script src="js/bootstrap-datepicker.js"></script>
-        <script src="js/scrollax.min.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
-        <script src="js/google-map.js"></script>
-        <script src="js/main.js"></script>
-
+            <%@ include file="/views/common/script.jsp" %>
     </body>
 </html>
