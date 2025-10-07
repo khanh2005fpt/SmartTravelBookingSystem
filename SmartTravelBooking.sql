@@ -155,10 +155,10 @@ go
 
 CREATE TABLE Bookings (
     bookingId INT IDENTITY(1,1) PRIMARY KEY,
-    customerId INT NOT NULL,
+    userId INT NOT NULL,
     price INT, 
     bookingDate DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (customerId) REFERENCES Users(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId)
 );
 
 CREATE TABLE BookingDetails (
@@ -197,26 +197,7 @@ CREATE TABLE Payments (
 );
 go
 
--- Bảng TripServices (các dịch vụ con trong Trip)
-CREATE TABLE TripServices (
-    tripServiceId INT IDENTITY(1,1) PRIMARY KEY,
-    tripId INT NOT NULL,
-    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','FLIGHT','VEHICLE')),
-    refId INT NOT NULL,  -- id của Hotel/Flight/Vehicle
-    FOREIGN KEY (tripId) REFERENCES Trips(tripId) ON DELETE CASCADE
-);
-go
 
---  Bảng TripItineraries (lộ trình chi tiết theo ngày)
-CREATE TABLE TripItineraries (
-    itineraryId INT IDENTITY(1,1) PRIMARY KEY,
-    tripId INT NOT NULL,
-    dayNumber INT NOT NULL,
-    activity VARCHAR(255),
-    location NVARCHAR(100),
-    FOREIGN KEY (tripId) REFERENCES Trips(tripId) ON DELETE CASCADE
-);
-go
 
 -- Bảng Recommendations
 CREATE TABLE Recommendations (
@@ -657,6 +638,7 @@ VALUES
 select * from Hotels;
 
 -- arilines
+select * from TourActivities
 
 INSERT INTO Airlines (airlineName, iataCode, country, hotline, logoUrl)
 VALUES
