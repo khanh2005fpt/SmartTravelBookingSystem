@@ -130,57 +130,61 @@
 
                 <!-- Cột sidebar -->
                 <div class="col-lg-5">
-
-
-
                     <div class="card shadow-sm p-4">
-
                         <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
 
-                        <form action="BookingController" method="post">
-                            <input type="hidden" name="tourId" value="${tour.tourId}">
-                            <input type="hidden" name="price" value="${tour.price}">
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.user}">
+                                <form action="BookingController" method="post">
+                                    <input type="hidden" name="tourId" value="${tour.tourId}">
+                                    <input type="hidden" name="price" value="${tour.price}">
 
-                            <div class="mb-3">
-                                <label class="form-label">Ngày khởi hành</label>
-                                <input type="date" class="form-control" name="departureDate" required>
-                            </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Ngày khởi hành</label>
+                                        <input type="date" class="form-control" name="departureDate" required>
+                                    </div>
 
-                            <div class="row">
-                                <div class="col">
-                                    <label class="form-label">Người lớn (>15 tuổi)</label>
-                                    <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label">Người lớn (>15 tuổi)</label>
+                                            <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label">Trẻ em (≤15 tuổi)</label>
+                                            <input type="number" class="form-control" name="childQty" min="0" value="0" required>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mt-4 text-primary">Giá Tour</h5>
+                                    <h4 class="text-primary fw-bold mb-3">
+                                        <fmt:setLocale value="vi_VN" />
+                                        <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
+                                    </h4>
+
+                                    <button type="submit" class="btn btn-primary btn-block fw-bold">
+                                        <i class="bi bi-check-circle"></i> Đặt Tour Ngay
+                                    </button>
+                                </form>
+                            </c:when>
+
+                            <c:otherwise>
+                                <div class="alert alert-warning">
+                                    Bạn cần <a href="login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
                                 </div>
-                                <div class="col">
-                                    <label class="form-label">Trẻ em (≤15 tuổi)</label>
-                                    <input type="number" class="form-control" name="childQty" min="0" value="0" required>
-                                </div>
-                            </div>
-
-                            <h5 class="mt-4 text-primary">Giá Tour</h5>
-                            <h4 class="text-primary fw-bold mb-3">
-                                <fmt:setLocale value="vi_VN" />
-                                <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
-                            </h4>
-
-                            <button type="submit" class="btn btn-primary btn-block fw-bold">
-                                <i class="bi bi-check-circle"></i> Đặt Tour Ngay
-                            </button>
-                        </form>
-
-
-
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <%@ include file="/views/common/footer.jsp" %>
+            </div>
 
-        <!-- Bootstrap 5 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+            <%@ include file="/views/common/footer.jsp" %>
 
-        <%@ include file="/views/common/script.jsp" %>
+            <!-- Bootstrap 5 JS -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+
+            <%@ include file="/views/common/script.jsp" %>
     </body>
 </html>

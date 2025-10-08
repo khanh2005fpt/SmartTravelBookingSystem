@@ -1,5 +1,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
@@ -80,7 +82,7 @@
 
                         <!-- Ảnh tour -->
                         <div class="mb-3 text-center">
-                            <img src="https://picsum.photos/600/300" alt="Tour" class="img-fluid rounded shadow-sm">
+                            <img src="${tour.tourImageUrl}" alt="Tour" class="img-fluid rounded shadow-sm">
                         </div>
 
                         <ul class="list-group mb-3">

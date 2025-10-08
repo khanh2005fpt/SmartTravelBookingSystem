@@ -76,7 +76,7 @@ public class BookingController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-       try {
+        try {
             int tourId = Integer.parseInt(request.getParameter("tourId"));
             int price = Integer.parseInt(request.getParameter("price"));
             Date departureDate = Date.valueOf(request.getParameter("departureDate"));
@@ -105,9 +105,11 @@ public class BookingController extends HttpServlet {
             // Lưu BookingDetails
             BookingDetail detail = new BookingDetail(booking.getBookingId(), tourId, null, null, null, (int) totalPrice);
             bd.createBookingDetail(detail);
-            
+
             TourDao td = new TourDao();
             Tour tour = td.getTourDetailById(tourId);
+
+
             // Đưa dữ liệu sang trang payment
             request.setAttribute("booking", booking);
             request.setAttribute("totalPrice", totalPrice);

@@ -269,11 +269,11 @@ BEGIN
 END;
 GO
 
-
+select * from users
 
 CREATE TABLE Bookings (
     bookingId INT IDENTITY(1,1) PRIMARY KEY,
-	profileId INT NOT NULL,
+	profileId INT,
     customerId INT NOT NULL,
     price INT, 
 	departureDate DATE NOT NULL,
@@ -285,6 +285,10 @@ CREATE TABLE Bookings (
 	FOREIGN KEY (profileId) REFERENCES CustomerProfiles (profileId)
 
 );
+
+
+
+select * from bookings
 go
 
 
