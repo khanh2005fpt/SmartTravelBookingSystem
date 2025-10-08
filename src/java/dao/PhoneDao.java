@@ -82,29 +82,8 @@ public class PhoneDao extends DBContext{
         }
             return false;//chua ton tai
         }   
-        
-        
-        // check default phone
-        
-        
-    // check phone ton tai
-  public boolean checkDefaultPhoneExist(int userId, String phone) {
-    String sql = "SELECT COUNT(*) FROM Users WHERE phone = ? AND userId <> ?";//<>  tuong duong voi !=
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setString(1, phone);
-        stmt.setInt(2, userId);
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1) > 0; // da ton tai
-            }
-        }
-    } catch (SQLException e) {
-        System.out.println("Lỗi khi kiểm tra phone: " + e.getMessage());
-        e.printStackTrace();
-    }
-    return false;
-}
 
+        
       
   // xoa so dt
     public boolean deletePhone(int phoneId) {

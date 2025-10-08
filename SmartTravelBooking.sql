@@ -18,7 +18,7 @@ CREATE TABLE Users (
 go
 select * from dbo.UserEmails
 select * from dbo.UserPhones
-
+select * from dbo.Users
 /* lenh reset id_table
 DELETE FROM UserEmails;
 DBCC CHECKIDENT ('UserEmails', RESEED, 0);
@@ -30,6 +30,8 @@ DBCC CHECKIDENT ('UserPhones', RESEED, 0);
 
 
 */
+
+SELECT isPrimary FROM UserEmails WHERE emailId = 1
 
 
 

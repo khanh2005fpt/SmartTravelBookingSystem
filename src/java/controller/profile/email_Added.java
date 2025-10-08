@@ -86,6 +86,7 @@ public class email_Added extends HttpServlet {
     throws ServletException, IOException {
         HttpSession session =request.getSession();
            User user = (User) session.getAttribute("user"); 
+     
     if (user == null) {
         session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
         response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
@@ -105,17 +106,17 @@ public class email_Added extends HttpServlet {
         // check mail ton tai
         
         Boolean existAddedPhone = emailDao.checkEmailExists(userId, email);
-        Boolean existDefaultPhone = emailDao.checkDefaultEmailExist(userId, email);
-        if(existAddedPhone ||existDefaultPhone ){
-             session.setAttribute("errorEmail", "Email này đã tồn tại!");
+        
+        if(existAddedPhone || email.equals(user.getEmail())){
+             session.setAttribute("errorEmail_Deleted", "Email này đã tồn tại!");
             response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
             return;
         }
         
         // check k them qua 2 mail
-        int totalEmails = emailDao.countEmailsByUserId(userId);
+        int totalEmails = emailDao.countSecondaryEmails(userId);
           if(totalEmails>=2){
-              session.setAttribute("errorEmail", "Bạn chỉ được dùng tối đa 3 email!");
+              session.setAttribute("errorEmail_Deleted", "Bạn chỉ được dùng tối đa 3 email!");
               response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
             return;
           }

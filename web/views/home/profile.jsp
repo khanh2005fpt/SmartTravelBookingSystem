@@ -8,66 +8,66 @@
 <html lang="vi">
     <head>
         <%@ include file="/views/common/css.jsp" %>
-         
+
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
 
-           <style>
-         /* tranh bi ghi de color boostrap
-         
-             .modal .btn-primary,
-#addEmailModal .btn-primary {
-    background-color: #007bff !important;
-    border-color: #007bff !important;
-    color: #fff !important;
-}
+        <style>
+            /* tranh bi ghi de color boostrap
+            
+                .modal .btn-primary,
+   #addEmailModal .btn-primary {
+       background-color: #007bff !important;
+       border-color: #007bff !important;
+       color: #fff !important;
+   }
+   
+   .modal .btn-primary:hover,
+   #addEmailModal .btn-primary:hover {
+       background-color: #0069d9 !important;
+       border-color: #0062cc !important;
+   }
+                    
+            */
 
-.modal .btn-primary:hover,
-#addEmailModal .btn-primary:hover {
-    background-color: #0069d9 !important;
-    border-color: #0062cc !important;
-}
-                 
-         */
+            /* edit input add email*/
+            #emailInput {
+                height: 50px !important;
+                font-size: 15px;
+                padding: 6px 12px;
+                line-height: 1.2;
+            }
 
-     /* edit input add email*/    
-    #emailInput {
-  height: 50px !important;
-  font-size: 15px;
-  padding: 6px 12px;
-  line-height: 1.2;
-}
-
-#emailInput::placeholder {
-  font-size: 13px;
-  color: #999;
-}
+            #emailInput::placeholder {
+                font-size: 13px;
+                color: #999;
+            }
 
 
-    #phoneInput {
-  height: 40px !important;
-  font-size: 15px;
-  padding: 6px 12px;
-  line-height: 1.2;
-}
+            #phoneInput {
+                height: 40px !important;
+                font-size: 15px;
+                padding: 6px 12px;
+                line-height: 1.2;
+            }
 
-.input-group-text {
-  height: 40px !important;
-  padding: 4px 10px !important;
-  font-size: 14px;
-  line-height: 1.2;
-}
+            .input-group-text {
+                height: 40px !important;
+                padding: 4px 10px !important;
+                font-size: 14px;
+                line-height: 1.2;
+            }
 
-#phoneInput::placeholder {
-  font-size: 13px;
-  color: #999;
-}
+            #phoneInput::placeholder {
+                font-size: 13px;
+                color: #999;
+            }
 
-    </style>
-          
+        </style>
+
     </head>
     <body class="profile" >
-        
+
         <div class="profile-container">
             <!-- SIDEBAR -->
             <div class="profile-sidebar">
@@ -78,7 +78,7 @@
                         <%
                             User user = (User)session.getAttribute("user");
                         %>
-                     <h4>${sessionScope.user.fullName}</h4>
+                        <h4>${sessionScope.user.fullName}</h4>
                         <p class="provider">Google</p>
                     </div>
                 </div>
@@ -122,13 +122,13 @@
                 <% String error = (String)session.getAttribute("errorMess") ; %>
                 <% if(error !=null){%>
 
-                <div id="errorAlert" class="alert alert-danger alert_style" role="alert">
+                <div id="errorAlertProfile" class="alert alert-danger alert_style" role="alert">
                     <%=error%>
                 </div>
                 <!-- set time display loi  ------------------------------------------------------>
                 <script>
                     setTimeout(function () {
-                        var alertBox = document.getElementById("errorAlert");
+                        var alertBox = document.getElementById("errorAlertProfile");
                         if (alertBox) {
                             alertBox.style.display = "none";
                         }
@@ -143,13 +143,13 @@
                 <% String success = (String)session.getAttribute("successMess") ; %>
                 <% if(success !=null){%>
 
-                <div id="successAlert" class="alert alert-success alert_style" role="alert">
+                <div id="successAlertProfile" class="alert alert-success alert_style" role="alert">
                     <%=success%>
                 </div>
                 <!-- set time display loi  -->
                 <script>
                     setTimeout(function () {
-                        var alertBox = document.getElementById("successAlert");
+                        var alertBox = document.getElementById("successAlertProfile");
                         if (alertBox) {
                             alertBox.style.display = "none";
                         }
@@ -201,328 +201,353 @@
                         </form>
 
                     </section>
-<!-- =================== EMAIL SECTION =================== -->
+                    <!-- ====================================== EMAIL SECTION =================== -->
 
-                  <section class="card p-3 shadow-sm">
-                      
-                      <!--thong bao them thanh cong email -->  
-                         <% String successEmail = (String)session.getAttribute("successEmail") ; %>
-                
-                <% if(successEmail !=null){%>
+                    <section class="card p-3 shadow-sm">
 
-                <div id="successAlert" class="alert alert-success alert_style" role="alert">
-                    <%=successEmail%>
-                </div>
-                <!-- set time display loi  ------------------------------------------------------>
-                <script>
-                    setTimeout(function () {
-                        var alertBox = document.getElementById("successAlert");
-                        if (alertBox) {
-                            alertBox.style.display = "none";
+                        <!--thong bao them thanh cong email -->  
+                        <% String successEmail = (String)session.getAttribute("successEmail") ; %>
+
+                        <% if(successEmail !=null){%>
+
+                        <div id="successAlertEmail" class="alert alert-success alert_style" role="alert">
+                            <%=successEmail%>
+                        </div>
+                        <!-- set time display loi  ------------------------------------------------------>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("successAlertEmail");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 2000);
+                        </script>
+                        <!-- remove session  -->
+                        <% session.removeAttribute("successEmail");%>
+                        <%}%>
+                        
+             <!------------------thong bao loi xoa email phu ------------------------------- -->  
+                           
+                              <% String errorEmail_Deleted = (String)session.getAttribute("errorEmail_Deleted") ; %>
+
+                        <% if(errorEmail_Deleted !=null){%>
+
+                        <div id="errorAlert_Deleted" class="alert alert-danger  alert_style" role="alert">
+                            <%=errorEmail_Deleted%>
+                        </div>
+                        <!-- set time display loi  ------------------------------------------------------>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("errorAlert_Deleted");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 2000);
+                        </script>
+                        <!-- remove session  -->
+                        <% session.removeAttribute("errorEmail_Deleted");%>
+                        <%}%>
+                           
+                          
+                      <!------------------------------------------------------------------------------------->  
+
+
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="mb-0">Email</h3>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openEmailModal()">+ Thêm</button>
+                            </div>
+                        </div>
+
+                        <div class="border rounded p-3 bg-light mb-3">
+                            <strong>Email chính:</strong>
+                            <span class="text-primary">${user.email}</span>
+                        </div>
+
+                        <h4 class="text-muted" style="font-size: 13px" >Chỉ có thể sử động tối đa 3 email </h4>
+
+
+                        <form id="emailForm" action="${pageContext.request.contextPath}/saved_Email" method="post">
+                            <div class="email-list">
+                                <c:forEach var="email" items="${sessionScope.emailList}">
+                                    <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                                        <div>
+                                            <span>${email.email}</span>
+                                        </div>
+                                        <div>
+                                            <button type="submit" name="action" value="makePrimary-${email.emailId}" class="btn btn-sm btn-outline-success me-2">
+                                                <i class="bi bi-check-circle"></i> Đặt làm chính
+                                            </button>
+                                            <button type="submit" name="action" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i> Xóa
+                                            </button>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+
+                                <!-- comment 
+                                <c:if test="${empty emailList}">
+                               <p>Chưa có email phụ nào.</p>
+                                </c:if>
+                                  
+                                -->
+
+                            </div>
+                        </form>
+                    </section>
+
+                    <!-- =================== PHONE SECTION =================== -->
+
+
+                    <section class="card p-3 shadow-sm">
+                        <% String successPhone = (String) session.getAttribute("successPhone"); %>
+                        <% if (successPhone != null) { %>
+                        <div id="successPhoneAlert" class="alert alert-success alert_style" role="alert">
+                            <%= successPhone %>
+                        </div>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("successPhoneAlert");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 2000);
+                        </script>
+                        <% session.removeAttribute("successPhone"); %>
+                        <% } %>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="mb-0">Số di động</h3>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openPhoneModal()">+ Thêm</button>
+                            </div>
+                        </div>
+
+                        <div class="border rounded p-3 bg-light mb-3">
+                            <strong>Số chính:</strong>
+                            <span class="text-primary">${user.phone}</span>
+                        </div>
+                        <h4 class="text-muted" style="font-size: 13px" >Chỉ có thể sử động tối đa 3 số điện thoại </h4>
+
+                        <form id="phoneForm" action="${pageContext.request.contextPath}/Secondary_Phone" method="post">
+                            <div class="phone-list">
+                                <c:forEach var="phone" items="${sessionScope.phoneList}">
+                                    <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                                        <div>
+                                            <span>${phone.phone}</span>
+                                        </div>
+                                        <div>
+                                            <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i> Xóa
+                                            </button>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+
+
+                            </div>
+                        </form>
+                    </section>
+
+
+                    <!-- =================== MODAL THÊM EMAIL =================== -->
+
+                    <div class="modal fade" id="addEmailModal" tabindex="-1" role="dialog" aria-labelledby="addEmailModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content custom-modal">
+
+                                <!-- Header -->
+                                <div class="modal-header border-0">
+                                    <h5 class="modal-title text-primary font-weight-bold" id="addEmailModalLabel">
+                                        ✉️ Thêm Email
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <!-- Body -->
+                                <div class="modal-body">
+                                    <!-- Thông báo lỗi -->
+                                    <% String errorEmail = (String) session.getAttribute("errorEmail"); %>
+                                    <% if (errorEmail != null) { %>
+                                    <div id="errorAlertEmailModal" class="alert alert-danger alert_style"><%= errorEmail %></div>
+                                    <% } %>
+
+                                    <script>
+
+                                        setTimeout(function () {
+                                            var alertBox = document.getElementById("errorAlertEmailModal");
+                                            if (alertBox) {
+                                                alertBox.style.display = "none";
+                                            }
+                                        }, 2000);
+                                    </script>
+
+                                    <p class="text-muted mb-3">
+                                        Nhập địa chỉ email bạn đang sử dụng để đăng nhập và nhận thông báo.
+                                    </p>
+
+                                    <!-- Form -->
+                                    <form action="${pageContext.request.contextPath}/email_Added"  method="POST">
+                                        <div class="form-group">
+                                            <label for="emailInput" class="form-label text-primary font-weight-bold" style="font-size:18px;" >Email</label>
+                                            <input type="email" class="form-control form-control-sm " id="emailInput"
+                                                   name="email" placeholder="📧 Ví dụ: yourname@email.com" >
+                                        </div>
+
+                                        <div class="modal-footer border-0 mt-3 d-flex flex-column">
+                                            <button type="submit" class="btn btn-primary w-100 mb-2">Lưu</button>
+                                            <button type="button" class="btn btn-secondary w-100" data-dismiss="modal">Hủy</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =================== AUTO MỞ MODAL KHI CÓ LỖI =================== -->
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                        <% boolean hasError = (session.getAttribute("errorEmail") != null);
+                           if (hasError) { %>
+                            $('#addEmailModal').modal('show');
+                        <% 
+        
+                            session.removeAttribute("errorEmail");
+                           } 
+                        %>
+                        });
+                    </script>
+
+                    <!--------- JS MỞ/ĐÓNG MODAL-------------------------------------------------->
+                    <script>
+                        function openEmailModal() {
+                            $('#addEmailModal').modal('show');
                         }
-                    }, 2000);
-                </script>
-                <!-- remove session  -->
-                <% session.removeAttribute("successEmail");%>
-                <%}%>
-          
-                      
-  
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h3 class="mb-0">Email</h3>
-    <div>
-      <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openEmailModal()">+ Thêm</button>
-    </div>
-  </div>
 
-  <div class="border rounded p-3 bg-light mb-3">
-    <strong>Email chính:</strong>
-    <span class="text-primary">${user.email}</span>
-  </div>
-  
-  <h4 class="text-muted" style="font-size: 13px" >Chỉ có thể sử động tối đa 3 email </h4>
-  
-
-  <form id="emailForm" action="${pageContext.request.contextPath}/emailAction" method="post">
-    <div class="email-list">
-      <c:forEach var="email" items="${sessionScope.emailList}">
-        <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
-          <div>
-            <span>${email.email}</span>
-          </div>
-          <div>
-            <button type="submit" name="action" value="makePrimary-${email.emailId}" class="btn btn-sm btn-outline-success me-2">
-                <i class="bi bi-check-circle"></i> Đặt làm chính
-            </button>
-            <button type="submit" name="action" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
-               <i class="bi bi-trash"></i> Xóa
-            </button>
-          </div>
-        </div>
-      </c:forEach>
-
-        <!-- comment 
-         <c:if test="${empty emailList}">
-        <p>Chưa có email phụ nào.</p>
-      </c:if>
-        
-        -->
-     
-    </div>
-  </form>
-</section>
-
-<!-- =================== PHONE SECTION =================== -->
+                        function closeEmailModal() {
+                            $('#addEmailModal').modal('hide');
+                        }
+                    </script>
 
 
-<section class="card p-3 shadow-sm">
-    <% String successPhone = (String) session.getAttribute("successPhone"); %>
-    <% if (successPhone != null) { %>
-        <div id="successPhoneAlert" class="alert alert-success alert_style" role="alert">
-            <%= successPhone %>
-        </div>
-        <script>
-            setTimeout(function () {
-                var alertBox = document.getElementById("successPhoneAlert");
-                if (alertBox) {
-                    alertBox.style.display = "none";
-                }
-            }, 2000);
-        </script>
-        <% session.removeAttribute("successPhone"); %>
-    <% } %>
+                    <!-- =================== MODAL THÊM SỐ ĐIỆN THOẠI =================== -->
+                    <div class="modal fade" id="addPhoneModal" tabindex="-1" role="dialog" aria-labelledby="addPhoneModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content custom-modal">
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h3 class="mb-0">Số di động</h3>
-        <div>
-            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="openPhoneModal()">+ Thêm</button>
-        </div>
-    </div>
+                                <!-- Header -->
+                                <div class="modal-header border-0">
+                                    <h5 class="modal-title text-primary font-weight-bold" id="addPhoneModalLabel">
+                                        📞 Thêm Số Điện Thoại
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
 
-    <div class="border rounded p-3 bg-light mb-3">
-        <strong>Số chính:</strong>
-        <span class="text-primary">${user.phone}</span>s
-    </div>
-    <h4 class="text-muted" style="font-size: 13px" >Chỉ có thể sử động tối đa 3 số điện thoại </h4>
+                                <!-- Body -->
+                                <div class="modal-body">
+                                    <% String errorPhone = (String) session.getAttribute("errorPhone"); %>
+                                    <% if (errorPhone != null) { %>
+                                    <div id="errorPhoneAlert" class="alert alert-danger alert_style"><%= errorPhone %></div>
+                                    <% } %>
 
-    <form id="phoneForm" action="${pageContext.request.contextPath}/phoneAction" method="post">
-        <div class="phone-list">
-            <c:forEach var="phone" items="${sessionScope.phoneList}">
-                <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
-                    <div>
-                        <span>${phone.phone}</span>
+                                    <script>
+                                        setTimeout(function () {
+                                            var alertBox = document.getElementById("errorPhoneAlert");
+                                            if (alertBox) {
+                                                alertBox.style.display = "none";
+                                            }
+                                        }, 2000);
+                                    </script>
+
+                                    <p class="text-muted mb-3">
+                                        Thêm số điện thoại bạn đang sử dụng để đăng nhập và nhận thông báo.
+                                    </p>
+
+                                    <!-- Form -->
+                                    <form action="${pageContext.request.contextPath}/phone_Added" method="POST">
+                                        <div class="form-group">
+                                            <label for="phoneInput" class="form-label text-primary font-weight-bold ">Số điện thoại</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">+84</span>
+                                                </div>
+                                                <input type="text" class="form-control" id="phoneInput" 
+                                                       name="phone" placeholder="Ví dụ: 912345678" 
+                                                       pattern="[0-9]{9,11}" >
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer border-0 mt-3 d-flex flex-column">
+                                            <button type="submit" class="btn btn-primary w-100 mb-2">Lưu</button>
+                                            <button type="button" class="btn btn-secondary w-100" data-dismiss="modal">Hủy</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-trash"></i> Xóa
-                        </button>
-                    </div>
-                </div>
-            </c:forEach>
 
-           
-        </div>
-    </form>
-</section>
+                    <!-- =================== AUTO MỞ MODAL KHI CÓ LỖI =================== -->
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                        <% boolean hasPhoneError = (session.getAttribute("errorPhone") != null);
+                           if (hasPhoneError) { %>
+                            $('#addPhoneModal').modal('show');
+                        <% 
+                            session.removeAttribute("errorPhone");
+                           } 
+                        %>
+                        });
+                    </script>
 
-        
-        <!-- =================== MODAL THÊM EMAIL =================== -->
-        
-<div class="modal fade" id="addEmailModal" tabindex="-1" role="dialog" aria-labelledby="addEmailModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content custom-modal">
+                    <!-- =================== JS MỞ/ĐÓNG MODAL =================== -->
+                    <script>
+                        function openPhoneModal() {
+                            $('#addPhoneModal').modal('show');
+                        }
 
-      <!-- Header -->
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-primary font-weight-bold" id="addEmailModalLabel">
-          ✉️ Thêm Email
-        </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <!-- Thông báo lỗi -->
-        <% String errorEmail = (String) session.getAttribute("errorEmail"); %>
-        <% if (errorEmail != null) { %>
-        <div id="errorAlert" class="alert alert-danger alert_style"><%= errorEmail %></div>
-        <% } %>
-
-        <script>
-          
-          setTimeout(function () {
-            var alertBox = document.getElementById("errorAlert");
-            if (alertBox) {
-              alertBox.style.display = "none";
-            }
-          }, 2000);
-        </script>
-
-        <p class="text-muted mb-3">
-          Nhập địa chỉ email bạn đang sử dụng để đăng nhập và nhận thông báo.
-        </p>
-
-        <!-- Form -->
-        <form action="${pageContext.request.contextPath}/email_Added"  method="POST">
-          <div class="form-group">
-            <label for="emailInput" class="form-label text-primary font-weight-bold" style="font-size:18px;" >Email</label>
-            <input type="email" class="form-control form-control-sm " id="emailInput"
-                   name="email" placeholder="📧 Ví dụ: yourname@email.com" >
-          </div>
-
-          <div class="modal-footer border-0 mt-3 d-flex flex-column">
-            <button type="submit" class="btn btn-primary w-100 mb-2">Lưu</button>
-            <button type="button" class="btn btn-secondary w-100" data-dismiss="modal">Hủy</button>
-          </div>
-        </form>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- =================== AUTO MỞ MODAL KHI CÓ LỖI =================== -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    <% boolean hasError = (session.getAttribute("errorEmail") != null);
-       if (hasError) { %>
-        $('#addEmailModal').modal('show');
-    <% 
-        
-        session.removeAttribute("errorEmail");
-       } 
-    %>
-  });
-</script>
- 
-  <!--------- JS MỞ/ĐÓNG MODAL-------------------------------------------------->
-<script>
-function openEmailModal() {
-    $('#addEmailModal').modal('show');
-}
-
-function closeEmailModal() {
-    $('#addEmailModal').modal('hide');
-}
-</script>
-                
-
-   <!-- =================== MODAL THÊM SỐ ĐIỆN THOẠI =================== -->
-<div class="modal fade" id="addPhoneModal" tabindex="-1" role="dialog" aria-labelledby="addPhoneModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content custom-modal">
-
-      <!-- Header -->
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-primary font-weight-bold" id="addPhoneModalLabel">
-          📞 Thêm Số Điện Thoại
-        </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <% String errorPhone = (String) session.getAttribute("errorPhone"); %>
-        <% if (errorPhone != null) { %>
-        <div id="errorPhoneAlert" class="alert alert-danger alert_style"><%= errorPhone %></div>
-        <% } %>
-
-        <script>
-          setTimeout(function () {
-            var alertBox = document.getElementById("errorPhoneAlert");
-            if (alertBox) {
-              alertBox.style.display = "none";
-            }
-          }, 2000);
-        </script>
-
-        <p class="text-muted mb-3">
-          Thêm số điện thoại bạn đang sử dụng để đăng nhập và nhận thông báo.
-        </p>
-
-        <!-- Form -->
-        <form action="${pageContext.request.contextPath}/phone_Added" method="POST">
-          <div class="form-group">
-            <label for="phoneInput" class="form-label text-primary font-weight-bold ">Số điện thoại</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text">+84</span>
-              </div>
-              <input type="text" class="form-control" id="phoneInput" 
-                     name="phone" placeholder="Ví dụ: 912345678" 
-                     pattern="[0-9]{9,11}" >
-            </div>
-          </div>
-
-          <div class="modal-footer border-0 mt-3 d-flex flex-column">
-            <button type="submit" class="btn btn-primary w-100 mb-2">Lưu</button>
-            <button type="button" class="btn btn-secondary w-100" data-dismiss="modal">Hủy</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- =================== AUTO MỞ MODAL KHI CÓ LỖI =================== -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    <% boolean hasPhoneError = (session.getAttribute("errorPhone") != null);
-       if (hasPhoneError) { %>
-        $('#addPhoneModal').modal('show');
-    <% 
-        session.removeAttribute("errorPhone");
-       } 
-    %>
-  });
-</script>
-
-<!-- =================== JS MỞ/ĐÓNG MODAL =================== -->
-<script>
-function openPhoneModal() {
-    $('#addPhoneModal').modal('show');
-}
-
-function closePhoneModal() {
-    $('#addPhoneModal').modal('hide');
-}
-</script>
+                        function closePhoneModal() {
+                            $('#addPhoneModal').modal('hide');
+                        }
+                    </script>
 
 
-        <!-- =================== Js for sidebar menu =================== -->               
-        <script>
-            function showMainSection(evt, sectionId) {
-                // Ẩn toàn bộ các main-section
-                document.querySelectorAll(".main-section , .account-container").forEach(s => s.style.display = "none");
+                    <!-- =================== Js for sidebar menu =================== -->               
+                    <script>
+                        function showMainSection(evt, sectionId) {
+                            // Ẩn toàn bộ các main-section
+                            document.querySelectorAll(".main-section , .account-container").forEach(s => s.style.display = "none");
 
-                // Hiển thị phần được chọn
-                const selected = document.getElementById(sectionId);
-                if (selected)
-                    selected.style.display = "block";
+                            // Hiển thị phần được chọn
+                            const selected = document.getElementById(sectionId);
+                            if (selected)
+                                selected.style.display = "block";
 
-                if (sectionId === 'account') {
-                    document.querySelector('.account-container').style.display = "block";
-                }
+                            if (sectionId === 'account') {
+                                document.querySelector('.account-container').style.display = "block";
+                            }
 
-                // Cập nhật active trong menu
-                document.querySelectorAll(".profile-menu a").forEach(a => a.classList.remove("active"));
-                evt.currentTarget.classList.add("active");
-            }
+                            // Cập nhật active trong menu
+                            document.querySelectorAll(".profile-menu a").forEach(a => a.classList.remove("active"));
+                            evt.currentTarget.classList.add("active");
+                        }
 
-            // Điều khiển tab con trong phần Tài khoản
-            function showAccountTab(evt, tabId) {
-                document.querySelectorAll(".account-container .tab-content").forEach(c => c.classList.remove("active"));
-                document.querySelectorAll(".tab-header-account button").forEach(b => b.classList.remove("active"));
+                        // Điều khiển tab con trong phần Tài khoản
+                        function showAccountTab(evt, tabId) {
+                            document.querySelectorAll(".account-container .tab-content").forEach(c => c.classList.remove("active"));
+                            document.querySelectorAll(".tab-header-account button").forEach(b => b.classList.remove("active"));
 
-                document.getElementById(tabId).classList.add("active");
-                evt.currentTarget.classList.add("active");
-            }
-        </script>
+                            document.getElementById(tabId).classList.add("active");
+                            evt.currentTarget.classList.add("active");
+                        }
+                    </script>
 
- <%@ include file="/views/common/script.jsp" %>
-    </body>
-</html>
+                    <%@ include file="/views/common/script.jsp" %>
+                    </body>
+                    </html>

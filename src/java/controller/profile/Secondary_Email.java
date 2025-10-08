@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.EmailCustomer;
 import model.User;
 
 /**
@@ -91,12 +92,12 @@ public class Secondary_Email extends HttpServlet {
     throws ServletException, IOException {
           HttpSession session = request.getSession();
        User user = (User) session.getAttribute("user");
-       Integer userId = user.getUserId();
-       if(userId==null){
+
+       if(user==null){
           response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
           return;
        }
-      
+      Integer userId = user.getUserId();
        
        String action = request.getParameter("action");
        if(action==null){
@@ -106,20 +107,52 @@ public class Secondary_Email extends HttpServlet {
        
        if(action.startsWith("delete-")){
           int emailId = Integer.parseInt(action.split("-")[1]);
-            emailDAO.deleteEmail(emailId);
-            session.setAttribute("successEmail", "Đã xóa email thành công!");
-       }else if(action.startsWith("makePrimary-")){
+          //split("-")[1]) : cat chuoi thanh mang , roi lay phan tu thu 2
+            boolean isPrimary = emailDAO.isPrimaryEmail(emailId);
+             
+            if(isPrimary){
+                session.setAttribute("errorEmail_Deleted", "Không thể xóa Email chính!");
+             
+         
+               
+            }else{
+                
+                   boolean deleted = emailDAO.deleteEmail(emailId);
+                  if(deleted){
+                      session.setAttribute("successEmail", "Đã xóa email thành công!");
+                   
+                  }else {
+                      session.setAttribute("errorEmail_Deleted", " Xóa email không thành công!");
+                     
+                  }
+                 
+             // Cập nhật danh sách email mới
+        session.removeAttribute("emailList");
+        List<EmailCustomer> updatedList = emailDAO.getEmailsByUserId(userId);
+        session.setAttribute("emailList", updatedList);
+              
+            }
+             response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+            return;  
+          
+           }else if(action.startsWith("makePrimary-")){
               int emailId = Integer.parseInt(action.split("-")[1]);
 
             // Đặt email mới làm chính, đồng bộ Users và UserEmails
-            emailDAO.setPrimaryEmai(user.getUserId(), emailId); 
+            emailDAO.setPrimaryEmai(user.getUserId(), emailId);
+            System.out.println(user.getEmail());
 
             // Cập nhật session user để hiển thị profile ngay
-            String newPrimaryEmail = emailDAO.getEmailById(userId);
+            String newPrimaryEmail = emailDAO.getEmailById(emailId);
             user.setEmail(newPrimaryEmail);
             session.setAttribute("user", user);
             session.setAttribute("successEmail", "Đã đặt email chính mới!");
-       }
+            // xong hien thi email sau khinh set la email chinh
+            List<EmailCustomer> updatedList = emailDAO.getEmailsByUserId(userId);
+            session.setAttribute("emailList", updatedList);
+              response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+       }      
+   
     }
 
     /** 
