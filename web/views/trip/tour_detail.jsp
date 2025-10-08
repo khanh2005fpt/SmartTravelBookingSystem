@@ -132,6 +132,12 @@
                 <div class="col-lg-5">
                     <div class="card shadow-sm p-4">
                         <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
+                        <c:if test="${not empty errorMessage}">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${errorMessage}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </c:if>
 
                         <c:choose>
                             <c:when test="${not empty sessionScope.user}">
@@ -177,14 +183,14 @@
                 </div>
             </div>
 
-            </div>
+        </div>
 
-            <%@ include file="/views/common/footer.jsp" %>
+        <%@ include file="/views/common/footer.jsp" %>
 
-            <!-- Bootstrap 5 JS -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-            <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+        <!-- Bootstrap 5 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
 
-            <%@ include file="/views/common/script.jsp" %>
+        <%@ include file="/views/common/script.jsp" %>
     </body>
 </html>
