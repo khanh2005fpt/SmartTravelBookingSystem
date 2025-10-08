@@ -84,6 +84,26 @@ public class PhoneDao extends DBContext{
         }   
 
         
+        // check phone deleted_exist
+        
+            public boolean checkPhoneExistsByIdAndUser(int phoneId, int userId) {
+    String sql = "SELECT COUNT(*) FROM UserPhones WHERE phoneId = ? AND userId = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, phoneId);
+        ps.setInt(2, userId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+    
+        
       
   // xoa so dt
     public boolean deletePhone(int phoneId) {

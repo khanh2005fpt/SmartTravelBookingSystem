@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.profile;
+package controller.profile.account;
 
 import dao.EmailDao;
 import java.io.IOException;
@@ -116,6 +116,16 @@ public class Secondary_Email extends HttpServlet {
          
                
             }else{
+                // check xoa emai ton tai hay chua
+            
+                
+                boolean existEmail= emailDAO.checkEmailExistsByIdAndUser(emailId, userId);
+                if(!existEmail){
+                    session.setAttribute("errorEmail_Deleted", "email này đã bị xóa!"); 
+                     response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+        return;
+               }
+                
                 
                    boolean deleted = emailDAO.deleteEmail(emailId);
                   if(deleted){
@@ -165,3 +175,4 @@ public class Secondary_Email extends HttpServlet {
     }// </editor-fold>
 
 }
+

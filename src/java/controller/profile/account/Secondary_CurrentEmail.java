@@ -3,9 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.profile;
+package controller.profile.account;
 
-import dao.PhoneDao;
+import dao.EmailDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.EmailCustomer;
 import model.PhoneCustomer;
 import model.User;
 
@@ -22,30 +23,21 @@ import model.User;
  *
  * @author nqagh
  */
-@WebServlet(name="Secondary_Phone", urlPatterns={"/Secondary_Phone"})
-public class Secondary_Phone extends HttpServlet {
-     public PhoneDao phoneDAO;
-         @Override
+@WebServlet(name="Secondary_CurrentEmail", urlPatterns={"/Secondary_CurrentEmail"})
+public class Secondary_CurrentEmail extends HttpServlet {
+      public EmailDao emailDAO;
+          @Override
     public void init() throws ServletException {
         try {
-         phoneDAO =PhoneDao.INSTANCE;
-             
-            System.out.println("PhoneDao initialized successfully in loginServlet");
+         emailDAO = EmailDao.INSTANCE;
+        
+            System.out.println("emailDao initialized successfully in loginServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing PhoneDao in loginServlet: " + e.getMessage());
+            System.out.println("Error initializing emailDao in loginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
     }
-        
-     
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -54,10 +46,10 @@ public class Secondary_Phone extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Secondary_Phone</title>");  
+            out.println("<title>Servlet Secondary_CurrentEmail</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet Secondary_Phone at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet Secondary_CurrentEmail at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -89,13 +81,13 @@ public class Secondary_Phone extends HttpServlet {
     throws ServletException, IOException {
        HttpSession session = request.getSession();
        User user = (User) session.getAttribute("user");
-       if(user==null || session ==null){
+       if(user==null){
             session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
         response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
         return;
        }
         Integer userId = user.getUserId();
-       String action = request.getParameter("action");
+       String action = request.getParameter("action_current");
        if(action==null){
             response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
           return;
@@ -103,13 +95,13 @@ public class Secondary_Phone extends HttpServlet {
        
        if(action.startsWith("delete-")){
            
-             int phoneId = Integer.parseInt(action.split("-")[1]);
-           phoneDAO.deletePhone(phoneId);
-           session.setAttribute("successPhone", "Đã xóa số điện thoại thành công!");
-            session.removeAttribute("phoneList");
+             int emailId = Integer.parseInt(action.split("-")[1]);
+           emailDAO.deleteEmail(emailId);
+           session.setAttribute("successEmail", "Đã xóa email thành công!");
+            session.removeAttribute("emailList_Current");
             //sau khi xoa update moi nhat
-           List<PhoneCustomer> updateList = phoneDAO.getPhoneCustomersByUserId(userId);
-           session.setAttribute("phoneList", updateList);
+           List<EmailCustomer> updateList = emailDAO.getEmailsByUserId(userId);
+           session.setAttribute("emailList_Current", updateList);
             response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
            
            

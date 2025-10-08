@@ -134,6 +134,30 @@ public class EmailDao extends DBContext{
         }
             return false;//chua ton tai
         }   
+        
+        
+        
+               // check email deleted_exist
+        
+            public boolean checkEmailExistsByIdAndUser(int emailId, int userId) {
+    String sql = "SELECT COUNT(*) FROM UserEmails WHERE  emailId = ? AND userId = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, emailId);
+        ps.setInt(2, userId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+    
+        
+        
   
        // update email thanh primary email va dong bo voi user
 public void setPrimaryEmai(int userId, int emailId) {

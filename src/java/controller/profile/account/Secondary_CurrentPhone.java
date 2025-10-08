@@ -3,10 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.profile;
+package controller.profile.account;
 
 import dao.PhoneDao;
-import dao.userDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -23,9 +22,10 @@ import model.User;
  *
  * @author nqagh
  */
-@WebServlet(name="phone_Added", urlPatterns={"/phone_Added"})
-public class phone_Added extends HttpServlet {
-    public PhoneDao phoneDAO;
+@WebServlet(name="Secondary_CurrentPhone", urlPatterns={"/Secondary_CurrentPhone"})
+public class Secondary_CurrentPhone extends HttpServlet {
+   
+      public PhoneDao phoneDAO;
    
        @Override
     public void init() throws ServletException {
@@ -39,14 +39,7 @@ public class phone_Added extends HttpServlet {
             throw new ServletException("Failed to initialize information", e);
         }
     }
-                            
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+          
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -55,10 +48,10 @@ public class phone_Added extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet phone_Added</title>");  
+            out.println("<title>Servlet Secondary_CurrentPhone</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet phone_Added at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet Secondary_CurrentPhone at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -88,49 +81,33 @@ public class phone_Added extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        
-        
-           HttpSession session =request.getSession();
-           User user = (User) session.getAttribute("user"); 
-    if (session == null || user==null) {
-        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+       HttpSession session = request.getSession();
+       User user = (User) session.getAttribute("user");
+       if(user==null){
+            session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
         response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
         return;
-    }
-
-    Integer userId = user.getUserId();
-    
-     String phone = request.getParameter("phone");
-     
-     //validate
-        if (phone  == null || phone .trim().isEmpty()) {
-             session.setAttribute("errorPhone", "Vui lòng nhập số điện thoại hợp lệ!");
-         response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
-            return;
-        }
-        // check mail ton tai
-        Boolean existAddedPhone = phoneDAO.checkPhonelExists(userId, phone);
-      
-        if(existAddedPhone ||phone.equals(user.getPhone()) ){
-              session.setAttribute("errorPhone", "Số điện thoại này đã tồn tại!");
-               response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
-            return;
-        }
-        
-        // check k them qua 2 phone
-        int totalEmails = phoneDAO.countPhonesByUserId(userId);
-          if(totalEmails>=2){
-             session.setAttribute("errorPhone", "Bạn chỉ được dùng tối đa 3 số điện thoại!");
-              response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
-            return;
-          }
-          phoneDAO.addPhone(userId, phone);
-         List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(userId);
-         session.setAttribute("phoneList", phoneList);
-         session.setAttribute("successPhone", "Thêm số điện thoại thành công!");
-        response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
-        
-    
+       }
+        Integer userId = user.getUserId();
+       String action = request.getParameter("action_current");
+       if(action==null){
+            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+          return;
+       }
+       
+       if(action.startsWith("delete-")){
+           
+             int phoneId = Integer.parseInt(action.split("-")[1]);
+           phoneDAO.deletePhone(phoneId);
+           session.setAttribute("successPhone", "Đã xóa số điện thoại thành công!");
+            session.removeAttribute("phoneList_Current");
+            //sau khi xoa update moi nhat
+           List<PhoneCustomer> updateList = phoneDAO.getPhoneCustomersByUserId(userId);
+           session.setAttribute("phoneList_Current", updateList);
+            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+           
+           
+       }
     }
 
     /** 

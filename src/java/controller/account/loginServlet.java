@@ -4,6 +4,8 @@
  */
 package controller.account;
 
+import dao.EmailDao;
+import dao.PhoneDao;
 import model.User;
 import dao.userDao;
 
@@ -15,7 +17,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import model.EmailCustomer;
 import model.GoogleAccount;
+import model.PhoneCustomer;
 
 /**
  *
@@ -25,11 +30,15 @@ import model.GoogleAccount;
 public class loginServlet extends HttpServlet {
 
     private userDao UserDao;
+    private PhoneDao phoneDAO;
+    private EmailDao emailDAO;
 
     @Override
     public void init() throws ServletException {
         try {
             UserDao = userDao.INSTANCE;
+            phoneDAO = PhoneDao.INSTANCE;
+            emailDAO = EmailDao.INSTANCE;
             System.out.println("userDao initialized successfully in loginServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in loginServlet: " + e.getMessage());
@@ -79,12 +88,11 @@ public class loginServlet extends HttpServlet {
         HttpSession session = request.getSession();
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
-        if(error!=null){
-             response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
-             return;
+        if (error != null) {
+            response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+            return;
         }
-         
-        
+
         String code = request.getParameter("code");
         googleLogin gg = new googleLogin();
         String accessToken = gg.getToken(code);
@@ -98,6 +106,12 @@ public class loginServlet extends HttpServlet {
             // user ton tai -> login
             session.setAttribute("user", existing);
             session.setAttribute("loginSuccess", "oke");
+            List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(existing.getUserId());
+            List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(existing.getUserId());
+
+            session.setAttribute("emailList_Current", emailList);
+            session.setAttribute("phoneList_Current", phoneList);
+
             response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             return;
         } else {
@@ -111,10 +125,11 @@ public class loginServlet extends HttpServlet {
             if (result.startsWith("Success")) {
                 // sau khi add thi check user de login
                 User newUser = UserDao.getUserByEmail(acc.getEmail());
-
+                // List<PhoneCustomer> listPhone = phoneDAO.getPhoneCustomersByUserId(0);
                 //login
                 session.setAttribute("user", newUser);
-                   session.setAttribute("userId", newUser.getUserId());
+                session.setAttribute("userId", newUser.getUserId());
+
                 session.setAttribute("loginSuccess", "oke");
                 response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             } else {
@@ -168,6 +183,12 @@ public class loginServlet extends HttpServlet {
 
         //login thanh cong
         session.setAttribute("user", user);
+        List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(user.getUserId());
+        List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(user.getUserId());
+
+        session.setAttribute("emailList_Current", emailList);
+        session.setAttribute("phoneList_Current", phoneList);
+
         session.setAttribute("userId", user.getUserId());
         session.setAttribute("loginSuccess", "oke");
         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
@@ -175,7 +196,7 @@ public class loginServlet extends HttpServlet {
     }
 
     /**
-     * Returns a short description of the servlet  .
+     * Returns a short description of the servlet .
      *
      * @return a String containing servlet description
      */
@@ -183,5 +204,5 @@ public class loginServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-   
+
 }
