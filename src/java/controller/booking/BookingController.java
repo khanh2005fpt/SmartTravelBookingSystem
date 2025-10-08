@@ -84,13 +84,22 @@ public class BookingController extends HttpServlet {
             Date departureDate = Date.valueOf(request.getParameter("departureDate"));
             int adultQty = Integer.parseInt(request.getParameter("adultQty"));
             int childQty = Integer.parseInt(request.getParameter("childQty"));
-                 TourDao td = new TourDao();
+            TourDao td = new TourDao();
             Tour tour = td.getTourDetailById(tourId);
             List<TourItinerary> itineraries = td.getListTourItineriesById(tourId);
             // Kiểm tra ngày khởi hành phải >= hôm nay
             Date today = new Date(System.currentTimeMillis());
             if (departureDate.before(today)) {
                 request.setAttribute("errorMessage", "❌ Ngày khởi hành không được nhỏ hơn ngày hiện tại!");
+                request.setAttribute("tour", tour);
+                request.setAttribute("itineraries", itineraries);
+                request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
+                return;
+            }
+
+            int totalPeople = adultQty + childQty;
+            if (totalPeople > 50) {
+                request.setAttribute("errorMessage", "❌ Tổng số người không được vượt quá 50 người!");
                 request.setAttribute("tour", tour);
                 request.setAttribute("itineraries", itineraries);
                 request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
@@ -118,14 +127,10 @@ public class BookingController extends HttpServlet {
             bd.createBooking(booking);
 
             // Lưu BookingDetails
-            BookingDetail detail = new BookingDetail(
-                    booking.getBookingId(), tourId, null, null, null, (int) totalPrice
-            );
+            BookingDetail detail = new BookingDetail(booking.getBookingId(), tourId, null, null, null, (int) totalPrice);
             bd.createBookingDetail(detail);
 
             // Lấy thông tin tour
-       
-
             // Gửi dữ liệu sang trang thanh toán
             request.setAttribute("booking", booking);
             request.setAttribute("totalPrice", totalPrice);
@@ -135,9 +140,13 @@ public class BookingController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-
+            int tourId = Integer.parseInt(request.getParameter("tourId"));
+            TourDao td = new TourDao();
+            Tour tour = td.getTourDetailById(tourId);
+            List<TourItinerary> itineraries = td.getListTourItineriesById(tourId);
             request.setAttribute("errorMessage", "Đã xảy ra lỗi trong quá trình xử lý: " + e.getMessage());
-
+            request.setAttribute("tour", tour);
+            request.setAttribute("itineraries", itineraries);
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
         }
 
