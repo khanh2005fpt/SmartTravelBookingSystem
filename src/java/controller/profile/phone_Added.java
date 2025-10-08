@@ -5,9 +5,8 @@
 
 package controller.profile;
 
-import dao.EmailDao;
+import dao.PhoneDao;
 import dao.userDao;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -17,32 +16,37 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import model.EmailCustomer;
+import model.PhoneCustomer;
 import model.User;
 
 /**
  *
  * @author nqagh
  */
-@WebServlet(name="email_Added", urlPatterns={"/email_Added"})
-public class email_Added extends HttpServlet {
-     public EmailDao emailDao;
-  
+@WebServlet(name="phone_Added", urlPatterns={"/phone_Added"})
+public class phone_Added extends HttpServlet {
+    public PhoneDao phoneDAO;
    
        @Override
     public void init() throws ServletException {
         try {
-          emailDao = EmailDao.INSTANCE;
-       
-            System.out.println("emailDao initialized successfully in loginServlet");
+         phoneDAO =PhoneDao.INSTANCE;
+             
+            System.out.println("PhoneDao initialized successfully in loginServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing emailDao in loginServlet: " + e.getMessage());
+            System.out.println("Error initializing PhoneDao in loginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
     }
-   
-  
+                            
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -51,10 +55,10 @@ public class email_Added extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet email_Added</title>");  
+            out.println("<title>Servlet phone_Added</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet email_Added at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet phone_Added at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -84,7 +88,7 @@ public class email_Added extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        HttpSession session =request.getSession();
+           HttpSession session =request.getSession();
            User user = (User) session.getAttribute("user"); 
     if (user == null) {
         session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
@@ -94,40 +98,37 @@ public class email_Added extends HttpServlet {
 
     Integer userId = user.getUserId();
     
-     String email = request.getParameter("email");
+     String phone = request.getParameter("phone");
      
      //validate
-        if (email == null || email.trim().isEmpty()) {
-            session.setAttribute("errorEmail", "Vui lòng nhập địa chỉ email hợp lệ!");
+        if (phone  == null || phone .trim().isEmpty()) {
+             session.setAttribute("errorPhone", "Vui lòng nhập số điện thoại hợp lệ!");
          response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
             return;
         }
         // check mail ton tai
-        
-        Boolean existAddedPhone = emailDao.checkEmailExists(userId, email);
-        Boolean existDefaultPhone = emailDao.checkDefaultEmailExist(userId, email);
+        Boolean existAddedPhone = phoneDAO.checkPhonelExists(userId, phone);
+        Boolean existDefaultPhone = phoneDAO.checkDefaultPhoneExist(userId, phone);
         if(existAddedPhone ||existDefaultPhone ){
-             session.setAttribute("errorEmail", "Email này đã tồn tại!");
-            response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+              session.setAttribute("errorPhone", "Số điện thoại này đã tồn tại!");
+               response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
             return;
         }
         
         // check k them qua 2 mail
-        int totalEmails = emailDao.countEmailsByUserId(userId);
+        int totalEmails = phoneDAO.countPhonesByUserId(userId);
           if(totalEmails>=2){
-              session.setAttribute("errorEmail", "Bạn chỉ được dùng tối đa 3 email!");
+             session.setAttribute("errorPhone", "Bạn chỉ được dùng tối đa 3 số điện thoại!");
               response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
             return;
           }
-        // them email
-        emailDao.addEmail(userId, email);
-        List<EmailCustomer> emailList = emailDao.getEmailsByUserId(userId);
-      session.setAttribute("emailList", emailList);
-       session.setAttribute("successEmail", "Thêm email thành công!");
-       response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
-   
-
+          phoneDAO.addPhone(userId, phone);
+         List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(userId);
+         session.setAttribute("phoneList", phoneList);
+         session.setAttribute("successPhone", "Thêm số điện thoại thành công!");
+        response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
         
+    
     }
 
     /** 

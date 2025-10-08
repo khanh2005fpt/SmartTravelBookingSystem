@@ -17,11 +17,18 @@ CREATE TABLE Users (
 );
 go
 select * from dbo.UserEmails
+select * from dbo.UserPhones
+
 /* lenh reset id_table
 DELETE FROM UserEmails;
 DBCC CHECKIDENT ('UserEmails', RESEED, 0);
 nqaghuyyy6969@gmail.com
 huynqhe182510@fpt.edu.vn
+
+DELETE FROM UserPhones;
+DBCC CHECKIDENT ('UserPhones', RESEED, 0);
+
+
 */
 
 
@@ -120,11 +127,11 @@ CREATE TABLE UserEmails (
 );
 go
 
+
 CREATE TABLE UserPhones (
     phoneId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
     phoneNumber NVARCHAR(20) NOT NULL,
-    isPrimary BIT DEFAULT 0,
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 

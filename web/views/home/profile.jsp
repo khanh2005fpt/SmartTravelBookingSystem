@@ -43,10 +43,31 @@
   color: #999;
 }
 
+
+    #phoneInput {
+  height: 40px !important;
+  font-size: 15px;
+  padding: 6px 12px;
+  line-height: 1.2;
+}
+
+.input-group-text {
+  height: 40px !important;
+  padding: 4px 10px !important;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+#phoneInput::placeholder {
+  font-size: 13px;
+  color: #999;
+}
+
     </style>
           
     </head>
     <body class="profile" >
+        
         <div class="profile-container">
             <!-- SIDEBAR -->
             <div class="profile-sidebar">
@@ -57,7 +78,7 @@
                         <%
                             User user = (User)session.getAttribute("user");
                         %>
-                        <h4><%= user != null ? user.getFullName() : "Khách" %> </h4>
+                     <h4>${sessionScope.user.fullName}</h4>
                         <p class="provider">Google</p>
                     </div>
                 </div>
@@ -150,7 +171,7 @@
                             <div class="form-grid">
                                 <div>
                                     <label>Tên đầy đủ</label>
-                                    <input type="text" name="fullname" value="${requestScope.fullname != null ? requestScope.fullname : ''}"placeholder="vui lòng nhập tên đầy đủ">
+                                    <input type="text" name="fullname"  value="${not empty requestScope.fullname ? requestScope.fullname : sessionScope.user.fullName}"placeholder="vui lòng nhập tên đầy đủ">
                                 </div>
                                 <div>
                                     <label for="gender">Giới tính</label>
@@ -218,10 +239,13 @@
     <strong>Email chính:</strong>
     <span class="text-primary">${user.email}</span>
   </div>
+  
+  <h4 class="text-muted" style="font-size: 13px" >Chỉ có thể sử động tối đa 3 email </h4>
+  
 
   <form id="emailForm" action="${pageContext.request.contextPath}/emailAction" method="post">
     <div class="email-list">
-      <c:forEach var="email" items="${emailList}">
+      <c:forEach var="email" items="${sessionScope.emailList}">
         <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
           <div>
             <span>${email.email}</span>
@@ -237,9 +261,13 @@
         </div>
       </c:forEach>
 
-      <c:if test="${empty emailList}">
+        <!-- comment 
+         <c:if test="${empty emailList}">
         <p>Chưa có email phụ nào.</p>
       </c:if>
+        
+        -->
+     
     </div>
   </form>
 </section>
@@ -273,20 +301,18 @@
 
     <div class="border rounded p-3 bg-light mb-3">
         <strong>Số chính:</strong>
-        <span class="text-primary">${user.phone}</span>
+        <span class="text-primary">${user.phone}</span>s
     </div>
+    <h4 class="text-muted" style="font-size: 13px" >Chỉ có thể sử động tối đa 3 số điện thoại </h4>
 
     <form id="phoneForm" action="${pageContext.request.contextPath}/phoneAction" method="post">
         <div class="phone-list">
-            <c:forEach var="phone" items="${phoneList}">
+            <c:forEach var="phone" items="${sessionScope.phoneList}">
                 <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                     <div>
-                        <span>${phone.phoneNumber}</span>
+                        <span>${phone.phone}</span>
                     </div>
                     <div>
-                        <button type="submit" name="action" value="makePrimary-${phone.phoneId}" class="btn btn-sm btn-outline-success me-2">
-                            <i class="bi bi-check-circle"></i> Đặt làm chính
-                        </button>
                         <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
                             <i class="bi bi-trash"></i> Xóa
                         </button>
@@ -294,9 +320,7 @@
                 </div>
             </c:forEach>
 
-            <c:if test="${empty phoneList}">
-                <p>Chưa có số điện thoại phụ nào.</p>
-            </c:if>
+           
         </div>
     </form>
 </section>
@@ -421,7 +445,7 @@ function closeEmailModal() {
         </p>
 
         <!-- Form -->
-        <form action="${pageContext.request.contextPath}/addPhone" method="POST">
+        <form action="${pageContext.request.contextPath}/phone_Added" method="POST">
           <div class="form-group">
             <label for="phoneInput" class="form-label text-primary font-weight-bold ">Số điện thoại</label>
             <div class="input-group">
@@ -430,7 +454,7 @@ function closeEmailModal() {
               </div>
               <input type="text" class="form-control" id="phoneInput" 
                      name="phone" placeholder="Ví dụ: 912345678" 
-                     pattern="[0-9]{9,11}" required>
+                     pattern="[0-9]{9,11}" >
             </div>
           </div>
 

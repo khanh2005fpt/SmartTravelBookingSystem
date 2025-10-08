@@ -176,6 +176,25 @@ public class EmailDao extends DBContext{
     
     return count;
 }
+        
+        // check default phone
+public boolean checkDefaultEmailExist(int userId, String email) {
+    String sql = "SELECT COUNT(*) FROM Users WHERE email = ? AND userId <> ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setString(1, email);
+        stmt.setInt(2, userId);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;//đã tồn tại
+            }
+        }
+    } catch (SQLException e) {
+        System.out.println("Lỗi khi kiểm tra email: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return false;
+}
+
 
         
         /*
