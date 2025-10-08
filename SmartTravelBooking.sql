@@ -10,7 +10,7 @@ CREATE TABLE Users (
     email VARCHAR(100) UNIQUE NOT NULL,
     fullName NVARCHAR(100),
     phone NVARCHAR(20),
-  roleId INT NOT NULL DEFAULT 3, 
+    roleId INT NOT NULL DEFAULT 3, 
     createdAt DATETIME DEFAULT GETDATE(),
 	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
@@ -276,6 +276,9 @@ CREATE TABLE Bookings (
 	profileId INT NOT NULL,
     customerId INT NOT NULL,
     price INT, 
+	departureDate DATE NOT NULL,
+	adultQuantity INT NOT NULL,
+    childQuantity INT NOT NULL,
 	status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')) DEFAULT 'PENDING',
     bookingDate DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (customerId) REFERENCES Users(userId),
@@ -292,14 +295,7 @@ CREATE TABLE BookingDetails (
     hotelId INT NULL,
     flightId INT NULL,
     vehicleId INT NULL,
-    adultQuantity INT NOT NULL,
-    childQuantity INT NOT NULL,
-    departureDate DATE NOT NULL,
-    unitPrice INT NOT NULL,
-    totalPrice AS (
-        (adultQuantity * unitPrice) + 
-        (childQuantity * unitPrice * 0.7)
-    ) PERSISTED,
+    totalPrice INT NOT NULL,
 
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE,
     FOREIGN KEY (tourId) REFERENCES Tours(tourId),

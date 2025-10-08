@@ -86,25 +86,29 @@
                         <ul class="list-group mb-3">
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Tên tour</b></span>
-                                <span></span>
+                                <span>${tour.tourName}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Ngày khởi hành</b></span>
-                                <span></span>
+                                <span><fmt:formatDate value="${booking.departureDate}" pattern="dd/MM/yyyy"/></span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Người lớn</b></span>
-                                <span></span>
+                                <span>${booking.adultQuantity}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Trẻ em</b></span>
-                                <span></span>
+                                <span>${booking.childQuantity}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between bg-light">
                                 <span><b>Tổng tiền</b></span>
-                                <span class="fw-bold text-danger"></span>
+                                <span class="fw-bold text-danger">
+                                    <fmt:setLocale value="vi_VN" />
+                                    <fmt:formatNumber value="${totalPrice}" type="number" groupingUsed="true"/> VNĐ
+                                </span>
                             </li>
                         </ul>
+
 
                         <div class="alert alert-info">
                             💡 Vui lòng kiểm tra kỹ thông tin trước khi thanh toán.
