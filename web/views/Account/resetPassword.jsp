@@ -26,14 +26,16 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: #f4f6f9;
+   background: url("${pageContext.request.contextPath}/views/home/images/island_Bg.jpg") no-repeat center center fixed;
+background-size: cover;
     }
     .reset-container {
       background: #fff;
       padding: 30px;
       border-radius: 14px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
       width: 360px;
+       border: 1px solid #e0e0e0;
     }
     .reset-container h2 {
       text-align: center;
@@ -190,7 +192,7 @@
     </form>
         <!-- Link quay lại login -->
 <div class="text-center mt-3">
-  <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="back-link">
+  <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="back-link">
     <i class="fa fa-arrow-left"></i> Quay lại đăng nhập
   </a>
 </div>

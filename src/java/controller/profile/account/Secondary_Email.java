@@ -94,14 +94,14 @@ public class Secondary_Email extends HttpServlet {
        User user = (User) session.getAttribute("user");
 
        if(user==null){
-          response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+          response.sendRedirect(request.getContextPath()+"/views/account/login.jsp");
           return;
        }
       Integer userId = user.getUserId();
        
        String action = request.getParameter("action");
        if(action==null){
-            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
           return;
        }
        
@@ -122,7 +122,7 @@ public class Secondary_Email extends HttpServlet {
                 boolean existEmail= emailDAO.checkEmailExistsByIdAndUser(emailId, userId);
                 if(!existEmail){
                     session.setAttribute("errorEmail_Deleted", "email này đã bị xóa!"); 
-                     response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+                     response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
         return;
                }
                 
@@ -142,7 +142,7 @@ public class Secondary_Email extends HttpServlet {
         session.setAttribute("emailList", updatedList);
               
             }
-             response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+             response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
             return;  
           
            }else if(action.startsWith("makePrimary-")){
@@ -160,7 +160,7 @@ public class Secondary_Email extends HttpServlet {
             // xong hien thi email sau khinh set la email chinh
             List<EmailCustomer> updatedList = emailDAO.getEmailsByUserId(userId);
             session.setAttribute("emailList", updatedList);
-              response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+              response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
        }      
    
     }

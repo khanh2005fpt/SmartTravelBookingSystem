@@ -36,7 +36,7 @@
                 
                 <!-- Nút về trang chủ -->
             <div class="d-flex justify-content-end mb-5" style="max-width: 480px; width: 100%;">
-                    <a href="index.jsp" class="btn btn-outline-primary ">
+                    <a href="${pageContext.request.contextPath}/views/home/index.jsp" class="btn btn-outline-primary ">
                         <i class="fa fa-home"></i> Trang Chủ
                     </a>
                     

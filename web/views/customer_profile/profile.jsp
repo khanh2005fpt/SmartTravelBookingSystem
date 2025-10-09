@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="model.User" %>
+<%@ page import="model.CustomerProfile" %>
 
 <html lang="vi">
     <head>
@@ -64,7 +65,16 @@
             }
 
         </style>
-
+        <!-- lay thong tin user -->
+<%
+                            User user = (User)session.getAttribute("user");
+%>
+                        
+         <!-- lay thong tin customerProfile --> 
+         <%
+                            CustomerProfile profile = (CustomerProfile)session.getAttribute("profile_customer");
+%>
+         
     </head>
     <body class="profile" >
 
@@ -72,15 +82,38 @@
             <!-- SIDEBAR -->
             <div class="profile-sidebar">
                 <div class="profile-header">
-                    <img src="https://via.placeholder.com/60" class="profile-avatar" alt="avatar">
-                    <div class="profile-info">
-                        <!-- lay thong tin user tu session  -->
-                        <%
-                            User user = (User)session.getAttribute("user");
-                        %>
-                        <h4>${sessionScope.user.fullName}</h4>
-                        <p class="provider">Google</p>
-                    </div>
+                    
+         <!-- form avatar customer-------------->  
+         
+  <div class="profile-sidebar text-center p-4">
+    <div class="avatar-wrapper mx-auto">
+        <img 
+            src="<%= (profile != null && profile.getProfilePicture() != null) ? profile.getProfilePicture() : "https://via.placeholder.com/150/eeeeee/aaaaaa?text=Avatar" %>" 
+            class="profile-avatar" 
+            alt="Avatar">
+        <div class="overlay">
+            <label for="avatarFile" class="change-photo">
+                <i class="bi bi-camera-fill"></i> Thay ảnh
+            </label>
+        </div>
+    </div>
+
+     <form id="avatarForm" 
+        action="<%=request.getContextPath()%>/UploadAvatarServlet" 
+        method="post" 
+        enctype="multipart/form-data" 
+        style="display: inline;">
+    <input type="file" id="avatarFile" name="avatar" accept="image/*" 
+           style="display:none" 
+           onchange="document.getElementById('avatarForm').submit();">
+  </form>
+
+    <div class="profile-info mt-3">
+        <h5 class="fw-bold mb-1 text-primary font-weight-bold">${sessionScope.user.fullName}</h5>
+        <p class="text-muted mb-0">Google</p>
+    </div>
+</div>
+               
                 </div>
 
                 <div class="profile-rank">
@@ -89,16 +122,41 @@
                 </div>
 
                 <div class="profile-menu">
-                    <a href="#" onclick="showMainSection(event, 'points')"><i class="bi bi-coin"></i> 0 Điểm</a>
+                    <a href="#" onclick="showMainSection(event, 'points')"><i class="bi bi-coin"></i> Thẻ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'bookings')"><i class="bi bi-calendar2-check"></i> Đặt chỗ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
                     <a href="#" onclick="showMainSection(event, 'setting')"><i class="bi bi-gear"></i> Cài đặt</a>
                     <a href="#" onclick="showMainSection(event, 'account')" class="active"><i class="bi bi-person"></i> Tài khoản</a>
-                    <a href="<%= request.getContextPath() %>/logout" class="logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+                    <a  href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
 
                 </div>
             </div>
+                        
+                 <!-- ===================== logout modal profile ===================== -->        
+                        <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content logout-box">
+
+            <!-- Body -->
+            <div class="logout-body text-center p-4">
+                <h2 class="logout-header text-primary mb-3 ">Xác nhận đăng xuất</h2>
+                <h5>
+                    Nếu bạn đăng xuất, bạn sẽ không thể quản lý trang thông tin hiện tại.<br>
+                    Bạn có chắc chắn muốn thoát khỏi không?
+                </h5>
+                <div class="mt-4">
+                    <button class="btn mr-2 font-weight-bold" data-dismiss="modal">Không</button>
+                    <a href="<%= request.getContextPath() %>/logout" class="btn btn-logout btn-primary">Có</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+                        
 
             <!-- ===================== CONTENT ===================== -->
             <!-- point content -->
@@ -114,7 +172,7 @@
             <!-- account and securit content --> 
             <div class="account-container">
                 <div class="tab-header-account">
-                    <button class="active" onclick="showAccountTab(event, 'profile')">Thông tin tài khoản</button>
+                    <button class="active w-auto font-weight-bold" onclick="showAccountTab(event, 'profile')">Thông tin tài khoản</button>
 
                 </div>
 
@@ -202,172 +260,196 @@
 
                     </section>
                     <!-- ====================================== EMAIL SECTION =================== -->
-<section class="card p-3 shadow-sm">
-    <!-- ============================== Thông báo thành công về email ============================== --> 
-    <% String successEmail = (String) session.getAttribute("successEmail"); %>
-    <% if (successEmail != null) { %>
-        <div id="successAlertEmail" class="alert alert-success alert_style" role="alert">
-            <%= successEmail %>
-        </div>
-        <script>
-            setTimeout(() => document.getElementById("successAlertEmail")?.style.display = "none", 2000);
-        </script>
-        <% session.removeAttribute("successEmail"); %>
-    <% } %>
-
-    <!-- ============================== Thông báo lỗi khi xóa email ============================== --> 
-    <% String errorEmail_Deleted = (String) session.getAttribute("errorEmail_Deleted"); %>
-    <% if (errorEmail_Deleted != null) { %>
-        <div id="errorDeleted_AlertEmail" class="alert alert-danger alert_style" role="alert">
-            <%= errorEmail_Deleted %>
-        </div>
-        <script>
-            setTimeout(() => document.getElementById("errorDeleted_AlertEmail")?.style.display = "none", 2000);
-        </script>
-        <% session.removeAttribute("errorEmail_Deleted"); %>
-    <% } %>
-
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h3 class="mb-0">Email</h3>
-        <h4 class="text-muted" style="font-size: 13px;">Chỉ có thể sử dụng tối đa 3 email</h4>
-        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEmailModal()">+ Thêm</button>
-    </div>
-
-    <!-- ==================== Danh sách email chính (saved_Email) ==================== -->
-    <div class="border rounded p-3 bg-light mb-3">
-        <strong>Email chính:</strong>
-        <span class="text-primary">${user.email}</span>
-
-        <form id="emailForm" action="${pageContext.request.contextPath}/saved_Email" method="post">
-            <div class="email-list">
-                <c:forEach var="email" items="${sessionScope.emailList}">
-                    <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
-                        <div>
-                            📧 <span>${email.email}</span>
+                    <section class="card p-3 shadow-sm">
+                        <!-- ============================== Thông báo thành công về email ============================== --> 
+                        <% String successEmail = (String) session.getAttribute("successEmail"); %>
+                        <% if (successEmail != null) { %>
+                        <div id="successAlertEmail" class="alert alert-success alert_style" role="alert">
+                            <%= successEmail %>
                         </div>
-                        <div>
-                            <button type="submit" name="action" value="makePrimary-${email.emailId}" class="btn btn-sm btn-outline-success me-2">
-                                ✅
-                            </button>
-                            <button type="submit" name="action" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
-                                🗑️
-                            </button>
+                        <!-- set time display loi  ------------------------------------------------------>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("successAlertEmail");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 2000);
+                        </script>
+                        <% session.removeAttribute("successEmail"); %>
+                        <% } %>
+
+                        <!-- ============================== Thông báo lỗi khi xóa email ============================== --> 
+                        <% String errorEmail_Deleted = (String) session.getAttribute("errorEmail_Deleted"); %>
+                        <% if (errorEmail_Deleted != null) { %>
+                        <div id="errorDeleted_AlertEmail" class="alert alert-danger alert_style" role="alert">
+                            <%= errorEmail_Deleted %>
                         </div>
-                    </div>
-                </c:forEach>
-            </div>
-        </form>
-    </div>
+                        <!-- set time thong bao loi -->
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("errorDeleted_AlertEmail");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 2000);
+                        </script>
+                        <% session.removeAttribute("errorEmail_Deleted"); %>
+                        <% } %>
 
-    <!-- ==================== Danh sách email phụ (Secondary_CurrentEmail) ==================== -->
-    <h4 class="font-weight-bold mt-3" style="font-size: 15px;">Danh sách email phụ:</h4>
-
-    <c:if test="${empty sessionScope.emailList_Current}">
-        <p>Chưa có email phụ nào.</p>
-    </c:if>
-
-    <form id="Current_emailForm" action="${pageContext.request.contextPath}/Secondary_CurrentEmail" method="post">
-        <div class="Current_email-list">
-            <c:forEach var="email" items="${sessionScope.emailList_Current}">
-                <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
-                    <div>
-                        📧 <span>${email.email}</span>
-                    </div>
-                    <div>
-                        <button type="submit" name="action_current" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
-                            🗑️
-                        </button>
-                    </div>
-                </div>
-            </c:forEach>
-        </div>
-    </form>
-</section>
-
-
-
-                
-<!-- ============================== PHONE SECTION ============================== -->
-
-<!-- ============================== Thông báo thành công và lỗi về phone ============================== -->
-<section class="card p-3 shadow-sm">
-
-    <% String successPhone = (String) session.getAttribute("successPhone"); %>
-    <% if (successPhone != null) { %>
-        <div id="successPhoneAlert" class="alert alert-success alert_style" role="alert">
-            <%= successPhone %>
-        </div>
-        <script>
-            setTimeout(() => document.getElementById("successPhoneAlert")?.style.display = "none", 2000);
-        </script>
-        <% session.removeAttribute("successPhone"); %>
-    <% } %>
-
-    <% String errorPhone_Deleted = (String) session.getAttribute("errorPhone_Deleted"); %>
-    <% if (errorPhone_Deleted != null) { %>
-        <div id="errorDeleted_PhoneAlert" class="alert alert-danger alert_style" role="alert">
-            <%= errorPhone_Deleted %>
-        </div>
-        <script>
-            setTimeout(() => document.getElementById("errorDeleted_PhoneAlert")?.style.display = "none", 2000);
-        </script>
-        <% session.removeAttribute("errorPhone_Deleted"); %>
-    <% } %>
-
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h3 class="mb-0">Số di động</h3>
-        <h4 class="text-muted" style="font-size: 13px;">Chỉ có thể sử dụng tối đa 3 số điện thoại</h4>
-        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openPhoneModal()">+ Thêm</button>
-    </div>
-
-    <div class="border rounded p-3 bg-light mb-3">
-        <strong>Số chính:</strong>
-        <span class="text-primary">${user.phone}</span>
-
-        <!-- =================== Danh sách số điện thoại phụ (Secondary_Phone) =================== -->
-        <form id="phoneForm" action="${pageContext.request.contextPath}/Secondary_Phone" method="post">
-            <div class="phone-list">
-                <c:forEach var="phone" items="${sessionScope.phoneList}">
-                    <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
-                        <div>
-                            📱 <span>${phone.phone}</span>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="mb-0">Email</h3>
+                            <h4 class="text-muted" style="font-size: 13px;">Chỉ có thể sử dụng tối đa 3 email</h4>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEmailModal()">+ Thêm</button>
                         </div>
-                        <div>
-                            <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
-                                🗑️
-                            </button>
+
+                        <!-- ==================== Danh sách email chính (saved_Email) ==================== -->
+                        <div class="border rounded p-3 bg-light mb-3">
+                            <strong>Email chính:</strong>
+                            <span class="text-primary">${user.email}</span>
+
+                            <form id="emailForm" action="${pageContext.request.contextPath}/saved_Email" method="post">
+                                <div class="email-list">
+                                    <c:forEach var="email" items="${sessionScope.emailList}">
+                                        <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                                            <div>
+                                                📧 <span>${email.email}</span>
+                                            </div>
+                                            <div>
+                                                <button type="submit" name="action" value="makePrimary-${email.emailId}" class="btn btn-sm btn-outline-success me-2">
+                                                    ✅
+                                                </button>
+                                                <button type="submit" name="action" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+                                                    🗑️
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </form>
                         </div>
-                    </div>
-                </c:forEach>
-            </div>
-        </form>
-    </div>
 
-    <h4 class="font-weight-bold mt-3" style="font-size: 15px;">Danh sách số điện thoại phụ:</h4>
+                        <!-- ==================== Danh sách email phụ (Secondary_CurrentEmail) ==================== -->
+                        <h4 class="font-weight-bold mt-3" style="font-size: 15px;">Danh sách email phụ:</h4>
 
-    <c:if test="${empty sessionScope.phoneList_Current}">
-        <p>Chưa có số điện thoại phụ nào.</p>
-    </c:if>
+                        <c:if test="${empty sessionScope.emailList_Current}">
+                            <p>Chưa có email phụ nào.</p>
+                        </c:if>
 
-    <!-- =================== Danh sách current Phone (Secondary_CurrentPhone) =================== -->
-    <form id="Current_phoneForm" action="${pageContext.request.contextPath}/Secondary_CurrentPhone" method="post">
-        <div class="Current_phone-list">
-            <c:forEach var="phone" items="${sessionScope.phoneList_Current}">
-                <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
-                    <div>
-                        📱 <span>${phone.phone}</span>
-                    </div>
-                    <div>
-                        <button type="submit" name="action_current" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
-                            🗑️
-                        </button>
-                    </div>
-                </div>
-            </c:forEach>
-        </div>
-    </form>
+                        <form id="Current_emailForm" action="${pageContext.request.contextPath}/Secondary_CurrentEmail" method="post">
+                            <div class="Current_email-list">
+                                <c:forEach var="email" items="${sessionScope.emailList_Current}">
+                                    <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                                        <div>
+                                            📧 <span>${email.email}</span>
+                                        </div>
+                                        <div>
+                                            <button type="submit" name="action_current" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </form>
+                    </section>
 
-</section>
+
+
+
+                    <!-- ============================== PHONE SECTION ============================== -->
+
+                    <!-- ============================== Thông báo thành công và lỗi về phone ============================== -->
+                    <section class="card p-3 shadow-sm">
+
+                        <% String successPhone = (String) session.getAttribute("successPhone"); %>
+                        <% if (successPhone != null) { %>
+                        <div id="successPhoneAlert" class="alert alert-success alert_style" role="alert">
+                            <%= successPhone %>
+                        </div>
+                        <!-- set time thong bao loi -->
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("successPhoneAlert");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 2000);
+                        </script>
+                        <% session.removeAttribute("successPhone"); %>
+                        <% } %>
+
+                        <!-- set time thong bao loi -->
+                        <% String errorPhone_Deleted = (String) session.getAttribute("errorPhone_Deleted"); %>
+                        <% if (errorPhone_Deleted != null) { %>
+                        <div id="errorDeleted_PhoneAlert" class="alert alert-danger alert_style" role="alert">
+                            <%= errorPhone_Deleted %>
+                        </div>
+                        <script>
+                            setTimeout(function () {
+                                var alertBox = document.getElementById("errorDeleted_PhoneAlert");
+                                if (alertBox) {
+                                    alertBox.style.display = "none";
+                                }
+                            }, 2000);
+                        </script>
+                        <% session.removeAttribute("errorPhone_Deleted"); %>
+                        <% } %>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="mb-0">Số di động</h3>
+                            <h4 class="text-muted" style="font-size: 13px;">Chỉ có thể sử dụng tối đa 3 số điện thoại</h4>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="openPhoneModal()">+ Thêm</button>
+                        </div>
+
+                        <div class="border rounded p-3 bg-light mb-3">
+                            <strong>Số chính:</strong>
+                            <span class="text-primary">${user.phone}</span>
+
+                            <!-- =================== Danh sách số điện thoại phụ (Secondary_Phone) =================== -->
+                            <form id="phoneForm" action="${pageContext.request.contextPath}/Secondary_Phone" method="post">
+                                <div class="phone-list">
+                                    <c:forEach var="phone" items="${sessionScope.phoneList}">
+                                        <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                                            <div>
+                                                📱 <span>${phone.phone}</span>
+                                            </div>
+                                            <div>
+                                                <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                                                    🗑️
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </form>
+                        </div>
+
+                        <h4 class="font-weight-bold mt-3" style="font-size: 15px;">Danh sách số điện thoại phụ:</h4>
+
+                        <c:if test="${empty sessionScope.phoneList_Current}">
+                            <p>Chưa có số điện thoại phụ nào.</p>
+                        </c:if>
+
+                        <!-- =================== Danh sách current Phone (Secondary_CurrentPhone) =================== -->
+                        <form id="Current_phoneForm" action="${pageContext.request.contextPath}/Secondary_CurrentPhone" method="post">
+                            <div class="Current_phone-list">
+                                <c:forEach var="phone" items="${sessionScope.phoneList_Current}">
+                                    <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
+                                        <div>
+                                            📱 <span>${phone.phone}</span>
+                                        </div>
+                                        <div>
+                                            <button type="submit" name="action_current" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </form>
+
+                    </section>
 
 
                     <!-- =================== MODAL THÊM EMAIL =================== -->

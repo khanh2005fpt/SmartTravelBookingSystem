@@ -85,13 +85,13 @@ public class Secondary_CurrentPhone extends HttpServlet {
        User user = (User) session.getAttribute("user");
        if(user==null){
             session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
        }
         Integer userId = user.getUserId();
        String action = request.getParameter("action_current");
        if(action==null){
-            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
           return;
        }
        
@@ -104,7 +104,7 @@ public class Secondary_CurrentPhone extends HttpServlet {
             //sau khi xoa update moi nhat
            List<PhoneCustomer> updateList = phoneDAO.getPhoneCustomersByUserId(userId);
            session.setAttribute("phoneList_Current", updateList);
-            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
            
            
        }

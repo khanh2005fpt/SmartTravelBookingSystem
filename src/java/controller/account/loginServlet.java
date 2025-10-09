@@ -6,6 +6,7 @@ package controller.account;
 
 import dao.EmailDao;
 import dao.PhoneDao;
+import dao.ProfileDao;
 import model.User;
 import dao.userDao;
 
@@ -18,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.CustomerProfile;
 import model.EmailCustomer;
 import model.GoogleAccount;
 import model.PhoneCustomer;
@@ -32,6 +34,7 @@ public class loginServlet extends HttpServlet {
     private userDao UserDao;
     private PhoneDao phoneDAO;
     private EmailDao emailDAO;
+    private ProfileDao profileDAO;
 
     @Override
     public void init() throws ServletException {
@@ -39,6 +42,7 @@ public class loginServlet extends HttpServlet {
             UserDao = userDao.INSTANCE;
             phoneDAO = PhoneDao.INSTANCE;
             emailDAO = EmailDao.INSTANCE;
+            profileDAO = ProfileDao.INSTANCE;
             System.out.println("userDao initialized successfully in loginServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in loginServlet: " + e.getMessage());
@@ -89,7 +93,7 @@ public class loginServlet extends HttpServlet {
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
         if (error != null) {
-            response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
 
@@ -106,9 +110,13 @@ public class loginServlet extends HttpServlet {
             // user ton tai -> login
             session.setAttribute("user", existing);
             session.setAttribute("loginSuccess", "oke");
+            
+        // gui thong bang session den trang profile
+            CustomerProfile profile = profileDAO.getProfileByUserId(existing.getUserId());
+            session.setAttribute("profile_customer", profile);
+            
             List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(existing.getUserId());
             List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(existing.getUserId());
-
             session.setAttribute("emailList_Current", emailList);
             session.setAttribute("phoneList_Current", phoneList);
 
@@ -134,7 +142,7 @@ public class loginServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             } else {
                 session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
-                response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
 
             }
 
@@ -163,7 +171,7 @@ public class loginServlet extends HttpServlet {
         // check null input
         if (userN.isEmpty() || userN == null || passWord.isEmpty() || passWord == null) {
             session.setAttribute("errorMess", "Các trường không được để trống!");
-            response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
 
@@ -177,12 +185,18 @@ public class loginServlet extends HttpServlet {
         // thong bao loi
         if (error != null) {
             session.setAttribute("errorMess", error);
-            response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
 
         //login thanh cong
         session.setAttribute("user", user);
+        
+        // gui thong bang session den trang profile
+        
+        CustomerProfile profile = profileDAO.getProfileByUserId(user.getUserId());
+            session.setAttribute("profile_customer", profile);
+        
         List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(user.getUserId());
         List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(user.getUserId());
 

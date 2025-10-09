@@ -89,7 +89,7 @@ public class email_Added extends HttpServlet {
      
     if (user == null) {
         session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
     }
 
@@ -100,7 +100,7 @@ public class email_Added extends HttpServlet {
      //validate
         if (email == null || email.trim().isEmpty()) {
             session.setAttribute("errorEmail", "Vui lòng nhập địa chỉ email hợp lệ!");
-         response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+         response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
         // check mail ton tai
@@ -109,7 +109,7 @@ public class email_Added extends HttpServlet {
         
         if(existAddedPhone || email.equals(user.getEmail())){
              session.setAttribute("errorEmail_Deleted", "Email này đã tồn tại!");
-            response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
         
@@ -117,7 +117,7 @@ public class email_Added extends HttpServlet {
         int totalEmails = emailDao.countSecondaryEmails(userId);
           if(totalEmails>=2){
               session.setAttribute("errorEmail_Deleted", "Bạn chỉ được dùng tối đa 3 email!");
-              response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+              response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
           }
         // them email
@@ -125,7 +125,7 @@ public class email_Added extends HttpServlet {
         List<EmailCustomer> emailList = emailDao.getEmailsByUserId(userId);
       session.setAttribute("emailList", emailList);
        session.setAttribute("successEmail", "Thêm email thành công!");
-       response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
    
 
         

@@ -119,6 +119,47 @@ public CustomerProfile updateInformation(int userId, String fullName, LocalDate 
     return false;
      }
 
+// ======= Lấy profile theo userId =======
+    public CustomerProfile getProfileByUserId(int userId) {
+        String sql = "SELECT * FROM CustomerProfiles WHERE userId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                CustomerProfile profile = new CustomerProfile();
+                profile.setProfileId(rs.getInt("profileId"));
+                profile.setUserId(rs.getInt("userId"));
+                profile.setFullName(rs.getString("fullName"));
+                profile.setDateOfBirth(rs.getDate("dateOfBirth").toLocalDate());
+                profile.setGender(profile.getGender());
+                profile.setAddress(rs.getString("address"));
+                profile.setProfilePicture(rs.getString("profilePicture"));
+                profile.setLoyaltyPoints(rs.getInt("loyaltyPoints"));
+                profile.setMembershipLevel(profile.getMembershipLevel());
+                return profile;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Không tìm thấy profile
+    }
 
+    // ======= Cập nhật avatar =======
+    public boolean updateProfilePicture(int userId, String avatarUrl) {
+        String sql = "UPDATE CustomerProfiles SET profilePicture = ? WHERE userId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, avatarUrl);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public static void main(String[] args) {
+        CustomerProfile profile= ProfileDao.INSTANCE.getProfileByUserId(2);
+        System.out.println(profile.getUserId() +" "+profile.getFullName() +" "+ profile.getProfilePicture());
+    }
     
 }

@@ -96,14 +96,14 @@ public class requestPassword extends HttpServlet {
        try{
                if(email.isEmpty() || email ==null){
              session.setAttribute("errorEmail", "Vui lòng nhập Email!");
-           response.sendRedirect(request.getContextPath()+ "/views/home/login.jsp"); 
+           response.sendRedirect(request.getContextPath()+ "/views/account/login.jsp"); 
            return;
           }
        User user = UserDao.getUserByEmail(email);
    
        if(user==null){
            session.setAttribute("errorEmail", "Email không tồn tại!");
-           response.sendRedirect(request.getContextPath()+ "/views/home/login.jsp");
+           response.sendRedirect(request.getContextPath()+ "/views/account/login.jsp");
            return;
        }
        
@@ -125,22 +125,22 @@ String linkReset = "http://localhost:9090/SWP391_Group3_SE1957-KS/resetPassword?
             
             if(isInserted){
                  session.setAttribute("successMessage", "Mã OTP đã gửi đến Email của bạn!");
-       response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+       response.sendRedirect(request.getContextPath()+"/views/account/login.jsp");
             }else {
                  session.setAttribute("errorEmail", "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử gửi lại yêu cầu.");
-       response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+       response.sendRedirect(request.getContextPath()+"/views/account/login.jsp");
             }
             
          }else {
              session.setAttribute("errorEmail", "Không thể gửi OTP qua email. Vui lòng thử lại.");
-       response.sendRedirect(request.getContextPath()+"/views/home/login.jsp");
+       response.sendRedirect(request.getContextPath()+"/views/account/login.jsp");
          }
        
        
         }catch(Exception e){
             e.printStackTrace();
         session.setAttribute("errorEmail", "Có lỗi xảy ra, vui lòng thử lại sau!");
-        response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
        }
        
        

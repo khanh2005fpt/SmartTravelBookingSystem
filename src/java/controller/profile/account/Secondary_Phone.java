@@ -91,13 +91,13 @@ public class Secondary_Phone extends HttpServlet {
        User user = (User) session.getAttribute("user");
        if(user==null){
             session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
        }
         Integer userId = user.getUserId();
        String action = request.getParameter("action");
        if(action==null){
-            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
           return;
        }
        
@@ -109,7 +109,7 @@ public class Secondary_Phone extends HttpServlet {
              boolean existPhone = phoneDAO.checkPhoneExistsByIdAndUser(phoneId, userId);
                if(!existPhone){
                     session.setAttribute("errorPhone_Deleted", "số điện thoại này đã bị xóa!"); 
-                     response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+                     response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
         return;
                }
            phoneDAO.deletePhone(phoneId);
@@ -118,7 +118,7 @@ public class Secondary_Phone extends HttpServlet {
             //sau khi xoa update moi nhat
            List<PhoneCustomer> updateList = phoneDAO.getPhoneCustomersByUserId(userId);
            session.setAttribute("phoneList", updateList);
-            response.sendRedirect(request.getContextPath()+"/views/home/profile.jsp");
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
            
            
        }

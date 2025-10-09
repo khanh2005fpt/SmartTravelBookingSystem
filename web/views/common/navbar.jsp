@@ -46,7 +46,7 @@
                         // Chưa đăng nhập → Hiện nút login/register
                 %>
                 <li class="nav-item ml-lg-5 ml-5 " ">
-                    <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="btn btn-login1"> 
+                    <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="btn btn-login1"> 
 
                         Đăng nhập</a>
 
@@ -57,7 +57,7 @@
 
 
                 <li class="nav-item ml-lg-3">
-                    <a href="${pageContext.request.contextPath}/views/home/register.jsp" class="btn btn-register1 "   >Đăng ký</a>
+                    <a href="${pageContext.request.contextPath}/views/account/register.jsp" class="btn btn-register1 "   >Đăng ký</a>
                 </li> 
 
 
@@ -82,7 +82,7 @@
 
                     <!-- Menu xổ xuống -->
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                         <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
                         <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
                         <div class="dropdown-divider"></div>

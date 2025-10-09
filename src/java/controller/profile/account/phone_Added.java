@@ -94,7 +94,7 @@ public class phone_Added extends HttpServlet {
            User user = (User) session.getAttribute("user"); 
     if (session == null || user==null) {
         session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
     }
 
@@ -105,7 +105,7 @@ public class phone_Added extends HttpServlet {
      //validate
         if (phone  == null || phone .trim().isEmpty()) {
              session.setAttribute("errorPhone", "Vui lòng nhập số điện thoại hợp lệ!");
-         response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+         response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
         // check mail ton tai
@@ -113,7 +113,7 @@ public class phone_Added extends HttpServlet {
       
         if(existAddedPhone ||phone.equals(user.getPhone()) ){
               session.setAttribute("errorPhone", "Số điện thoại này đã tồn tại!");
-               response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+               response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
         
@@ -121,14 +121,14 @@ public class phone_Added extends HttpServlet {
         int totalEmails = phoneDAO.countPhonesByUserId(userId);
           if(totalEmails>=2){
              session.setAttribute("errorPhone", "Bạn chỉ được dùng tối đa 3 số điện thoại!");
-              response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+              response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
           }
           phoneDAO.addPhone(userId, phone);
          List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(userId);
          session.setAttribute("phoneList", phoneList);
          session.setAttribute("successPhone", "Thêm số điện thoại thành công!");
-        response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
         
     
     }

@@ -87,7 +87,7 @@ public class information_Saved extends HttpServlet {
     User user = (User) session.getAttribute("user"); 
     if (user == null) {
         session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
     }
 
@@ -103,7 +103,7 @@ public class information_Saved extends HttpServlet {
    // validate 
          if(dobDate==null || dobDate.isEmpty() || fullName ==null || fullName.isEmpty() || Address ==null || Address.isEmpty()){
                session.setAttribute("errorMess", "vui lòng điền đầy đủ thông tin để lưu!");
-                 response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+                 response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
                  return;
          }
          
@@ -112,7 +112,7 @@ public class information_Saved extends HttpServlet {
     //  Kiểm tra dữ liệu có thay đổi không
     if (!profileDAO.isProfileChanged(userId, fullName, dob, gender, Address)) {
         session.setAttribute("errorMess", "Thông tin không có thay đổi nào để lưu.");
-       response.sendRedirect(request.getContextPath() + "/views/home/profile.jsp");
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
         return;
     }
 
@@ -127,7 +127,7 @@ public class information_Saved extends HttpServlet {
     request.setAttribute("address", Address);
     session.setAttribute("successMess", "Cập nhật thông tin thành công!");
 
-    request.getRequestDispatcher("/views/home/profile.jsp").forward(request, response);
+    request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
     return;
        
     }
