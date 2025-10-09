@@ -177,7 +177,7 @@
 
                             <c:otherwise>
                                 <div class="alert alert-warning">
-                                    Bạn cần <a href="login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
+                                    Bạn cần <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
                                 </div>
                             </c:otherwise>
                         </c:choose>

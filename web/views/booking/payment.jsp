@@ -22,7 +22,8 @@
                     <div class="card shadow p-4 mb-4">
                         <h4 class="mb-3 text-primary fw-bold">📝 Thông tin khách hàng</h4>
 
-                        <form>
+                        <form action="PaymentController" method="post">
+                            <input type="hidden" name="totalBill" value="${totalPrice}">
                             <div class="mb-3">
                                 <label class="form-label">Họ và tên</label>
                                 <input type="text" class="form-control" placeholder="">
@@ -55,21 +56,13 @@
                             </div>
 
                             <!-- Khung hiển thị QR Code -->
-                            <div id="vnpay-qr" class="text-center mt-3">
-                                <h6 class="text-primary fw-bold">Quét mã QR để thanh toán</h6>
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ThanhToanVNPAY_Demo" 
-                                     alt="VNPAY QR" class="img-fluid border border-2 rounded shadow">
-                                <p class="text-muted mt-2 small">💡 Sử dụng app ngân hàng hoặc VNPAY để quét mã QR</p>
+                            <div class="alert alert-info small">
+                                💡 Bạn sẽ được chuyển đến cổng VNPAY để hoàn tất thanh toán.
                             </div>
 
-
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="tours.jsp" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left"></i> Quay lại
-                                </a>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-check-circle"></i> Xác nhận thanh toán
-                                </button>
+                                <a href="tours.jsp" class="btn btn-outline-secondary">Quay lại</a>
+                                <button type="submit" class="btn btn-success">Thanh toán ngay</button>
                             </div>
                         </form>
                     </div>

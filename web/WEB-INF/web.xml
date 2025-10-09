@@ -48,4 +48,20 @@
         <servlet-name>BookingController</servlet-name>
         <url-pattern>/BookingController</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>ajaxServlet</servlet-name>
+        <servlet-class>com.vnpay.common.ajaxServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ajaxServlet</servlet-name>
+        <url-pattern>/PaymentController</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>VnpayReturn</servlet-name>
+        <servlet-class>com.vnpay.common.VnpayReturn</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VnpayReturn</servlet-name>
+        <url-pattern>/VnpayReturn</url-pattern>
+    </servlet-mapping>
 </web-app>
