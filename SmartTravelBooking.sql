@@ -10,9 +10,9 @@ CREATE TABLE Users (
     email VARCHAR(100) UNIQUE NOT NULL,
     fullName NVARCHAR(100),
     phone NVARCHAR(20),
-  roleId INT NOT NULL DEFAULT 3, 
+    roleId INT NOT NULL DEFAULT 3, 
     createdAt DATETIME DEFAULT GETDATE(),
-	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
+	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE',
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
@@ -94,7 +94,7 @@ BEGIN
 END;
 GO
 
-   
+   select * from Notifications
   ----Trigger cập nhật cấp độ thành viên tự động
 
 	CREATE TRIGGER trg_UpdateMembershipLevel
@@ -953,23 +953,26 @@ SELECT u.userId, u.fullName, cp.loyaltyPoints, cp.membershipLevel
 FROM Users u
 JOIN CustomerProfiles cp ON u.userId = cp.userId;
 
-INSERT INTO Bookings (customerId, price, status)
-VALUES (1, 5000000, 'PENDING');
+INSERT INTO Bookings (profileId ,customerId, price, status)
+VALUES (2,3, 5000000, 'PENDING');
 
 INSERT INTO BookingDetails (bookingId, tourId, adultQuantity, childQuantity, departureDate, unitPrice)
-VALUES (1, 2, 2, 1, '2025-10-15', 2000000);
+VALUES (3, 2, 2, 1, '2025-10-15', 2000000);
 
 
  
 
  INSERT INTO CustomerProfiles (userId, loyaltyPoints, membershipLevel)
-VALUES (1, 235, 'BRONZE');
+VALUES (3, 235, 'BRONZE');
 
 UPDATE Bookings
 SET status = 'COMPLETED'
 WHERE bookingId = 1;
-*/
 
+
+*/
+select * from dbo.CustomerProfiles
+select * from dbo.Bookings
 --activity
 
 

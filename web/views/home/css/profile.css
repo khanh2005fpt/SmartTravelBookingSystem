@@ -137,7 +137,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 
     /* ============= ACCOUNT CONTENT ============= */
     .account-container {
-      flex: 1; /* 👉 Tự co giãn chiếm phần còn lại */
+      flex: 1; /* Tự co giãn chiếm phần còn lại */
       background: #fff;
       border-radius: 14px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
@@ -553,15 +553,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 }
 
 /* ========================Avatar Customer================================================= */ 
-
 .profile-sidebar-avatar {
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.08);
     width: 260px;
-    margin-right: 100px;
+    margin: 0 auto;
 }
-/* ====== Khung avatar và nút thay ảnh ====== */
+
 .avatar-wrapper {
     position: relative;
     width: 120px;
@@ -600,7 +599,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     transition: opacity 0.3s ease;
 }
 
- /* o hinh tron */
 .avatar-wrapper {
     position: relative;
     width: 160px; /* chỉnh kích thước avatar */

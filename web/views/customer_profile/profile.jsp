@@ -66,63 +66,91 @@
 
         </style>
         <!-- lay thong tin user -->
-<%
-                            User user = (User)session.getAttribute("user");
-%>
-                        
-         <!-- lay thong tin customerProfile --> 
-         <%
-                            CustomerProfile profile = (CustomerProfile)session.getAttribute("profile_customer");
-%>
-         
+        <%
+                                    User user = (User)session.getAttribute("user");
+        %>
+
+        <!-- lay thong tin customerProfile --> 
+        <%
+                           CustomerProfile profile_customer = (CustomerProfile)session.getAttribute("profile_customer");
+                            
+        %>
+
     </head>
     <body class="profile" >
-
         <div class="profile-container">
             <!-- SIDEBAR -->
             <div class="profile-sidebar">
                 <div class="profile-header">
-                    
-         <!-- form avatar customer-------------->  
-         
-  <div class="profile-sidebar text-center p-4">
-    <div class="avatar-wrapper mx-auto">
-        <img 
-            src="<%= (profile != null && profile.getProfilePicture() != null) ? profile.getProfilePicture() : "https://via.placeholder.com/150/eeeeee/aaaaaa?text=Avatar" %>" 
-            class="profile-avatar" 
-            alt="Avatar">
-        <div class="overlay">
-            <label for="avatarFile" class="change-photo">
-                <i class="bi bi-camera-fill"></i> Thay ảnh
-            </label>
-        </div>
-    </div>
 
-     <form id="avatarForm" 
-        action="<%=request.getContextPath()%>/UploadAvatarServlet" 
-        method="post" 
-        enctype="multipart/form-data" 
-        style="display: inline;">
-    <input type="file" id="avatarFile" name="avatar" accept="image/*" 
-           style="display:none" 
-           onchange="document.getElementById('avatarForm').submit();">
-  </form>
+                    <!-- form avatar customer-------------->  
 
-    <div class="profile-info mt-3">
-        <h5 class="fw-bold mb-1 text-primary font-weight-bold">${sessionScope.user.fullName}</h5>
-        <p class="text-muted mb-0">Google</p>
-    </div>
-</div>
-               
+                    <div class="profile-sidebar-avatar text-center p-4 mr-auto">
+                        <div class="avatar-wrapper mx-auto">
+                           <img 
+ <img 
+  id="avatarPreview"
+  src="${profile_customer != null && profile_customer.profilePicture != null
+      ? pageContext.request.contextPath.concat('/Avatar_DisplayServlet?file=').concat(profile_customer.profilePicture)
+      : 'https://via.placeholder.com/150/eeeeee/aaaaaa?text=Avatar'}"
+  class="profile-avatar"
+  alt="Avatar">
+                            <div class="overlay">
+                                <label for="avatarFile" class="change-photo">
+                                    <i class="bi bi-camera-fill"></i> Thay ảnh
+                                </label>
+                            </div>
+                        </div>
+
+                        <form action="${pageContext.request.contextPath}/Upload_AvatarServlet" 
+                              method="POST" enctype="multipart/form-data" class="upload-form">
+                            <input type="file" id="avatarFile" name="avatarFile" accept="image/*" 
+                                   class="d-none"  onchange="previewAvatar(event)">
+                            <button type="submit" class="btn btn-upload w-100 mt-3">
+                                <i class="bi bi-upload"></i> Tải ảnh lên
+                            </button>
+                        </form>
+
+                        <div class="profile-info mt-3">
+                            <h5 class="fw-bold mb-1 text-dark text-primary">${sessionScope.user.fullName}</h5>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-coin text-warning me-1"></i>
+                                ${sessionScope.profile.loyaltyPoints}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- xử lý ảnh trước khi upload  -->
+                    <script>
+                        // Preview ảnh và auto upload
+                        function previewAvatar(event) {
+                            const file = event.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    document.getElementById('avatarPreview').src = e.target.result;
+                                };
+                                reader.readAsDataURL(file);
+
+                                // Tự động gửi form sau khi chọn file
+                                setTimeout(() => {
+                                    event.target.form.submit();
+                                }, 2000);
+                            }
+                        }
+
+                    </script>
+
+
                 </div>
 
-                <div class="profile-rank">
+                <div class="profile-rank font-weight-bold">
                     <i class="bi bi-award-fill"></i>
                     <span>Bạn là thành viên <b>Bronze Priority</b></span>
                 </div>
 
                 <div class="profile-menu">
-                    <a href="#" onclick="showMainSection(event, 'points')"><i class="bi bi-coin"></i> Thẻ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'points')"><i class="bi bi-credit-card"></i> Thẻ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'bookings')"><i class="bi bi-calendar2-check"></i> Đặt chỗ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
@@ -132,31 +160,31 @@
 
                 </div>
             </div>
-                        
-                 <!-- ===================== logout modal profile ===================== -->        
-                        <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content logout-box">
 
-            <!-- Body -->
-            <div class="logout-body text-center p-4">
-                <h2 class="logout-header text-primary mb-3 ">Xác nhận đăng xuất</h2>
-                <h5>
-                    Nếu bạn đăng xuất, bạn sẽ không thể quản lý trang thông tin hiện tại.<br>
-                    Bạn có chắc chắn muốn thoát khỏi không?
-                </h5>
-                <div class="mt-4">
-                    <button class="btn mr-2 font-weight-bold" data-dismiss="modal">Không</button>
-                    <a href="<%= request.getContextPath() %>/logout" class="btn btn-logout btn-primary">Có</a>
+            <!-- ===================== logout modal profile ===================== -->        
+            <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content logout-box">
+
+                        <!-- Body -->
+                        <div class="logout-body text-center p-4">
+                            <h2 class="logout-header text-primary mb-3 ">Xác nhận đăng xuất</h2>
+                            <h5>
+                                Nếu bạn đăng xuất, bạn sẽ không thể quản lý trang thông tin hiện tại.<br>
+                                Bạn có chắc chắn muốn thoát khỏi không?
+                            </h5>
+                            <div class="mt-4">
+                                <button class="btn mr-2 font-weight-bold" data-dismiss="modal">Không</button>
+                                <a href="<%= request.getContextPath() %>/logout" class="btn btn-logout btn-primary">Có</a>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
 
-        </div>
-    </div>
-</div>
 
 
-                        
 
             <!-- ===================== CONTENT ===================== -->
             <!-- point content -->

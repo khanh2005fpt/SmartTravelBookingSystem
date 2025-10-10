@@ -112,7 +112,7 @@ public class Secondary_Email extends HttpServlet {
              
             if(isPrimary){
                 session.setAttribute("errorEmail_Deleted", "Không thể xóa Email chính!");
-             
+               
          
                
             }else{

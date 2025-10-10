@@ -191,11 +191,12 @@ public class loginServlet extends HttpServlet {
 
         //login thanh cong
         session.setAttribute("user", user);
-        
+      
         // gui thong bang session den trang profile
         
         CustomerProfile profile = profileDAO.getProfileByUserId(user.getUserId());
             session.setAttribute("profile_customer", profile);
+         
         
         List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(user.getUserId());
         List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(user.getUserId());

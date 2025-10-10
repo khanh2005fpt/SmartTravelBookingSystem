@@ -88,20 +88,19 @@ public class EmailDao extends DBContext{
      // check isPrimaryEmail
      
      
- public boolean isPrimaryEmail(int emailId) {
+public boolean isPrimaryEmail(int emailId) {
     String sql = "SELECT isPrimary FROM UserEmails WHERE emailId = ?";
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
         ps.setInt(1, emailId);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            return rs.getBoolean("isPrimary");
+            return rs.getBoolean("isPrimary"); 
         }
     } catch (SQLException e) {
         e.printStackTrace();
     }
-    return false; // không phải email chính
+    return false; // mặc định không phải email chính
 }
-
        
        //delete email
     public boolean deleteEmail(int emailId) {
@@ -248,50 +247,27 @@ public static void main(String[] args) {
 
     int userId = 2;
     String email = "nqaghuyyy6969@gmail.com";
+      boolean deleted = dao.deleteEmail(1);
+                  if(deleted){
+                       System.out.println("Đã xóa email thành công!");
+                   
+                  }else {
+                      System.out.println( " Xóa email không thành công!");
+                     
+                  }
+    
+     List<EmailCustomer> updatedList = dao.getEmailsByUserId(userId);
+         for(EmailCustomer list : updatedList){
+             System.out.println(list.getEmail());
+         }
+       boolean isPrimary = dao.isPrimaryEmail(userId);
+       if(isPrimary){
+           System.out.println("day emai chinh");
+       }else{
+           System.out.println("not email chinh");
+       }
 
-    try {
-        // 1️⃣ Thêm email mới
-        dao.addEmail(userId, email);
-        System.out.println("✅ Đã thêm email mới: " + email);
-
-        // 2️⃣ Lấy danh sách email hiện tại
-      
-        List<EmailCustomer> emailList = dao.getEmailsByUserId(userId);
-        System.out.println("📋 Danh sách email trước khi set primary:");
-        for (EmailCustomer e : emailList) {
-            System.out.println(" - emailId: " + e.getEmailId() + ", email: " + e.getEmail() + ", isPrimary: " + e.isIsPrimary());
-        }
-
-        // 3️⃣ Lấy emailId vừa thêm cuối cùng
-        int emailId = emailList.get(emailList.size() - 1).getEmailId();
-
-        // 4️⃣ Gọi hàm setPrimaryEmai
-        dao.setPrimaryEmai(userId, emailId);
-        System.out.println("\n🔥 Đã set emailId " + emailId + " làm email chính!");
-
-        // 5️⃣ Check lại UserEmails
-     
-        List<EmailCustomer> listAfter = dao.getEmailsByUserId(userId);
-        System.out.println("\n📋 Danh sách email sau khi set primary:");
-        for (EmailCustomer e : listAfter) {
-            System.out.println(" - emailId: " + e.getEmailId() + ", email: " + e.getEmail() + ", isPrimary: " + e.isIsPrimary());
-        }
-
-        // 6️⃣ Check trong bảng Users
-        String sqlUser = "SELECT email FROM Users WHERE userId = ?";
-        try (PreparedStatement ps = dao.connection.prepareStatement(sqlUser)) {
-            ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                System.out.println("\n👤 Email trong bảng Users hiện tại: " + rs.getString("email"));
-            }
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
 }
-
 
 }
     
