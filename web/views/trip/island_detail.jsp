@@ -4,32 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <html lang="vi">
     <head>
-        <style>
-            .select-btn {
-                transition: all 0.3s ease;
-            }
 
-            /* Ẩn chữ “Đã chọn ✅” mặc định */
-            .selected-text {
-                display: none;
-            }
-
-            /* Khi checkbox được chọn */
-            .btn-check:checked + .select-btn {
-                background-color: #6c757d !important; /* Xám */
-                border-color: #6c757d !important;
-                color: #fff !important;
-                opacity: 0.85;
-            }
-
-            /* Khi checkbox được chọn: ẩn chữ “Chọn”, hiện “Đã chọn ✅” */
-            .btn-check:checked + .select-btn .select-text {
-                display: none;
-            }
-            .btn-check:checked + .select-btn .selected-text {
-                display: inline;
-            }
-        </style>
         <%@ include file="/views/common/css.jsp" %>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
@@ -165,185 +140,187 @@
 
 
                 <!-- Hotels Section -->
-                <section class="mb-5">
-                    <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
-                    <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
-                        🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
-                    </div>
+                <form action="CreateCustomTourController" method="post" id="customTourForm">
+                    <section class="mb-5">
+                        <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
+                        <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
+                            🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
+                        </div>
 
-                    <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Khách sạn nổi bật</h2>
+                        <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Chọn khách sạn</h2>
 
-                    <div class="row g-4">
-                        <c:choose>
-                            <c:when test="${not empty hotels}">
-                                <c:forEach var="hotel" items="${hotels}">
-                                    <div class="col-md-4">
-                                        <div class="card h-100 shadow-lg border-0 rounded-3 overflow-hidden">
+                        <div class="row g-4">
+                            <c:choose>
+                                <c:when test="${not empty hotels}">
+                                    <c:forEach var="hotel" items="${hotels}">
+                                        <div class="col-md-4">
 
-                                            <!-- Ảnh khách sạn -->
-                                            <div class="position-relative">
-                                                <img src="${pageContext.request.contextPath}/${hotel.hotelImageUrl}"
-                                                     alt="${hotel.hotelName}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                                            <div class="card hotel-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-hotelid="${v.hotelId}">
 
-                                                <!-- Nút chọn dùng checkbox + label -->
-                                                <div class="position-absolute top-0 end-0 m-2">
-                                                    <input type="checkbox" id="selectHotel${hotel.hotelId}" class="btn-check" autocomplete="off">
-                                                    <label for="selectHotel${hotel.hotelId}" class="btn btn-success btn-sm rounded-pill px-3 py-1 shadow select-btn">
-                                                        <span class="select-text">Chọn</span>
-                                                        <span class="selected-text">Đã chọn ✅</span>
-                                                    </label>
+                                                <!-- Ảnh khách sạn -->
+                                                <div class="position-relative">
+                                                    <img src="${pageContext.request.contextPath}/${hotel.hotelImageUrl}"
+                                                         alt="${hotel.hotelName}" class="card-img-top" style="height: 220px; object-fit: cover;">
+
+                                                    <!-- Loại phòng -->
+                                                    <span class="badge bg-info text-dark position-absolute top-0 start-0 m-2 px-3 py-2 rounded-pill shadow-sm">
+                                                        ${hotel.roomType}
+                                                    </span>
                                                 </div>
 
-                                                <!-- Loại phòng -->
-                                                <span class="badge bg-info text-dark position-absolute top-0 start-0 m-2 px-3 py-2 rounded-pill shadow-sm">
-                                                    ${hotel.roomType}
-                                                </span>
-                                            </div>
+                                                <!-- Nội dung -->
+                                                <div class="card-body d-flex flex-column">
+                                                    <h5 class="card-title fw-bold text-dark">${hotel.hotelName}</h5>
 
-                                            <!-- Nội dung -->
-                                            <div class="card-body d-flex flex-column">
-                                                <h5 class="card-title fw-bold text-dark">${hotel.hotelName}</h5>
-
-                                                <!-- Phòng trống -->
-                                                <p class="mb-1"><strong>Phòng trống:</strong> 
-                                                    <span class="text-success">${hotel.roomAvailable}</span>
-                                                </p>
-
-                                                <!-- Đánh giá -->
-                                                <p class="mb-1">
-                                                    <strong>Đánh giá:</strong>
-                                                    <c:forEach begin="1" end="5" var="i">
-                                                        <i class="bi ${i <= hotel.rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'}"></i>
-                                                    </c:forEach>
-                                                    <span class="text-muted">(${hotel.rating})</span>
-                                                </p> 
-
-                                                <!-- Giá -->
-                                                <div class="mt-auto">
-                                                    <p class="text-danger fw-bold fs-5 mb-2 text-end">
-                                                        <fmt:setLocale value="vi_VN" />
-                                                        <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/>
-                                                        VND<span class="text-muted fs-6">/đêm</span>
+                                                    <!-- Phòng trống -->
+                                                    <p class="mb-1"><strong>Phòng trống:</strong> 
+                                                        <span class="text-success">${hotel.roomAvailable}</span>
                                                     </p>
 
-                                                    <!-- Nút xem chi tiết -->
-                                                    <div class="mt-auto d-flex gap-2">
-                                                        <button class="btn btn-primary flex-fill rounded-pill" 
-                                                                type="button"
-                                                                onclick="toggleDetail(${hotel.hotelId})">
-                                                            Xem chi tiết
-                                                        </button>
+                                                    <!-- Đánh giá -->
+                                                    <p class="mb-1">
+                                                        <strong>Đánh giá:</strong>
+                                                        <c:forEach begin="1" end="5" var="i">
+                                                            <i class="bi ${i <= hotel.rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'}"></i>
+                                                        </c:forEach>
+                                                        <span class="text-muted">(${hotel.rating})</span>
+                                                    </p> 
+
+                                                    <!-- Giá -->
+                                                    <div class="mt-auto">
+                                                        <p class="text-danger fw-bold fs-5 mb-2 text-end">
+                                                            <fmt:setLocale value="vi_VN" />
+                                                            <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/>
+                                                            VND<span class="text-muted fs-6">/đêm</span>
+                                                        </p>
+
+                                                        <!-- Nút xem chi tiết -->
+                                                        <div class="mt-auto d-flex gap-2">
+                                                            <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-hotel-btn">
+                                                                <i class="bi bi-check-circle"></i> Chọn
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="col-12 text-center text-muted py-5">
+                                        <i class="bi bi-house-x fs-1 d-block mb-3"></i>
+                                        Hiện chưa có khách sạn nào cho đảo này.
                                     </div>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="col-12 text-center text-muted py-5">
-                                    <i class="bi bi-house-x fs-1 d-block mb-3"></i>
-                                    Hiện chưa có khách sạn nào cho đảo này.
-                                </div>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                </section>
+                                </c:otherwise>
+                            </c:choose>
+                            <input type="hidden" id="selectedHotelId" name="selectedHotelId" value="">
+
+                        </div>
+                    </section>
 
 
 
-                <!-- Vehicles Section -->
-                <section class="mb-5">
-                    <h2 class="h3 mb-4 text-center fw-bold text-primary">🚘 Chọn phương tiện di chuyển trong đảo</h2>
-                    <div class="row g-4 justify-content-center">
+                    <!-- Vehicles Section -->
+                    <section class="mb-5">
+                        <h2 class="h3 mb-4 text-center fw-bold text-primary">🚘 Chọn phương tiện di chuyển trong đảo</h2>
+                        <div class="row g-4 justify-content-center">
 
-                        <c:forEach var="v" items="${islandvehicles}">
-                            <div class="col-lg-4 col-md-6">
-                                <div class="card vehicle-card shadow-lg h-100 border-2" data-vehicleid="${v.vehicleId}">
-                                    <img src="${pageContext.request.contextPath}/views/home/images/vehicles/${v.vehicleType}.jpg"
-                                         alt="${v.vehicleType}" class="card-img-top"
-                                         style="height: 220px; object-fit: cover; border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
+                            <c:forEach var="v" items="${islandvehicles}">
+                                <div class="col-lg-4">
+                                    <div class="card vehicle-card shadow-lg h-100 border-2" data-vehicleid="${v.vehicleId}">
+                                        <img src="${pageContext.request.contextPath}/views/home/images/vehicles/${v.vehicleType}.jpg"
+                                             alt="${v.vehicleType}" class="card-img-top"
+                                             style="height: 220px; object-fit: cover; border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
 
-                                    <div class="card-body">
-                                        <h5 class="card-title fw-bold text-dark">${v.vehicleType}</h5>
-                                        <p class="mb-1">Tên xe: ${v.modelName}</p>
+                                        <div class="card-body">
+                                            <h5 class="card-title fw-bold text-dark">${v.vehicleType}</h5>
+                                            <p class="mb-1">Tên xe: ${v.modelName}</p>
 
-                                        <div class="mb-2">
-                                            <span class="badge bg-info text-dark me-1">Sức chứa: ${v.capacity} người</span>
-                                            <span class="badge bg-success text-light">Còn ${v.availability} xe</span>
+                                            <div class="mb-2 fs-5">
+                                                <span class="badge bg-info text-dark me-1">Sức chứa: ${v.capacity} người</span>
+                                                <span class="badge bg-success text-light">Còn ${v.availability} xe</span>
+                                            </div>
+
+                                            <h6 class="text-danger fw-bold fs-5 mb-2 text-end">
+                                                <fmt:formatNumber value="${v.pricePerDay}" type="number" /> VNĐ/ngày
+                                            </h6>
+
+                                            <button type="button" 
+                                                    class="mt-2 btn btn-primary flex-fill rounded-pill w-100 fw-semibold select-btn">
+                                                <i class="bi bi-check2-circle"></i> Chọn
+                                            </button>
                                         </div>
-
-                                        <h6 class="text-danger fw-bold fs-5 mb-2 text-end">
-                                            <fmt:formatNumber value="${v.pricePerDay}" type="number" /> VNĐ/ngày
-                                        </h6>
-
-                                        <button type="button" class="btn btn-outline-primary w-100 fw-semibold select-btn">
-                                            <i class="bi bi-check2-circle"></i> Chọn
-                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        </c:forEach>
+                            </c:forEach>
 
+                        </div>
+
+                        <!-- Input ẩn để lưu ID của phương tiện được chọn -->
+                        <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
+                    </section>
+
+
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-cart-check"></i> Tạo tour ngay
+                        </button>
                     </div>
 
-                    <!-- Input ẩn để gửi giá trị vehicleId được chọn -->
-                    <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
-                </section>
+                </form>
 
                 <section class="mb-5">
-                    <h2 class="h3 mb-4">Dịch vụ khác</h2>
-                    <div class="row">
-                        <!-- Service Card 1 -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm p-3 d-flex align-items-start">
-                                <svg class="me-3" width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                                </svg>
-                                <div>
-                                    <h3 class="h5 card-title">Thuê khách sạn</h3>
-                                    <p class="card-text text-muted">Đặt phòng tại các khách sạn 5 sao hoặc homestay gần biển với giá ưu đãi.</p>
+                    <h2 class="h3 mt-4 mb-4 text-center fw-bold text-primary">Các dịch vụ trong tour</h2>
+                    <div class="row g-4">
+
+                        <!-- Service Card 1: Thuê khách sạn -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-house-fill text-primary fs-3 me-3"></i>
+                                    <h5 class="card-title mb-0 fw-bold">Thuê khách sạn</h5>
                                 </div>
+                                <p class="card-text text-muted">Đặt phòng tại các khách sạn 5 sao hoặc homestay gần biển với giá ưu đãi.</p>
                             </div>
                         </div>
-                        <!-- Service Card 2 -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm p-3 d-flex align-items-start">
-                                <svg class="me-3" width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <div>
-                                    <h3 class="h5 card-title">Thuê xe du lịch</h3>
-                                    <p class="card-text text-muted">Cung cấp dịch vụ thuê xe máy, xe hơi hoặc xe buýt đưa đón tận nơi.</p>
+
+                        <!-- Service Card 2: Thuê xe du lịch -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-car-front-fill text-success fs-3 me-3"></i>
+                                    <h5 class="card-title mb-0 fw-bold">Thuê xe du lịch</h5>
                                 </div>
+                                <p class="card-text text-muted">Cung cấp dịch vụ thuê xe máy, xe hơi hoặc xe buýt đưa đón tận nơi.</p>
                             </div>
                         </div>
-                        <!-- Service Card 3 -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm p-3 d-flex align-items-start">
-                                <svg class="me-3" width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <div>
-                                    <h3 class="h5 card-title">Hướng dẫn viên</h3>
-                                    <p class="card-text text-muted">Hướng dẫn viên chuyên nghiệp, thông thạo nhiều ngôn ngữ, đồng hành cùng bạn.</p>
+
+                        <!-- Service Card 3: Hướng dẫn viên -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-person-badge-fill text-info fs-3 me-3"></i>
+                                    <h5 class="card-title mb-0 fw-bold">Hướng dẫn viên</h5>
                                 </div>
+                                <p class="card-text text-muted">Hướng dẫn viên chuyên nghiệp, thông thạo nhiều ngôn ngữ, đồng hành cùng bạn.</p>
                             </div>
                         </div>
-                        <!-- Service Card 4 -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm p-3 d-flex align-items-start">
-                                <svg class="me-3" width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <div>
-                                    <h3 class="h5 card-title">Vé tham quan</h3>
-                                    <p class="card-text text-muted">Đặt vé trước cho các điểm tham quan nổi tiếng như Vinpearl Safari, công viên nước.</p>
+
+                        <!-- Service Card 4: Chuyến bay -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-airplane-fill text-danger fs-3 me-3"></i>
+                                    <h5 class="card-title mb-0 fw-bold">Chuyến bay</h5>
                                 </div>
+                                <p class="card-text text-muted">Đặt vé máy bay đến đảo, khởi hành từ các thành phố lớn với giá hợp lý.</p>
                             </div>
                         </div>
+
                     </div>
                 </section>
+
 
             </div>
         </main>
@@ -355,6 +332,69 @@
 
         <!-- loader -->
         <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const vehicleButtons = document.querySelectorAll(".vehicle-card .select-btn");
+                const hotelButtons = document.querySelectorAll(".hotel-card .select-hotel-btn");
+                const vehicleInput = document.getElementById("selectedVehicleId");
+                const hotelInput = document.getElementById("selectedHotelId");
+
+                // --- CHỌN KHÁCH SẠN (BẮT BUỘC) ---
+                hotelButtons.forEach(button => {
+                    button.addEventListener("click", function () {
+                        // Reset các nút khách sạn
+                        hotelButtons.forEach(btn => {
+                            btn.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
+                            btn.disabled = false;
+                        });
+
+                        // Đặt trạng thái "đã chọn"
+                        this.innerHTML = '<i class="bi bi-check-lg"></i> Đã chọn';
+                        this.disabled = true;
+
+                        // Lưu ID khách sạn
+                        const hotelId = this.closest(".hotel-card").getAttribute("data-hotelid");
+                        hotelInput.value = hotelId;
+                    });
+                });
+
+                // --- CHỌN PHƯƠNG TIỆN (TÙY CHỌN, CÓ THỂ BỎ CHỌN) ---
+                vehicleButtons.forEach(button => {
+                    button.addEventListener("click", function () {
+                        const card = this.closest(".vehicle-card");
+                        const vehicleId = card.getAttribute("data-vehicleid");
+
+                        // Nếu nút này đang ở trạng thái "đã chọn" → bỏ chọn
+                        if (this.classList.contains("btn-success")) {
+                            this.classList.remove("btn-success");
+                            this.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
+                            this.disabled = false;
+                            this.style.opacity = "1";
+                            vehicleInput.value = ""; // xóa lựa chọn
+                        } else {
+                            // Reset trạng thái tất cả nút xe khác
+                            vehicleButtons.forEach(btn => {
+                                btn.classList.remove("btn-success");
+                                btn.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
+                                btn.disabled = false;
+                                btn.style.opacity = "1";
+                            });
+
+                            // Đặt trạng thái "đã chọn"
+                            this.classList.add("btn-success");
+                            this.innerHTML = '<i class="bi bi-check-lg"></i> Đã chọn';
+                            this.disabled = false;
+                            this.style.opacity = "0.6";
+                            // Lưu ID xe đã chọn
+                            vehicleInput.value = vehicleId;
+                        }
+                    });
+                });
+            });
+        </script>
+
 
         <%@ include file="/views/common/script.jsp" %>
     </body>
