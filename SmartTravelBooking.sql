@@ -12,7 +12,7 @@ CREATE TABLE Users (
     phone NVARCHAR(20),
     roleId INT NOT NULL DEFAULT 3, 
     createdAt DATETIME DEFAULT GETDATE(),
-	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE'
+	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE',
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
@@ -224,6 +224,8 @@ CREATE TABLE Flights (
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+select * from flights
 GO
 
 
@@ -231,10 +233,9 @@ GO
 CREATE TABLE IslandVehicles (
     vehicleId INT IDENTITY(1,1) PRIMARY KEY,
     islandId INT NOT NULL,
-    companyName NVARCHAR(100),
     vehicleType NVARCHAR(50) CHECK (vehicleType IN ('CAR','SCOOTER','MOTORBIKE','BICYCLE','ELECTRIC_CART','OTHER')),
     modelName NVARCHAR(100),
-    pricePerDay DECIMAL(10,3),
+    pricePerHour DECIMAL(10,3),
     capacity INT,
     availability INT,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
@@ -277,36 +278,21 @@ CREATE TABLE Bookings (
     customerId INT NOT NULL,
     price INT, 
 	departureDate DATE NOT NULL,
+	endDate DATE    ,
 	adultQuantity INT NOT NULL,
     childQuantity INT NOT NULL,
 	status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')) DEFAULT 'PENDING',
     bookingDate DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (customerId) REFERENCES Users(userId),
 	FOREIGN KEY (profileId) REFERENCES CustomerProfiles (profileId)
-
 );
-
+select * from users
 
 
 select * from bookings
 go
 
 
-CREATE TABLE BookingDetails (
-    bookingDetailId INT IDENTITY(1,1) PRIMARY KEY,
-    bookingId INT NOT NULL,
-    tourId INT NULL,
-    hotelId INT NULL,
-    flightId INT NULL,
-    vehicleId INT NULL,
-    totalPrice INT NOT NULL,
-
-    FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE,
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId),
-    FOREIGN KEY (hotelId) REFERENCES Hotels(hotelId),
-    FOREIGN KEY (flightId) REFERENCES Flights(flightId),
-    FOREIGN KEY (vehicleId) REFERENCES IslandVehicles(vehicleId)
-);
 
 CREATE TABLE HistoryBooking (
     history_id INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
@@ -851,6 +837,8 @@ VALUES
 ('Vietjet Air', 'VJ', 'Vietnam', '19001886', 'views/home/images/VietjetAir.jpg');
 
 --flights
+select * from users
+select * from bookings
 
 INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, departureTime, arrivalTime, price)
 VALUES

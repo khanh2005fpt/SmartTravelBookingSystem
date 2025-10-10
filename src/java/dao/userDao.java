@@ -74,6 +74,7 @@ public class userDao extends DBContext {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 User user = new User();
+                user.setFullName(rs.getString("fullName"));
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password")); // lấy hash từ DB
                 user.setStatus(rs.getString("status"));

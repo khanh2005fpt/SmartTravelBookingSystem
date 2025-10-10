@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import model.Booking;
-import model.BookingDetail;
+
 
 /**
  *
@@ -43,37 +43,4 @@ public class BookingDao extends DBContext {
         }
     }
 
-    public void createBookingDetail(BookingDetail detail) {
-        String sql = "INSERT INTO BookingDetails (bookingId, tourId, hotelId, flightId, vehicleId, totalPrice) VALUES (?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, detail.getBookingId());
-            if (detail.getTourId() != null) {
-                ps.setInt(2, detail.getTourId());
-            } else {
-                ps.setNull(2, Types.INTEGER);
-            }
-            if (detail.getHotelId() != null) {
-                ps.setInt(3, detail.getHotelId());
-            } else {
-                ps.setNull(3, Types.INTEGER);
-            }
-            if (detail.getFlightId() != null) {
-                ps.setInt(4, detail.getFlightId());
-            } else {
-                ps.setNull(4, Types.INTEGER);
-            }
-            if (detail.getVehicleId() != null) {
-                ps.setInt(5, detail.getVehicleId());
-            } else {
-                ps.setNull(5, Types.INTEGER);
-            }
-            ps.setInt(6, detail.getTotalPrice());
-
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

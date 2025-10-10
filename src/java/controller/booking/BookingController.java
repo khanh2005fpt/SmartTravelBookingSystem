@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
 import java.util.List;
 import model.Booking;
-import model.BookingDetail;
 import model.Tour;
 import model.TourItinerary;
 import model.User;
@@ -127,8 +126,7 @@ public class BookingController extends HttpServlet {
             bd.createBooking(booking);
 
             // Lưu BookingDetails
-            BookingDetail detail = new BookingDetail(booking.getBookingId(), tourId, null, null, null, (int) totalPrice);
-            bd.createBookingDetail(detail);
+           
 
             // Lấy thông tin tour
             // Gửi dữ liệu sang trang thanh toán
