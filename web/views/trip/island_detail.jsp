@@ -254,48 +254,41 @@
 
                 <!-- Vehicles Section -->
                 <section class="mb-5">
-                    <h2 class="h3 mb-4">Thuê xe trong đảo</h2>
-                    <div class="row">
-                        <!-- Vehicle 1 -->
-                        <div class="col-md-4 mb-4">
-                            <div class="card shadow-sm">
-                                <img src="${pageContext.request.contextPath}/views/home/images/vehicles/scooter.jpg" 
-                                     alt="Thuê xe máy" class="card-img-top">
-                                <div class="card-body">
-                                    <h3 class="h5 card-title">Xe máy</h3>
-                                    <p class="card-text text-muted">Tự do khám phá đảo với xe máy đời mới, tiết kiệm chi phí.</p>
-                                    <p class="text-primary fw-bold">150.000 VNĐ/ngày</p>
-                                    <button class="btn btn-outline-primary w-100">Thuê ngay</button>
+                    <h2 class="h3 mb-4 text-center fw-bold text-primary">🚘 Chọn phương tiện di chuyển trong đảo</h2>
+                    <div class="row g-4 justify-content-center">
+
+                        <c:forEach var="v" items="${islandvehicles}">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="card vehicle-card shadow-lg h-100 border-2" data-vehicleid="${v.vehicleId}">
+                                    <img src="${pageContext.request.contextPath}/views/home/images/vehicles/${v.vehicleType}.jpg"
+                                         alt="${v.vehicleType}" class="card-img-top"
+                                         style="height: 220px; object-fit: cover; border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
+
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold text-dark">${v.vehicleType}</h5>
+                                        <p class="mb-1">Tên xe: ${v.modelName}</p>
+
+                                        <div class="mb-2">
+                                            <span class="badge bg-info text-dark me-1">Sức chứa: ${v.capacity} người</span>
+                                            <span class="badge bg-success text-light">Còn ${v.availability} xe</span>
+                                        </div>
+
+                                        <h6 class="text-danger fw-bold fs-5 mb-2 text-end">
+                                            <fmt:formatNumber value="${v.pricePerDay}" type="number" /> VNĐ/ngày
+                                        </h6>
+
+                                        <button type="button" class="btn btn-outline-primary w-100 fw-semibold select-btn">
+                                            <i class="bi bi-check2-circle"></i> Chọn
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Vehicle 2 -->
-                        <div class="col-md-4 mb-4">
-                            <div class="card shadow-sm">
-                                <img src="${pageContext.request.contextPath}/views/home/images/vehicles/car.jpg" 
-                                     alt="Thuê ô tô" class="card-img-top">
-                                <div class="card-body">
-                                    <h3 class="h5 card-title">Ô tô 4-7 chỗ</h3>
-                                    <p class="card-text text-muted">Phù hợp gia đình/nhóm nhỏ, có lái hoặc tự lái.</p>
-                                    <p class="text-primary fw-bold">800.000 VNĐ/ngày</p>
-                                    <button class="btn btn-outline-primary w-100">Thuê ngay</button>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Vehicle 3 -->
-                        <div class="col-md-4 mb-4">
-                            <div class="card shadow-sm">
-                                <img src="${pageContext.request.contextPath}/views/home/images/vehicles/bus.jpg" 
-                                     alt="Thuê xe bus" class="card-img-top">
-                                <div class="card-body">
-                                    <h3 class="h5 card-title">Xe bus du lịch</h3>
-                                    <p class="card-text text-muted">Xe bus 16-45 chỗ, đưa đón sân bay, tour theo đoàn.</p>
-                                    <p class="text-primary fw-bold">2.500.000 VNĐ/ngày</p>
-                                    <button class="btn btn-outline-primary w-100">Thuê ngay</button>
-                                </div>
-                            </div>
-                        </div>
+                        </c:forEach>
+
                     </div>
+
+                    <!-- Input ẩn để gửi giá trị vehicleId được chọn -->
+                    <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
                 </section>
 
                 <section class="mb-5">

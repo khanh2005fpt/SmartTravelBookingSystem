@@ -6,6 +6,7 @@ package controller.home;
 
 import dao.HotelDao;
 import dao.IslandDao;
+import dao.IslandVehicleDao;
 import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Hotel;
 import model.Island;
+import model.IslandVehicle;
 import model.Tour;
 
 /**
@@ -76,11 +78,15 @@ public class IslandDetailController extends HttpServlet {
             Island island = dao.getIslandById(id);
             HotelDao hd = new HotelDao();
             List<Hotel> listH = hd.getListHotelsById(id);
+            IslandVehicleDao vd = new IslandVehicleDao();
+            IslandVehicle v = new IslandVehicle();
+
+            List<IslandVehicle> listV = vd.getListVehicleById(id);
             TourDao td = new TourDao();
             List<Tour> listT = td.getListToursById(id);
 
             if (island != null) {
-
+                request.setAttribute("islandvehicles", listV);
                 request.setAttribute("island", island);
                 request.setAttribute("hotels", listH);
                 request.setAttribute("tours", listT);

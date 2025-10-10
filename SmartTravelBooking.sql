@@ -233,15 +233,55 @@ GO
 CREATE TABLE IslandVehicles (
     vehicleId INT IDENTITY(1,1) PRIMARY KEY,
     islandId INT NOT NULL,
-    vehicleType NVARCHAR(50) CHECK (vehicleType IN ('CAR','SCOOTER','MOTORBIKE','BICYCLE','ELECTRIC_CART','OTHER')),
+    vehicleType NVARCHAR(50)
+        CHECK (vehicleType IN (N'Ô tô', N'Xe tay ga', N'Xe máy', N'Xe đạp', N'Xe điện', N'Khác')),
     modelName NVARCHAR(100),
-    pricePerHour DECIMAL(10,3),
+    pricePerDay DECIMAL(10,3),
     capacity INT,
     availability INT,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
 go
+select * from IslandVehicles
+
+
+
+CREATE TABLE CustomTours (
+    customTourId INT IDENTITY(1,1) PRIMARY KEY,
+    customerName NVARCHAR(100) NOT NULL,
+    islandId INT NOT NULL,
+    tourName NVARCHAR(150) NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+    totalPrice INT CHECK (totalPrice >= 0),
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+CREATE TABLE CustomTourDetails (
+    detailId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    serviceType NVARCHAR(50)
+        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện')),
+    serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
+    quantity INT DEFAULT 1 CHECK (quantity > 0),
+    price INT CHECK (price >= 0),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+
+CREATE TABLE CustomTourItinerary (
+    itineraryId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    dayNumber INT CHECK (dayNumber > 0),
+    activity NVARCHAR(255) NOT NULL,
+    location NVARCHAR(150),
+    startTime TIME,
+    endTime TIME,
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+
+
 
 
 -- trigger check role customer mới đc booking 
@@ -286,7 +326,6 @@ CREATE TABLE Bookings (
     FOREIGN KEY (customerId) REFERENCES Users(userId),
 	FOREIGN KEY (profileId) REFERENCES CustomerProfiles (profileId)
 );
-select * from users
 
 
 select * from bookings
@@ -847,57 +886,58 @@ VALUES
 select * from flights
 -- vehicle insland
 -- Phú Quốc (islandId = 1)
-INSERT INTO IslandVehicles (islandId, companyName, vehicleType, modelName, pricePerDay, capacity, availability)
+
+INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability)
 VALUES
-(1, N'Phú Quốc Travel Co.', 'CAR', N'Toyota Innova', 45.000, 7, 10),
-(1, N'Phú Quốc Motorbike', 'MOTORBIKE', N'Honda AirBlade', 12.000, 2, 25),
-(1, N'Phú Quốc Green Mobility', 'ELECTRIC_CART', N'EV Shuttle 8 chỗ', 60.000, 8, 5),
-(1, N'Phú Quốc Bicycle Rental', 'BICYCLE', N'City Bike', 5.000, 1, 40);
+-- Phú Quốc (islandId = 1)
+(1, N'Xe tay ga', N'Honda Air Blade', 87500, 2, 10),
+(1, N'Ô tô', N'Toyota Vios', 300000, 4, 5),
+(1, N'Xe đạp', N'Giant Escape 3', 25000, 1, 15),
 
 -- Langkawi (islandId = 2)
-(2, N'Langkawi Rent-A-Car', 'CAR', N'Nissan Almera', 40.000, 5, 15),
-(2, N'Langkawi Scooter Hub', 'SCOOTER', N'Yamaha NMax', 15.000, 2, 20),
-(2, N'Langkawi Eco Transport', 'BICYCLE', N'Mountain Bike', 7.000, 1, 30);
+(2, N'Xe máy', N'Yamaha NVX 155', 75000, 2, 8),
+(2, N'Ô tô', N'Perodua Myvi', 250000, 4, 4),
+(2, N'Xe đạp', N'Trek FX 1', 30000, 1, 12),
 
 -- Phuket (islandId = 3)
-(3, N'Phuket Car Rental', 'CAR', N'Toyota Vios', 42.000, 5, 12),
-(3, N'Phuket Scooter Service', 'SCOOTER', N'Honda Click 125i', 14.000, 2, 35),
-(3, N'Phuket E-Mobility', 'ELECTRIC_CART', N'Golf Cart 6 seats', 55.000, 6, 6);
+(3, N'Xe tay ga', N'Honda Click 125i', 80000, 2, 9),
+(3, N'Ô tô', N'Toyota Yaris', 287500, 4, 6),
+(3, N'Xe điện', N'Eco Scooter Phuket', 50000, 2, 7),
 
 -- Bali (islandId = 4)
-(4, N'Bali Car Hire', 'CAR', N'Toyota Avanza', 48.000, 7, 14),
-(4, N'Bali Bike Adventures', 'MOTORBIKE', N'Honda CRF150L', 18.000, 2, 20),
-(4, N'Bali Cycling Tours', 'BICYCLE', N'MTB Trek 3700', 8.000, 1, 25);
+(4, N'Xe máy', N'Honda Beat', 75000, 2, 10),
+(4, N'Ô tô', N'Suzuki Ertiga', 312500, 7, 4),
+(4, N'Xe đạp', N'Polygon Heist 2', 27500, 1, 15),
 
 -- Boracay (islandId = 5)
-(5, N'Boracay Car Hire', 'CAR', N'Hyundai Accent', 38.000, 5, 8),
-(5, N'Boracay Scooter Zone', 'SCOOTER', N'Honda Beat', 13.000, 2, 20),
-(5, N'Boracay E-Rides', 'ELECTRIC_CART', N'EV Cart 4 seats', 50.000, 4, 5);
+(5, N'Xe điện', N'Boracay E-Bike', 55000, 2, 10),
+(5, N'Ô tô', N'Toyota Avanza', 295000, 6, 3),
+(5, N'Xe tay ga', N'Yamaha Mio i125', 75000, 2, 8),
 
 -- Sihanoukville (islandId = 6)
-(6, N'Sihanoukville Car Rental', 'CAR', N'Kia Morning', 35.000, 4, 10),
-(6, N'Sihanoukville Bikes', 'MOTORBIKE', N'Honda Wave Alpha', 10.000, 2, 30),
-(6, N'Sihanoukville Bicycle Club', 'BICYCLE', N'City Bike', 6.000, 1, 15);
+(6, N'Xe tay ga', N'Honda Scoopy', 77500, 2, 9),
+(6, N'Ô tô', N'Toyota Camry', 325000, 5, 3),
+(6, N'Xe đạp', N'Giant ATX 2', 25000, 1, 12),
 
 -- Tioman (islandId = 7)
-(7, N'Tioman Car Rental', 'CAR', N'Toyota Rush', 46.000, 7, 5),
-(7, N'Tioman Eco Bikes', 'BICYCLE', N'MTB Merida', 9.000, 1, 20),
-(7, N'Tioman Motorbike Hire', 'MOTORBIKE', N'Yamaha XSR 155', 17.000, 2, 12);
+(7, N'Xe máy', N'Yamaha Ego Avantiz', 70000, 2, 7),
+(7, N'Ô tô', N'Perodua Axia', 245000, 4, 3),
+(7, N'Xe điện', N'Tioman Green Scooter', 50000, 2, 8),
 
 -- Koh Samui (islandId = 8)
-(8, N'Koh Samui Car Service', 'CAR', N'Mitsubishi Xpander', 50.000, 7, 10),
-(8, N'Koh Samui Scooter Center', 'SCOOTER', N'Honda PCX', 16.000, 2, 22),
-(8, N'Koh Samui Bicycle Rental', 'BICYCLE', N'Road Bike Giant', 9.000, 1, 18);
+(8, N'Xe tay ga', N'Honda PCX 160', 87500, 2, 10),
+(8, N'Ô tô', N'Toyota Fortuner', 375000, 7, 4),
+(8, N'Xe đạp', N'Trek Marlin 5', 30000, 1, 12),
 
 -- Nusa Penida (islandId = 9)
-(9, N'Nusa Penida Cars', 'CAR', N'Toyota Avanza', 47.000, 7, 7),
-(9, N'Nusa Penida Scooters', 'SCOOTER', N'Honda Vario 150', 14.000, 2, 25),
-(9, N'Nusa Penida Eco Tours', 'BICYCLE', N'MTB Polygon', 7.500, 1, 12);
+(9, N'Xe máy', N'Honda Scoopy-i', 75000, 2, 9),
+(9, N'Ô tô', N'Toyota Innova', 320000, 7, 3),
+(9, N'Xe điện', N'Nusa E-Ride', 55000, 2, 6),
 
 -- Palawan (islandId = 10)
-(10, N'Palawan Car Rental', 'CAR', N'Toyota Fortuner', 60.000, 7, 6),
-(10, N'Palawan Motorbike Hire', 'MOTORBIKE', N'Honda XR150L', 20.000, 2, 15),
-(10, N'Palawan Bicycle Service', 'BICYCLE', N'Trekking Bike', 8.000, 1, 10);
+(10, N'Xe tay ga', N'Yamaha Aerox 155', 85000, 2, 10),
+(10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5),
+(10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
 
 
 
