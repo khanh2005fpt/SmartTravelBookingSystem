@@ -119,7 +119,7 @@
 
                             <a href="https://accounts.google.com/o/oauth2/auth?scope=email profile openid
 
-&redirect_uri=http://localhost:9090/SWP391_Group3_SE1957-KS/login
+&redirect_uri=http://localhost:9999/SWP391_Group3_SE1957-KS/login
 
 &response_type=code
 

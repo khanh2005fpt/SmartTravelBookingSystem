@@ -11,7 +11,7 @@
             <!-- Giới thiệu -->
             <div class="col-md-3 mb-4">
                 <h5 class="fw-bold mb-3">Meland Travel</h5>
-                <p>Chuyên tổ chức tour du lịch đảo hấp dẫn, khám phá thiên nhiên và trải nghiệm văn hóa địa phương.</p>
+                <p>Chuyên tổ chức tour du lịch đảo hấp dẫn, khám phá thiên nhiên và trải nghiệm văn hóa địa phương quanh khu vực Đông Nam Á.</p>
                 <p class="fst-italic">"Hành trình khám phá hạnh phúc, mỗi chuyến đi là một kỷ niệm."</p>
             </div>
             <!-- Lời chúc / Thông điệp -->
@@ -27,9 +27,9 @@
             <!-- Thông tin liên hệ -->
             <div class="col-md-3 mb-4">
                 <h5 class="fw-bold mb-3">Liên hệ</h5>
-                <p><i class="fa fa-map-marker me-2"></i>Đại học FPT Hà Nội</p>
-                <p><i class="fa fa-phone me-2"></i>0912 459 092</p>
-                <p><i class="fa fa-envelope me-2"></i>nguyenhuubaokhanh2005@gmail.com</p>
+                <p><i class="fa fa-map-marker me-2"></i> Đại học FPT Hà Nội</p>
+                <p><i class="fa fa-phone me-2"></i> 0912 459 092</p>
+                <p><i class="fa fa-envelope me-2"></i> nguyenhuubaokhanh2005@gmail.com</p>
             </div>
 
 

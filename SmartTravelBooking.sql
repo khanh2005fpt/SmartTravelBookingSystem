@@ -15,9 +15,10 @@ CREATE TABLE Users (
 	status VARCHAR(10) Check (status IN ('ACTIVE', 'LOCKED')) DEFAULT 'ACTIVE',
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
-go
 
-select * from Users
+go
+select * from users
+
 --ALTER TABLE Users ADD CONSTRAINT DF_Users_roleId DEFAULT 3 FOR roleId;
 
 CREATE TABLE Roles (
@@ -886,7 +887,7 @@ VALUES
 select * from flights
 -- vehicle insland
 -- Phú Quốc (islandId = 1)
-
+select * from IslandVehicles
 INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability)
 VALUES
 -- Phú Quốc (islandId = 1)

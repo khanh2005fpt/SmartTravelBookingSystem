@@ -198,7 +198,7 @@
                         <nav aria-label="Page navigation example">
                             <ul class="pagination justify-content-center mt-4">
                                 <li class="page-item active">
-                                    <a class="page-link" href="#">1</a>
+                                    <a class="page-link btn btn-primary" href="#">1</a>
                                 </li>
                             </ul>
                         </nav>
@@ -210,20 +210,20 @@
 
                                 <c:if test="${currentPage > 1}">
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=${currentPage - 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Previous</a>
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage - 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Previous</a>
                                     </li>
                                 </c:if>
 
                                 <c:forEach begin="1" end="${totalPages}" var="i">
                                     <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                        <a class="page-link" href="?page=${i}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">${i}</a>
+                                        <a class="page-link btn btn-primary" href="?page=${i}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">${i}</a>
                                     </li>
                                 </c:forEach>
 
 
                                 <c:if test="${currentPage < totalPages}">
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Next</a>
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Next</a>
                                     </li>
                                 </c:if>
 

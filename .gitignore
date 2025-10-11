@@ -12,10 +12,10 @@
 nbproject/private/
 build/
 # Ignore real config & constants (secret)
-src/java/config/config.properties
+src/java/config_temp/config.properties
 src/java/constant/Iconstant.java
-src/java/config/Config.java
-src/java/config/
+src/java/config_temp/Config.java
+src/java/config_temp/
 #file private & xml,...
 nbproject/build-impl.xml
 nbproject/genfiles.properties
