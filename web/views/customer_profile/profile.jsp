@@ -150,7 +150,7 @@
                 </div>
 
                 <div class="profile-menu">
-                    <a href="#" onclick="showMainSection(event, 'points')"><i class="bi bi-credit-card"></i> Thẻ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'cards')"><i class="bi bi-credit-card"></i> Thẻ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'bookings')"><i class="bi bi-calendar2-check"></i> Đặt chỗ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
@@ -189,7 +189,7 @@
             <!-- ===================== CONTENT ===================== -->
             <!-- point content -->
 
-            <div id="points" class="main-section" style="display:none;">Nội dung điểm...</div>
+            <div id="cards" class="main-section" style="display:none;">Nội dung thẻ ngân hàng...</div>
 
             <!-- booking content -->
             <div id="bookings" class="main-section" style="display:none;">Nội dung Đặt chỗ của tôi...</div>
@@ -648,34 +648,71 @@
 
 
                     <!-- =================== Js for sidebar menu =================== -->               
-                    <script>
-                        function showMainSection(evt, sectionId) {
-                            // Ẩn toàn bộ các main-section
-                            document.querySelectorAll(".main-section , .account-container").forEach(s => s.style.display = "none");
+               <script>
+// Hàm hiển thị section chính
+function showMainSection(evt, sectionId) {
+    evt.preventDefault(); // Ngăn hành vi mặc định của liên kết
 
-                            // Hiển thị phần được chọn
-                            const selected = document.getElementById(sectionId);
-                            if (selected)
-                                selected.style.display = "block";
+    // Ẩn tất cả các section
+    document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-                            if (sectionId === 'account') {
-                                document.querySelector('.account-container').style.display = "block";
-                            }
+    // Hiển thị section được chọn
+    const selected = document.getElementById(sectionId);
+    if (selected) {
+        selected.style.display = "block";
+    }
 
-                            // Cập nhật active trong menu
-                            document.querySelectorAll(".profile-menu a").forEach(a => a.classList.remove("active"));
-                            evt.currentTarget.classList.add("active");
-                        }
+    // Nếu section là 'account', hiển thị account-container
+    if (sectionId === 'account') {
+        document.querySelector('.account-container').style.display = "block";
+    }
 
-                        // Điều khiển tab con trong phần Tài khoản
-                        function showAccountTab(evt, tabId) {
-                            document.querySelectorAll(".account-container .tab-content").forEach(c => c.classList.remove("active"));
-                            document.querySelectorAll(".tab-header-account button").forEach(b => b.classList.remove("active"));
+    // Cập nhật lớp active trong menu
+    document.querySelectorAll(".profile-menu a").forEach(a => a.classList.remove("active"));
+    evt.currentTarget.classList.add("active");
+}
 
-                            document.getElementById(tabId).classList.add("active");
-                            evt.currentTarget.classList.add("active");
-                        }
-                    </script>
+// Điều khiển tab con trong phần Tài khoản
+function showAccountTab(evt, tabId) {
+    document.querySelectorAll(".account-container .tab-content").forEach(c => c.classList.remove("active"));
+    document.querySelectorAll(".tab-header-account button").forEach(b => b.classList.remove("active"));
+    document.getElementById(tabId).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+
+// Khởi tạo section khi trang được tải
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get("section") || "account"; // Mặc định là 'account'
+
+    // Ẩn tất cả section
+    document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
+
+    // Hiển thị section tương ứng
+    const validSections = ['cards', 'bookings', 'transactions', 'notifications', 'setting', 'account'];
+    if (validSections.includes(section)) {
+        const selected = document.getElementById(section);
+        if (selected) {
+            selected.style.display = "block";
+        }
+        if (section === 'account') {
+            document.querySelector(".account-container").style.display = "block";
+        }
+    } else {
+        // Nếu section không hợp lệ, hiển thị account
+        document.querySelector(".account-container").style.display = "block";
+        document.getElementById("account").style.display = "block";
+    }
+
+    // Cập nhật lớp active trong menu sidebar
+    document.querySelectorAll(".profile-menu a").forEach(link => {
+        const onclick = link.getAttribute("onclick");
+        if (onclick && onclick.includes(section)) {
+            link.classList.add("active");
+        }
+    });
+});
+</script>
 
                     <%@ include file="/views/common/script.jsp" %>
                     </body>

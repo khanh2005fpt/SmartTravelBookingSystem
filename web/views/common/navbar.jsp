@@ -83,12 +83,17 @@
                     <!-- Menu xổ xuống -->
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
+                            <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=cards#"><i class="bi bi-credit-card"></i> Thẻ của tôi</a>
+                                <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-calendar2-check"></i>Đặt chỗ của tôi </a>
+                                  <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-list-ul"></i>Giao dịch </a>
                         <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
                         <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
+                    
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
                             <i class="bi bi-box-arrow-right mr-2"></i> Đăng xuất
-                        </a>    </div>
+                        </a>   
+                    </div>
                 </li>
 
                 <%
