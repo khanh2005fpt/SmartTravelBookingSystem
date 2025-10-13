@@ -108,7 +108,7 @@ public class CreateCustomTourController extends HttpServlet {
             IslandDao id = new IslandDao();
             String islandName = id.getIslandNameById(islandId);
             String tourName = "Du lịch " + islandName + " - " + days + "N" + nights + "Đ";
-
+            
             CustomTour tour = new CustomTour(tourName, islandId, startDate, endDate, totalPrice);
             int customTourId = dao.createCustomTour(tour);
             if (customTourId <= 0) {

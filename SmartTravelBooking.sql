@@ -258,8 +258,6 @@ CREATE TABLE CustomTours (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
-
-
 CREATE TABLE CustomTourDetails (
     detailId INT IDENTITY(1,1) PRIMARY KEY,
     customTourId INT NOT NULL,
@@ -280,7 +278,7 @@ CREATE TABLE CustomTourItinerary (
     endTime TIME,
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
-
+select * from hotels
 -- trigger check role customer mới đc booking 
 CREATE TRIGGER trg_Booking_CheckCustomer
 ON Bookings

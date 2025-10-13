@@ -13,6 +13,7 @@ public class CustomTourDetail {
     private String serviceType;
     private int serviceId;
     private int price;
+    private String serviceName;
 
     public CustomTourDetail() {
     }
@@ -24,6 +25,8 @@ public class CustomTourDetail {
         this.price = price;
 
     }
+
+    
 
     
 
@@ -61,6 +64,14 @@ public class CustomTourDetail {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
  

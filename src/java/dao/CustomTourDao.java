@@ -122,12 +122,15 @@ public class CustomTourDao extends DBContext {
             ps.setInt(1, tourId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new CustomTourDetail(
-                        rs.getInt("customTourId"),
-                        rs.getString("serviceType"),
-                        rs.getInt("serviceId"),
-                        rs.getInt("price")
-                ));
+                CustomTourDetail detail = new CustomTourDetail();
+                detail.setCustomTourId(rs.getInt("customTourId"));
+                detail.setServiceType(rs.getString("serviceType"));
+                detail.setServiceId(rs.getInt("serviceId"));
+                detail.setPrice(rs.getInt("price"));
+
+                setServiceName(detail);
+
+                list.add(detail);
             }
         }
         return list;
@@ -177,5 +180,33 @@ public class CustomTourDao extends DBContext {
             }
         }
         return 0;
+    }
+
+    public void setServiceName(CustomTourDetail detail) throws SQLException {
+        String sql = "";
+        switch (detail.getServiceType()) {
+            case "Khách sạn":
+                sql = "SELECT hotelName AS name FROM Hotels WHERE hotelId = ?";
+                break;
+            case "Phương tiện":
+                sql = "SELECT modelName AS name FROM IslandVehicles WHERE vehicleId = ?";
+                break;
+            case "Chuyến bay":
+                sql = "SELECT flightNumber AS name FROM Flights WHERE flightId = ?";
+                break;
+            default:
+                throw new SQLException("Unknown service type: " + detail.getServiceType());
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, detail.getServiceId());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    detail.setServiceName(rs.getString("name")); // set trực tiếp vào object
+                } else {
+                    detail.setServiceName(""); // nếu không tìm thấy, set rỗng
+                }
+            }
+        }
     }
 }
