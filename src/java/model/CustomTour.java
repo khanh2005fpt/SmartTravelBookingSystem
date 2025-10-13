@@ -4,6 +4,7 @@
  */
 package model;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -12,27 +13,37 @@ import java.util.List;
  */
 public class CustomTour {
     private int customTourId;
-    private String customerName;
     private String tourName;
-    private String islandName;
-    private double totalPrice;
-    private String startDate; 
-    private String endDate;
-    private List<CustomTourDetail> details;
+    private int islandId;
+    private int totalPrice;
+    private LocalDate startDate; 
+    private LocalDate endDate;
 
     public CustomTour() {
     }
 
-    public CustomTour(int customTourId, String customerName, String tourName, String islandName, double totalPrice, String startDate, String endDate, List<CustomTourDetail> details) {
-        this.customTourId = customTourId;
-        this.customerName = customerName;
+    public CustomTour(String tourName, int islandId, LocalDate startDate, LocalDate endDate, int totalPrice) {
         this.tourName = tourName;
-        this.islandName = islandName;
+        this.islandId = islandId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalPrice = totalPrice;
+    }
+
+    public CustomTour(int customTourId, String tourName, int islandId, int totalPrice, LocalDate startDate, LocalDate endDate) {
+        this.customTourId = customTourId;
+        this.tourName = tourName;
+        this.islandId = islandId;
         this.totalPrice = totalPrice;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.details = details;
     }
+
+    
+
+    
+
+   
 
     public int getCustomTourId() {
         return customTourId;
@@ -40,14 +51,6 @@ public class CustomTour {
 
     public void setCustomTourId(int customTourId) {
         this.customTourId = customTourId;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
     }
 
     public String getTourName() {
@@ -58,45 +61,45 @@ public class CustomTour {
         this.tourName = tourName;
     }
 
-    public String getIslandName() {
-        return islandName;
+    public int getIslandId() {
+        return islandId;
     }
 
-    public void setIslandName(String islandName) {
-        this.islandName = islandName;
+    public void setIslandId(int islandId) {
+        this.islandId = islandId;
     }
 
-    public double getTotalPrice() {
+    public int getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(int totalPrice) {
         this.totalPrice = totalPrice;
     }
 
-    public String getStartDate() {
+    
+    
+
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
-    public List<CustomTourDetail> getDetails() {
-        return details;
-    }
+    
 
-    public void setDetails(List<CustomTourDetail> details) {
-        this.details = details;
-    }
+
+    
     
     
 }

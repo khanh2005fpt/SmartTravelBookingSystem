@@ -46,6 +46,81 @@
                             <p class="text-justify">${tour.description}</p>
 
                             <!-- Chương trình tour -->
+                            <!-- Dịch vụ đi kèm -->
+                            <h4 class="mt-4 mb-3 border-bottom pb-2 text-primary">Dịch vụ đi kèm</h4>
+                            <div class="row row-cols-1 row-cols-md-2 g-3">
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-bus-front-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Xe đưa đón tận nơi</h6>
+                                                <p class="text-muted mb-0">Đưa đón sân bay, khách sạn và điểm du lịch bằng xe đời mới.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-h-square-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Khách sạn tiêu chuẩn 3-4 sao</h6>
+                                                <p class="text-muted mb-0">Phòng sạch đẹp, tiện nghi, gần trung tâm và các điểm tham quan.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-emoji-smile-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Hướng dẫn viên nhiệt tình</h6>
+                                                <p class="text-muted mb-0">HDV chuyên nghiệp, am hiểu địa phương, hỗ trợ suốt hành trình.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-shield-check fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Bảo hiểm du lịch</h6>
+                                                <p class="text-muted mb-0">Bảo vệ an toàn cho khách trong suốt chuyến đi.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-cup-straw fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Ẩm thực địa phương</h6>
+                                                <p class="text-muted mb-0">Thưởng thức đặc sản vùng biển tươi ngon, hấp dẫn.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-ticket-perforated-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Vé tham quan trọn gói</h6>
+                                                <p class="text-muted mb-0">Bao gồm toàn bộ vé vào cổng các địa điểm trong chương trình.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <h4 class="mt-4 mb-3 border-bottom pb-2 text-primary">Chương trình tour</h4>
                             <div class="accordion" id="itineraryAccordion">
                                 <c:forEach var="iti" items="${itineraries}">
@@ -188,7 +263,7 @@
         </div>
 
         <%@ include file="/views/common/footer.jsp" %>
-        
+
         <!-- Bootstrap 5 JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>

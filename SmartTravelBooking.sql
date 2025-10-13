@@ -250,15 +250,15 @@ select * from IslandVehicles
 
 CREATE TABLE CustomTours (
     customTourId INT IDENTITY(1,1) PRIMARY KEY,
-    customerName NVARCHAR(100) NOT NULL,
     islandId INT NOT NULL,
     tourName NVARCHAR(150) NOT NULL,
     startDate DATE NOT NULL,
     endDate DATE NOT NULL,
     totalPrice INT CHECK (totalPrice >= 0),
-    createdAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
 
 CREATE TABLE CustomTourDetails (
     detailId INT IDENTITY(1,1) PRIMARY KEY,
@@ -266,7 +266,6 @@ CREATE TABLE CustomTourDetails (
     serviceType NVARCHAR(50)
         CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện')),
     serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
-    quantity INT DEFAULT 1 CHECK (quantity > 0),
     price INT CHECK (price >= 0),
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
@@ -281,9 +280,6 @@ CREATE TABLE CustomTourItinerary (
     endTime TIME,
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
-
-
-
 
 -- trigger check role customer mới đc booking 
 CREATE TRIGGER trg_Booking_CheckCustomer

@@ -10,7 +10,7 @@
         <div class="row">
             <!-- Giới thiệu -->
             <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Meland Travel</h5>
+                <h5 class="fw-bold mb-3">Meland</h5>
                 <p>Chuyên tổ chức tour du lịch đảo hấp dẫn, khám phá thiên nhiên và trải nghiệm văn hóa địa phương quanh khu vực Đông Nam Á.</p>
                 <p class="fst-italic">"Hành trình khám phá hạnh phúc, mỗi chuyến đi là một kỷ niệm."</p>
             </div>

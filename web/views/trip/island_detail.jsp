@@ -141,11 +141,27 @@
 
                 <!-- Hotels Section -->
                 <form action="CreateCustomTourController" method="post" id="customTourForm">
-                    <section class="mb-5">
+                    <input type="hidden" name="islandId" value="${island.islandId}">
+                    <section class="mb-5 text-center">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
                         <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
                             🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
                         </div>
+                        <h2 class="h3 mb-4 text-primary fw-bold">📅 Chọn thời gian du lịch</h2>
+                        <div class="d-flex justify-content-center gap-4">
+                            <div>
+                                <label for="startDate" class="form-label fw-semibold">Ngày bắt đầu</label>
+                                <input type="date" class="form-control rounded-pill text-center" id="startDate" name="startDate" required>
+                            </div>
+                            <div>
+                                <label for="endDate" class="form-label fw-semibold">Ngày kết thúc</label>
+                                <input type="date" class="form-control rounded-pill text-center" id="endDate" name="endDate" required>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mt-2">Ví dụ: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
+                    </section>
+                    <section class="mb-5">
+                        
 
                         <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Chọn khách sạn</h2>
 
@@ -155,7 +171,7 @@
                                     <c:forEach var="hotel" items="${hotels}">
                                         <div class="col-md-4">
 
-                                            <div class="card hotel-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-hotelid="${v.hotelId}">
+                                            <div class="card hotel-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-hotelid="${hotel.hotelId}">
 
                                                 <!-- Ảnh khách sạn -->
                                                 <div class="position-relative">

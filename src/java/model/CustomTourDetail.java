@@ -9,20 +9,33 @@ package model;
  * @author Admin
  */
 public class CustomTourDetail {
+    private int customTourId;
     private String serviceType;
-    private String serviceName;
-    private double price;
-    private int quantity;
+    private int serviceId;
+    private int price;
 
     public CustomTourDetail() {
     }
 
-    public CustomTourDetail(String serviceType, String serviceName, double price, int quantity) {
+    public CustomTourDetail(int customTourId, String serviceType, int serviceId, int price) {
+        this.customTourId = customTourId;
         this.serviceType = serviceType;
-        this.serviceName = serviceName;
+        this.serviceId = serviceId;
         this.price = price;
-        this.quantity = quantity;
+
     }
+
+    
+
+    public int getCustomTourId() {
+        return customTourId;
+    }
+
+    public void setCustomTourId(int customTourId) {
+        this.customTourId = customTourId;
+    }
+
+   
 
     public String getServiceType() {
         return serviceType;
@@ -32,29 +45,25 @@ public class CustomTourDetail {
         this.serviceType = serviceType;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public int getServiceId() {
+        return serviceId;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setServiceId(int serviceId) {
+        this.serviceId = serviceId;
     }
 
-    public double getPrice() {
+    
+
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
+ 
     
     
 }

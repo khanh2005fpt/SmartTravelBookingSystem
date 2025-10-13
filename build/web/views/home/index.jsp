@@ -329,9 +329,8 @@
                     <div class="col-md-12 text-center">
                         <div class="img" style="background-image: url(${pageContext.request.contextPath}/views/home/images/bg_2.jpg);">
                             <div class="overlay"></div>
-                            <h2>Chúng tôi là Pacific - Công ty Du lịch</h2>
-                            <p>Chúng tôi có thể quản lý giấc mơ xây dựng của bạn. Một con sông nhỏ tên là Duden chảy qua nơi họ ở.</p>
-                            <p class="mb-0"><a href="#" class="btn btn-primary px-4 py-3">Yêu cầu Báo giá</a></p>
+                            <h2>Chúng tôi là Meland - Công ty Du lịch</h2>
+                            <p>Chúng tôi biến ước mơ khám phá biển đảo của bạn thành hiện thực. Những hòn đảo nhiệt đới xinh đẹp đang chờ bạn ghé thăm cùng Meland.</p>
                         </div>
                     </div>
                 </div>
