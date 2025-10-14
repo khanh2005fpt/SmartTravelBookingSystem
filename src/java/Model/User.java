@@ -2,71 +2,118 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Model;
+package model;
 
+/**
+ *
+ * @author nqagh
+ */
+ import java.util.Date;
 public class User {
-
-    private int id;
-    private String name;
+    private int userId;
+    private String username;
+    private String password;
     private String email;
-    private String role;
-    private boolean active;
+    private String fullName;
+    private String phone;
+    private int roleId;
+    private Date createdAt;
+    private String status;
 
-    public User() {
-    }
 
-    public User(int id, String name, String email, String role, boolean active) {
-        this.id = id;
-        this.name = name;
+    public User() {}
+
+  
+  
+    public User(int userId, String username, String password, String email, 
+                String fullName, String phone, int roleId, Date createdAt, String status) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
         this.email = email;
-        this.role = role;
-        this.active = active;
+        this.fullName = fullName;
+        this.phone = phone;
+        this.roleId = roleId;
+        this.createdAt = createdAt;
+        this.status = status;
     }
 
-    public User(String name, String email, String role, boolean active) {
-        this.name = name;
-        this.email = email;
-        this.role = role;
-        this.active = active;
+     public String getStatus() {
+        return status;
     }
 
-    public int getId() {
-        return id;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getUserId() {
+        return userId;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getRole() {
-        return role;
+    public String getFullName() {
+        return fullName;
+    }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public String getPhone() {
+        return phone;
+    }
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public boolean isActive() {
-        return active;
+    public int getRoleId() {
+        return roleId;
+    }
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    // toString
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", role='" + roleId + '\'' +
+                ", createdAt=" + createdAt +'\'' +
+                 ", status=" + status+
+                '}';
     }
 }
