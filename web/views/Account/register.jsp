@@ -106,7 +106,7 @@
                         <div class="form-check mb-4 ml-3">
                             <input class="form-check-input" type="checkbox" id="terms" required>
                             <label class="form-check-label" for="terms">
-                                Tôi đồng ý với <a href="Service_Terms.jsp" target="_blank">điều khoản dịch vụ</a>
+                                Tôi đồng ý với <a href=" ${pageContext.request.contextPath}/views/home/Service_Terms.jsp" target="_blank">điều khoản dịch vụ</a>
                             </label>
                         </div>
 
@@ -115,7 +115,7 @@
 
                     <!-- Link đăng nhập -->
                     <div class="login-link text-center mt-3 text_login">
-                        <p>Đã có tài khoản? <a href="login.jsp">Đăng nhập</a></p>
+                        <p>Đã có tài khoản? <a href="${pageContext.request.contextPath}/views/account/login.jsp">Đăng nhập</a></p>
                     </div>
                 </div>
             </div>

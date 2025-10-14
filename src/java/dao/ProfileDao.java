@@ -157,9 +157,17 @@ public CustomerProfile updateInformation(int userId, String fullName, LocalDate 
         return false;
     }
     
+
+    
     public static void main(String[] args) {
-        CustomerProfile profile= ProfileDao.INSTANCE.getProfileByUserId(2);
-        System.out.println(profile.getUserId() +" "+profile.getFullName() +" "+ profile.getProfilePicture());
+     //  int point= ProfileDao.INSTANCE.getPointById(2);
+     //   System.out.println(point);
     }
     
+   
+     
+     
+   
+       
+   
 }

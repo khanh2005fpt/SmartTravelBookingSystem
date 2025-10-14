@@ -87,7 +87,7 @@
 
                     <div class="profile-sidebar-avatar text-center p-4 mr-auto">
                         <div class="avatar-wrapper mx-auto">
-                           <img 
+                        
  <img 
   id="avatarPreview"
   src="${profile_customer != null && profile_customer.profilePicture != null
@@ -114,8 +114,9 @@
                         <div class="profile-info mt-3">
                             <h5 class="fw-bold mb-1 text-dark text-primary">${sessionScope.user.fullName}</h5>
                             <p class="text-muted mb-0">
+                                  ${sessionScope.profile_customer.loyaltyPoints}
                                 <i class="bi bi-coin text-warning me-1"></i>
-                                ${sessionScope.profile.loyaltyPoints}
+                              
                             </p>
                         </div>
                     </div>

@@ -117,8 +117,11 @@ public class loginServlet extends HttpServlet {
             
             List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(existing.getUserId());
             List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(existing.getUserId());
+          
+            
             session.setAttribute("emailList_Current", emailList);
             session.setAttribute("phoneList_Current", phoneList);
+ 
 
             response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             return;
@@ -200,9 +203,11 @@ public class loginServlet extends HttpServlet {
         
         List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(user.getUserId());
         List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(user.getUserId());
+      
 
         session.setAttribute("emailList_Current", emailList);
         session.setAttribute("phoneList_Current", phoneList);
+  
 
         session.setAttribute("userId", user.getUserId());
         session.setAttribute("loginSuccess", "oke");

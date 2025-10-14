@@ -1,10 +1,18 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.User" %>
+<%@ page import="model.CustomerProfile" %>
 
 <!-- lay thong tin user tu session  -->
 <%
     User user = (User)session.getAttribute("user");
 %>
+
+<!-- lay thong tin customer_profile tu session  -->
+  <%
+                           CustomerProfile profile_customer = (CustomerProfile)session.getAttribute("profile_customer");
+                           
+                            
+        %>
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/SearchIslandController">Meland<span>Công ty Du lịch</span></a>
@@ -77,17 +85,17 @@
                        style="background: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: #0077b6;">
 
                         <i class="bi bi-person-circle mr-2" style="font-size: 20px;"></i>
-                        <span lang="vi"><%= user != null ? user.getFullName() : "Khách" %> | 0 Điểm</span>
+                        <span lang="vi"><%= user != null ? user.getFullName() : "Khách" %> | ${sessionScope.profile_customer.loyaltyPoints} Điểm</span>
                     </a>
 
                     <!-- Menu xổ xuống -->
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                             <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=cards#"><i class="bi bi-credit-card"></i> Thẻ của tôi</a>
-                                <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-calendar2-check"></i>Đặt chỗ của tôi </a>
-                                  <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-list-ul"></i>Giao dịch </a>
-                        <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
-                        <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
+                                <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=bookings#"><i class="bi bi-calendar2-check"></i>Đặt chỗ của tôi </a>
+                                  <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=notifications#"><i class="bi bi-bell mr-2"></i> Thông báo</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=setting#"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
                     
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
