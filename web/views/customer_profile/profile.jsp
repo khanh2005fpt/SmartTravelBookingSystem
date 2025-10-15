@@ -88,13 +88,13 @@
                     <div class="profile-sidebar-avatar text-center p-4 mr-auto">
                         <div class="avatar-wrapper mx-auto">
                         
- <img 
-  id="avatarPreview"
-  src="${profile_customer != null && profile_customer.profilePicture != null
+                            <img 
+                                id="avatarPreview"
+                                src="${profile_customer != null && profile_customer.profilePicture != null
       ? pageContext.request.contextPath.concat('/Avatar_DisplayServlet?file=').concat(profile_customer.profilePicture)
       : 'https://via.placeholder.com/150/eeeeee/aaaaaa?text=Avatar'}"
-  class="profile-avatar"
-  alt="Avatar">
+                                class="profile-avatar"
+                                alt="Avatar">
                             <div class="overlay">
                                 <label for="avatarFile" class="change-photo">
                                     <i class="bi bi-camera-fill"></i> Thay ảnh
@@ -145,13 +145,9 @@
 
                 </div>
 
-                <div class="profile-rank font-weight-bold">
-                    <i class="bi bi-award-fill"></i>
-                    <span>Bạn là thành viên <b>Bronze Priority</b></span>
-                </div>
 
                 <div class="profile-menu">
-                    <a href="#" onclick="showMainSection(event, 'cards')"><i class="bi bi-credit-card"></i> Thẻ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'member-priority')"><i class="bi bi-award"></i> Membership Level</a>
                     <a href="#" onclick="showMainSection(event, 'bookings')"><i class="bi bi-calendar2-check"></i> Đặt chỗ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
@@ -190,7 +186,88 @@
             <!-- ===================== CONTENT ===================== -->
             <!-- point content -->
 
-            <div id="cards" class="main-section" style="display:none;">Nội dung thẻ ngân hàng...</div>
+            <div id="member-priority" class="membership-container main-section">
+                <div class="tab-header-membership text-center mb-4 "style="width: 100%;">
+                    <img 
+                        src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                        alt="Membership Banner"
+                        class="img-fluid rounded-3 shadow-sm w-100"
+                        "
+                        >
+                </div>
+
+                <div class="text-center mb-4 w-auto" >
+                    <span class="badge bg-gradient" 
+                          style="background: linear-gradient(to right, #d97706, #b45309); font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                        🏅 Bạn là thành viên <strong>  ${sessionScope.profile_customer.membershipLevel}</strong>
+                    </span>
+                </div>
+                <section class="membership-info container my-5">
+                    <h3>Hệ thống hạng thành viên & Ưu đãi</h3>
+                    <div class="row justify-content-center g-4">
+
+                        <div class="col-md-6 col-lg-3">
+                            <div class="membership-card bronze">
+                                <div class="level-icon">🥉</div>
+                                <h5>Bronze</h5>
+                                <p>Dưới 1.000 điểm</p>
+                                <ul>
+                                    <li>• Giảm 5% cho mọi đơn hàng</li>
+                                    <li>• Nhận thông báo ưu đãi sớm</li>
+                                    <li>• Cộng điểm tích lũy khi thanh toán</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3">
+                            <div class="membership-card silver">
+                                <div class="level-icon">🥈</div>
+                                <h5>Silver</h5>
+                                <p>Từ 1.000 đến 4.999 điểm</p>
+                                <ul>
+                                    <li>• Giảm 10% cho mọi đơn hàng</li>
+                                    <li>• Miễn phí 1 lần đổi dịch vụ mỗi tháng</li>
+                                    <li>• Ưu tiên hỗ trợ khách hàng</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3">
+                            <div class="membership-card gold">
+                                <div class="level-icon">🥇</div>
+                                <h5>Gold</h5>
+                                <p>Từ 5.000 đến 9.999 điểm</p>
+                                <ul>
+                                    <li>• Giảm 15% cho mọi đơn hàng</li>
+                                    <li>• Tặng voucher sinh nhật trị giá 100.000đ</li>
+                                    <li>• Ưu tiên đặt dịch vụ trước</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3">
+                            <div class="membership-card platinum">
+                                <div class="level-icon">💎</div>
+                                <h5>Platinum</h5>
+                                <p>Từ 10.000 điểm trở lên</p>
+                                <ul>
+                                    <li>• Giảm 20% cho mọi đơn hàng</li>
+                                    <li>• Có nhân viên chăm sóc riêng</li>
+                                    <li>• Quyền truy cập sớm các chương trình VIP</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+
+
+
+            </div>
+
+
+           
 
             <!-- booking content -->
             <div id="bookings" class="main-section" style="display:none;">Nội dung Đặt chỗ của tôi...</div>
@@ -198,10 +275,13 @@
             <!--  content -->
             <div id="transactions" class="main-section" style="display:none;">Nội dung giao dịch của tôi...</div>
 
+            
+            
+            
             <!-- account and securit content --> 
             <div class="account-container">
                 <div class="tab-header-account">
-                    <button class="active w-auto font-weight-bold" onclick="showAccountTab(event, 'profile')">Thông tin tài khoản</button>
+                    <span class="active w-auto text-primary font-weight-bold mb-2" >Thông tin tài khoản</span>
 
                 </div>
 
@@ -690,7 +770,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
     // Hiển thị section tương ứng
-    const validSections = ['cards', 'bookings', 'transactions', 'notifications', 'setting', 'account'];
+    const validSections = ['member-priority', 'bookings', 'transactions', 'notifications', 'setting', 'account'];
     if (validSections.includes(section)) {
         const selected = document.getElementById(section);
         if (selected) {
@@ -716,5 +796,5 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
                     <%@ include file="/views/common/script.jsp" %>
-                    </body>
-                    </html>
+ </body>
+</html>

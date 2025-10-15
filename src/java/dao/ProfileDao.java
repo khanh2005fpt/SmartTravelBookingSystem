@@ -135,7 +135,10 @@ public CustomerProfile updateInformation(int userId, String fullName, LocalDate 
                 profile.setAddress(rs.getString("address"));
                 profile.setProfilePicture(rs.getString("profilePicture"));
                 profile.setLoyaltyPoints(rs.getInt("loyaltyPoints"));
-                profile.setMembershipLevel(profile.getMembershipLevel());
+               String levelStr = rs.getString("membershipLevel");
+            if (levelStr != null && !levelStr.isEmpty()) {
+                profile.setMembershipLevel(CustomerProfile.MembershipLevel.valueOf(levelStr.toUpperCase()));
+            }
                 return profile;
             }
         } catch (SQLException e) {
@@ -160,8 +163,7 @@ public CustomerProfile updateInformation(int userId, String fullName, LocalDate 
 
     
     public static void main(String[] args) {
-     //  int point= ProfileDao.INSTANCE.getPointById(2);
-     //   System.out.println(point);
+       
     }
     
    

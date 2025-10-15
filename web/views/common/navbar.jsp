@@ -91,7 +91,7 @@
                     <!-- Menu xổ xuống -->
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
-                            <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=cards#"><i class="bi bi-credit-card"></i> Thẻ của tôi</a>
+                            <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=member-priority#"><i class="bi bi-award"></i> Membership Level</a>
                                 <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=bookings#"><i class="bi bi-calendar2-check"></i>Đặt chỗ của tôi </a>
                                   <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=notifications#"><i class="bi bi-bell mr-2"></i> Thông báo</a>

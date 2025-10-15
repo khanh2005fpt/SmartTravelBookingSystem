@@ -651,3 +651,104 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     font-size: 14px;
     color: #888;
 }
+
+/* ========================Membership Customer================================================= */ 
+
+
+.membership-container{
+      flex: 1; /* Tự co giãn chiếm phần còn lại */
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 20px 30px;
+      min-width: 300px;
+}
+.tab-header-membership img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 300px;
+     width: 100%;
+    object-fit: cover;
+}
+.tab-header-card {
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 23px;
+      gap: 20px;
+  
+      
+    }
+
+    
+  .membership-info {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.membership-info h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ff8c00; /* màu cam nhạt */
+  margin-bottom: 2rem;
+}
+
+/* Card cấp độ */
+.membership-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 30px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.membership-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Tên cấp độ */
+.membership-card h5 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+/* Biểu tượng */
+.membership-card .level-icon {
+  font-size: 1.5rem;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+/* Mô tả cấp độ */
+.membership-card p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Danh sách ưu đãi */
+.membership-card ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+  text-align: left;
+}
+
+.membership-card ul li {
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+/* Màu sắc từng cấp */
+.bronze h5 { color: #b87333; }     /* đồng */
+.silver h5 { color: #a9a9a9; }     /* bạc */
+.gold h5 { color: #d4af37; }       /* vàng */
+.platinum h5 { color: #1e90ff; }   /* xanh ánh kim */
+
+/* Responsive */
+@media (max-width: 768px) {
+  .membership-card {
+    margin-bottom: 20px;
+  }
+}

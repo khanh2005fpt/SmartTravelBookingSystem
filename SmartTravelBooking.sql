@@ -43,7 +43,6 @@ CREATE TABLE Roles (
     roleName NVARCHAR(50) UNIQUE NOT NULL
 );
 GO
-TRUNCATE TABLE Roles;
 
 INSERT INTO Roles (roleName)
 VALUES ('ADMIN'), ('BOOKING MANAGER'), ('CUSTOMER'), ('STAFF');
@@ -68,56 +67,63 @@ CREATE TABLE CustomerProfiles (
 );
 GO
 
---Trigger cộng điểm khi booking hoàn tất
 
-CREATE TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted
+select * from CustomerProfiles
+select * from Bookings
+UPDATE Bookings
+SET status = 'COMPLETED'
+WHERE bookingId = 1;
+
+-- DROP TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted;
+
+-- Cộng điểm khi trạng thái chuyển sang COMPLETED và  cập nhật cấp độ thành viên tự động
+CREATE OR ALTER TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted
 ON Bookings
 AFTER UPDATE
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Cộng điểm chỉ khi trạng thái chuyển thành COMPLETED
+    -- Cộng điểm khi trạng thái chuyển sang COMPLETED
     UPDATE cp
-    SET cp.loyaltyPoints = cp.loyaltyPoints + (x.totalAmount * 0.05)
+    SET cp.loyaltyPoints = cp.loyaltyPoints + CAST((x.totalAmount * 0.05) AS INT)
     FROM CustomerProfiles cp
     INNER JOIN (
         SELECT 
             i.customerId,
-            SUM(bd.totalPrice) AS totalAmount
+            SUM(
+                CASE 
+                    WHEN i.tourId IS NOT NULL THEN 
+                        (t.price * i.adultQuantity) + (t.price * 0.5 * i.childQuantity)
+                    WHEN i.customTourId IS NOT NULL THEN 
+                        (ct.totalPrice * i.adultQuantity) + (ct.totalPrice * 0.5 * i.childQuantity)
+                    ELSE 0
+                END
+            ) AS totalAmount
         FROM inserted i
         INNER JOIN Bookings b ON i.bookingId = b.bookingId
-        INNER JOIN BookingDetails bd ON b.bookingId = bd.bookingId
+        LEFT JOIN Tours t ON i.tourId = t.tourId
+        LEFT JOIN CustomTours ct ON i.customTourId = ct.customTourId
         WHERE i.status = 'COMPLETED'
         GROUP BY i.customerId
     ) x ON cp.userId = x.customerId;
-END;
-GO
 
-   select * from Notifications
-  ----Trigger cập nhật cấp độ thành viên tự động
-
-	CREATE TRIGGER trg_UpdateMembershipLevel
-ON CustomerProfiles
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
+    --  Cập nhật cấp độ thành viên sau khi cộng điểm
     UPDATE cp
-    SET membershipLevel = 
+    SET cp.membershipLevel = 
         CASE
-            WHEN i.loyaltyPoints >= 10000 THEN 'PLATINUM'
-            WHEN i.loyaltyPoints >= 5000 THEN 'GOLD'
-            WHEN i.loyaltyPoints >= 1000 THEN 'SILVER'
+            WHEN cp.loyaltyPoints >= 10000 THEN 'PLATINUM'
+            WHEN cp.loyaltyPoints >= 5000 THEN 'GOLD'
+            WHEN cp.loyaltyPoints >= 1000 THEN 'SILVER'
             ELSE 'BRONZE'
         END
     FROM CustomerProfiles cp
-    INNER JOIN inserted i ON cp.customerId = i.customerId;
+    INNER JOIN inserted i ON cp.userId = i.customerId
+    WHERE i.status = 'COMPLETED';
 END;
 GO
 
-
+   
 
 SELECT * FROM UserEmails
 CREATE TABLE UserEmails (
@@ -260,6 +266,50 @@ CREATE TABLE IslandVehicles (
 );
 
 go
+select * from Islands
+
+ -- tour rieng le cho customer
+CREATE TABLE CustomTours (
+    customTourId INT IDENTITY(1,1) PRIMARY KEY,
+    islandId INT NOT NULL,
+    tourName NVARCHAR(150) NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+    totalPrice INT CHECK (totalPrice >= 0),
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+
+INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
+VALUES
+(1, N'Tour riêng Phú Quốc 3N2Đ', '2025-12-20', '2025-12-22', 6500000);
+
+
+ -- detail tour rieng le cho customer
+
+CREATE TABLE CustomTourDetails (
+    detailId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    serviceType NVARCHAR(50)
+        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện')),
+    serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
+    price INT CHECK (price >= 0),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+
+go
+ -- lich trinh tour rieng le cho customer
+CREATE TABLE CustomTourItinerary (
+    itineraryId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    dayNumber INT CHECK (dayNumber > 0),
+    activity NVARCHAR(255) NOT NULL,
+    location NVARCHAR(150),
+    startTime TIME,
+    endTime TIME,
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+go
 
 
 -- trigger check role customer mới đc booking 
@@ -268,7 +318,9 @@ ON Bookings
 INSTEAD OF INSERT
 AS
 BEGIN
-    -- Kiểm tra tất cả các user trong insert xem có user nào không phải customer (roleId <> 3)
+    SET NOCOUNT ON;
+
+    -- Chỉ cho phép user có roleId = 3 (CUSTOMER)
     IF EXISTS (
         SELECT 1
         FROM inserted i
@@ -281,51 +333,94 @@ BEGIN
         RETURN;
     END
 
-    -- Nếu hợp lệ, insert dữ liệu
-    INSERT INTO Bookings (profileId, customerId, price, status, bookingDate)
-    SELECT profileId, customerId, price, status, bookingDate
+    --  Nếu hợp lệ, insert dữ liệu vào Bookings
+    INSERT INTO Bookings (
+        profileId,
+        customerId,
+        tourId,
+        customTourId,
+        price,
+        departureDate,
+        endDate,
+        adultQuantity,
+        childQuantity,
+        status,
+        bookingDate
+    )
+    SELECT 
+        profileId,
+        customerId,
+        tourId,
+        customTourId,
+        price,
+        departureDate,
+        endDate,
+        adultQuantity,
+        childQuantity,
+        status,
+        bookingDate
     FROM inserted;
 END;
 GO
 
-
-
+select * from Bookings
+select * from CustomerProfiles
+select * from dbo.CustomTours
 CREATE TABLE Bookings (
     bookingId INT IDENTITY(1,1) PRIMARY KEY,
-	profileId INT NOT NULL,
+    profileId INT,
     customerId INT NOT NULL,
+    tourId INT NOT NULL, -- tour trọn gói
+	customTourId INT NOT NULL , -- tour riêng lẻ cho customer 
     price INT, 
-	status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')) DEFAULT 'PENDING',
-    bookingDate DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (customerId) REFERENCES Users(userId),
-	FOREIGN KEY (profileId) REFERENCES CustomerProfiles (profileId)
-
-);
-go
-
-
-CREATE TABLE BookingDetails (
-    bookingDetailId INT IDENTITY(1,1) PRIMARY KEY,
-    bookingId INT NOT NULL,
-    tourId INT NULL,
-    hotelId INT NULL,
-    flightId INT NULL,
-    vehicleId INT NULL,
+    departureDate DATE NOT NULL,
+    endDate DATE,
     adultQuantity INT NOT NULL,
     childQuantity INT NOT NULL,
-    departureDate DATE NOT NULL,
-    unitPrice INT NOT NULL,
-    totalPrice AS (
-        (adultQuantity * unitPrice) + 
-        (childQuantity * unitPrice * 0.7)
-    ) PERSISTED,
-
-    FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE,
+    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')) DEFAULT 'PENDING',
+    bookingDate DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (customerId) REFERENCES Users(userId),
+    FOREIGN KEY (profileId) REFERENCES CustomerProfiles(profileId),
     FOREIGN KEY (tourId) REFERENCES Tours(tourId),
-    FOREIGN KEY (hotelId) REFERENCES Hotels(hotelId),
-    FOREIGN KEY (flightId) REFERENCES Flights(flightId),
-    FOREIGN KEY (vehicleId) REFERENCES IslandVehicles(vehicleId)
+	FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId)
 );
+GO
+-- Công thức tính price cho 2 phần tour 
+/*
+CASE 
+    WHEN i.tourId IS NOT NULL THEN 
+        ((t.price * i.adultQuantity) + (t.price * 0.5 * i.childQuantity))
+       
+    WHEN i.customTourId IS NOT NULL THEN 
+        ((ct.totalPrice * i.adultQuantity) + (ct.totalPrice * 0.5 * i.childQuantity))
+        * (DATEDIFF(DAY, i.departureDate, i.endDate) + 1)
+    ELSE 0
+END
+  */
+
+-- Bookings: test insert — sẽ kích hoạt trigger trg_Booking_Insert_Notification
+/*
+INSERT INTO Bookings (
+    profileId, customerId, tourId, customTourId, price,
+    departureDate, endDate, adultQuantity, childQuantity, status
+)
+VALUES (
+    1, -- profileId
+    2, -- customerId (CUSTOMER)
+    1, -- tourId (Tour Phú Quốc)
+    1, -- customTourId
+    5000000,
+    '2025-12-20',
+    '2025-12-22',
+    3,
+    2,
+    'PENDING'
+);
+*/
+
+
+
+
 
 CREATE TABLE HistoryBooking (
     history_id INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
@@ -343,6 +438,7 @@ GO
 -- Bảng Payments
   
 
+
 CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
@@ -353,6 +449,18 @@ CREATE TABLE Payments (
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 go
+
+INSERT INTO Payments (bookingId, amount , method, status)
+VALUES (1, 5000000,'VNPAY','PENDING');
+
+UPDATE Payments
+SET status = 'SUCCESS'
+WHERE bookingId = 1;
+
+
+SELECT * FROM Notifications;      -- kiểm tra thông báo
+SELECT * FROM CustomerProfiles;   -- xem có cộng điểm chưa
+
 
 -- Bảng TripServices (các dịch vụ con trong Trip)
 CREATE TABLE TripServices (
@@ -443,22 +551,37 @@ GO
 
 --- trigger khi thông báo khi người dùng đặt chỗ "chạy khi thêm bản ghi mới vào Bookings"
 
-
-CREATE TRIGGER trg_BookingDetails_Insert
-ON BookingDetails
+CREATE TRIGGER trg_Booking_Insert_Notification
+ON Bookings
 AFTER INSERT
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     INSERT INTO Notifications (userId, title, message, type)
     SELECT 
-        b.customerId,
+        i.customerId,
         N'Đặt chỗ thành công',
-        N'Bạn vừa đặt tour "' + t.tourName + 
-        N'" thành công. Mã đặt chỗ của bạn là ' + CAST(b.bookingId AS NVARCHAR(20)) + N'.',
+        CASE 
+            --  Nếu là tour trọn gói
+            WHEN i.tourId IS NOT NULL THEN 
+                N'Bạn vừa đặt tour trọn gói "' + t.tourName +
+                N'" thành công. Mã đặt chỗ của bạn là ' + CAST(i.bookingId AS NVARCHAR(20)) + N'.'
+            
+            -- Nếu là tour riêng lẻ (custom tour)
+            WHEN i.customTourId IS NOT NULL THEN 
+                N'Bạn vừa đặt tour riêng "' + ct. tourName +
+                N'" thành công. Mã đặt chỗ của bạn là ' + CAST(i.bookingId AS NVARCHAR(20)) + N'.'
+            
+            -- Trường hợp không xác định 
+            ELSE 
+                N'Bạn vừa tạo đặt chỗ thành công. Mã đặt chỗ: ' + CAST(i.bookingId AS NVARCHAR(20)) + N'.'
+        END AS message,
         'BOOKING'
-    FROM inserted bd
-    JOIN Bookings b ON bd.bookingId = b.bookingId
-    JOIN Tours t ON bd.tourId = t.tourId;
+    FROM inserted i
+	--Dùng LEFT JOIN để tránh lỗi nếu 1 trong 2 trường NULL
+    LEFT JOIN Tours t ON i.tourId = t.tourId
+    LEFT JOIN CustomTours ct ON i.customTourId = ct.customTourId;
 END;
 GO
 
@@ -468,25 +591,42 @@ GO
 
 
 --- triger khi thông báo customer thanh toán "chạy khi cập nhật trạng thái Payments"
+select * from Payments
 CREATE TRIGGER trg_Payment_Success
 ON Payments
 AFTER UPDATE
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     INSERT INTO Notifications (userId, title, message, type)
     SELECT 
         b.customerId AS userId,
         N'Thanh toán thành công',
-        N'Giao dịch thanh toán cho tour "' + t.tourName + 
-        N'" (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.',
+        CASE 
+            -- Nếu là tour trọn gói
+            WHEN b.tourId IS NOT NULL THEN
+                N'Giao dịch thanh toán cho tour "' + t.tourName +
+                N'" (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.'
+
+            --  Nếu là tour riêng lẻ 
+            WHEN b.customTourId IS NOT NULL THEN
+                N'Giao dịch thanh toán cho tour riêng "' + ct.tourName +
+                N'" (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.'
+
+            -- Trường hợp không xác định
+            ELSE
+                N'Giao dịch thanh toán (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.'
+        END AS message,
         'PAYMENT'
     FROM inserted p
     JOIN Bookings b ON p.bookingId = b.bookingId
-    JOIN BookingDetails bd ON b.bookingId = bd.bookingId
-    JOIN Tours t ON bd.tourId = t.tourId
+    LEFT JOIN Tours t ON b.tourId = t.tourId
+    LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
     WHERE p.status = 'SUCCESS';
 END;
 GO
+
 
 
 
