@@ -180,9 +180,9 @@ select*from TourActivities a join TourItinerary b on a.itineraryId = b.itinerary
 CREATE TABLE Hotels (
     hotelId INT IDENTITY(1,1) PRIMARY KEY,
     islandId INT NOT NULL,
-    hotelName VARCHAR(100) NOT NULL,
-    roomType VARCHAR(50) NOT NULL
-        CHECK (roomType IN ('Standard', 'Deluxe', 'Suite', 'Family')),
+    hotelName NVARCHAR(100) NOT NULL,
+    roomType NVARCHAR(50) NOT NULL
+        CHECK (roomType IN (N'Tiêu chuẩn', N'Cao cấp', N'Hạng sang', N'Gia đình')),
     pricePerNight INT,
     roomsAvailable INT,
     rating DECIMAL(3,1),
@@ -190,6 +190,14 @@ CREATE TABLE Hotels (
 	area INT CHECK (area > 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
+
+
+
+
+
+
 
 
 
@@ -278,6 +286,9 @@ CREATE TABLE CustomTourItinerary (
     endTime TIME,
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
+
+
+select * from CustomTourItinerary
 select * from hotels
 -- trigger check role customer mới đc booking 
 CREATE TRIGGER trg_Booking_CheckCustomer
@@ -815,49 +826,74 @@ INSERT INTO TourActivities (itineraryId, activityOrder, activityTitle, descripti
 (21, 3, N'Tắm biển Patong', N'Thư giãn và vui chơi trên bãi biển Patong.'),
 (22, 1, N'Ra sân bay', N'Làm thủ tục bay về Hà Nội, kết thúc tour.')
 
+EXEC sp_helpconstraint 'Hotels';
+
 
 
 INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl)
 VALUES
--- Phu Quoc
-(1, 'Vinpearl Resort Phu Quoc', 'Deluxe', 150000, 30, 4.6, 'views/home/images/hotels/vinpearl_pq_main.jpg'),
-(1, 'Salinda Resort Phu Quoc', 'Suite', 200000, 15, 4.8, 'views/home/images/hotels/salinda_pq_main.jpg'),
+-- Phú Quốc
+(1, N'Vinpearl Resort & Spa Phu Quoc', N'Cao cấp', 1500000, 20, 4.8, 'views/home/images/hotels/vinpearl_pq_main.jpg'),
+(1, N'Salinda Resort Phu Quoc', N'Hạng sang', 1200000, 15, 4.9, 'views/home/images/hotels/salinda_pq_main.jpg'),
+(1, N'Novotel Phu Quoc Resort', N'Tiêu chuẩn', 900000, 25, 4.5, 'views/home/images/hotels/novotel_pq_main.jpg'),
+(1, N'Mövenpick Villas & Residences Phu Quoc', N'Hạng sang', 2000000, 10, 4.9, 'views/home/images/hotels/movenpick_pq_main.jpg'),
 
 -- Langkawi
-(2, 'Berjaya Langkawi Resort', 'Suite', 120000, 25, 4.4, 'views/home/images/hotels/berjaya_langkawi_main.jpg'),
-(2, 'The Datai Langkawi', 'Suite', 250000, 10, 4.9, 'views/home/images/hotels/datai_langkawi_main.jpg'),
+(2, N'Berjaya Langkawi Resort', N'Hạng sang', 800000, 25, 4.5, 'views/home/images/hotels/berjaya_langkawi_main.jpg'),
+(2, N'The Datai Langkawi', N'Hạng sang', 2500000, 10, 4.9, 'views/home/images/hotels/datai_langkawi_main.jpg'),
+(2, N'The Danna Langkawi', N'Cao cấp', 1800000, 12, 4.8, 'views/home/images/hotels/danna_langkawi_main.jpg'),
+(2, N'Holiday Villa Resort & Beachclub Langkawi', N'Tiêu chuẩn', 600000, 30, 4.0, 'views/home/images/hotels/holidayvilla_langkawi_main.jpg'),
 
 -- Phuket
-(3, 'Amari Phuket', 'Standard', 110000, 40, 4.5, 'views/home/images/hotels/amari_phuket_main.jpg'),
-(3, 'The Shore at Katathani', 'Suite', 220000, 12, 4.8, 'views/home/images/hotels/shore_katathani_main.jpg'),
+(3, N'Amari Phuket', N'Tiêu chuẩn', 900000, 35, 4.6, 'views/home/images/hotels/amari_phuket_main.jpg'),
+(3, N'The Shore at Katathani', N'Hạng sang', 2200000, 12, 4.8, 'views/home/images/hotels/shore_katathani_main.jpg'),
+(3, N'The Nai Harn', N'Cao cấp', 1500000, 20, 4.7, 'views/home/images/hotels/the_naiharn_main.jpg'),
+(3, N'Swissotel Phuket Patong Beach Resort', N'Tiêu chuẩn', 800000, 28, 4.4, 'views/home/images/hotels/swissotel_phuket_main.jpg'),
 
 -- Bali
-(4, 'Bali Mandira Beach Resort', 'Family', 130000, 20, 4.5, 'views/home/images/hotels/mandira_bali_main.jpg'),
-(4, 'Four Seasons Bali at Sayan', 'Suite', 300000, 8, 4.9, 'views/home/images/hotels/fourseasons_bali_main.jpg'),
+(4, N'Bali Mandira Beach Resort', N'Gia đình', 1000000, 20, 4.5, 'views/home/images/hotels/mandira_bali_main.jpg'),
+(4, N'Four Seasons Bali at Sayan', N'Hạng sang', 3000000, 8, 4.9, 'views/home/images/hotels/fourseasons_bali_main.jpg'),
+(4, N'Ayana Resort Bali', N'Hạng sang', 1800000, 15, 4.8, 'views/home/images/hotels/ayana_bali_main.jpg'),
+(4, N'Komaneka at Bisma', N'Hạng sang', 1200000, 18, 4.7, 'views/home/images/hotels/komaneka_bisma_main.jpg'),
 
 -- Boracay
-(5, 'Shangri-La Boracay', 'Family', 280000, 10, 4.9, 'views/home/images/hotels/shangrila_boracay_main.jpg'),
-(5, 'Henann Lagoon Resort', 'Deluxe', 100000, 35, 4.3, 'views/home/images/hotels/henann_boracay_main.jpg'),
+(5, N'Shangri-La Boracay', N'Cao cấp', 2200000, 10, 4.9, 'views/home/images/hotels/shangrila_boracay_main.jpg'),
+(5, N'Henann Lagoon Resort', N'Hạng sang', 900000, 35, 4.4, 'views/home/images/hotels/henann_boracay_main.jpg'),
+(5, N'Crimson Resort & Spa Boracay', N'Hạng sang', 1500000, 12, 4.8, 'views/home/images/hotels/crimson_boracay_main.jpg'),
+(5, N'The Lind Boracay', N'Cao cấp', 1300000, 20, 4.6, 'views/home/images/hotels/lind_boracay_main.jpg'),
 
 -- Sihanoukville
-(6, 'Independence Hotel Resort', 'Suite', 140000, 18, 4.2, 'views/home/images/hotels/independence_sihanoukville_main.jpg'),
-(6, 'Sokha Beach Resort', 'Standard', 95000, 40, 4.4, 'views/home/images/hotels/sokha_sihanoukville_main.jpg'),
+(6, N'Independence Hotel Resort', N'Hạng sang', 1000000, 18, 4.3, 'views/home/images/hotels/independence_sihanoukville_main.jpg'),
+(6, N'Sokha Beach Resort', N'Tiêu chuẩn', 700000, 40, 4.4, 'views/home/images/hotels/sokha_sihanoukville_main.jpg'),
+(6, N'Knai Bang Chatt', N'Tiêu chuẩn', 1200000, 12, 4.7, 'views/home/images/hotels/knai_bangchatt_main.jpg'),
+(6, N'Shinta Mani Resort', N'Cao cấp', 1100000, 15, 4.5, 'views/home/images/hotels/shintamani_main.jpg'),
 
 -- Tioman
-(7, 'Japamala Resort', 'Suite', 160000, 12, 4.7, 'views/home/images/hotels/japamala_tioman_main.jpg'),
-(7, 'Berjaya Tioman Resort', 'Standard', 90000, 25, 4.1, 'views/home/images/hotels/berjaya_tioman_main.jpg'),
+(7, N'Japamala Resort', N'Hạng sang', 1400000, 12, 4.7, 'views/home/images/hotels/japamala_tioman_main.jpg'),
+(7, N'Berjaya Tioman Resort', N'Tiêu chuẩn', 800000, 25, 4.2, 'views/home/images/hotels/berjaya_tioman_main.jpg'),
+(7, N'Tunamaya Beach & Spa Resort', N'Cao cấp', 900000, 20, 4.6, 'views/home/images/hotels/tunamaya_tioman_main.jpg'),
+(7, N'Japamala Jungle Resort', N'Hạng sang', 1300000, 10, 4.8, 'views/home/images/hotels/japamala_jungle_main.jpg'),
 
 -- Koh Samui
-(8, 'Banyan Tree Samui', 'Suite', 270000, 15, 4.9, 'views/home/images/hotels/banyan_samui_main.jpg'),
-(8, 'Chaweng Regent Beach Resort', 'Deluxe', 120000, 30, 4.4, 'views/home/images/hotels/chaweng_samui_main.jpg'),
+(8, N'Banyan Tree Samui', N'Hạng sang', 2500000, 15, 4.9, 'views/home/images/hotels/banyan_samui_main.jpg'),
+(8, N'Chaweng Regent Beach Resort', N'Cao cấp', 1000000, 30, 4.5, 'views/home/images/hotels/chaweng_samui_main.jpg'),
+(8, N'Four Seasons Koh Samui', N'Hạng sang', 3000000, 8, 4.9, 'views/home/images/hotels/fourseasons_ks_main.jpg'),
+(8, N'Anantara Bophut', N'Tiêu chuẩn', 1100000, 25, 4.7, 'views/home/images/hotels/anantara_bophut_main.jpg'),
 
 -- Nusa Penida
-(9, 'Semabu Hills Hotel', 'Standard', 110000, 20, 4.3, 'views/home/images/hotels/semabu_penida_main.jpg'),
-(9, 'Maua Nusa Penida', 'Suite', 190000, 12, 4.6, 'views/home/images/hotels/maua_penida_main.jpg'),
+(9, N'Semabu Hills Hotel', N'Tiêu chuẩn', 900000, 20, 4.3, 'views/home/images/hotels/semabu_penida_main.jpg'),
+(9, N'Maua Nusa Penida', N'Hạng sang', 1600000, 12, 4.6, 'views/home/images/hotels/maua_penida_main.jpg'),
+(9, N'Adiwana Warnakali Resort', N'Hạng sang', 1300000, 15, 4.8, 'views/home/images/hotels/adiwana_penida_main.jpg'),
+(9, N'Kusaha Luxury Villas', N'Hạng sang', 1900000, 10, 4.9, 'views/home/images/hotels/kusaha_penida_main.jpg'),
 
 -- Palawan
-(10, 'El Nido Resorts Miniloc Island', 'Suite', 200000, 15, 4.8, 'views/home/images/hotels/miniloc_palawan_main.jpg'),
-(10, 'Astoria Palawan', 'Deluxe', 130000, 25, 4.5, 'views/home/images/hotels/astoria_palawan_main.jpg');
+(10, N'El Nido Resorts Miniloc Island', N'Hạng sang', 1800000, 15, 4.8, 'views/home/images/hotels/miniloc_palawan_main.jpg'),
+(10, N'Astoria Palawan', N'Cao cấp', 1200000, 25, 4.5, 'views/home/images/hotels/astoria_palawan_main.jpg'),
+(10, N'Amanpulo', N'Hạng sang', 5000000, 5, 5.0, 'views/home/images/hotels/amanpulo_main.jpg'),
+(10, N'El Nido Cove Resort', N'Cao cấp', 1400000, 20, 4.7, 'views/home/images/hotels/el_nido_cove_main.jpg');
+
+
+
 
 -- Xem dữ liệu
 select * from Hotels;

@@ -15,6 +15,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -95,27 +96,13 @@ public class CreateCustomTourController extends HttpServlet {
             String endDateStr = request.getParameter("endDate");
             int id = Integer.parseInt(islandIdStr);
 
-            Island island = islandDao.getIslandById(id);
-
-            HotelDao hd = new HotelDao();
-            List<Hotel> listH = hd.getListHotelsById(id);
-            IslandVehicleDao vd = new IslandVehicleDao();
-            IslandVehicle v = new IslandVehicle();
-
-            List<IslandVehicle> listV = vd.getListVehicleById(id);
-            TourDao td = new TourDao();
-            List<Tour> listT = td.getListToursById(id);
             // Kiểm tra các tham số bắt buộc
 //            if (islandIdStr == null || hotelIdStr == null || startDateStr == null || endDateStr == null) {
 //                throw new ServletException("Thiếu tham số yêu cầu để tạo tour.");
 //            }
             if (hotelIdStr == null || hotelIdStr.isEmpty()) {
-                request.setAttribute("errorMessage", "Bắt buộc phải chọn khách sạn.");
-                request.setAttribute("islandvehicles", listV);
-                request.setAttribute("island", island);
-                request.setAttribute("hotels", listH);
-                request.setAttribute("tours", listT);
-                request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
+                request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn khách sạn.");
+                response.sendRedirect("IslandDetailController?detailId=" + id);
                 return;
             }
 
@@ -132,32 +119,27 @@ public class CreateCustomTourController extends HttpServlet {
 //                response.sendRedirect("error.jsp");
 //                return;
 //            }
-            
-
             LocalDate startDate = LocalDate.parse(startDateStr);
             LocalDate endDate = LocalDate.parse(endDateStr);
 
+            LocalDate today = LocalDate.now();
+            if (startDate.isBefore(today)) {
+                request.getSession().setAttribute("errorMessage", "Ngày bắt đầu không thể trước ngày hiện tại.");
+                response.sendRedirect("IslandDetailController?detailId=" + id);
+                return;
+            }
             if (endDate.isBefore(startDate)) {
-                request.setAttribute("errorMessage", "Ngày kết thúc không thể trước ngày bắt đầu.");
-                request.setAttribute("islandvehicles", listV);
-                request.setAttribute("island", island);
-                request.setAttribute("hotels", listH);
-                request.setAttribute("tours", listT);
-                request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
+                request.getSession().setAttribute("errorMessage", "Ngày kết thúc không thể trước ngày bắt đầu.");
+                response.sendRedirect("IslandDetailController?detailId=" + id);
                 return;
             }
 
             int numberOfDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
             if (numberOfDays > 7) {
-                request.setAttribute("errorMessage", "Người dùng không được đặt thời gian quá 10 ngày.");
-                request.setAttribute("islandvehicles", listV);
-                request.setAttribute("island", island);
-                request.setAttribute("hotels", listH);
-                request.setAttribute("tours", listT);
-                request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
+                request.getSession().setAttribute("errorMessage", "Người dùng không được đặt thời gian quá 10 ngày.");
+                response.sendRedirect("IslandDetailController?detailId=" + id);
                 return;
             }
-
             // Lấy giá dịch vụ
             int hotelPrice = dao.getServicePrice("Khách sạn", hotelId);
             int vehiclePrice = 0;
@@ -185,12 +167,13 @@ public class CreateCustomTourController extends HttpServlet {
             if (vehicleId != null) {
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Phương tiện", vehicleId, vehiclePrice));
             }
-
+            
             // Tạo lịch trình mẫu
             dao.createSampleItinerary(customTourId, startDate, endDate);
 
             // Lấy dữ liệu tour để hiển thị chi tiết
             CustomTour createdTour = dao.getTourById(customTourId);
+            request.getSession().removeAttribute("errorMessage");
             request.setAttribute("tour", createdTour);
             request.setAttribute("details", dao.getTourDetails(customTourId));
             request.setAttribute("itinerary", dao.getTourItinerary(customTourId));

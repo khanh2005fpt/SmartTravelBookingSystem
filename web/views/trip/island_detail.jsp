@@ -2,6 +2,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <html lang="vi">
     <head>
 
@@ -141,11 +142,13 @@
 
                 <!-- Hotels Section -->
                 <form action="CreateCustomTourController" method="post" id="customTourForm">
-                    <c:if test="${not empty errorMessage}">
+                    <c:if test="${not empty sessionScope.errorMessage}">
                         <div class="alert alert-danger text-center fw-semibold rounded-pill py-2 shadow-sm mb-4">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i> ${errorMessage}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> ${sessionScope.errorMessage}
                         </div>
+                        <c:remove var="errorMessage" scope="session" />
                     </c:if>
+
                     <input type="hidden" name="islandId" value="${island.islandId}">
                     <section class="mb-5 text-center">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
@@ -166,65 +169,60 @@
                         <small class="text-muted d-block mt-2">Ví dụ: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
                     </section>
                     <section class="mb-5">
-
-
                         <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Chọn khách sạn</h2>
 
-                        <div class="row g-4">
+                        <div class="hotel-scroll-container">
                             <c:choose>
                                 <c:when test="${not empty hotels}">
                                     <c:forEach var="hotel" items="${hotels}">
-                                        <div class="col-md-4">
-
+                                        <div class="hotel-item">
                                             <div class="card hotel-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-hotelid="${hotel.hotelId}">
-
-                                                <!-- Ảnh khách sạn -->
                                                 <div class="position-relative">
                                                     <img src="${pageContext.request.contextPath}/${hotel.hotelImageUrl}"
                                                          alt="${hotel.hotelName}" class="card-img-top" style="height: 220px; object-fit: cover;">
-
-                                                    <!-- Loại phòng -->
                                                     <span class="badge bg-info text-dark position-absolute top-0 start-0 m-2 px-3 py-2 rounded-pill shadow-sm">
                                                         ${hotel.roomType}
                                                     </span>
                                                 </div>
 
-                                                <!-- Nội dung -->
                                                 <div class="card-body d-flex flex-column">
                                                     <h5 class="card-title fw-bold text-dark">${hotel.hotelName}</h5>
-
-                                                    <!-- Phòng trống -->
-                                                    <p class="mb-1"><strong>Phòng trống:</strong> 
-                                                        <span class="text-success">${hotel.roomAvailable}</span>
-                                                    </p>
-
-                                                    <!-- Đánh giá -->
+                                                    <p class="mb-1"><strong>Phòng trống:</strong> <span class="text-success">${hotel.roomAvailable}</span></p>
                                                     <p class="mb-1">
                                                         <strong>Đánh giá:</strong>
                                                         <c:forEach begin="1" end="5" var="i">
                                                             <i class="bi ${i <= hotel.rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'}"></i>
                                                         </c:forEach>
                                                         <span class="text-muted">(${hotel.rating})</span>
-                                                    </p> 
-
-                                                    <!-- Giá -->
+                                                    </p>
                                                     <div class="mt-auto">
                                                         <p class="text-danger fw-bold fs-5 mb-2 text-end">
                                                             <fmt:setLocale value="vi_VN" />
-                                                            <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/>
-                                                            VND<span class="text-muted fs-6">/đêm</span>
+                                                            <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/> VND
+                                                            <span class="text-muted fs-6">/đêm</span>
                                                         </p>
-
-                                                        <!-- Nút xem chi tiết -->
                                                         <div class="mt-auto d-flex gap-2">
                                                             <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-hotel-btn">
                                                                 <i class="bi bi-check-circle"></i> Chọn
                                                             </button>
+                                                            <button type="button" 
+                                                                    class="btn btn-success flex-fill rounded-pill w-100" 
+                                                                    data-bs-toggle="modal" 
+                                                                    data-bs-target="#hotelDetailModal" 
+                                                                    data-hotelname="${hotel.hotelName}"
+                                                                    data-hotelimage="${pageContext.request.contextPath}/${hotel.hotelImageUrl}">
+
+                                                                Xem chi tiết
+                                                            </button>
                                                         </div>
+
+
+
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
@@ -235,9 +233,24 @@
                                 </c:otherwise>
                             </c:choose>
                             <input type="hidden" id="selectedHotelId" name="selectedHotelId" value="">
-
                         </div>
                     </section>
+
+
+                    <style>
+                        .hotel-scroll-container {
+                            display: flex;
+                            gap: 20px;
+                            overflow-x: auto;
+                            scroll-snap-type: x mandatory;
+                            padding-bottom: 1rem;
+                        }
+                        .hotel-item {
+                            flex: 0 0 calc(33.333% - 20px);
+                            scroll-snap-align: start;
+                        }
+                    </style>
+
 
 
 
@@ -290,6 +303,7 @@
                     </div>
 
                 </form>
+
 
                 <section class="mb-5">
                     <h2 class="h3 mt-4 mb-4 text-center fw-bold text-primary">Các dịch vụ trong tour</h2>
@@ -345,6 +359,63 @@
 
             </div>
         </main>
+        <div class="modal fade" id="hotelDetailModal" tabindex="-1" aria-labelledby="hotelDetailLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content shadow-lg rounded-4 border-0">
+                    <div class="modal-header p-3 text-white" style="background: linear-gradient(90deg, #4e73df, #224abe); border-bottom: 1px solid #dee2e6; border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
+                        <h5 class="modal-title fw-bold" id="hotelDetailLabel">Thông tin khách sạn</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row g-4">
+                            <!-- Ảnh bên trái -->
+                            <div class="col-md-6">
+                                <img id="modalHotelImage" src="" class="d-block w-100 rounded-3 shadow-sm" style="height:350px; object-fit:cover; border:1px solid #dee2e6;">
+                            </div>
+                            <!-- Thông tin bên phải -->
+                            <div class="col-md-6 text-start">
+                                <div class="mt-3 d-flex flex-column justify-content-start gap-2">
+                                    <p class="mb-2"><strong class="fs-5">Tên khách sạn: </strong> <span class="fs-5" id="modalHotelName"></span></p>
+                                    <p><strong class="fs-5">Tiện nghi:</strong></p>
+                                    <div class="row row-cols-2 g-2 mb-2">
+                                        <div class="col">
+                                            <i class="bi bi-wifi me-2"></i>WiFi miễn phí
+                                        </div>
+                                        <div class="col">
+                                            <i class="bi bi-card-image me-2"></i>Tầm nhìn ra khung cảnh
+                                        </div>
+                                        <div class="col">
+                                            <i class="bi bi-house-door me-2"></i>Phòng gia đình
+                                        </div>
+                                        <div class="col">
+                                            <i class="bi bi-slash-circle me-2"></i>Phòng không hút thuốc
+                                        </div>
+                                        <div class="col">
+                                            <i class="bi bi-snow me-2"></i>Điều hòa không khí
+                                        </div>
+                                        <div class="col">
+                                            <i class="bi bi-car-front me-2"></i>Chỗ đỗ xe
+                                        </div>
+                                        <div class="col">
+                                            <i class="bi bi-tv me-2"></i>TV màn hình phẳng
+                                        </div>
+                                    </div>
+
+                                    <p class="mb-2 fs-5"><strong>Chính sách:</strong> Nhận phòng từ 14h, Trả phòng trước 12h, Hủy miễn phí trong 24h</p>
+                                </div>
+
+                                <div class="mt-3 d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                                        Đóng
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Footer -->
         <%@ include file="/views/common/footer.jsp" %>
@@ -415,6 +486,25 @@
                 });
             });
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Lấy modal element
+            const hotelModal = document.getElementById('hotelDetailModal');
+
+            hotelModal.addEventListener('show.bs.modal', event => {
+                // Nút đã click
+                const button = event.relatedTarget;
+
+                // Lấy dữ liệu từ data-* attributes
+                const hotelName = button.getAttribute('data-hotelname');
+                const hotelImage = button.getAttribute('data-hotelimage');
+
+                // Gán dữ liệu vào modal
+                hotelModal.querySelector('#modalHotelName').textContent = hotelName;
+                hotelModal.querySelector('#modalHotelImage').src = hotelImage;
+            });
+        </script>
+
 
 
         <%@ include file="/views/common/script.jsp" %>

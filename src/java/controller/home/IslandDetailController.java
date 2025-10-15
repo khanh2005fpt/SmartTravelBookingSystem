@@ -68,10 +68,7 @@ public class IslandDetailController extends HttpServlet {
 
         try {
             String idRaw = request.getParameter("detailId");
-            if (idRaw == null) {
-                response.sendRedirect("error.jsp");
-                return;
-            }
+
             int id = Integer.parseInt(idRaw);
 
             IslandDao dao = new IslandDao();
@@ -85,18 +82,15 @@ public class IslandDetailController extends HttpServlet {
             TourDao td = new TourDao();
             List<Tour> listT = td.getListToursById(id);
 
-            if (island != null) {
+
                 request.setAttribute("islandvehicles", listV);
                 request.setAttribute("island", island);
                 request.setAttribute("hotels", listH);
                 request.setAttribute("tours", listT);
                 request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
-            } else {
-                response.sendRedirect("error.jsp");
-            }
+          
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
         }
     }
 

@@ -101,21 +101,36 @@ public class CustomTourDao extends DBContext {
     }
 
     public void createSampleItinerary(int customTourId, LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = "INSERT INTO CustomTourItinerary (customTourId, dayNumber, activity, location, startTime, endTime) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO CustomTourItinerary " +
+                     "(customTourId, dayNumber, activity, location, startTime, endTime) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
 
-        // tính số ngày bao gồm cả ngày bắt đầu và kết thúc
+        // Tính số ngày tour, bao gồm cả ngày bắt đầu và kết thúc
         int numberOfDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
-        if (numberOfDays <= 0) {
-            numberOfDays = 1;
-        }
+        if (numberOfDays <= 0) numberOfDays = 1;
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            for (int i = 1; i <= numberOfDays; i++) {
+            for (int day = 1; day <= numberOfDays; day++) {
                 ps.setInt(1, customTourId);
-                ps.setInt(2, i);
-                ps.setString(3, "Hoạt động ngày " + i);
-                ps.setString(4, "Địa điểm nổi bật của đảo");
+                ps.setInt(2, day);
+
+                // Logic tạo hoạt động theo ngày
+                String activity;
+                if (day == 1) {
+                    activity = "Check-in khách sạn và ổn định chỗ ở";
+                } else if (day == numberOfDays) {
+                    activity = "Check-out khách sạn và kết thúc tour";
+                } else {
+                    activity = "Tham quan và trải nghiệm đảo";
+                }
+
+                ps.setString(3, activity);
+                ps.setString(4, "Địa điểm nổi bật ngày " + day);
+
+                // Giờ hoạt động mẫu: 08:00 - 17:00
                 ps.setTime(5, Time.valueOf("08:00:00"));
                 ps.setTime(6, Time.valueOf("17:00:00"));
+
                 ps.addBatch();
             }
             ps.executeBatch();
