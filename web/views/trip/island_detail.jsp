@@ -141,6 +141,11 @@
 
                 <!-- Hotels Section -->
                 <form action="CreateCustomTourController" method="post" id="customTourForm">
+                    <c:if test="${not empty errorMessage}">
+                        <div class="alert alert-danger text-center fw-semibold rounded-pill py-2 shadow-sm mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> ${errorMessage}
+                        </div>
+                    </c:if>
                     <input type="hidden" name="islandId" value="${island.islandId}">
                     <section class="mb-5 text-center">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
@@ -161,7 +166,7 @@
                         <small class="text-muted d-block mt-2">Ví dụ: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
                     </section>
                     <section class="mb-5">
-                        
+
 
                         <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Chọn khách sạn</h2>
 

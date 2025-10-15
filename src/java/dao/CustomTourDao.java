@@ -49,6 +49,33 @@ public class CustomTourDao extends DBContext {
         return 0;
     }
 
+    public List<CustomTourItinerary> getListCustomTourItineriesById(int id) {
+        List<CustomTourItinerary> list = new ArrayList<>();
+        String sql = "SELECT * FROM CustomTourItinerary WHERE customTourId = ? ORDER BY dayNumber";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                CustomTourItinerary tourI = new CustomTourItinerary();
+                tourI.setDayNumber(rs.getInt("dayNumber"));
+                tourI.setActivity(rs.getString("activity"));
+                tourI.setLocation(rs.getString("location"));
+                tourI.setStartTime(rs.getTime("startTime"));
+                tourI.setEndTime(rs.getTime("endTime"));
+
+                list.add(tourI);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
     public void updateTotalPrice(int customTourId, int totalPrice) {
         String sql = "UPDATE CustomTours SET totalPrice = ? WHERE customTourId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -111,6 +138,7 @@ public class CustomTourDao extends DBContext {
                 tour.setCustomTourId(rs.getInt("customTourId"));
                 return tour;
             }
+            
         }
         return null;
     }

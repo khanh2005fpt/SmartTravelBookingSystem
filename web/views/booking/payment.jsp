@@ -74,9 +74,8 @@
                         <h4 class="mb-3 text-primary fw-bold">📌 Thông tin Tour</h4>
 
                         <!-- Ảnh tour -->
-                        <div class="mb-3 text-center">
-                            <img src="${tour.tourImageUrl}" alt="Tour" class="img-fluid rounded shadow-sm">
-                        </div>
+
+
 
                         <ul class="list-group mb-3">
                             <li class="list-group-item d-flex justify-content-between">
@@ -85,8 +84,18 @@
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Ngày khởi hành</b></span>
-                                <span><fmt:formatDate value="${booking.departureDate}" pattern="dd/MM/yyyy"/></span>
+                                <span>
+                                    <c:choose>
+                                        <c:when test="${not empty booking.departureDate}">
+                                            <fmt:formatDate value="${booking.departureDate}" pattern="dd/MM/yyyy"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <fmt:formatDate value="${tour.startDate}" pattern="dd/MM/yyyy"/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </span>
                             </li>
+
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Người lớn</b></span>
                                 <span>${booking.adultQuantity}</span>

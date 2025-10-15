@@ -131,14 +131,10 @@
 
                             <c:choose>
                                 <c:when test="${not empty sessionScope.user}">
-                                    <form action="BookingController" method="post">
-                                        <input type="hidden" name="tourId" value="${tour.tourId}">
+                                    <form action="BookingCustomTourController" method="post">
+                                        <input type="hidden" name="customTourId" value="${tour.customTourId}">
                                         <input type="hidden" name="price" value="${tour.totalPrice}">
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Ngày khởi hành</label>
-                                            <input type="date" class="form-control" name="departureDate" required>
-                                        </div>
+                                        <input type="hidden" name="startDate" value="${tour.startDate}">
 
                                         <div class="row g-2 mb-3">
                                             <div class="col-6">
