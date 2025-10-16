@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.ArrayList;
 import java.util.List;
-
+import model.Token;
 import utils.DBContext;
 
 /**
@@ -21,7 +21,7 @@ import utils.DBContext;
  */
 public class UserDao extends DBContext {
 
-    public static userDao INSTANCE = new userDao();
+    public static UserDao INSTANCE = new UserDao();
 
     public String status;
 
