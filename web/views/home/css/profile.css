@@ -752,3 +752,39 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     margin-bottom: 20px;
   }
 }
+
+/* ========================Notifications Customer================================================= */ 
+
+.notifications-container{
+      flex: 1; 
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 20px 30px;
+      min-width: 300px;
+}
+.tab-header-notifications img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 300px;
+     width: 100%;
+    object-fit: cover;
+}
+
+
+.bg-warning-subtle {
+  background-color: #fff6e5 !important;
+}
+
+#notifications section::-webkit-scrollbar {
+    width: 6px;
+}
+
+#notifications section::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+#notifications section::-webkit-scrollbar-track {
+    background-color: transparent;
+}

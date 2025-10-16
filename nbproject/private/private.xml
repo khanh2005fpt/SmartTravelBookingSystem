@@ -3,14 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/customer_profile/profile.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/common/navbar.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/account/loginServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/home/css/style1.css</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/home/Service_Terms.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/CustomerProfile.java</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/ProfileDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/account/login.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/customer_profile/profile.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/profile/notifications/notificatios_servlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/NotificationDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/home/css/profile.css</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/Notification.java</file>
         </group>
     </open-files>
 </project-private>

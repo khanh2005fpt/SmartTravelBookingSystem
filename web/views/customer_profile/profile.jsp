@@ -6,6 +6,7 @@
 <%@ page import="model.User" %>
 <%@ page import="model.CustomerProfile" %>
 
+
 <html lang="vi">
     <head>
         <%@ include file="/views/common/css.jsp" %>
@@ -70,11 +71,13 @@
                                     User user = (User)session.getAttribute("user");
         %>
 
-        <!-- lay thong tin customerProfile --> 
+        <!-- lay thong tin customerProfile-------------------------------------------------------- --> 
         <%
                            CustomerProfile profile_customer = (CustomerProfile)session.getAttribute("profile_customer");
                             
         %>
+        
+
 
     </head>
     <body class="profile" >
@@ -265,7 +268,80 @@
 
 
             </div>
+                    
+                    
+      <!-- Notifications content ----------------------------------------->
+      <div id="notifications" class="notifications-container main-section p-3">
 
+          <!-- Banner -->
+          <div class="tab-header-notifications text-center mb-4 w-100">
+              <img 
+                  src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                  alt="notifications Banner"
+                  class="img-fluid rounded-3 shadow-sm w-100">
+          </div>
+
+          <!-- Tiêu đề -->
+          <div class="text-center mb-4 w-auto">
+              <span class="badge bg-gradient" 
+                    style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                  🔔 Danh sách thông báo
+              </span>
+          </div>
+
+          <!-- Grid card thông báo dọc -->
+          <section class="d-flex flex-column gap-2" style="max-height: 500px; overflow-y: auto; padding-right: 5px;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="fw-semibold text-dark mb-0">🔔 Meland Booking</h5>
+                  <form action="notifications" method="post">
+                      <input type="hidden" name="userId" value="${sessionScope.user.userId}">
+                      <button type="submit" class="btn btn-outline-success btn-sm">
+                          <i class="bi bi-check-all me-1"></i> Đánh dấu tất cả
+                      </button>
+                  </form>
+              </div>
+
+              <c:forEach var="noti" items="${listNotification}">
+                  <div class="card shadow-sm border-0 rounded-3" style="padding: 10px;">
+                      <div class="card-body p-2">
+                          <!-- Tiêu đề -->
+                      
+    <h6 class="card-title fw-bold text-dark font-weight-bold  mb-1" style="font-size: 0.95rem;">
+       
+        <c:choose>
+           <c:when test="${noti.type == 'BOOKING'}"> <i class="bi bi-calendar2-check mr-2"  style="color:#28A745;"></i>  <c:out value="${noti.title}"/></c:when>
+            <c:when test="${noti.type == 'PAYMENT'}"><i class="bi bi-wallet2 mr-2 "style="color:#28A745;" ></i><c:out value="${noti.title}"/></c:when>
+            <c:when test="${noti.type == 'PROMOTION'}">🎉 <c:out value="${noti.title}"/></c:when>
+            <c:otherwise>⚙️ <c:out value="${noti.title}"/></c:otherwise>
+        </c:choose>
+    </h6>
+
+
+                          <!-- Nội dung -->
+                          <p class="card-text text-secondary mb-1" style="font-size: 0.90rem; white-space: normal; word-wrap: break-word;">
+                              ${noti.message}
+                          </p>
+
+                          <!-- Thông tin phụ -->
+                          <div class="d-flex justify-content-between align-items-center mt-2">
+                              <small class="text-muted" style="font-size: 0.75rem;">
+                                  <i class="bi bi-clock me-1"></i>
+                                  <fmt:formatDate value="${noti.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                              </small>
+
+                              <!-- Badge trạng thái -->
+                              <span class="badge ${noti.isRead ? 'bg-success' : 'bg-danger text-white'}" style="font-size: 0.75rem;">
+                                  ${noti.isRead ? 'Đã đọc' : 'Chưa đọc'}
+                              </span>
+                          </div>
+                      </div>
+                  </div>
+              </c:forEach>
+          </section>
+
+
+      </div>
 
            
 

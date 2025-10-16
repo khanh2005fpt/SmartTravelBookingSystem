@@ -19,6 +19,7 @@ go
 select * from dbo.UserEmails
 select * from dbo.UserPhones
 select * from dbo.Users
+select * from  Notifications
 /* lenh reset id_table
 DELETE FROM UserEmails;
 DBCC CHECKIDENT ('UserEmails', RESEED, 0);
@@ -69,10 +70,11 @@ GO
 
 
 select * from CustomerProfiles
+select * from Notifications
 select * from Bookings
 UPDATE Bookings
 SET status = 'COMPLETED'
-WHERE bookingId = 1;
+WHERE bookingId = 5;
 
 -- DROP TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted;
 
@@ -266,7 +268,7 @@ CREATE TABLE IslandVehicles (
 );
 
 go
-select * from Islands
+
 
  -- tour rieng le cho customer
 CREATE TABLE CustomTours (
@@ -282,7 +284,17 @@ CREATE TABLE CustomTours (
 
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 VALUES
-(1, N'Tour riêng Phú Quốc 3N2Đ', '2025-12-20', '2025-12-22', 6500000);
+(1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', '2025-11-10', '2025-11-11', 3590000),
+(1, N'Tour Lặn biển Phú Quốc 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
+(3, N'Tour Khám phá Phuket 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
+(4, N'Tour Văn hóa & Biển Bali 5N4Đ', '2025-10-1', '2025-10-6', 10000000),
+(4, N'Tour Nghỉ dưỡng Bali 4N3Đ', '2025-10-23', '2025-10-26', 82400000),
+(8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', '2025-9-23', '2025-9-25', 79100000),
+(8, N'Tour Văn hóa Koh Samui 5N4Đ', '2025-9-3', '2025-9-10', 12900000);
+
+
+
+
 
 
  -- detail tour rieng le cho customer
@@ -366,6 +378,9 @@ GO
 select * from Bookings
 select * from CustomerProfiles
 select * from dbo.CustomTours
+select * from dbo.Tours
+select * from dbo.Notifications
+
 CREATE TABLE Bookings (
     bookingId INT IDENTITY(1,1) PRIMARY KEY,
     profileId INT,
@@ -400,6 +415,7 @@ END
 
 -- Bookings: test insert — sẽ kích hoạt trigger trg_Booking_Insert_Notification
 /*
+
 INSERT INTO Bookings (
     profileId, customerId, tourId, customTourId, price,
     departureDate, endDate, adultQuantity, childQuantity, status
@@ -407,15 +423,16 @@ INSERT INTO Bookings (
 VALUES (
     1, -- profileId
     2, -- customerId (CUSTOMER)
-    1, -- tourId (Tour Phú Quốc)
-    1, -- customTourId
-    5000000,
-    '2025-12-20',
-    '2025-12-22',
-    3,
+    8, -- tourId (Tour Phú Quốc)
+    8, -- customTourId
+    99999999,
+    '2025-09-23',
+    '2025-09-25',
+    2,
     2,
     'PENDING'
 );
+
 */
 
 
@@ -449,9 +466,10 @@ CREATE TABLE Payments (
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 go
-
+select * from Bookings
+select * from Payments
 INSERT INTO Payments (bookingId, amount , method, status)
-VALUES (1, 5000000,'VNPAY','PENDING');
+VALUES (3, 9000000,'VNPAY','SUCCESS');
 
 UPDATE Payments
 SET status = 'SUCCESS'
@@ -565,17 +583,16 @@ BEGIN
         CASE 
             --  Nếu là tour trọn gói
             WHEN i.tourId IS NOT NULL THEN 
-                N'Bạn vừa đặt tour trọn gói "' + t.tourName +
-                N'" thành công. Mã đặt chỗ của bạn là ' + CAST(i.bookingId AS NVARCHAR(20)) + N'.'
+                N'Bạn vừa đặt tour trọn gói."' + t.tourName 
             
             -- Nếu là tour riêng lẻ (custom tour)
             WHEN i.customTourId IS NOT NULL THEN 
-                N'Bạn vừa đặt tour riêng "' + ct. tourName +
-                N'" thành công. Mã đặt chỗ của bạn là ' + CAST(i.bookingId AS NVARCHAR(20)) + N'.'
+                N'Bạn vừa đặt tour riêng. "' + ct. tourName 
+               
             
             -- Trường hợp không xác định 
             ELSE 
-                N'Bạn vừa tạo đặt chỗ thành công. Mã đặt chỗ: ' + CAST(i.bookingId AS NVARCHAR(20)) + N'.'
+                N'Bạn vừa tạo đặt chỗ thành công.' 
         END AS message,
         'BOOKING'
     FROM inserted i
@@ -606,17 +623,17 @@ BEGIN
         CASE 
             -- Nếu là tour trọn gói
             WHEN b.tourId IS NOT NULL THEN
-                N'Giao dịch thanh toán cho tour "' + t.tourName +
-                N'" (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.'
+                N'Giao dịch thanh toán cho tour. "'
+              
 
             --  Nếu là tour riêng lẻ 
             WHEN b.customTourId IS NOT NULL THEN
-                N'Giao dịch thanh toán cho tour riêng "' + ct.tourName +
-                N'" (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.'
+                N'Giao dịch thanh toán cho tour riêng. "' + ct.tourName 
+              
 
             -- Trường hợp không xác định
             ELSE
-                N'Giao dịch thanh toán (Mã đặt chỗ: ' + CAST(b.bookingId AS NVARCHAR(20)) + N') đã được xác nhận thành công.'
+                N'Giao dịch thanh toán đã được xác nhận thành công.'
         END AS message,
         'PAYMENT'
     FROM inserted p

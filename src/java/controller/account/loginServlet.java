@@ -5,6 +5,7 @@
 package controller.account;
 
 import dao.EmailDao;
+import dao.NotificationDao;
 import dao.PhoneDao;
 import dao.ProfileDao;
 import model.User;
@@ -22,6 +23,7 @@ import java.util.List;
 import model.CustomerProfile;
 import model.EmailCustomer;
 import model.GoogleAccount;
+import model.Notification;
 import model.PhoneCustomer;
 
 /**
@@ -35,6 +37,7 @@ public class loginServlet extends HttpServlet {
     private PhoneDao phoneDAO;
     private EmailDao emailDAO;
     private ProfileDao profileDAO;
+    private NotificationDao notificationDAO;
 
     @Override
     public void init() throws ServletException {
@@ -43,6 +46,7 @@ public class loginServlet extends HttpServlet {
             phoneDAO = PhoneDao.INSTANCE;
             emailDAO = EmailDao.INSTANCE;
             profileDAO = ProfileDao.INSTANCE;
+            notificationDAO = NotificationDao.INSTANCE;
             System.out.println("userDao initialized successfully in loginServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in loginServlet: " + e.getMessage());
@@ -114,11 +118,14 @@ public class loginServlet extends HttpServlet {
         // gui thong bang session den trang profile
             CustomerProfile profile = profileDAO.getProfileByUserId(existing.getUserId());
             session.setAttribute("profile_customer", profile);
-            
+
+ 
+    
+            List<Notification> listNotification = notificationDAO.getNotificationByUser(existing.getUserId());
             List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(existing.getUserId());
             List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(existing.getUserId());
           
-            
+            session.setAttribute("listNotification", listNotification);
             session.setAttribute("emailList_Current", emailList);
             session.setAttribute("phoneList_Current", phoneList);
  
