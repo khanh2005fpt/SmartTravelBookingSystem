@@ -19,9 +19,9 @@ import utils.DBContext;
  *
  * @author nqagh
  */
-public class UserDao extends DBContext {
+public class UserDAO extends DBContext {
 
-    public static UserDao INSTANCE = new UserDao();
+    public static UserDAO INSTANCE = new UserDAO();
 
     public String status;
 
