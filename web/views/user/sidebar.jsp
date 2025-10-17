@@ -40,7 +40,7 @@
 <nav class="sidebar">
     <a href="dashboard.jsp"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
     <a href="user?action=list" class="active"><i class="fa-solid fa-users"></i> Quản lý người dùng</a>
-    <a href="booking?action=list"><i class="fa-solid fa-calendar-check"></i> Quản lý đặt chỗ</a>
+    
     <a href="report?action=view"><i class="fa-solid fa-chart-pie"></i> Báo cáo & Thống kê</a>
     <a href="settings.jsp"><i class="fa-solid fa-gear"></i> Cài đặt hệ thống</a>
 </nav>
