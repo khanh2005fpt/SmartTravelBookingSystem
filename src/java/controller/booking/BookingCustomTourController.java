@@ -5,7 +5,7 @@
 package controller.booking;
 
 import dao.BookingDao;
-import dao.CustomTourDao;
+import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -95,11 +95,11 @@ public class BookingCustomTourController extends HttpServlet {
             int adultQty = Integer.parseInt(request.getParameter("adultQty"));
             int childQty = Integer.parseInt(request.getParameter("childQty"));
 
-            CustomTourDao ctd = new CustomTourDao();
-            CustomTour tour = ctd.getTourById(customTourId);
-            List<CustomTourDetail> details = ctd.getTourDetails(customTourId);
+            TourDao dao = new TourDao();
+            CustomTour tour = dao.getTourById(customTourId);
+            List<CustomTourDetail> details = dao.getTourDetails(customTourId);
 
-            List<CustomTourItinerary> itineraries = ctd.getTourItinerary(customTourId);
+            List<CustomTourItinerary> itineraries = dao.getTourItinerary(customTourId);
             // Kiểm tra ngày khởi hành phải >= hôm nay
 
             int totalPeople = adultQty + childQty;

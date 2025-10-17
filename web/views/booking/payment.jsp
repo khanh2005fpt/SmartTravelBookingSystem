@@ -24,38 +24,38 @@
 
                         <form action="PaymentController" method="post">
                             <input type="hidden" name="totalBill" value="${totalPrice}">
+
                             <div class="mb-3">
                                 <label class="form-label">Họ và tên</label>
-                                <input type="text" class="form-control" placeholder="">
+                                <input type="text" class="form-control" name="fullname" placeholder="Nhập họ và tên" required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
-                                <input type="email" class="form-control" placeholder="">
+                                <input type="email" class="form-control" name="email" placeholder="Nhập email" required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Số điện thoại</label>
-                                <input type="text" class="form-control" placeholder="">
+                                <input type="text" class="form-control" name="phone" placeholder="Nhập số điện thoại" required pattern="^0\d{9,10}$" title="Số điện thoại phải bắt đầu bằng 0 và có 10-11 chữ số">
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Địa chỉ</label>
-                                <input type="text" class="form-control" placeholder="">
+                                <input type="text" class="form-control" name="address" placeholder="Nhập địa chỉ" required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Phương thức thanh toán</label>
                                 <div class="list-group">
                                     <label class="list-group-item d-flex align-items-center">
-                                        <input type="radio" class="form-check-input me-2" name="payment" value="vnpay" checked>
+                                        <input type="radio" class="form-check-input me-2" name="payment" value="vnpay" checked required>
                                         <img src="https://vnpay.vn/favicon.ico" alt="VNPAY" width="24" class="me-2">
                                         VNPAY QR
                                     </label>
                                 </div>
                             </div>
 
-                            <!-- Khung hiển thị QR Code -->
                             <div class="alert alert-info small">
                                 💡 Bạn sẽ được chuyển đến cổng VNPAY để hoàn tất thanh toán.
                             </div>
@@ -65,6 +65,7 @@
                                 <button type="submit" class="btn btn-success">Thanh toán ngay</button>
                             </div>
                         </form>
+
                     </div>
                 </div>
 

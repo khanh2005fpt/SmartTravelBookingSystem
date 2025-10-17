@@ -4,21 +4,49 @@
  */
 package dao;
 
-import java.util.ArrayList;
-import java.util.List;
-import model.Hotel;
-import utils.DBContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import model.Hotel;
+import model.IslandVehicle;
+import utils.DBContext;
 
 /**
  *
  * @author Admin
  */
-public class HotelDao extends DBContext {
-
-    public List<Hotel> getHotels() {
+public class ServiceDao extends DBContext{
+    
+    //Lay danh sach phuong tien theo dao
+    public List<IslandVehicle> getListVehicleById(int id) {
+        List<IslandVehicle> list = new ArrayList<>();
+        String sql = "select * from IslandVehicles a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id); 
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) { // lấy nhiều island
+                 IslandVehicle v = new IslandVehicle(
+                    rs.getInt("vehicleId"),
+                    rs.getInt("islandId"),
+                    rs.getString("vehicleType"),
+                    rs.getString("modelName"),
+                    rs.getDouble("pricePerDay"),
+                    rs.getInt("capacity"),
+                    rs.getInt("availability")
+                );
+                list.add(v);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list; 
+    }
+    
+    //Lay tat ca khach san
+      public List<Hotel> getHotels() {
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId";
         try {
@@ -43,6 +71,7 @@ public class HotelDao extends DBContext {
         return list;
     }
     
+      //lay danh sach dao theo dao
      public List<Hotel> getListHotelsById(int id) {
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
@@ -68,7 +97,9 @@ public class HotelDao extends DBContext {
         }
         return list; 
     }
-
+     
+     
+     //Tim kiem danh sach khach san theo quoc gia va loai phong
     public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) {
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where 1=1";
@@ -126,14 +157,15 @@ public class HotelDao extends DBContext {
         return list;
     }
 
+    //Lay danh sach khach san theo tung trang
     public List<Hotel> getIslandsByPage(int page, int pageSize) {
         List<Hotel> list = new ArrayList<>();
         String sql = "Select * from Hotels order by hotelId offset ? rows fetch next ? rows only";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, (page - 1) * pageSize); // OFFSET
-            ps.setInt(2, pageSize);              // FETCH NEXT
+            ps.setInt(1, (page - 1) * pageSize); 
+            ps.setInt(2, pageSize);              
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new Hotel(
@@ -154,7 +186,8 @@ public class HotelDao extends DBContext {
 
         return list;
     }
-
+    
+    //Tinh tong so khach san
     public int getTotalIslands() {
         int total = 0;
         String sql = "select count(*) from Hotels";
@@ -168,15 +201,5 @@ public class HotelDao extends DBContext {
             e.printStackTrace();
         }
         return total;
-    }
-
-    public static void main(String[] args) {
-        HotelDao hd = new HotelDao();
-//        List<Hotel> h = hd.searchHotels("Vietnam", "", "", "200000");
-            List<Hotel> h = hd.getListHotelsById(1);
-    
-              System.out.println(h.toString());
-     
-      
     }
 }

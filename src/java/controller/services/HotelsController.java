@@ -5,8 +5,8 @@
 
 package controller.services;
 
-import dao.HotelDao;
 import dao.IslandDao;
+import dao.ServiceDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -97,7 +97,7 @@ public class HotelsController extends HttpServlet {
         }
         IslandDao id = new IslandDao();
         List<Country> countries = id.getAllCountries();
-        HotelDao dao = new HotelDao();
+        ServiceDao dao = new ServiceDao();
         List<Hotel> hotels = dao.searchHotels(country, roomType, minPriceStr, maxPriceStr);
 
         // Phân trang

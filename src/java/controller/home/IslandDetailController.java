@@ -4,9 +4,8 @@
  */
 package controller.home;
 
-import dao.HotelDao;
 import dao.IslandDao;
-import dao.IslandVehicleDao;
+import dao.ServiceDao;
 import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -73,12 +72,11 @@ public class IslandDetailController extends HttpServlet {
 
             IslandDao dao = new IslandDao();
             Island island = dao.getIslandById(id);
-            HotelDao hd = new HotelDao();
-            List<Hotel> listH = hd.getListHotelsById(id);
-            IslandVehicleDao vd = new IslandVehicleDao();
-            IslandVehicle v = new IslandVehicle();
+            ServiceDao serviceDao = new ServiceDao();
+            List<Hotel> listH = serviceDao.getListHotelsById(id);
 
-            List<IslandVehicle> listV = vd.getListVehicleById(id);
+            IslandVehicle v = new IslandVehicle();
+            List<IslandVehicle> listV = serviceDao.getListVehicleById(id);
             TourDao td = new TourDao();
             List<Tour> listT = td.getListToursById(id);
 

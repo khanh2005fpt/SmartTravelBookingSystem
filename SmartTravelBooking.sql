@@ -190,7 +190,7 @@ CREATE TABLE Hotels (
 	area INT CHECK (area > 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-
+select * from hotels
 
 
 

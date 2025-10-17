@@ -4,10 +4,7 @@
  */
 package controller.services;
 
-import dao.CustomTourDao;
-import dao.HotelDao;
 import dao.IslandDao;
-import dao.IslandVehicleDao;
 import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -85,7 +82,7 @@ public class CreateCustomTourController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            CustomTourDao dao = new CustomTourDao();
+            TourDao dao = new TourDao();
             IslandDao islandDao = new IslandDao();
 
             // Lấy dữ liệu từ form
@@ -149,7 +146,7 @@ public class CreateCustomTourController extends HttpServlet {
 
             long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
             long nights = days - 1;
-            int totalPrice = (int) ((hotelPrice + vehiclePrice) * (days - 1));
+            int totalPrice = (int) ((hotelPrice + vehiclePrice) * (days));
 
             // Tạo tên tour
             String islandName = islandDao.getIslandNameById(islandId);
