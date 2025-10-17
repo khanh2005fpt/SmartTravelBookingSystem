@@ -3,7 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.account;
+package controller.profile.notifications;
+
+import dao.CustomerDao;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,21 +15,32 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import model.Notification;
+import model.User;
 
 /**
  *
  * @author nqagh
  */
-@WebServlet(name="logoutServlet", urlPatterns={"/logout"})
-public class logoutServlet extends HttpServlet {
+@WebServlet(name="notificatios_servlet", urlPatterns={"/notificatios_servlet"})
+public class NotificatiosServlet extends HttpServlet {
    
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+       public CustomerDao customerDao;
+   
+       @Override
+    public void init() throws ServletException {
+        try {
+            customerDao = CustomerDao.INSTANCE;
+            System.out.println("profileDAO initialized successfully in loginServlet");
+        } catch (Exception e) {
+            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
+            e.printStackTrace();
+            throw new ServletException("Failed to initialize information", e);
+        }
+    }
+    
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -36,10 +49,10 @@ public class logoutServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet logoutServlet</title>");  
+            out.println("<title>Servlet notificatios_servlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet logoutServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet notificatios_servlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -56,14 +69,7 @@ public class logoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        
-      // huy session khi logout
-           HttpSession session = request.getSession();
-           if(session!=null){
-               session.invalidate();
-           }
-            response.sendRedirect(request.getContextPath() + "/views/home/index.jsp");
-            return;
+     
     } 
 
     /** 
@@ -76,7 +82,24 @@ public class logoutServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+           HttpSession session = request.getSession();
+      //lay session sau khi login thanh cong
+    User user = (User) session.getAttribute("user"); 
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+
+    Integer userId = user.getUserId(); 
+    
+    // danh dau thong bao 
+      Boolean markNoti = customerDao.markAllRead(userId);
+      List<Notification> listNotification = customerDao.getNotificationByUser(userId); 
+      session.setAttribute("listNotification", listNotification);
+      response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
+    
+    
     }
 
     /** 

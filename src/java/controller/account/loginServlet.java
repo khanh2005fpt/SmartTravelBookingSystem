@@ -4,13 +4,9 @@
  */
 package controller.account;
 
-import dao.EmailDao;
-import dao.NotificationDao;
-import dao.PhoneDao;
-import dao.ProfileDao;
+import dao.CustomerDao;
 import model.User;
-import dao.userDao;
-
+import dao.UserDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -31,22 +27,19 @@ import model.PhoneCustomer;
  * @author nqagh
  */
 @WebServlet(name = "loginServlet", urlPatterns = {"/login"})
-public class loginServlet extends HttpServlet {
+public class LoginServlet extends HttpServlet {
 
-    private userDao UserDao;
-    private PhoneDao phoneDAO;
-    private EmailDao emailDAO;
-    private ProfileDao profileDAO;
-    private NotificationDao notificationDAO;
+    private UserDao userDAO;
+    public CustomerDao customerDao;
+   
 
     @Override
     public void init() throws ServletException {
         try {
-            UserDao = userDao.INSTANCE;
-            phoneDAO = PhoneDao.INSTANCE;
-            emailDAO = EmailDao.INSTANCE;
-            profileDAO = ProfileDao.INSTANCE;
-            notificationDAO = NotificationDao.INSTANCE;
+          userDAO = UserDao.INSTANCE;
+            customerDao = CustomerDao .INSTANCE;
+          
+            
             System.out.println("userDao initialized successfully in loginServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in loginServlet: " + e.getMessage());
@@ -102,28 +95,29 @@ public class loginServlet extends HttpServlet {
         }
 
         String code = request.getParameter("code");
-        googleLogin gg = new googleLogin();
+        GoogleLogin gg = new GoogleLogin();
         String accessToken = gg.getToken(code);
         System.out.println(accessToken);
         GoogleAccount acc = gg.getUserInfo(accessToken);
         System.out.println(acc);
 
         //check tk nay da dky chua
-        User existing = UserDao.getUserByEmail(acc.getEmail());
+        User existing = userDAO.getUserByEmail(acc.getEmail());
         if (existing != null) {
             // user ton tai -> login
             session.setAttribute("user", existing);
             session.setAttribute("loginSuccess", "oke");
             
         // gui thong bang session den trang profile
-            CustomerProfile profile = profileDAO.getProfileByUserId(existing.getUserId());
+            CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
             session.setAttribute("profile_customer", profile);
 
  
     
-            List<Notification> listNotification = notificationDAO.getNotificationByUser(existing.getUserId());
-            List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(existing.getUserId());
-            List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(existing.getUserId());
+            List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
+            List<EmailCustomer> emailList =customerDao.getEmailsByUserId(existing.getUserId());
+            List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(existing.getUserId());
+            
           
             session.setAttribute("listNotification", listNotification);
             session.setAttribute("emailList_Current", emailList);
@@ -135,14 +129,14 @@ public class loginServlet extends HttpServlet {
         } else {
             // user chua co acc --> dky luon cho user
 
-            String randomPass = UserDao.generateRandomPassword(10);
+            String randomPass = userDAO.generateRandomPassword(10);
             String fullName = acc.getFamily_name() + " " + acc.getGiven_name();
 
-            String result = UserDao.AutoSignupByGoogle(acc.getEmail(), randomPass, acc.getEmail(), fullName, null);
+            String result = userDAO.AutoSignupByGoogle(acc.getEmail(), randomPass, acc.getEmail(), fullName, null);
 
             if (result.startsWith("Success")) {
                 // sau khi add thi check user de login
-                User newUser = UserDao.getUserByEmail(acc.getEmail());
+                User newUser = userDAO.getUserByEmail(acc.getEmail());
                 // List<PhoneCustomer> listPhone = phoneDAO.getPhoneCustomersByUserId(0);
                 //login
                 session.setAttribute("user", newUser);
@@ -176,7 +170,7 @@ public class loginServlet extends HttpServlet {
         String passWord = request.getParameter("pass");
 
         HttpSession session = request.getSession();
-        User user = UserDao.loginSystem(userN, passWord);
+       
 
         // check null input
         if (userN.isEmpty() || userN == null || passWord.isEmpty() || passWord == null) {
@@ -184,7 +178,8 @@ public class loginServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
-
+        
+          User user =userDAO.loginSystem(userN, passWord);
         //check acc active and ton tai
         String error = null;
         if (user == null) {
@@ -199,19 +194,22 @@ public class loginServlet extends HttpServlet {
             return;
         }
 
+        
         //login thanh cong
+     
         session.setAttribute("user", user);
       
         // gui thong bang session den trang profile
         
-        CustomerProfile profile = profileDAO.getProfileByUserId(user.getUserId());
+        CustomerProfile profile = customerDao.getProfileByUserId(user.getUserId());
             session.setAttribute("profile_customer", profile);
          
         
-        List<EmailCustomer> emailList = emailDAO.getEmailsByUserId(user.getUserId());
-        List<PhoneCustomer> phoneList = phoneDAO.getPhoneCustomersByUserId(user.getUserId());
-      
+        List<EmailCustomer> emailList = customerDao.getEmailsByUserId(user.getUserId());
+        List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(user.getUserId());
+        List<Notification> listNotification = customerDao.getNotificationByUser(user.getUserId());
 
+        session.setAttribute("listNotification", listNotification);
         session.setAttribute("emailList_Current", emailList);
         session.setAttribute("phoneList_Current", phoneList);
   

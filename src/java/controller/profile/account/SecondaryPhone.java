@@ -5,7 +5,7 @@
 
 package controller.profile.account;
 
-import dao.PhoneDao;
+import dao.CustomerDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -23,16 +23,16 @@ import model.User;
  * @author nqagh
  */
 @WebServlet(name="Secondary_Phone", urlPatterns={"/Secondary_Phone"})
-public class Secondary_Phone extends HttpServlet {
-     public PhoneDao phoneDAO;
-         @Override
+public class SecondaryPhone extends HttpServlet {
+          public CustomerDao customerDao;
+   
+       @Override
     public void init() throws ServletException {
         try {
-         phoneDAO =PhoneDao.INSTANCE;
-             
-            System.out.println("PhoneDao initialized successfully in loginServlet");
+            customerDao = CustomerDao.INSTANCE;
+            System.out.println("profileDAO initialized successfully in loginServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing PhoneDao in loginServlet: " + e.getMessage());
+            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
@@ -106,17 +106,17 @@ public class Secondary_Phone extends HttpServlet {
              int phoneId = Integer.parseInt(action.split("-")[1]);
              //check phone co thuoc ve user hien tai k
              
-             boolean existPhone = phoneDAO.checkPhoneExistsByIdAndUser(phoneId, userId);
+             boolean existPhone = customerDao.checkPhoneExistsByIdAndUser(phoneId, userId);
                if(!existPhone){
                     session.setAttribute("errorPhone_Deleted", "số điện thoại này đã bị xóa!"); 
                      response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
         return;
                }
-           phoneDAO.deletePhone(phoneId);
+          customerDao.deletePhone(phoneId);
            session.setAttribute("successPhone", "Đã xóa số điện thoại thành công!");
          
             //sau khi xoa update moi nhat
-           List<PhoneCustomer> updateList = phoneDAO.getPhoneCustomersByUserId(userId);
+           List<PhoneCustomer> updateList = customerDao.getPhoneCustomersByUserId(userId);
            session.setAttribute("phoneList", updateList);
             response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
            

@@ -5,7 +5,8 @@
 
 package controller.profile.account;
 
-import dao.EmailDao;
+import dao.CustomerDao;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -23,21 +24,22 @@ import model.User;
  * @author nqagh
  */
 @WebServlet(name="saved_Email", urlPatterns={"/saved_Email"})
-public class Secondary_Email extends HttpServlet {
+public class SecondaryEmail extends HttpServlet {
    
-      public EmailDao emailDAO;
-          @Override
+          public CustomerDao customerDao;
+   
+       @Override
     public void init() throws ServletException {
         try {
-         emailDAO = EmailDao.INSTANCE;
-        
-            System.out.println("emailDao initialized successfully in loginServlet");
+            customerDao = CustomerDao.INSTANCE;
+            System.out.println("profileDAO initialized successfully in loginServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing emailDao in loginServlet: " + e.getMessage());
+            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
     }
+    
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -75,9 +77,6 @@ public class Secondary_Email extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
       
-    
-       
-       
     } 
 
     /** 
@@ -108,7 +107,7 @@ public class Secondary_Email extends HttpServlet {
        if(action.startsWith("delete-")){
           int emailId = Integer.parseInt(action.split("-")[1]);
           //split("-")[1]) : cat chuoi thanh mang , roi lay phan tu thu 2
-            boolean isPrimary = emailDAO.isPrimaryEmail(emailId);
+            boolean isPrimary = customerDao.isPrimaryEmail(emailId);
              
             if(isPrimary){
                 session.setAttribute("errorEmail_Deleted", "Không thể xóa Email chính!");
@@ -119,7 +118,7 @@ public class Secondary_Email extends HttpServlet {
                 // check xoa emai ton tai hay chua
             
                 
-                boolean existEmail= emailDAO.checkEmailExistsByIdAndUser(emailId, userId);
+                boolean existEmail= customerDao.checkEmailExistsByIdAndUser(emailId, userId);
                 if(!existEmail){
                     session.setAttribute("errorEmail_Deleted", "email này đã bị xóa!"); 
                      response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
@@ -127,7 +126,7 @@ public class Secondary_Email extends HttpServlet {
                }
                 
                 
-                   boolean deleted = emailDAO.deleteEmail(emailId);
+                   boolean deleted = customerDao.deleteEmail(emailId);
                   if(deleted){
                       session.setAttribute("successEmail", "Đã xóa email thành công!");
                    
@@ -138,7 +137,7 @@ public class Secondary_Email extends HttpServlet {
                  
              // Cập nhật danh sách email mới
         session.removeAttribute("emailList");
-        List<EmailCustomer> updatedList = emailDAO.getEmailsByUserId(userId);
+        List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
         session.setAttribute("emailList", updatedList);
               
             }
@@ -149,16 +148,16 @@ public class Secondary_Email extends HttpServlet {
               int emailId = Integer.parseInt(action.split("-")[1]);
 
             // Đặt email mới làm chính, đồng bộ Users và UserEmails
-            emailDAO.setPrimaryEmai(user.getUserId(), emailId);
+           customerDao.setPrimaryEmai(user.getUserId(), emailId);
             System.out.println(user.getEmail());
 
             // Cập nhật session user để hiển thị profile ngay
-            String newPrimaryEmail = emailDAO.getEmailById(emailId);
+            String newPrimaryEmail = customerDao.getEmailById(emailId);
             user.setEmail(newPrimaryEmail);
             session.setAttribute("user", user);
             session.setAttribute("successEmail", "Đã đặt email chính mới!");
             // xong hien thi email sau khinh set la email chinh
-            List<EmailCustomer> updatedList = emailDAO.getEmailsByUserId(userId);
+            List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
             session.setAttribute("emailList", updatedList);
               response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
        }      

@@ -5,8 +5,8 @@
 
 package controller.account;
 
-import dao.tokenDao;
-import dao.userDao;
+
+import dao.UserDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -23,23 +23,23 @@ import model.User;
  * @author nqagh
  */
 @WebServlet(name="resetPassword", urlPatterns={"/resetPassword"})
-public class resetPassword extends HttpServlet {
+public class ResetPassword extends HttpServlet {
     
-   private tokenDao TokenDao;
-   private userDao UserDao;
+  public UserDao userDAO ;
+    
     
     @Override
-      public void init(){
-             try {
-            TokenDao = tokenDao.getInstance();
-               UserDao = userDao.INSTANCE;
-            System.out.println("tokenDao or UserDao initialized successfully in requestPasswordServlet");
+     public void init() throws ServletException {
+        try {
+           userDAO = UserDao.INSTANCE;
+               
+            System.out.println("userDao initialized successfully in requestPasswordServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing tokenDao or UserDao in requestPassword: " + e.getMessage());
+            System.out.println("Error initializing userDao in requestPassword: " + e.getMessage());
             e.printStackTrace();
-           
+            throw new ServletException("Failed to initialize requestPassword", e);
         }
-      }
+    }
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -78,7 +78,7 @@ public class resetPassword extends HttpServlet {
     throws ServletException, IOException {
       String token = request.getParameter("token");
        
-Token tokenForget = tokenDao.getInstance().checkValidToken(token);
+Token tokenForget = userDAO.checkValidToken(token);
 
 if (tokenForget == null) {
     request.getSession().setAttribute("errorMess", "Link đặt lại mật khẩu đã hết hạn. Hãy gửi yêu cầu lại!");
@@ -87,7 +87,7 @@ if (tokenForget == null) {
 }
 
   // luu token va email vao session
-User user = UserDao.getUserById(tokenForget.getUserId());
+User user = userDAO.getUserById(tokenForget.getUserId());
 request.getSession().setAttribute("resetEmail", user.getEmail());
 request.getSession().setAttribute("token", tokenForget.getTokenValue());
 
@@ -116,7 +116,7 @@ response.sendRedirect("views/account/resetPassword.jsp");
         // get token 
         String tokenValue = (String) session.getAttribute("token");
         
-        Token tokenForget = tokenDao.getInstance().checkValidToken(tokenValue);
+        Token tokenForget =  userDAO.checkValidToken(tokenValue);
 
         if (tokenForget == null) {
             request.getSession().setAttribute("errorPass", "Mã OTP đã hết hạn. Hãy gửi yêu cầu lại!");
@@ -145,7 +145,7 @@ response.sendRedirect("views/account/resetPassword.jsp");
             if (!otpInput.equals(otpSession)) {
                 attempt++;
                 session.setAttribute("otpAttempt", attempt);
-                TokenDao.updateOtpAndAttempt(tokenForget.getTokenId(), otpInput, attempt);
+                userDAO.updateOtpAndAttempt(tokenForget.getTokenId(), otpInput, attempt);
 
                 if (attempt >= 3) {
                     session.invalidate(); // clear het session
@@ -182,13 +182,13 @@ response.sendRedirect("views/account/resetPassword.jsp");
 
         // update is used of token 
         //update password , status
-        UserDao.updatePassword(email, password);
-        TokenDao.markTokenAsUsed(tokenValue);
+        userDAO.updatePassword(email, password);
+        userDAO.markTokenAsUsed(tokenValue);
       
          // luu otp sau khi doi mat khau thanh cong
           String otpUsed = request.getParameter("otp");
           if (otpUsed != null && !otpUsed.trim().isEmpty()) {
-         TokenDao.updateOtpAndAttempt(tokenForget.getTokenId(), otpUsed,0 ); 
+         userDAO.updateOtpAndAttempt(tokenForget.getTokenId(), otpUsed,0 ); 
          
      
 

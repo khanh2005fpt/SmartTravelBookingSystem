@@ -73,8 +73,8 @@ select * from CustomerProfiles
 select * from Notifications
 select * from Bookings
 UPDATE Bookings
-SET status = 'COMPLETED'
-WHERE bookingId = 5;
+SET status = 'PENDING'
+WHERE bookingId = 4;
 
 -- DROP TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted;
 
@@ -472,8 +472,8 @@ INSERT INTO Payments (bookingId, amount , method, status)
 VALUES (3, 9000000,'VNPAY','SUCCESS');
 
 UPDATE Payments
-SET status = 'SUCCESS'
-WHERE bookingId = 1;
+SET status = 'PENDING'
+WHERE bookingId = 3;
 
 
 SELECT * FROM Notifications;      -- kiểm tra thông báo

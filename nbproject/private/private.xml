@@ -3,11 +3,18 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/account/loginServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/customer_profile/profile.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/profile/notifications/notificatios_servlet.java</file>
             <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/NotificationDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/home/css/profile.css</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/ProfileDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/SystemDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/ServiceDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/CustomerDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/account/GoogleLogin.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/EmailDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/account/LoginServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/tokenDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/profile/account/PhoneAdded.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/userDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/TourDao.java</file>
             <file>file:/E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/Notification.java</file>
         </group>
     </open-files>

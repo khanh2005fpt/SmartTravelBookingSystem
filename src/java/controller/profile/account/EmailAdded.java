@@ -5,8 +5,9 @@
 
 package controller.profile.account;
 
-import dao.EmailDao;
-import dao.userDao;
+import dao.CustomerDao;
+
+import dao.UserDao;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,18 +26,16 @@ import model.User;
  * @author nqagh
  */
 @WebServlet(name="email_Added", urlPatterns={"/email_Added"})
-public class email_Added extends HttpServlet {
-     public EmailDao emailDao;
-  
+public class EmailAdded extends HttpServlet {
+        public CustomerDao customerDao;
    
        @Override
     public void init() throws ServletException {
         try {
-          emailDao = EmailDao.INSTANCE;
-       
-            System.out.println("emailDao initialized successfully in loginServlet");
+            customerDao = CustomerDao.INSTANCE;
+            System.out.println("profileDAO initialized successfully in loginServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing emailDao in loginServlet: " + e.getMessage());
+            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
@@ -105,7 +104,7 @@ public class email_Added extends HttpServlet {
         }
         // check mail ton tai
         
-        Boolean existAddedPhone = emailDao.checkEmailExists(userId, email);
+        Boolean existAddedPhone = customerDao.checkEmailExists(userId, email);
         
         if(existAddedPhone || email.equals(user.getEmail())){
              session.setAttribute("errorEmail_Deleted", "Email này đã tồn tại!");
@@ -114,15 +113,15 @@ public class email_Added extends HttpServlet {
         }
         
         // check k them qua 2 mail
-        int totalEmails = emailDao.countSecondaryEmails(userId);
+        int totalEmails = customerDao.countSecondaryEmails(userId);
           if(totalEmails>=2){
               session.setAttribute("errorEmail_Deleted", "Bạn chỉ được dùng tối đa 3 email!");
               response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
           }
         // them email
-        emailDao.addEmail(userId, email);
-        List<EmailCustomer> emailList = emailDao.getEmailsByUserId(userId);
+        customerDao.addEmail(userId, email);
+        List<EmailCustomer> emailList = customerDao.getEmailsByUserId(userId);
       session.setAttribute("emailList", emailList);
        session.setAttribute("successEmail", "Thêm email thành công!");
        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");

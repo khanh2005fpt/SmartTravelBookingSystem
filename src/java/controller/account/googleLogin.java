@@ -16,7 +16,7 @@ import org.apache.http.client.fluent.Request;
  *
  * @author nqagh
  */
-public class googleLogin {
+public class GoogleLogin {
     //nhan token  , truyen code de nhan access token
    
     public static String getToken(String code) throws ClientProtocolException, IOException {

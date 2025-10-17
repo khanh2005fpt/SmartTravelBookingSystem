@@ -5,7 +5,8 @@
 
 package controller.profile.account;
 
-import dao.EmailDao;
+import dao.CustomerDao;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -24,20 +25,23 @@ import model.User;
  * @author nqagh
  */
 @WebServlet(name="Secondary_CurrentEmail", urlPatterns={"/Secondary_CurrentEmail"})
-public class Secondary_CurrentEmail extends HttpServlet {
-      public EmailDao emailDAO;
-          @Override
+public class SecondaryCurrentEmail extends HttpServlet {
+    
+        public CustomerDao customerDao;
+   
+       @Override
     public void init() throws ServletException {
         try {
-         emailDAO = EmailDao.INSTANCE;
-        
-            System.out.println("emailDao initialized successfully in loginServlet");
+            customerDao = CustomerDao.INSTANCE;
+            System.out.println("profileDAO initialized successfully in loginServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing emailDao in loginServlet: " + e.getMessage());
+            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
     }
+    
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -96,11 +100,11 @@ public class Secondary_CurrentEmail extends HttpServlet {
        if(action.startsWith("delete-")){
            
              int emailId = Integer.parseInt(action.split("-")[1]);
-           emailDAO.deleteEmail(emailId);
+           customerDao.deleteEmail(emailId);
            session.setAttribute("successEmail", "Đã xóa email thành công!");
             session.removeAttribute("emailList_Current");
             //sau khi xoa update moi nhat
-           List<EmailCustomer> updateList = emailDAO.getEmailsByUserId(userId);
+           List<EmailCustomer> updateList =  customerDao.getEmailsByUserId(userId);
            session.setAttribute("emailList_Current", updateList);
             response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
            

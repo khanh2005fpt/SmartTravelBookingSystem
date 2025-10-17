@@ -5,7 +5,7 @@
 
 package controller.profile.account;
 
-import dao.ProfileDao;
+import dao.CustomerDao;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,24 +15,23 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import model.CustomerProfile;
+import java.util.List;
+import model.PhoneCustomer;
 import model.User;
 
 /**
  *
  * @author nqagh
  */
-@WebServlet(name="information_Saved", urlPatterns={"/information"})
-public class information_Saved extends HttpServlet {
+@WebServlet(name="Secondary_CurrentPhone", urlPatterns={"/Secondary_CurrentPhone"})
+public class SecondaryCurrentPhone extends HttpServlet {
    
-      public ProfileDao profileDAO;
+      public CustomerDao customerDao;
    
        @Override
     public void init() throws ServletException {
         try {
-           profileDAO = ProfileDao.INSTANCE;
+            customerDao = CustomerDao.INSTANCE;
             System.out.println("profileDAO initialized successfully in loginServlet");
         } catch (Exception e) {
             System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
@@ -40,7 +39,7 @@ public class information_Saved extends HttpServlet {
             throw new ServletException("Failed to initialize information", e);
         }
     }
-      
+          
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -49,10 +48,10 @@ public class information_Saved extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet information_Saved</title>");  
+            out.println("<title>Servlet Secondary_CurrentPhone</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet information_Saved at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet Secondary_CurrentPhone at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -82,54 +81,33 @@ public class information_Saved extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-      HttpSession session = request.getSession();
-      //lay session sau khi login thanh cong
-    User user = (User) session.getAttribute("user"); 
-    if (user == null) {
-        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+       HttpSession session = request.getSession();
+       User user = (User) session.getAttribute("user");
+       if(user==null){
+            session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
         response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
-    }
-
-    Integer userId = user.getUserId(); 
-    
-    String fullName = request.getParameter("fullname"); 
-    String dobDate = request.getParameter("dob");
-    LocalDate dob = (dobDate != null && !dobDate.isEmpty()) ? LocalDate.parse(dobDate) : null;
-    String genderStr = request.getParameter("gender");
-    CustomerProfile.Gender gender = genderStr != null ? CustomerProfile.Gender.valueOf(genderStr) : null;
-    String Address = request.getParameter("address");
-    
-   // validate 
-         if(dobDate==null || dobDate.isEmpty() || fullName ==null || fullName.isEmpty() || Address ==null || Address.isEmpty()){
-               session.setAttribute("errorMess", "vui lòng điền đầy đủ thông tin để lưu!");
-                 response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-                 return;
-         }
-         
-  
-
-    //  Kiểm tra dữ liệu có thay đổi không
-    if (!profileDAO.isProfileChanged(userId, fullName, dob, gender, Address)) {
-        session.setAttribute("errorMess", "Thông tin không có thay đổi nào để lưu.");
-       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-        return;
-    }
-
-    //  Nếu có thay đổi → update
-    profileDAO.updateInformation(userId, fullName, dob, gender, Address, null, 0, CustomerProfile.MembershipLevel.BRONZE);
-     request.setAttribute("fullname", fullName);
-     //format date
-     if (dob != null) {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    request.setAttribute("dobFormatted", dob.format(formatter));
-}
-    request.setAttribute("address", Address);
-    session.setAttribute("successMess", "Cập nhật thông tin thành công!");
-
-    request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
-    return;
+       }
+        Integer userId = user.getUserId();
+       String action = request.getParameter("action_current");
+       if(action==null){
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+          return;
+       }
        
+       if(action.startsWith("delete-")){
+           
+             int phoneId = Integer.parseInt(action.split("-")[1]);
+           customerDao.deletePhone(phoneId);
+           session.setAttribute("successPhone", "Đã xóa số điện thoại thành công!");
+            session.removeAttribute("phoneList_Current");
+            //sau khi xoa update moi nhat
+           List<PhoneCustomer> updateList = customerDao.getPhoneCustomersByUserId(userId);
+           session.setAttribute("phoneList_Current", updateList);
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+           
+           
+       }
     }
 
     /** 

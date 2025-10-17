@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.profile.avatar;
+package controller.account;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,15 +12,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.nio.file.Files;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
  * @author nqagh
  */
-@WebServlet(name="Avatar_DisplayServlet", urlPatterns={"/Avatar_DisplayServlet"})
-public class Avatar_DisplayServlet extends HttpServlet {
+@WebServlet(name="logoutServlet", urlPatterns={"/logout"})
+public class LogoutServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -37,10 +36,10 @@ public class Avatar_DisplayServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Avatar_DisplayServlet</title>");  
+            out.println("<title>Servlet logoutServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet Avatar_DisplayServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet logoutServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -57,39 +56,14 @@ public class Avatar_DisplayServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-    
-          // xac thuc file that tren o cung 
-          
-              String fileName = request.getParameter("file");
-        String UPLOAD_DIR = "E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/UploadData/Avatars";
-if (fileName == null || fileName.isEmpty()) {
-    
-    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Thiếu tên file");
-    return;
-}
-
-         
-           // tao 1 doi tuong file tro den tep anh thuc te
-              File file = new File(UPLOAD_DIR, fileName);
-        if (!file.exists()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        
+      // huy session khi logout
+           HttpSession session = request.getSession();
+           if(session!=null){
+               session.invalidate();
+           }
+            response.sendRedirect(request.getContextPath() + "/views/home/index.jsp");
             return;
-        }
-        
-        //Xác định MIME type để trình duyệt hiện thị đúng 
-          String mime = getServletContext().getMimeType(file.getName());
-        if (mime == null) mime = "application/octet-stream";
-        response.setContentType(mime);
-        
-     // Đọc và stream ảnh
-       try (var out = response.getOutputStream()) {
-    Files.copy(file.toPath(), out);
-    out.flush();
-}
-       
-        
-        
-           
     } 
 
     /** 

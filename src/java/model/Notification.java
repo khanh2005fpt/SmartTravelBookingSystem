@@ -21,7 +21,9 @@ public class Notification {
     private boolean isRead;
     private Date createdAt;
     
+    
      public Notification() {
+             
     }
 
     public Notification(int notificationId, int userId, String title, String message, String type, boolean isRead, Date createdAt) {

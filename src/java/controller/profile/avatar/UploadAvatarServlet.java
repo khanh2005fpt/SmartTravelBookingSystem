@@ -5,7 +5,7 @@
 
 package controller.profile.avatar;
 
-import dao.ProfileDao;
+import dao.CustomerDao;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -37,21 +37,22 @@ import model.CustomerProfile;
    
 )
 
-public class Upload_AvatarServlet extends HttpServlet {
+public class UploadAvatarServlet extends HttpServlet {
    
-      public ProfileDao profileDAO;
-          @Override
+     public CustomerDao customerDao;
+   
+       @Override
     public void init() throws ServletException {
         try {
-         profileDAO = ProfileDao.INSTANCE;
-        
-            System.out.println("ProfileDao initialized successfully in loginServlet");
+            customerDao = CustomerDao.INSTANCE;
+            System.out.println("profileDAO initialized successfully in loginServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing ProfileDao in loginServlet: " + e.getMessage());
+            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
     }
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -153,7 +154,7 @@ public class Upload_AvatarServlet extends HttpServlet {
     session.setAttribute("profile_customer", profile);
         
         // update avatar trong db
-        profileDAO.updateProfilePicture(profile.getUserId(), uniqueName);
+       customerDao.updateProfilePicture(profile.getUserId(), uniqueName);
         
   //sendRedirect tránh cache ảnh cũ
  response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?ts=" + System.currentTimeMillis());

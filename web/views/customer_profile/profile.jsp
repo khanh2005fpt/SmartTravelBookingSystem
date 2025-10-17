@@ -294,7 +294,9 @@
           <section class="d-flex flex-column gap-2" style="max-height: 500px; overflow-y: auto; padding-right: 5px;">
               <div class="d-flex justify-content-between align-items-center mb-3">
                   <h5 class="fw-semibold text-dark mb-0">🔔 Meland Booking</h5>
-                  <form action="notifications" method="post">
+                 
+                   <!-- danh dau thong bao -->
+                  <form action="${pageContext.request.contextPath}/notificatios_servlet" method="post">
                       <input type="hidden" name="userId" value="${sessionScope.user.userId}">
                       <button type="submit" class="btn btn-outline-success btn-sm">
                           <i class="bi bi-check-all me-1"></i> Đánh dấu tất cả
@@ -331,7 +333,7 @@
                               </small>
 
                               <!-- Badge trạng thái -->
-                              <span class="badge ${noti.isRead ? 'bg-success' : 'bg-danger text-white'}" style="font-size: 0.75rem;">
+                              <span class="badge ${noti.isRead ? 'bg-success text-white' : 'bg-danger text-white'}" style="font-size: 0.75rem;">
                                   ${noti.isRead ? 'Đã đọc' : 'Chưa đọc'}
                               </span>
                           </div>
@@ -339,8 +341,6 @@
                   </div>
               </c:forEach>
           </section>
-
-
       </div>
 
            
@@ -355,7 +355,7 @@
             
             
             <!-- account and securit content --> 
-            <div class="account-container">
+            <div id="account" class="account-container main-section " >
                 <div class="tab-header-account">
                     <span class="active w-auto text-primary font-weight-bold mb-2" >Thông tin tài khoản</span>
 
@@ -427,13 +427,13 @@
                                 <div>
                                     <label for="dob">Ngày sinh</label>
                                     <div class="date-group">
-                                        <input type="date" id="dob" name="dob" lang="vi" value="${requestScope.dobFormatted != null ? requestScope.dobFormatted : ''}"
+                                        <input type="date" id="dob" name="dob" lang="vi" value="${not empty requestScope.dobFormatted  ? requestScope.dobFormatted :sessionScope.profile_customer.dateOfBirth}"
                                                placeholder="yyyy-MM-dd">
                                     </div>
                                 </div>
                                 <div>
                                     <label>Thành phố cư trú</label>
-                                    <input type="text" name="address" value="${requestScope.address != null ? requestScope.address : ''}" placeholder="Thành phố cư trú">
+                                    <input type="text" name="address" value="${not empty requestScope.address  ? requestScope.address :  sessionScope.profile_customer.address}" placeholder="Thành phố cư trú">
                                 </div>
                             </div>
                             <div class="actions">
@@ -778,6 +778,8 @@
                             </div>
                         </div>
                     </div>
+                                        </div>
+                                        </div>
 
                     <!-- =================== AUTO MỞ MODAL KHI CÓ LỖI =================== -->
                     <script>
@@ -806,25 +808,24 @@
 
                     <!-- =================== Js for sidebar menu =================== -->               
                <script>
+                   
 // Hàm hiển thị section chính
 function showMainSection(evt, sectionId) {
-    evt.preventDefault(); // Ngăn hành vi mặc định của liên kết
+    evt.preventDefault(); // Ngăn hành vi mặc định của thẻ <a>
 
     // Ẩn tất cả các section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
     // Hiển thị section được chọn
     const selected = document.getElementById(sectionId);
-    if (selected) {
-        selected.style.display = "block";
-    }
+    if (selected) selected.style.display = "block";
 
-    // Nếu section là 'account', hiển thị account-container
+    // Nếu section là 'account', hiển thị container tài khoản
     if (sectionId === 'account') {
         document.querySelector('.account-container').style.display = "block";
     }
 
-    // Cập nhật lớp active trong menu
+    // Cập nhật class active cho menu
     document.querySelectorAll(".profile-menu a").forEach(a => a.classList.remove("active"));
     evt.currentTarget.classList.add("active");
 }
@@ -837,37 +838,32 @@ function showAccountTab(evt, tabId) {
     evt.currentTarget.classList.add("active");
 }
 
-// Khởi tạo section khi trang được tải
+// =================== Khởi tạo section khi trang được tải ===================   
 document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
-    const section = params.get("section") || "account"; // Mặc định là 'account'
+    const section = params.get("section"); 
 
-    // Ẩn tất cả section
+    // Ẩn tất cả section khi load
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-    // Hiển thị section tương ứng
     const validSections = ['member-priority', 'bookings', 'transactions', 'notifications', 'setting', 'account'];
-    if (validSections.includes(section)) {
+
+    if (section && validSections.includes(section)) {
         const selected = document.getElementById(section);
-        if (selected) {
-            selected.style.display = "block";
-        }
+        if (selected) selected.style.display = "block";
+
         if (section === 'account') {
             document.querySelector(".account-container").style.display = "block";
         }
-    } else {
-        // Nếu section không hợp lệ, hiển thị account
-        document.querySelector(".account-container").style.display = "block";
-        document.getElementById("account").style.display = "block";
-    }
 
-    // Cập nhật lớp active trong menu sidebar
-    document.querySelectorAll(".profile-menu a").forEach(link => {
-        const onclick = link.getAttribute("onclick");
-        if (onclick && onclick.includes(section)) {
-            link.classList.add("active");
-        }
-    });
+        // Cập nhật lớp active trong menu sidebar
+        document.querySelectorAll(".profile-menu a").forEach(link => {
+            const onclick = link.getAttribute("onclick");
+            if (onclick && onclick.includes(section)) {
+                link.classList.add("active");
+            }
+        });
+    }
 });
 </script>
 
