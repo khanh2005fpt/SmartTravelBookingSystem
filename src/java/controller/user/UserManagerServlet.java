@@ -1,9 +1,10 @@
 package controller.user;
 
-import dao.RoleDao;
-import dao.userDao;
+
+
+import dao.UserDAO;
 import model.User;
-import model.Role;
+
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -14,7 +15,7 @@ import org.mindrot.jbcrypt.BCrypt;
 @WebServlet("/admin/user")
 public class UserManagerServlet extends HttpServlet {
 
-    private final userDao dao = userDao.INSTANCE;
+    private final UserDAO dao = userDao.INSTANCE;
     private final RoleDao roleDao = RoleDao.INSTANCE;
 
     @Override

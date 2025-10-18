@@ -351,9 +351,9 @@ public class UserDAO extends DBContext {
 
     public List<User> getAllUsers(int page, int pageSize) {
         List<User> list = new ArrayList<>();
-       String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
-           + "FROM Users "
-           + "ORDER BY userId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
+                + "FROM Users "
+                + "ORDER BY userId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             int offset = (page - 1) * pageSize;
@@ -421,43 +421,42 @@ public class UserDAO extends DBContext {
         return list;
     }
 
- public List<User> getUsersByStatus(String status, int page, int pageSize) {
-    List<User> list = new ArrayList<>();
-    String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
-               + "FROM Users ";
-    if (!"ALL".equalsIgnoreCase(status)) {
-        sql += "WHERE status = ? ";
-    }
-    sql += "ORDER BY userId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        int idx = 1;
+    public List<User> getUsersByStatus(String status, int page, int pageSize) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
+                + "FROM Users ";
         if (!"ALL".equalsIgnoreCase(status)) {
-            ps.setString(idx++, status);
+            sql += "WHERE status = ? ";
         }
-        int offset = (page - 1) * pageSize;
-        ps.setInt(idx++, offset);
-        ps.setInt(idx, pageSize);
+        sql += "ORDER BY userId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            User u = new User();
-            u.setUserId(rs.getInt("userId"));
-            u.setUsername(rs.getString("username"));
-            u.setEmail(rs.getString("email"));
-            u.setFullName(rs.getString("fullName"));
-            u.setPhone(rs.getString("phone"));
-            u.setRoleId(rs.getInt("roleId"));
-            u.setCreatedAt(rs.getDate("createdAt"));
-            u.setStatus(rs.getString("status"));
-            list.add(u);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int idx = 1;
+            if (!"ALL".equalsIgnoreCase(status)) {
+                ps.setString(idx++, status);
+            }
+            int offset = (page - 1) * pageSize;
+            ps.setInt(idx++, offset);
+            ps.setInt(idx, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setUserId(rs.getInt("userId"));
+                u.setUsername(rs.getString("username"));
+                u.setEmail(rs.getString("email"));
+                u.setFullName(rs.getString("fullName"));
+                u.setPhone(rs.getString("phone"));
+                u.setRoleId(rs.getInt("roleId"));
+                u.setCreatedAt(rs.getDate("createdAt"));
+                u.setStatus(rs.getString("status"));
+                list.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
-
 
     public boolean updateUserStatus(int userId, String status) {
         String sql = "UPDATE Users SET status = ? WHERE userId = ?";
@@ -470,4 +469,88 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+
+    public boolean addUser(User user) {
+        String sql = "INSERT INTO Users (username, password, email, fullName, phone, roleId, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            String passwordHash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, passwordHash);
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getFullName());
+            ps.setString(5, user.getPhone());
+            ps.setInt(6, user.getRoleId());
+            ps.setString(7, user.getStatus() != null ? user.getStatus() : "ACTIVE");
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateUserInfo(User user) {
+        String sql = "UPDATE Users SET fullName=?, email=?, phone=?, roleId=?, status=? WHERE userId=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, user.getFullName());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPhone());
+            ps.setInt(4, user.getRoleId());
+            ps.setString(5, user.getStatus());
+            ps.setInt(6, user.getUserId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // ======= TEST DAO =======
+public static void main(String[] args) {
+    UserDAO dao = UserDAO.INSTANCE;
+
+    // --- TEST 1: Add user mới ---
+    System.out.println("=== TEST ADD USER ===");
+    User newUser = new User();
+    newUser.setUsername("testuser01");
+    newUser.setPassword("123456");  // bạn có thể hash BCrypt ở servlet, test thì để plain text
+    newUser.setEmail("testuser01@example.com");
+    newUser.setFullName("Người Dùng Thử");
+    newUser.setPhone("0909999999");
+    newUser.setRoleId(3); // 3 = customer
+    newUser.setStatus("ACTIVE");
+
+    boolean added = dao.addUser(newUser);
+    System.out.println("Kết quả thêm: " + (added ? "✅ Thành công" : "❌ Thất bại"));
+
+    // --- TEST 2: Lấy danh sách user (phân trang 1) ---
+    System.out.println("\n=== TEST GET ALL USERS ===");
+    List<User> list = dao.getAllUsers(1, 10);
+    for (User u : list) {
+        System.out.println(u);
+    }
+
+    // --- TEST 3: Update thông tin user ---
+    System.out.println("\n=== TEST UPDATE USER INFO ===");
+    // Giả sử bạn sửa userId = 1
+    User existing = dao.getUserById(1);
+    if (existing != null) {
+        existing.setFullName("Cập Nhật Tên Mới");
+        existing.setPhone("0912345678");
+        existing.setStatus("ACTIVE");
+        boolean updated = dao.updateUserInfo(existing);
+        System.out.println("Cập nhật userId=1: " + (updated ? "✅ OK" : "❌ FAIL"));
+    } else {
+        System.out.println("Không tìm thấy userId=1 để cập nhật");
+    }
+
+    // --- TEST 4: Khóa / mở khóa tài khoản ---
+    System.out.println("\n=== TEST UPDATE STATUS ===");
+    dao.updateUserStatus(1, "LOCKED");
+    System.out.println("Đã khóa userId=1");
+}
+
+
 }
