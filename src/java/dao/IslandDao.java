@@ -86,6 +86,22 @@ public class IslandDao extends DBContext {
         }
         return null; // không tìm thấy thì trả về null
     }
+    
+     public String getIslandNameById(int islandId) {
+        String islandName = "";
+        String sql = "SELECT islandName FROM Islands WHERE islandId = ?";
+        try  {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, islandId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                islandName = rs.getString("islandName");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return islandName;
+    }
 
     public List<Island> searchIslands(String country, String season) {
         List<Island> list = new ArrayList<>();
@@ -135,8 +151,8 @@ public class IslandDao extends DBContext {
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, (page - 1) * pageSize); // OFFSET
-            ps.setInt(2, pageSize);              // FETCH NEXT
+            ps.setInt(1, (page - 1) * pageSize);
+            ps.setInt(2, pageSize);             
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new Island(

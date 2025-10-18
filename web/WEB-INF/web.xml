@@ -20,6 +20,18 @@
         <servlet-name>TourDetailController</servlet-name>
         <servlet-class>controller.services.TourDetailController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>BookingController</servlet-name>
+        <servlet-class>controller.booking.BookingController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CreateCustomTourController</servlet-name>
+        <servlet-class>controller.services.CreateCustomTourController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BookingCustomTourController</servlet-name>
+        <servlet-class>controller.booking.BookingCustomTourController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Hello</servlet-name>
         <url-pattern>/Hello</url-pattern>
@@ -39,5 +51,33 @@
     <servlet-mapping>
         <servlet-name>TourDetailController</servlet-name>
         <url-pattern>/TourDetailController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BookingController</servlet-name>
+        <url-pattern>/BookingController</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ajaxServlet</servlet-name>
+        <servlet-class>com.vnpay.common.ajaxServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ajaxServlet</servlet-name>
+        <url-pattern>/PaymentController</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>VnpayReturn</servlet-name>
+        <servlet-class>com.vnpay.common.VnpayReturn</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VnpayReturn</servlet-name>
+        <url-pattern>/VnpayReturn</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CreateCustomTourController</servlet-name>
+        <url-pattern>/CreateCustomTourController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BookingCustomTourController</servlet-name>
+        <url-pattern>/BookingCustomTourController</url-pattern>
     </servlet-mapping>
 </web-app>

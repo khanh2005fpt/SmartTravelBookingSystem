@@ -20,13 +20,13 @@ public class Notification {
     private String type;
     private boolean isRead;
     private Date createdAt;
-    
+    private boolean isDeleted;
     
      public Notification() {
              
     }
 
-    public Notification(int notificationId, int userId, String title, String message, String type, boolean isRead, Date createdAt) {
+    public Notification(int notificationId, int userId, String title, String message, String type, boolean isRead, Date createdAt, boolean isDeleted) {
         this.notificationId = notificationId;
         this.userId = userId;
         this.title = title;
@@ -34,6 +34,7 @@ public class Notification {
         this.type = type;
         this.isRead = isRead;
         this.createdAt = createdAt;
+        this.isDeleted = isDeleted;
     }
 
     public int getNotificationId() {
@@ -92,9 +93,18 @@ public class Notification {
         this.createdAt = createdAt;
     }
 
+    public boolean isIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
     @Override
     public String toString() {
-        return "Notification{" + "notificationId=" + notificationId + ", userId=" + userId + ", title=" + title + ", message=" + message + ", type=" + type + ", isRead=" + isRead + ", createdAt=" + createdAt + '}';
+        return "Notification{" + "notificationId=" + notificationId + ", userId=" + userId + ", title=" + title + ", message=" + message + ", type=" + type + ", isRead=" + isRead + ", createdAt=" + createdAt + ", isDeleted=" + isDeleted + '}';
     }
-     
+
+  
 }

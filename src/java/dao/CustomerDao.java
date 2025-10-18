@@ -474,7 +474,7 @@ public void setPrimaryEmai(int userId, int emailId) {
                 
         try{
             
-                   String sql = "SELECT * FROM Notifications WHERE userId = ? ORDER BY createdAt DESC";
+                   String sql = "SELECT * FROM Notifications WHERE userId = ? AND isDeleted = 0 ORDER BY createdAt DESC";
                    try (PreparedStatement ps = connection.prepareStatement(sql)){
                        ps.setInt(1, userId);
                         ResultSet rs = ps.executeQuery();
@@ -487,6 +487,7 @@ public void setPrimaryEmai(int userId, int emailId) {
                 n.setType(rs.getString("type"));
                 n.setIsRead(rs.getBoolean("isRead"));
                 n.setCreatedAt(rs.getTimestamp("createdAt"));
+                n.setIsDeleted(rs.getBoolean("isDeleted"));
                 list.add(n);
                         }
                    }
@@ -512,8 +513,37 @@ public void setPrimaryEmai(int userId, int emailId) {
            return false;
        }
        
-      
+       // xoa mem tren UI user thoi
+         public void softDeleteAllByUser(int userId) {
+        String sql = "UPDATE Notifications SET isDeleted = 1 WHERE userId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     
-       
+         // Trả về danh sách notificationId chưa đọc
+public List<Integer> getUnreadNotificationIds(int userId)  {
+    List<Integer> unreadIds = new ArrayList<>();
+
+    String sql = "SELECT notificationId FROM Notifications WHERE userId = ? AND isRead=0 AND isDeleted=0";
+    
+     try (PreparedStatement ps = connection.prepareStatement(sql)) {
         
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+        
+        while (rs.next()) {
+            unreadIds.add(rs.getInt("notificationId"));
+        }
+    }catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    return unreadIds;
 }
+   
+    }
+

@@ -9,14 +9,15 @@
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
         <!-- Bootstrap 5 -->
+
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     </head>
 
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
 
-        <div class="container py-5">
-            <div class="row g-4">
+        <div class="container" style="max-width: 1400px;">
+            <div class="row" style="margin-top: 120px">
                 <!-- Cột nội dung tour -->
                 <div class="col-lg-7">
 
@@ -45,6 +46,81 @@
                             <p class="text-justify">${tour.description}</p>
 
                             <!-- Chương trình tour -->
+                            <!-- Dịch vụ đi kèm -->
+                            <h4 class="mt-4 mb-3 border-bottom pb-2 text-primary">Dịch vụ đi kèm</h4>
+                            <div class="row row-cols-1 row-cols-md-2 g-3">
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-bus-front-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Xe đưa đón tận nơi</h6>
+                                                <p class="text-muted mb-0">Đưa đón sân bay, khách sạn và điểm du lịch bằng xe đời mới.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-h-square-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Khách sạn tiêu chuẩn 3-4 sao</h6>
+                                                <p class="text-muted mb-0">Phòng sạch đẹp, tiện nghi, gần trung tâm và các điểm tham quan.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-emoji-smile-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Hướng dẫn viên nhiệt tình</h6>
+                                                <p class="text-muted mb-0">HDV chuyên nghiệp, am hiểu địa phương, hỗ trợ suốt hành trình.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-shield-check fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Bảo hiểm du lịch</h6>
+                                                <p class="text-muted mb-0">Bảo vệ an toàn cho khách trong suốt chuyến đi.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-cup-straw fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Ẩm thực địa phương</h6>
+                                                <p class="text-muted mb-0">Thưởng thức đặc sản vùng biển tươi ngon, hấp dẫn.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body d-flex align-items-center">
+                                            <i class="bi bi-ticket-perforated-fill fs-3 text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Vé tham quan trọn gói</h6>
+                                                <p class="text-muted mb-0">Bao gồm toàn bộ vé vào cổng các địa điểm trong chương trình.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <h4 class="mt-4 mb-3 border-bottom pb-2 text-primary">Chương trình tour</h4>
                             <div class="accordion" id="itineraryAccordion">
                                 <c:forEach var="iti" items="${itineraries}">
@@ -129,45 +205,61 @@
 
                 <!-- Cột sidebar -->
                 <div class="col-lg-5">
-
-
-
                     <div class="card shadow-sm p-4">
-
                         <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
-
-                        <form action="" method="">
-
-
-                            <div class="mb-3">
-                                <label class="form-label">Ngày khởi hành</label>
-                                <input type="date" class="form-control" name="departureDate" required>
+                        <c:if test="${not empty errorMessage}">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${errorMessage}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
+                            <c:remove var="errorMessage" scope="request"/> 
+                        </c:if>
 
-                            <div class="row">
-                                <div class="col">
-                                    <label class="form-label">Người lớn ( > 15 tuổi)</label>
-                                    <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.user}">
+                                <form action="BookingController" method="post">
+                                    <input type="hidden" name="tourId" value="${tour.tourId}">
+                                    <input type="hidden" name="price" value="${tour.price}">
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Ngày khởi hành</label>
+                                        <input type="date" class="form-control" name="departureDate" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label">Người lớn (>15 tuổi)</label>
+                                            <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label">Trẻ em (≤15 tuổi)</label>
+                                            <input type="number" class="form-control" name="childQty" min="0" value="0" required>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mt-4 text-primary">Giá Tour</h5>
+                                    <h4 class="text-primary fw-bold mb-3">
+                                        <fmt:setLocale value="vi_VN" />
+                                        <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
+                                    </h4>
+
+                                    <button type="submit" class="btn btn-primary btn-block fw-bold">
+                                        <i class="bi bi-check-circle"></i> Đặt Tour Ngay
+                                    </button>
+                                </form>
+                            </c:when>
+
+                            <c:otherwise>
+                                <div class="alert alert-warning">
+                                    Bạn cần <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
                                 </div>
-                                <div class="col">
-                                    <label class="form-label">Trẻ em ( <= 15 tuổi)</label>
-                                    <input type="number" class="form-control" name="childQty" min="0" value="0" required>
-                                </div>
-                            </div>
-                            <h5 class="mb-3 text-primary mt-4">Giá Tour</h5>
-
-                            <h4 class="text-primary font-weight-bold mb-3">
-                                <fmt:setLocale value="vi_VN" />
-                                <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ</h4>
-                            <button type="submit" class="btn btn-primary btn-block font-weight-bold">
-                                <i class="bi bi-check-circle"></i> Đặt Tour Ngay
-                            </button>
-                        </form>
-
-
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <%@ include file="/views/common/footer.jsp" %>

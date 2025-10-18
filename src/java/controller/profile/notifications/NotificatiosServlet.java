@@ -93,13 +93,41 @@ public class NotificatiosServlet extends HttpServlet {
 
     Integer userId = user.getUserId(); 
     
-    // danh dau thong bao 
-      Boolean markNoti = customerDao.markAllRead(userId);
-      List<Notification> listNotification = customerDao.getNotificationByUser(userId); 
-      session.setAttribute("listNotification", listNotification);
-      response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
+      String action = request.getParameter("action");
+      
+
     
     
+    try {
+        switch (action) {
+            case "markAll":
+                customerDao.markAllRead(userId);
+                break;
+
+            case "deleteAll":
+                List<Integer> unreadIds = customerDao.getUnreadNotificationIds(userId);
+              if (!unreadIds.isEmpty()) {
+    session.setAttribute("errorNoti_Deleted", "Bạn còn thông báo chưa đọc, không thể xóa được!");
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
+       return ;
+             } else {
+    customerDao.softDeleteAllByUser(userId);
+             }
+              break;
+        }
+
+       
+        List<Notification> listNotification = customerDao.getNotificationByUser(userId);
+        session.setAttribute("listNotification", listNotification);
+
+   
+         response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        session.setAttribute("errorMess", "Đã xảy ra lỗi khi xử lý thông báo!");
+        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
+    }
     }
 
     /** 
