@@ -109,13 +109,13 @@
                               method="POST" enctype="multipart/form-data" class="upload-form">
                             <input type="file" id="avatarFile" name="avatarFile" accept="image/*" 
                                    class="d-none"  onchange="previewAvatar(event)">
-                            <button type="submit" class="btn btn-upload w-100 mt-3">
-                                <i class="bi bi-upload"></i> Tải ảnh lên
-                            </button>
+                          
+                        
                         </form>
 
                         <div class="profile-info mt-3">
-                            <h5 class="fw-bold mb-1 text-dark text-primary">${sessionScope.user.fullName}</h5>
+                               <div class="w-100 mt-3 mb-1 text-primary"> <i class="bi bi-person-badge-fill"></i> ${sessionScope.user.fullName}  </div>
+                            
                             <p class="text-muted mb-0">
                                   ${sessionScope.profile_customer.loyaltyPoints}
                                 <i class="bi bi-coin text-warning me-1"></i>
@@ -151,14 +151,15 @@
 
                 <div class="profile-menu">
                     <a href="#" onclick="showMainSection(event, 'member-priority')"><i class="bi bi-award"></i> Membership Level</a>
-                    <a href="#" onclick="showMainSection(event, 'bookings')"><i class="bi bi-calendar2-check"></i> Đặt chỗ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'historyBooking')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
-                    <a href="#" onclick="showMainSection(event, 'setting')"><i class="bi bi-gear"></i> Cài đặt</a>
-                    <a href="#" onclick="showMainSection(event, 'account')" class="active"><i class="bi bi-person"></i> Tài khoản</a>
+                    <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
+                    <a href="#" onclick="showMainSection(event, 'account')" class="active"><i class="bi bi-gear"></i> Tài khoản</a>
                     <a  href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
 
                 </div>
+                                
             </div>
 
             <!-- ===================== logout modal profile ===================== -->        
@@ -399,13 +400,13 @@
            
 
             <!-- booking content -->
-            <div id="bookings" class="main-section" style="display:none;">Nội dung Đặt chỗ của tôi...</div>
-
+            <div id="historyBooking" class="main-section" style="display:none;"> Lịch sử Nội dung Đặt chỗ của tôi...</div>
+             
             <!--  content -->
             <div id="transactions" class="main-section" style="display:none;">Nội dung giao dịch của tôi...</div>
-
+             
             
-            
+                 <div id="favorites" class="main-section" style="display:none;">tour và dịch vụ yêu thích</div>
             
             <!-- account and securit content --> 
             <div id="account" class="account-container main-section " >
@@ -899,7 +900,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Ẩn tất cả section khi load
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-    const validSections = ['member-priority', 'bookings', 'transactions', 'notifications', 'setting', 'account'];
+    const validSections = ['member-priority', 'historyBooking', 'transactions', 'notifications', 'favorites', 'account'];
 
     if (section && validSections.includes(section)) {
         const selected = document.getElementById(section);

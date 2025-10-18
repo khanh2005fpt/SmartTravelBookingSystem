@@ -92,10 +92,10 @@
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=account#"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                             <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=member-priority#"><i class="bi bi-award"></i> Membership Level</a>
-                                <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=bookings#"><i class="bi bi-calendar2-check"></i>Đặt chỗ của tôi </a>
+                                <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=historyBooking#"><i class="bi bi-calendar2-check"></i>Lịch sử đặt chỗ của tôi</a>
                                   <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=notifications#"><i class="bi bi-bell mr-2"></i> Thông báo</a>
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=setting#"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=favorites#"><i class="bi bi-heart-fill"></i>Tours and Services</a>
                     
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">

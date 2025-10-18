@@ -16,7 +16,7 @@ src/java/config_temp/config.properties
 src/java/constant/Iconstant.java
 src/java/config_temp/Config.java
 src/java/config_temp/
- src/java/config/
+src/java/config/    
 
 #file private & xml,...
 nbproject/build-impl.xml
