@@ -11,8 +11,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Country;
 import model.Island;
 
@@ -77,13 +80,28 @@ public class SearchIslandController extends HttpServlet {
 
         int pageSize = 6; // số đảo mỗi trang
         IslandDao id = new IslandDao();
-        List<Country> countries = id.getAllCountries();
+        List<Country> countries = null;
+        try {
+            countries = id.getAllCountries();
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchIslandController.class.getName()).log(Level.SEVERE, null, ex);
+        }
 // Lấy tổng số đảo theo điều kiện tìm kiếm
-        int totalIslands = id.getTotalIslands(); // nếu muốn search kết hợp, cần viết thêm getTotalIslandsSearch
+        int totalIslands = 0;
+        try {
+            totalIslands = id.getTotalIslands(); // nếu muốn search kết hợp, cần viết thêm getTotalIslandsSearch
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchIslandController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         int totalPages = (int) Math.ceil((double) totalIslands / pageSize);
 
 // Lấy danh sách đảo theo tìm kiếm + phân trang
-        List<Island> list = id.searchIslands(country, bestSeason);
+        List<Island> list = null;
+        try {
+            list = id.searchIslands(country, bestSeason);
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchIslandController.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
 // Lấy subset cho trang hiện tại
         int fromIndex = (page - 1) * pageSize;

@@ -17,7 +17,7 @@ CREATE TABLE Users (
 );
 
 go
-select * from users
+
 
 --ALTER TABLE Users ADD CONSTRAINT DF_Users_roleId DEFAULT 3 FOR roleId;
 
@@ -254,6 +254,17 @@ CREATE TABLE IslandVehicles (
 go
 select * from IslandVehicles
 
+CREATE TABLE Places (
+    placeId INT IDENTITY(1,1) PRIMARY KEY,
+    islandId INT NOT NULL,              
+    placeName NVARCHAR(255) NOT NULL,       
+    location NVARCHAR(150),               
+    description NVARCHAR(500),              
+    hasTicket BIT DEFAULT 0,                 
+    ticketPrice INT CHECK (ticketPrice >= 0),
+    image NVARCHAR(255),                    
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
 
 
 CREATE TABLE CustomTours (
@@ -276,6 +287,7 @@ CREATE TABLE CustomTourDetails (
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
 
+select * from Users
 CREATE TABLE CustomTourItinerary (
     itineraryId INT IDENTITY(1,1) PRIMARY KEY,
     customTourId INT NOT NULL,
