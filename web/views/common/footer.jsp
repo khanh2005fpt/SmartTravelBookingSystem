@@ -5,66 +5,36 @@
 --%>
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<footer class="ftco-footer bg-bottom ftco-no-pt" style="background-image: url(images/bg_3.jpg);">
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col-md pt-5">
-                <div class="ftco-footer-widget pt-md-5 mb-4">
-                    <h2 class="ftco-heading-2">Về chúng tôi</h2>
-                    <p>Xa xa, sau những ngọn núi chữ, xa các quốc gia Vokalia và Consonantia, có những văn bản mù sinh sống.</p>
-                    <ul class="ftco-footer-social list-unstyled float-md-left float-lft">
-                        <li class="ftco-animate"><a href="#"><span class="fa fa-twitter"></span></a></li>
-                        <li class="ftco-animate"><a href="#"><span class="fa fa-facebook"></span></a></li>
-                        <li class="ftco-animate"><a href="#"><span class="fa fa-instagram"></span></a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-md pt-5 border-left">
-                <div class="ftco-footer-widget pt-md-5 mb-4 ml-md-5">
-                    <h2 class="ftco-heading-2">Thông tin</h2>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="py-2 d-block">Tư vấn trực tuyến</a></li>
-                        <li><a href="#" class="py-2 d-block">Tư vấn chung</a></li>
-                        <li><a href="#" class="py-2 d-block">Điều kiện đặt chỗ</a></li>
-                        <li><a href="#" class="py-2 d-block">Chính sách bảo mật</a></li>
-                        <li><a href="#" class="py-2 d-block">Chính sách hoàn tiền</a></li>
-                        <li><a href="#" class="py-2 d-block">Gọi cho chúng tôi</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-md pt-5 border-left">
-                <div class="ftco-footer-widget pt-md-5 mb-4">
-                    <h2 class="ftco-heading-2">Trải nghiệm</h2>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="py-2 d-block">Phiêu lưu</a></li>
-                        <li><a href="#" class="py-2 d-block">Khách sạn & Nhà hàng</a></li>
-                        <li><a href="#" class="py-2 d-block">Bãi biển</a></li>
-                        <li><a href="#" class="py-2 d-block">Thiên nhiên</a></li>
-                        <li><a href="#" class="py-2 d-block">Cắm trại</a></li>
-                        <li><a href="#" class="py-2 d-block">Tiệc tùng</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-md pt-5 border-left">
-                <div class="ftco-footer-widget pt-md-5 mb-4">
-                    <h2 class="ftco-heading-2">Bạn có câu hỏi?</h2>
-                    <div class="block-23 mb-3">
-                        <ul>
-                            <li><span class="icon fa fa-map-marker"></span><span class="text">203 Đường Giả, Mountain View, San Francisco, California, USA</span></li>
-                            <li><a href="#"><span class="icon fa fa-phone"></span><span class="text">+2 392 3929 210</span></a></li>
-                            <li><a href="#"><span class="icon fa fa-paper-plane"></span><span class="text">info@yourdomain.com</span></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+<footer class="btn btn-primary btn-block bg-light text-dark pt-5 pb-4 border-top shadow-sm ">
+    <div class="container" style="max-width: 1400px;">
         <div class="row">
-            <div class="col-md-12 text-center">
-
-                <p>
-                    Bản quyền &copy;<script>document.write(new Date().getFullYear());</script> Đã đăng ký bản quyền | Mẫu này được thực hiện với <i class="fa fa-heart" aria-hidden="true"></i> bởi <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                </p>
+            <!-- Giới thiệu -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Meland</h5>
+                <p>Chuyên tổ chức tour du lịch đảo hấp dẫn, khám phá thiên nhiên và trải nghiệm văn hóa địa phương quanh khu vực Đông Nam Á.</p>
+                <p class="fst-italic">"Hành trình khám phá hạnh phúc, mỗi chuyến đi là một kỷ niệm."</p>
             </div>
+            <!-- Lời chúc / Thông điệp -->
+            <div class="col-md-6 mb-4">
+                <h5 class="fw-bold mb-3">Lời chúc</h5>
+                <ul class="list-unstyled">
+                    <li>🌴 Chúc bạn có những trải nghiệm tuyệt vời tại đảo xanh.</li>
+                    <li>☀️ Mỗi chuyến đi là một hành trình đầy năng lượng và niềm vui.</li>
+                    <li>🏖️ Hãy để Meland Travel đồng hành cùng bạn trong mọi khám phá.</li>
+                    <li>🌊 Gió biển mát lành, tiếng sóng rì rào, và kỷ niệm khó quên.</li>
+                </ul>
+            </div>
+            <!-- Thông tin liên hệ -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Liên hệ</h5>
+                <p><i class="fa fa-map-marker me-2"></i> Đại học FPT Hà Nội</p>
+                <p><i class="fa fa-phone me-2"></i> 0912 459 092</p>
+                <p><i class="fa fa-envelope me-2"></i> nguyenhuubaokhanh2005@gmail.com</p>
+            </div>
+
+
+
         </div>
     </div>
 </footer>
+
