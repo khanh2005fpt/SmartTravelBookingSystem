@@ -23,7 +23,7 @@ public class Promotion {
     private Date createdAt;
 
     // Chỉ 2 loại tour
-    private String targetType;    // "FIXED_TOUR" hoặc "CUSTOM_TOUR"
+    private String targetType;   
     private int targetId;
 
     public Promotion() {

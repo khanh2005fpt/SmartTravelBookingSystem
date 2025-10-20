@@ -71,7 +71,7 @@ GO
 
 select * from CustomerProfiles
 select * from Notifications
-select * from Bookings
+select * from Islands
 UPDATE Bookings
 SET status = 'PENDING'
 WHERE bookingId = 4;
@@ -236,6 +236,7 @@ select * from hotels a join islands b on a.islandId = b.islandId where a.islandI
 
 
 -- bảng Arlines : các hãng bay
+select *from Airlines
 CREATE TABLE Airlines (
     airlineId INT IDENTITY(1,1) PRIMARY KEY,
     airlineName NVARCHAR(100) NOT NULL,   -- Tên hãng hàng không (Vietnam Airlines, Vietjet Air…)
@@ -246,20 +247,33 @@ CREATE TABLE Airlines (
 );
 go
 
+
+
+
 -- bảng flights 
+drop table Flights
 CREATE TABLE Flights (
     flightId INT IDENTITY(1,1) PRIMARY KEY,
-    flightNumber VARCHAR(20) NOT NULL,       -- Mã chuyến bay (VD: VN123)
-    airlineId INT NOT NULL,                  -- FK đến Airlines
-    departure VARCHAR(100) NOT NULL,         -- Xuất phát (thành phố hoặc đảo)
-    destination VARCHAR(100) NOT NULL,       -- Điểm đến (thành phố hoặc đảo)
-    destinationIslandId INT NULL,            -- Nếu destination là đảo -> FK Islands
-    departureTime DATETIME NOT NULL,
-    arrivalTime DATETIME NOT NULL,
-    price DECIMAL(10,3) NOT NULL,
+    flightNumber VARCHAR(20) NOT NULL,           -- Mã chuyến bay (VD: VN123)
+    airlineId INT NOT NULL,                      -- FK đến Airlines
+    departure NVARCHAR(100) NOT NULL,             -- Nơi xuất phát
+    destination NVARCHAR(100) NOT NULL,           -- Điểm đến
+    destinationIslandId INT NULL,                -- Nếu điểm đến là đảo -> FK Islands
+    departureTime TIME NOT NULL,                 -- Giờ khởi hành
+    arrivalTime TIME NOT NULL,                   -- Giờ đến
+    returnDepartureTime TIME NULL,               -- Giờ khởi hành chiều về
+    returnArrivalTime TIME NULL,                 -- Giờ hạ cánh chiều về
+    basePrice INT NOT NULL,                      -- Giá gốc (giá cơ bản)
+    flightType NVARCHAR(10) 
+        CHECK (flightType IN ('Một chiều', 'Khứ hồi')) NOT NULL,  -- Loại chuyến bay
+    flightClass NVARCHAR(50) 
+        CHECK (flightClass IN ('Phổ thông', 'Thương gia', 'Hạng nhất')) NOT NULL, -- Hạng vé
+    destinationImageUrl VARCHAR(255) NULL,       -- Ảnh điểm đến (nếu là đảo)
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
 
 select * from flights
 GO
@@ -1068,25 +1082,31 @@ VALUES
 
 
 -- Xem dữ liệu
-select * from Hotels;
+select * from Airlines;
 select * from dbo.TourActivities
 -- arilines
 select * from TourActivities
 
 INSERT INTO Airlines (airlineName, iataCode, country, hotline, logoUrl)
 VALUES
-('Vietnam Airlines', 'VN', 'Vietnam', '19001100', 'views/home/images/VietnamAirlines.jpg'),
-('Vietjet Air', 'VJ', 'Vietnam', '19001886', 'views/home/images/VietjetAir.jpg');
+(N'Vietnam Airlines', 'VN142', N'Việt Nam', '1900 1100', 'views/home/images/flights/Vietnam_Airlines-Logo.jpg'),
+(N'VietJet Air', 'VJ432', N'Việt Nam', '1900 1886', 'views/home/images/VietJet_Air-Logo.jpg	'),
+(N'Bamboo Airways', 'QH210', N'Việt Nam', '1900 1166', 'images/airlines/bamboo_airways.png'),
+(N'Thai Airways', 'TG021', N'Thái Lan', '+66 2356 1111', 'images/airlines/thai_airways.png'),
+(N'Singapore Airlines', 'SQ984', N'Singapore', '+65 6223 8888', 'images/airlines/singapore_airlines.png'),
+(N'Malaysia Airlines', 'MH147', N'Malaysia', '+60 3 7843 3000', 'images/airlines/malaysia_airlines.png'),
+(N'Garuda Indonesia', 'GA', N'Indonesia', '+62 804 180 7807', 'images/airlines/garuda_indonesia.png');
 
 --flights
-select * from users
-select * from bookings
+select * from Islands
+INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, departureTime, arrivalTime, price,  flightImageUrl)
+VALUES ('VN142', 1, 'Ha Noi', 'Phu Quoc', 1, '08:30', '11:30', 2500000, 'views/home/images/flights/VietName_Airline-Airplane.png'),
+       ('VJ432', 2, 'TP Ho Chi Minh', 'Phuket', 3, '09:15', '10:10', 1800000, 'views/home/images/flights/Vietjet_airline-Airplane.png');
 
-INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, departureTime, arrivalTime, price)
-VALUES
-('VN123', 1, 'Hanoi', 'Phu Quoc', 1, '2025-10-20 08:00', '2025-10-20 10:00', 500.000),
-('VJ456', 2, 'Ho Chi Minh', 'Phuket', 2, '2025-10-21 18:30', '2025-10-21 23:00', 850.000);
-select * from flights
+
+
+select * from Airlines
+
 -- vehicle insland
 -- Phú Quốc (islandId = 1)
 select * from IslandVehicles
@@ -1145,7 +1165,44 @@ VALUES
 
 
 
+-- flights
+select * from Flights
+INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
+                     departureTime, arrivalTime, returnDepartureTime, returnArrivalTime, 
+                     basePrice, flightType, flightClass, destinationImageUrl)
+VALUES
+--  Từ Hà Nội đến Phú Quốc
+('VN101', 1, N'Hà Nội', N'Phú Quốc', 1, '07:30', '09:45', '16:00', '18:15', 2200000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/phuquoc.jpg'),
+('VJ301', 2, N'Hà Nội', N'Phú Quốc', 1, '12:00', '14:10', NULL, NULL, 1100000, N'Một chiều', N'Thương gia', 'views/home/images/islands/phuquoc.jpg'),
 
+--  Từ TP.HCM đến Langkawi
+('VN205', 1, N'TP.HCM', N'Langkawi', 2, '08:00', '10:30', '17:00', '19:30', 3200000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/langkawi.jpg'),
+('QH505', 3, N'TP.HCM', N'Langkawi', 2, '09:15', '11:45', NULL, NULL, 1800000, N'Một chiều', N'Thương gia', 'views/home/images/islands/langkawi.jpg'),
+
+--  Từ Hà Nội đến Phuket
+('VN307', 1, N'Hà Nội', N'Phuket', 3, '06:45', '09:00', '15:30', '17:45', 3500000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/phuket.jpg'),
+
+--  Từ TP.HCM đến Bali
+('VJ407', 2, N'TP.HCM', N'Bali', 4, '08:15', '12:00', '18:00', '21:45', 4000000, N'Khứ hồi', N'Thương gia', 'views/home/images/islands/bali.jpg'),
+('QH509', 3, N'TP.HCM', N'Bali', 4, '13:30', '17:15', NULL, NULL, 2100000, N'Một chiều', N'Phổ thông', 'views/home/images/islands/bali.jpg'),
+
+--  Từ Hà Nội đến Boracay
+('VN321', 1, N'Hà Nội', N'Boracay', 5, '09:00', '12:15', '19:00', '22:15', 3700000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/boracay.jpg'),
+
+--  Từ TP.HCM đến Sihanoukville
+('VJ215', 2, N'TP.HCM', N'Sihanoukville', 6, '10:00', '11:30', '17:45', '19:15', 2500000, N'Khứ hồi', N'Thương gia', 'views/home/images/islands/sihanoukville.jpg'),
+
+--  Từ Hà Nội đến Tioman
+('VN333', 1, N'Hà Nội', N'Tioman', 7, '07:00', '10:30', '15:00', '18:30', 3200000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/tioman.jpg'),
+
+--  Từ TP.HCM đến Koh Samui
+('QH601', 3, N'TP.HCM', N'Koh Samui', 8, '08:00', '10:45', NULL, NULL, 3300000, N'Một chiều', N'Phổ thông', 'views/home/images/islands/kohsamui.jpg'),
+
+--  Từ Hà Nội đến Nusa Penida
+('VN901', 1, N'Hà Nội', N'Nusa Penida', 9, '06:30', '10:15', '17:00', '20:45', 4100000, N'Khứ hồi', N'Thương gia', 'views/home/images/islands/nusapenida.jpg'),
+
+--  Từ TP.HCM đến Palawan
+('VJ701', 2, N'TP.HCM', N'Palawan', 10, '09:00', '12:30', '18:00', '21:30', 3900000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/palawan.jpg');
 
 
 -- payments

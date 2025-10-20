@@ -87,6 +87,8 @@ public class IslandDao extends DBContext {
         return null; // không tìm thấy thì trả về null
     }
     
+    
+    
      public String getIslandNameById(int islandId) {
         String islandName = "";
         String sql = "SELECT islandName FROM Islands WHERE islandId = ?";

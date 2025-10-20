@@ -9,15 +9,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.Airlines;
+import model.Flight;
 import model.Hotel;
+import model.Island;
 import model.IslandVehicle;
 import utils.DBContext;
+import java.sql.Time;
+
 
 /**
  *
  * @author Admin
  */
 public class ServiceDao extends DBContext{
+  public static final ServiceDao INSTANCE = new ServiceDao();
     
     //Lay danh sach phuong tien theo dao
     public List<IslandVehicle> getListVehicleById(int id) {
@@ -202,4 +208,135 @@ public class ServiceDao extends DBContext{
         }
         return total;
     }
+    
+    // la danh sach ve may bay dua theo diem den 
+   public List<Flight> getFlightsByIslandId(int islandId) {
+    List<Flight> list = new ArrayList<>();
+    String sql = "SELECT * FROM Flights WHERE destinationIslandId = ?";
+    
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, islandId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Flight flight = new Flight();
+
+               
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+                flight.setBasePrice(rs.getInt("basePrice"));
+                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                // Gán Airline 
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                flight.setAirline(airline);
+
+                // Gán Island 
+               Island island = new Island();
+               island.setIslandId(rs.getInt("destinationIslandId"));
+               flight.setDestinationIsland(island);
+
+
+                // Chuyển từ  Time sang LocalTime
+                flight.setDepartureTime(rs.getTime("departureTime").toLocalTime());
+                flight.setArrivalTime(rs.getTime("arrivalTime").toLocalTime());
+
+                // Xử lý giá trị null cho chiều về
+                Time returnDep = rs.getTime("returnDepartureTime");
+                flight.setReturnDepartureTime(returnDep != null ? returnDep.toLocalTime() : null);
+
+                Time returnArr = rs.getTime("returnArrivalTime");
+                flight.setReturnArrivalTime(returnArr != null ? returnArr.toLocalTime() : null);
+
+                list.add(flight);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
 }
+   
+   // lay ve may bay theo type 
+   
+   public List<Flight> getFlightsByIslandIdAndType(int islandId, String type) {
+    List<Flight> list = new ArrayList<>();
+    String sql = "SELECT * FROM Flights WHERE destinationIslandId = ? AND flightType = ?";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, islandId);
+        ps.setString(2, type);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Flight flight = new Flight();
+
+                // Gán thông tin cơ bản
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+                flight.setBasePrice(rs.getInt("basePrice"));
+                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                // Gán Airline
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                flight.setAirline(airline);
+
+                // Gán Island
+                Island island = new Island();
+                island.setIslandId(rs.getInt("destinationIslandId"));
+                flight.setDestinationIsland(island);
+
+                // Chuyển từ Time sang LocalTime
+                Time dep = rs.getTime("departureTime");
+                flight.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+
+                Time arr = rs.getTime("arrivalTime");
+                flight.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+
+                // Xử lý giá trị null cho chiều về
+                Time returnDep = rs.getTime("returnDepartureTime");
+                flight.setReturnDepartureTime(returnDep != null ? returnDep.toLocalTime() : null);
+
+                Time returnArr = rs.getTime("returnArrivalTime");
+                flight.setReturnArrivalTime(returnArr != null ? returnArr.toLocalTime() : null);
+
+                list.add(flight);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
+    public static void main(String[] args) {
+          ServiceDao dao = new   ServiceDao();
+
+        
+        int islandId = 1;
+
+        List<Flight> flights = dao.getFlightsByIslandIdAndType(islandId, "Một chiều");
+
+        System.out.println("=== DANH SÁCH CHUYẾN BAY ĐẾN ISLAND ID " + islandId + " ===");
+        for (Flight f : flights) {
+            System.out.println(f);
+        }
+
+        if (flights.isEmpty()) {
+            System.out.println("⚠️ Không có chuyến bay nào đến đảo này!");
+        }
+    }
+    }
+    
+

@@ -13,8 +13,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import model.Flight;
 import model.Hotel;
 import model.Island;
 import model.IslandVehicle;
@@ -25,6 +27,8 @@ import model.Tour;
  * @author Admin
  */
 public class IslandDetailController extends HttpServlet {
+
+
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -64,12 +68,13 @@ public class IslandDetailController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+     
 
         try {
             String idRaw = request.getParameter("detailId");
 
             int id = Integer.parseInt(idRaw);
-
+            String flightTypeRaw = request.getParameter("flightType");
             IslandDao dao = new IslandDao();
             Island island = dao.getIslandById(id);
             ServiceDao serviceDao = new ServiceDao();
@@ -80,11 +85,30 @@ public class IslandDetailController extends HttpServlet {
             TourDao td = new TourDao();
             List<Tour> listT = td.getListToursById(id);
 
-
+// Lấy danh sách flights dựa trên flightType (
+            List<Flight> flights = new ArrayList<>();
+            if (flightTypeRaw != null) {
+                String flightType;
+                switch (flightTypeRaw.toLowerCase()) {
+                    case "motchieu":
+                        flightType = "Một chiều";
+                        break;
+                    case "khuhoi":
+                        flightType = "Khứ hồi";
+                        break;
+                    default:
+                        flightType = null;
+                }
+                if (flightType != null) {
+                    flights = serviceDao.getFlightsByIslandIdAndType(id, flightType);
+                }
+            }
                 request.setAttribute("islandvehicles", listV);
                 request.setAttribute("island", island);
                 request.setAttribute("hotels", listH);
                 request.setAttribute("tours", listT);
+                request.setAttribute("flights", flights);
+                request.setAttribute("flightType", flightTypeRaw != null ? flightTypeRaw : ""); // Truyền flightType để hiển thị
                 request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
           
         } catch (Exception e) {

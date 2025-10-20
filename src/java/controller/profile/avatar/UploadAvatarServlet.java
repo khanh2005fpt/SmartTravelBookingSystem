@@ -117,7 +117,7 @@ public class UploadAvatarServlet extends HttpServlet {
         String uniqueName = "avatar_" + System.currentTimeMillis() + ext;
 
        // Thư mục lưu file
-        String uploadDir = "E:/FALL_2025/SWP/SWP391-SE1957KS-Group-3-Smart-Travel/UploadData/Avatars";
+        String uploadDir = "E:/FALL_2025/SWP/SmartBookingTravelSystem/UploadData/Avatars";
         File uploadPath = new File(uploadDir);
         if (!uploadPath.exists()) uploadPath.mkdirs();
 

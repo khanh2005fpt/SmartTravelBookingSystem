@@ -88,6 +88,7 @@ public class CreateCustomTourController extends HttpServlet {
             // Lấy dữ liệu từ form
             String islandIdStr = request.getParameter("islandId");
             String hotelIdStr = request.getParameter("selectedHotelId");
+            String flightIdStr = request.getParameter("selectedFlightId");
             String vehicleIdStr = request.getParameter("selectedVehicleId"); // tùy chọn
             String startDateStr = request.getParameter("startDate");
             String endDateStr = request.getParameter("endDate");
@@ -98,7 +99,7 @@ public class CreateCustomTourController extends HttpServlet {
 //                throw new ServletException("Thiếu tham số yêu cầu để tạo tour.");
 //            }
             if (hotelIdStr == null || hotelIdStr.isEmpty()) {
-                request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn khách sạn.");
+                request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
                 response.sendRedirect("IslandDetailController?detailId=" + id);
                 return;
             }

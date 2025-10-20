@@ -364,4 +364,23 @@ input::placeholder {
   padding: 2px;
 }
 
+/*----------------------------  flight service -----------------------------------------------------------*/
+    
+  /*----------1.Phu quoc-----------------*/
+  .date-item label {
+    margin-left: 36px;
+}
+.date-input{
+    margin-right: 30px;
+    
+}
+  .btn-group .btn:hover {
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+.btn-group .btn.active:hover {
+    opacity: 1;
+}
+
+
  

@@ -77,7 +77,7 @@
 
                 <!-- Tours Section -->
                 <section id="toursSection" class="mb-5">
-                    <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Các tour du lịch</h2>
+                    <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Các tour du lịch</h2>
                     <div class="row g-4">
                         <c:choose>
                             <c:when test="${empty tours}">
@@ -140,7 +140,7 @@
 
 
 
-                <!-- Hotels Section -->
+                <!-- Tour riêng le Section -->
                 <form action="CreateCustomTourController" method="post" id="customTourForm">
                     <c:if test="${not empty sessionScope.errorMessage}">
                         <div class="alert alert-danger text-center fw-semibold rounded-pill py-2 shadow-sm mb-4">
@@ -151,11 +151,11 @@
 
                     <input type="hidden" name="islandId" value="${island.islandId}">
                     <section class="mb-5 text-center">
-                        <h2 class="h3 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
+                        <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
                         <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
                             🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
                         </div>
-                        <h2 class="h3 mb-4 text-primary fw-bold">📅 Chọn thời gian du lịch</h2>
+                        <h2 class="h2 mb-4 text-primary fw-bold">📅 Chọn thời gian du lịch</h2>
                         <div class="d-flex justify-content-center gap-4">
                             <div>
                                 <label for="startDate" class="form-label fw-semibold">Ngày bắt đầu</label>
@@ -166,8 +166,116 @@
                                 <input type="date" class="form-control rounded-pill text-center" id="endDate" name="endDate" required>
                             </div>
                         </div>
-                        <small class="text-muted d-block mt-2">Ví dụ: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
+                        <small class="text-muted d-block mt-2">  <Strong> Ví dụ</Strong>: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
                     </section>
+                    
+                    
+                     <!------- Flights Section -------------------------------------------------------------->
+<!-- Flights Section - ADD-ON ITEM -->
+
+<section class="mb-5">
+    <h2 class="h2 text-center text-primary fw-bold mb-4">
+        <i class="bi bi-airplane-engines-fill me-2"></i>Chuyến bay du lịch
+    </h2>
+
+    <div class="card shadow mb-4">
+        <div class="card-body p-4 text-center">
+            <div class="btn-group w-100 w-md-auto" role="group">
+                <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=motchieu"
+                   class="btn btn-primary rounded-pill px-4 py-3 ">
+                    <i class="bi bi-arrow-right-circle-fill me-1 "></i> Một chiều
+                </a>
+                <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=khuhoi"
+                   class="btn btn-outline-primary rounded-pill px-4 py-3">
+                    <i class="bi bi-arrow-left-right-circle-fill me-1 "></i> Khứ hồi
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+          document.querySelectorAll('#flightTypeButtons .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+           document.querySelectorAll('#flightTypeButtons .btn').forEach(b => b.classList.remove('btn-primary', 'active'));
+            btn.classList.add('btn-primary', 'active');
+              });
+                  });
+    </script>
+
+    <div class="flight-scroll-container row ">
+        <c:choose>
+            <c:when test="${not empty flights}">
+                <c:forEach var="flight" items="${flights}">
+                    <div class="col-lg-4 col-md-6 mb-4 flight-item">
+                        <div class="card flight-item-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-flightId="${flight.flightId}">
+                            <div class="position-relative">
+                                <img src="${pageContext.request.contextPath}/${flight.destinationImageUrl}"
+                                     alt="${flight.flightNumber}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                                <span class="badge bg-info text-dark position-absolute top-0 start-0 m-2 px-3 py-2 rounded-pill shadow-sm">
+                                    ${flight.flightClass}
+                                </span>
+                            </div>
+                            <div class="card-body d-flex flex-column ">
+                                <h5 class="card-title fw-bold">
+                                    <c:choose>
+                                        <c:when test="${flightType == 'khuhoi'}">
+                                            ${flight.departure} ⇌ ${flight.destination}
+                                        </c:when>
+                                        <c:otherwise>
+                                            ${flight.departure} → ${flight.destination}
+                                        </c:otherwise>
+                                    </c:choose>
+                                </h5>
+
+                                <p class="card-text text-muted mb-1">
+                                    <i class="bi bi-calendar-event"></i> ${flight.departureTime} - ${flight.arrivalTime} <!-- Thêm thời gian -->
+                                </p>
+                                <p class="fw-bold text-danger fs-5">
+                                    <fmt:formatNumber value="${flight.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/>
+                                </p>
+                                <div class="mt-auto">
+                                    <div class="mt-auto d-flex gap-2">
+                                        <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn" data-flight-id="${flight.flightId}">
+                                            <i class="bi bi-check-circle"></i> Chọn
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-success flex-fill rounded-pill w-100"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#flightDetailModal"
+                                                data-flightnumber="${flight.flightNumber}"
+                                                data-flightimage="${pageContext.request.contextPath}/${flight.destinationImageUrl}">
+                                            Xem chi tiết
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </c:forEach>
+            </c:when>
+            <c:otherwise>
+                <div class="col-12 text-center text-muted py-5">
+                    <i class="bi bi-airplane fs-1 d-block mb-3"></i>
+                   Vui lòng hãy tìm chuyến bay cho tour của bạn
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+    <input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
+</section>
+
+<!-- HIDDEN INPUT -->
+<input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
+
+
+
+<!-- CSS Styles cho Flight Section -->
+
+  
+                
+                    
+                    
+                      <!-- Hotels Section -->
                     <section class="mb-5">
                         <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Chọn khách sạn</h2>
 
@@ -426,7 +534,7 @@
         <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
 
 
-        <script>
+       <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const vehicleButtons = document.querySelectorAll(".vehicle-card .select-btn");
                 const hotelButtons = document.querySelectorAll(".hotel-card .select-hotel-btn");
@@ -486,7 +594,6 @@
                 });
             });
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             // Lấy modal element
             const hotelModal = document.getElementById('hotelDetailModal');
@@ -503,10 +610,19 @@
                 hotelModal.querySelector('#modalHotelName').textContent = hotelName;
                 hotelModal.querySelector('#modalHotelImage').src = hotelImage;
             });
+            
+     
+          
+          
         </script>
+        
 
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
         <%@ include file="/views/common/script.jsp" %>
+        <script>
+    console.log("Test log from basic script");
+</script>   
     </body>
 </html>

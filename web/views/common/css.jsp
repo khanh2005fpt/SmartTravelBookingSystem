@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/jquery.timepicker.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/flaticon.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
 
 
 
