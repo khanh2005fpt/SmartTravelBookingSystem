@@ -262,22 +262,50 @@ public class ServiceDao extends DBContext{
     return list;
 }
    
-   // lay ve may bay theo type 
-   
-   public List<Flight> getFlightsByIslandIdAndType(int islandId, String type) {
-    List<Flight> list = new ArrayList<>();
-    String sql = "SELECT * FROM Flights WHERE destinationIslandId = ? AND flightType = ?";
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+   
+ // la danh sach ve may bay dua theo diem den  logo , maCode
+   public List<Flight> getFlightsByIslandIdAndType(int islandId, String flightType) throws Exception{
+     
+       List<Flight> listFlights = new ArrayList<>();
+          // join de lay logo va maCode
+        String sql = """
+    SELECT 
+        f.flightId,
+        f.flightNumber,
+        f.departure,
+        f.destination,
+        f.departureTime,
+        f.arrivalTime,
+        f.basePrice,
+        f.ticketAvailable,  
+        f.returnDepartureTime,
+        f.returnArrivalTime,                           
+        f.flightType,
+        f.flightClass,
+        f.destinationImageUrl,
+        f.airlineId,
+        f.destinationIslandId,
+        a.airlineName,
+        a.iataCode,
+        a.logoUrl
+    FROM Flights f
+    JOIN Airlines a ON f.airlineId = a.airlineId
+    WHERE f.destinationIslandId = ? AND f.flightType = ?
+    ORDER BY f.basePrice ASC
+""";
+            try ( PreparedStatement ps = connection.prepareStatement(sql))
+         {
+
         ps.setInt(1, islandId);
-        ps.setString(2, type);
+        ps.setString(2, flightType);
 
         try (ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                Flight flight = new Flight();
-
-                // Gán thông tin cơ bản
-                flight.setFlightId(rs.getInt("flightId"));
+                
+                  Flight flight = new Flight();
+            
+                 flight.setFlightId(rs.getInt("flightId"));
                 flight.setFlightNumber(rs.getString("flightNumber"));
                 flight.setDeparture(rs.getString("departure"));
                 flight.setDestination(rs.getString("destination"));
@@ -290,6 +318,10 @@ public class ServiceDao extends DBContext{
                 // Gán Airline
                 Airlines airline = new Airlines();
                 airline.setAirlineId(rs.getInt("airlineId"));
+                  // Thông tin hãng hàng không
+               airline.setAirlineName(rs.getString("airlineName"));
+               airline.setIataCode(rs.getString("iataCode"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
                 flight.setAirline(airline);
 
                 // Gán Island
@@ -311,31 +343,48 @@ public class ServiceDao extends DBContext{
                 Time returnArr = rs.getTime("returnArrivalTime");
                 flight.setReturnArrivalTime(returnArr != null ? returnArr.toLocalTime() : null);
 
-                list.add(flight);
+             
+                listFlights.add(flight);
+                
             }
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return list;
-}
+           
+           
+       } catch (Exception e) {
+           e.printStackTrace();
+        throw e;
+       }
+            
+       return listFlights;
+
+       
+   }
+   
+   
 
     public static void main(String[] args) {
           ServiceDao dao = new   ServiceDao();
 
         
         int islandId = 1;
-
-        List<Flight> flights = dao.getFlightsByIslandIdAndType(islandId, "Một chiều");
-
-        System.out.println("=== DANH SÁCH CHUYẾN BAY ĐẾN ISLAND ID " + islandId + " ===");
+      try{
+           List<Flight> flights = dao.getFlightsByIslandIdAndType(islandId, "Một chiều");
+           
+            System.out.println("=== DANH SÁCH CHUYẾN BAY ĐẾN ISLAND ID " + islandId + " ===");
         for (Flight f : flights) {
-            System.out.println(f);
+           System.out.println("Flight: " + f.getFlightNumber() + ", Airline: " + f.getAirline().getAirlineName() + ", Logo: " + f.getAirline().getLogoUrl());
         }
 
         if (flights.isEmpty()) {
             System.out.println("⚠️ Không có chuyến bay nào đến đảo này!");
         }
+           
+           
+      }catch(Exception e){
+          System.out.println(e);
+      }
+       
+       
     }
     }
     

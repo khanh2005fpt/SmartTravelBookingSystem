@@ -12,18 +12,18 @@ public class Airlines {
      private int airlineId;
     private String airlineName; 
     private String iataCode;    
-    private String country;     
+    private int countryId;     
     private String hotline;     
     private String logoUrl; 
 
     public Airlines() {
     }
 
-    public Airlines(int airlineId, String airlineName, String iataCode, String country, String hotline, String logoUrl) {
+    public Airlines(int airlineId, String airlineName, String iataCode, int countryId, String hotline, String logoUrl) {
         this.airlineId = airlineId;
         this.airlineName = airlineName;
         this.iataCode = iataCode;
-        this.country = country;
+        this.countryId = countryId;
         this.hotline = hotline;
         this.logoUrl = logoUrl;
     }
@@ -52,12 +52,12 @@ public class Airlines {
         this.iataCode = iataCode;
     }
 
-    public String getCountry() {
-        return country;
+    public int getCountryId() {
+        return countryId;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
     }
 
     public String getHotline() {
@@ -78,7 +78,9 @@ public class Airlines {
 
     @Override
     public String toString() {
-        return "Airlines{" + "airlineId=" + airlineId + ", airlineName=" + airlineName + ", iataCode=" + iataCode + ", country=" + country + ", hotline=" + hotline + ", logoUrl=" + logoUrl + '}';
+        return "Airlines{" + "airlineId=" + airlineId + ", airlineName=" + airlineName + ", iataCode=" + iataCode + ", countryId=" + countryId + ", hotline=" + hotline + ", logoUrl=" + logoUrl + '}';
     }
+
+  
     
 }

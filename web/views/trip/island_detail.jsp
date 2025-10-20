@@ -175,19 +175,19 @@
 
 <section class="mb-5">
     <h2 class="h2 text-center text-primary fw-bold mb-4">
-        <i class="bi bi-airplane-engines-fill me-2"></i>Chuyến bay du lịch
+        ✈️</i>Chuyến bay du lịch
     </h2>
 
-    <div class="card shadow mb-4">
+    <div class="card shadow rounded-4 mb-4 ">
         <div class="card-body p-4 text-center">
-            <div class="btn-group w-100 w-md-auto" role="group">
+            <div class="d-flex gap-2  btn-group w-100 w-md-auto " role="group">
                 <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=motchieu"
                    class="btn btn-primary rounded-pill px-4 py-3 ">
                     <i class="bi bi-arrow-right-circle-fill me-1 "></i> Một chiều
                 </a>
                 <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=khuhoi"
-                   class="btn btn-outline-primary rounded-pill px-4 py-3">
-                    <i class="bi bi-arrow-left-right-circle-fill me-1 "></i> Khứ hồi
+                   class="btn btn-outline-primary rounded-pill px-4 py-3 ">
+                 <i class="bi bi-arrow-repeat me-1"></i> <strong>Khứ hồi</strong>
                 </a>
             </div>
         </div>
@@ -208,47 +208,61 @@
                 <c:forEach var="flight" items="${flights}">
                     <div class="col-lg-4 col-md-6 mb-4 flight-item">
                         <div class="card flight-item-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-flightId="${flight.flightId}">
-                            <div class="position-relative">
+                            <div class="position-relative" style="overflow:hidden; border-radius:10px;">
                                 <img src="${pageContext.request.contextPath}/${flight.destinationImageUrl}"
-                                     alt="${flight.flightNumber}" class="card-img-top" style="height: 220px; object-fit: cover;">
-                                <span class="badge bg-info text-dark position-absolute top-0 start-0 m-2 px-3 py-2 rounded-pill shadow-sm">
-                                    ${flight.flightClass}
-                                </span>
+                                     alt="${flight.flightNumber}" class="card-img-top"
+                                     style="height:220px; object-fit:cover;">
+                                <div class="ribbon">${flight.flightClass}</div>
                             </div>
-                            <div class="card-body d-flex flex-column ">
-                                <h5 class="card-title fw-bold">
-                                    <c:choose>
-                                        <c:when test="${flightType == 'khuhoi'}">
-                                            ${flight.departure} ⇌ ${flight.destination}
-                                        </c:when>
-                                        <c:otherwise>
-                                            ${flight.departure} → ${flight.destination}
-                                        </c:otherwise>
-                                    </c:choose>
-                                </h5>
 
-                                <p class="card-text text-muted mb-1">
-                                    <i class="bi bi-calendar-event"></i> ${flight.departureTime} - ${flight.arrivalTime} <!-- Thêm thời gian -->
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-1 " style="text-align:left;">
+                                    <h5 class="card-title fw-bold mb-1 ">
+                                        <c:choose>
+                                            <c:when test="${flightType == 'khuhoi'}">
+                                                ${flight.departure} ⇌ ${flight.destination}
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${flight.departure} → ${flight.destination}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </h5>
+                                    <p class="mb-1 ticket_available" style="margin-left: 2px;"><strong>Số lượng vé:</strong> <span class="text-success">${flight.ticketAvailable}</span></p>
+                                   <div class="airline-logo-container 
+     <c:if test='${flight.airline.airlineName eq "Vietnam Airlines"}'>vna-logo</c:if>">
+  <img src="${pageContext.request.contextPath}/${flight.airline.logoUrl}"
+       alt="${flight.airline.airlineName}"
+       class="airline-logo" />
+  <small class="text-muted">✈️ ${flight.airline.airlineName}</small>
+</div>
+
+
+
+                                </div>
+
+                                <p class="fw-bold text-danger fs-5 text-end mt-3 ">
+                                    <fmt:formatNumber value="${flight.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Vé
                                 </p>
-                                <p class="fw-bold text-danger fs-5">
-                                    <fmt:formatNumber value="${flight.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/>
-                                </p>
-                                <div class="mt-auto">
-                                    <div class="mt-auto d-flex gap-2">
-                                        <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn" data-flight-id="${flight.flightId}">
-                                            <i class="bi bi-check-circle"></i> Chọn
-                                        </button>
-                                        <button type="button"
-                                                class="btn btn-success flex-fill rounded-pill w-100"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#flightDetailModal"
-                                                data-flightnumber="${flight.flightNumber}"
-                                                data-flightimage="${pageContext.request.contextPath}/${flight.destinationImageUrl}">
-                                            Xem chi tiết
-                                        </button>
-                                    </div>
+
+                                <div class="mt-0 d-flex gap-2">
+
+
+
+                                    <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn"
+                                            data-flight-id="${flight.flightId}">
+                                        <i class="bi bi-check-circle"></i> Chọn
+                                    </button>
+                                    <button type="button" class="btn btn-success flex-fill rounded-pill w-100"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#flightDetailModal"
+                                            data-flightnumber="${flight.flightNumber}"
+                                            data-flightimage="${pageContext.request.contextPath}/${flight.destinationImageUrl}">
+                                        Xem chi tiết
+                                    </button>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </c:forEach>
@@ -256,7 +270,7 @@
             <c:otherwise>
                 <div class="col-12 text-center text-muted py-5">
                     <i class="bi bi-airplane fs-1 d-block mb-3"></i>
-                   Vui lòng hãy tìm chuyến bay cho tour của bạn
+                    <i class="bi bi-search"></i>  Vui lòng hãy tìm kiếm chuyến bay cho tour của bạn
                 </div>
             </c:otherwise>
         </c:choose>

@@ -62,7 +62,9 @@ public class FlightSearchController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-   String idRaw = request.getParameter("islandId");
+        try {
+            
+             String idRaw = request.getParameter("islandId");
     String flightTypeRaw = request.getParameter("flightType"); // Nhận "MotChieu" hoặc "KhuHoi"
     
     System.out.println("DEBUG: Raw islandId = " + idRaw);
@@ -95,13 +97,22 @@ public class FlightSearchController extends HttpServlet {
             return;
     }
     
-    System.out.println("DEBUG: Mapped flightType = " + flightType);
+    System.out.println("flightType = " + flightType);
     
+    // lay list de hien thi thong tin chuyen bay
     List<Flight> flights = serviceDAO.getFlightsByIslandIdAndType(islandId, flightType);
     request.setAttribute("flights", flights);
     request.setAttribute("flightType", flightType);
+  
     
     response.sendRedirect(request.getContextPath() + "/IslandDetailController?detailId=" + islandId + "&flightType=" + flightTypeRaw);
+            
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e);
+        }
+  
 }
 
   

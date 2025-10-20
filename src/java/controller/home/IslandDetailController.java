@@ -87,6 +87,7 @@ public class IslandDetailController extends HttpServlet {
 
 // Lấy danh sách flights dựa trên flightType (
             List<Flight> flights = new ArrayList<>();
+          
             if (flightTypeRaw != null) {
                 String flightType;
                 switch (flightTypeRaw.toLowerCase()) {
@@ -101,6 +102,7 @@ public class IslandDetailController extends HttpServlet {
                 }
                 if (flightType != null) {
                     flights = serviceDao.getFlightsByIslandIdAndType(id, flightType);
+                  
                 }
             }
                 request.setAttribute("islandvehicles", listV);
@@ -108,6 +110,7 @@ public class IslandDetailController extends HttpServlet {
                 request.setAttribute("hotels", listH);
                 request.setAttribute("tours", listT);
                 request.setAttribute("flights", flights);
+             
                 request.setAttribute("flightType", flightTypeRaw != null ? flightTypeRaw : ""); // Truyền flightType để hiển thị
                 request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
           

@@ -233,25 +233,35 @@ select * from hotels
 go
 select * from hotels a join islands b on a.islandId = b.islandId where a.islandId = 1
 
-
+ALTER TABLE Airlines
+ADD CONSTRAINT FK_Airlines_Countries
+FOREIGN KEY (countryId) REFERENCES Countries(countryId);
+GO
 
 -- bảng Arlines : các hãng bay
 select *from Airlines
+select * from Flights
+select *from Countries
+update Airlines
+set  logoUrl='views/home/images/flights/Vietnam_Airlines-Logo.png'
+where airlineId=1
+--images/airlines/bamboo_airways.png
 CREATE TABLE Airlines (
     airlineId INT IDENTITY(1,1) PRIMARY KEY,
     airlineName NVARCHAR(100) NOT NULL,   -- Tên hãng hàng không (Vietnam Airlines, Vietjet Air…)
     iataCode VARCHAR(5),                  -- Mã quốc tế (VN, VJ…)
-    country NVARCHAR(50),                 -- Quốc gia
+    countryId int NOT NULL,                 -- Quốc gia
 	hotline VARCHAR(20),                 -- Đường dây nóng
     logoUrl VARCHAR(255)                  -- Link logo hãng
+	FOREIGN KEY (countryId) REFERENCES Countries(countryId)
 );
 go
 
-
+select * from Countries
 
 
 -- bảng flights 
-drop table Flights
+
 CREATE TABLE Flights (
     flightId INT IDENTITY(1,1) PRIMARY KEY,
     flightNumber VARCHAR(20) NOT NULL,           -- Mã chuyến bay (VD: VN123)
@@ -264,6 +274,7 @@ CREATE TABLE Flights (
     returnDepartureTime TIME NULL,               -- Giờ khởi hành chiều về
     returnArrivalTime TIME NULL,                 -- Giờ hạ cánh chiều về
     basePrice INT NOT NULL,                      -- Giá gốc (giá cơ bản)
+	ticketAvailable INT NOT NULL ,
     flightType NVARCHAR(10) 
         CHECK (flightType IN ('Một chiều', 'Khứ hồi')) NOT NULL,  -- Loại chuyến bay
     flightClass NVARCHAR(50) 
@@ -272,6 +283,22 @@ CREATE TABLE Flights (
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+SELECT 
+    f.flightId,
+    f.flightNumber,
+    f.departure,
+    f.destination,
+    f.departureTime,
+    f.arrivalTime,
+    f.basePrice,
+    f.flightType,
+    f.flightClass,
+    f.destinationImageUrl,
+    a.airlineName,
+    a.iataCode,
+    a.logoUrl
+FROM Flights f
+JOIN Airlines a ON f.airlineId = a.airlineId;
 
 
 

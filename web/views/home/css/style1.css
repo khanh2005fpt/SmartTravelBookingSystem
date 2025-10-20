@@ -383,4 +383,43 @@ input::placeholder {
 }
 
 
+.ribbon{
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(40, 167, 69, 0.95); /* xanh lá Bootstrap - bg-success */
+  color: #fff;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-bottom-right-radius: 10px; /* bo góc dưới phải để nhìn mềm */
+  font-size: 0.9rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.airline-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+}
+
+.airline-logo {
+  width: 86px;
+  height: auto;
+  transform: scale(1.4);        /* phóng to mà không chiếm thêm không gian */
+  transform-origin: left center; /* phóng to về bên trái, không đẩy layout */
+}
+.airline-logo,
+.text-muted {
+  vertical-align: middle;
+}
+.vna-logo .airline-logo {
+  width: 95px;
+  height: auto;
+  transform: scale(1.4);        /* phóng to mà không chiếm thêm không gian */
+  transform-origin: left center;    /* nếu muốn nó hơi cao lên */
+}
+
+
+
  
