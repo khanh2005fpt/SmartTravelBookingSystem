@@ -403,22 +403,46 @@ input::placeholder {
 
 }
 
+
+.flight-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+
+.flight-image {
+  height: 225px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+
+.airline-logo-wrapper {
+  position: absolute;
+  top: -1px;
+  z-index: 3;
+}
+
 .airline-logo {
-  width: 86px;
-  height: auto;
-  transform: scale(1.4);        /* phóng to mà không chiếm thêm không gian */
-  transform-origin: left center; /* phóng to về bên trái, không đẩy layout */
+  height: 50px; /* to hơn để rõ ràng */
+  width: auto;
+  display: block;
+  border-radius: 6px;
+  background: #fff; 
+  padding: 2px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: transform 0.2s ease;
 }
-.airline-logo,
-.text-muted {
-  vertical-align: middle;
+
+.airline-logo:hover {
+  transform: scale(1.05);
 }
-.vna-logo .airline-logo {
-  width: 95px;
-  height: auto;
-  transform: scale(1.4);        /* phóng to mà không chiếm thêm không gian */
-  transform-origin: left center;    /* nếu muốn nó hơi cao lên */
-}
+
+
+
 
 
 

@@ -208,12 +208,20 @@
                 <c:forEach var="flight" items="${flights}">
                     <div class="col-lg-4 col-md-6 mb-4 flight-item">
                         <div class="card flight-item-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-flightId="${flight.flightId}">
-                            <div class="position-relative" style="overflow:hidden; border-radius:10px;">
-                                <img src="${pageContext.request.contextPath}/${flight.destinationImageUrl}"
-                                     alt="${flight.flightNumber}" class="card-img-top"
-                                     style="height:220px; object-fit:cover;">
-                                <div class="ribbon">${flight.flightClass}</div>
-                            </div>
+                         <div class="position-relative flight-card">
+                             <img src="${pageContext.request.contextPath}/${flight.destinationImageUrl}"
+                                  alt="${flight.flightNumber}"
+                                  class="card-img-top"
+                                  style="height:220px; object-fit:cover; border-radius:10px;">
+
+                             <!-- Logo hãng bay -->
+                             <div class="airline-logo-wrapper">
+                                 <img src="${pageContext.request.contextPath}/${flight.airline.logoUrl}"
+                                      alt="${flight.airline.airlineName}"
+                                      class="airline-logo">
+                             </div>
+                         </div>
+
 
 
                             <div class="card-body d-flex flex-column">
@@ -229,20 +237,17 @@
                                         </c:choose>
                                     </h5>
                                     <p class="mb-1 ticket_available" style="margin-left: 2px;"><strong>Số lượng vé:</strong> <span class="text-success">${flight.ticketAvailable}</span></p>
-                                   <div class="airline-logo-container 
-     <c:if test='${flight.airline.airlineName eq "Vietnam Airlines"}'>vna-logo</c:if>">
-  <img src="${pageContext.request.contextPath}/${flight.airline.logoUrl}"
-       alt="${flight.airline.airlineName}"
-       class="airline-logo" />
-  <small class="text-muted">✈️ ${flight.airline.airlineName}</small>
-</div>
 
+                                   <p class="card-text">
+  <span class="badge bg-primary text-white px-2 py-1 fs-6">${flight.flightClass}</span>
+
+</p>
 
 
                                 </div>
 
                                 <p class="fw-bold text-danger fs-5 text-end mt-3 ">
-                                    <fmt:formatNumber value="${flight.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Vé
+                                    <fmt:formatNumber value="${flight.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
                                 </p>
 
                                 <div class="mt-0 d-flex gap-2">
@@ -254,10 +259,10 @@
                                         <i class="bi bi-check-circle"></i> Chọn
                                     </button>
                                     <button type="button" class="btn btn-success flex-fill rounded-pill w-100"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#flightDetailModal"
-                                            data-flightnumber="${flight.flightNumber}"
-                                            data-flightimage="${pageContext.request.contextPath}/${flight.destinationImageUrl}">
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#flightDetailModal"
+                                           data-flightnumber="${flight.flightNumber}"
+                                           data-flightimage="${pageContext.request.contextPath}/${flight.destinationImageUrl}">
                                         Xem chi tiết
                                     </button>
                                 </div>
@@ -537,6 +542,69 @@
                 </div>
             </div>
         </div>
+                   
+                   
+          <!-- Thong tin chi tiet Chuyến bay -->            
+       
+<div class="modal fade" id="flightDetailModal" tabindex="-1" aria-labelledby="flightDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow-lg rounded-4 border-0">
+            
+            <!-- Header -->
+            <div class="modal-header p-3 text-white"
+                 style="background: linear-gradient(90deg, #4e73df, #224abe); border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
+                <h5 class="modal-title fw-bold" id="flightDetailLabel">Thông tin chuyến bay</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <!-- Ảnh bên trái -->
+                    <div class="col-md-6">
+                        <img id="modalFlightImage" src="" alt="Flight Image"
+                             class="d-block w-100 rounded-3 shadow-sm"
+                             style="height:350px; object-fit:cover; border:1px solid #dee2e6;">
+                    </div>
+
+                    <!-- Thông tin bên phải -->
+                    <div class="col-md-6 text-start">
+                        <div class="mt-3 d-flex flex-column justify-content-start gap-2">
+                            <p class="mb-2"><strong class="fs-5">Mã chuyến bay:</strong>
+                                <span class="fs-5" id="flightNumber"></span></p>
+
+                            <p><strong class="fs-5">Tiện nghi:</strong></p>
+                            <div class="row row-cols-2 g-2 mb-2">
+                                <div class="col"><i class="bi bi-wifi me-2"></i>WiFi miễn phí</div>
+                                <div class="col"><i class="bi bi-card-image me-2"></i>Tầm nhìn ra khung cảnh</div>
+                                <div class="col"><i class="bi bi-house-door me-2"></i>Phòng gia đình</div>
+                                <div class="col"><i class="bi bi-slash-circle me-2"></i>Không hút thuốc</div>
+                                <div class="col"><i class="bi bi-snow me-2"></i>Điều hòa</div>
+                                <div class="col"><i class="bi bi-car-front me-2"></i>Chỗ đỗ xe</div>
+                                <div class="col"><i class="bi bi-tv me-2"></i>TV màn hình phẳng</div>
+                            </div>
+
+                            <p class="mb-2 fs-5"><strong>Chính sách:</strong> Nhận phòng từ 14h, trả trước 12h, hủy miễn phí trong 24h</p>
+                        </div>
+
+                        <div class="mt-3 d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                   
+                   
+                   
+                   
+                   
+                   
 
 
         <!-- Footer -->
@@ -625,7 +693,24 @@
                 hotelModal.querySelector('#modalHotelImage').src = hotelImage;
             });
             
-     
+            
+            //detail modal flight
+            
+        const flightModal = document.getElementById('flightDetailModal');
+
+    // Khi modal hiển thị
+    flightModal.addEventListener('show.bs.modal', event => {
+        // Nút được click
+        const button = event.relatedTarget;
+
+        // Lấy dữ liệu từ data-* attributes trong button
+        const flightNumber = button.getAttribute('data-flightnumber');
+        const flightImage = button.getAttribute('data-flightimage');
+
+        // Gán dữ liệu vào modal
+        flightModal.querySelector('#flightNumber').textContent = flightNumber;
+        flightModal.querySelector('#modalFlightImage').src = flightImage;
+    });
           
           
         </script>
@@ -636,7 +721,7 @@
 
         <%@ include file="/views/common/script.jsp" %>
         <script>
-    console.log("Test log from basic script");
+ 
 </script>   
     </body>
 </html>

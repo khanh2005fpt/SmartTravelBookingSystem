@@ -4,7 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/src/java/model/Airlines.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/web/views/common/navbar.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/web/views/common/css.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/web/views/common/footer.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/src/java/model/Hotel.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/web/views/common/script.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/src/java/controller/home/FlightSearchController.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/web/views/home/css/style1.css</file>
             <file>file:/E:/FALL_2025/SWP/SmartBookingTravelSystem/src/java/dao/ServiceDao.java</file>

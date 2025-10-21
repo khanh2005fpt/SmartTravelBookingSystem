@@ -241,6 +241,7 @@ GO
 -- bảng Arlines : các hãng bay
 select *from Airlines
 select * from Flights
+SELECT * FROM FlightSchedules 
 select *from Countries
 update Airlines
 set  logoUrl='views/home/images/flights/Vietnam_Airlines-Logo.png'
@@ -257,7 +258,7 @@ CREATE TABLE Airlines (
 );
 go
 
-select * from Countries
+select * from Flights
 
 
 -- bảng flights 
@@ -283,6 +284,117 @@ CREATE TABLE Flights (
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+CREATE TABLE FlightSchedules (
+    scheduleId INT IDENTITY(1,1) PRIMARY KEY,
+    flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
+    planeModel NVARCHAR(100) NULL,          -- loại máy bay
+    departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
+    arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
+    transitAirport NVARCHAR(100) NULL,       -- sân bay trung chuyển (nếu có)
+    transitDuration NVARCHAR(50) NULL,       -- thời gian dừng (VD: '7h30', '45 phút')
+    notes NVARCHAR(255) NULL                 -- ghi chú (VD: "Hành khách không cần nhận lại hành lý...")
+);
+
+
+
+INSERT INTO FlightSchedules 
+(flightId, planeModel, departureAirport, arrivalAirport, transitAirport, transitDuration, notes)
+VALUES
+-- 1. Hà Nội → Phú Quốc
+(1, N'Airbus A321neo', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 2. Hà Nội → Phú Quốc
+(2, N'Airbus A320', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 3. Hà Nội → Phú Quốc
+(3, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 4. TP.HCM → Phú Quốc
+(4, N'Airbus A321', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', NULL, NULL, 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 5. Hà Nội → Phú Quốc (Khứ hồi)
+(5, N'Airbus A321', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 6. TP.HCM → Phú Quốc (Khứ hồi)
+(6, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', NULL, NULL, 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 7. TP.HCM → Langkawi (Malaysia)
+(7, N'Boeing 737-800', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', N'Kuala Lumpur (KUL)', N'1h20', 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 8. TP.HCM → Langkawi
+(8, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', N'Kuala Lumpur (KUL)', N'1h15', 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 9. Hà Nội → Phuket (Thái Lan)
+(9, N'Airbus A321', N'Nội Bài (HAN)', N'Phuket (HKT)', N'Bangkok (BKK)', N'1h05', 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 10. TP.HCM → Bali (Indonesia)
+(10, N'Boeing 737 MAX 9', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)', N'Jakarta (CGK)', N'1h30',
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 11. TP.HCM → Bali (1 chiều)
+(11, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)', N'Jakarta (CGK)', N'1h20',
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 12. Hà Nội → Boracay (Philippines)
+(12, N'Airbus A321neo', N'Nội Bài (HAN)', N'Boracay (MPH)', N'Manila (MNL)', N'1h10', 
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 13. TP.HCM → Sihanoukville (Campuchia)
+(13, N'ATR 72-600', N'Tân Sơn Nhất (SGN)', N'Sihanoukville (KOS)', NULL, NULL,
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 14. Hà Nội → Tioman (Malaysia)
+(14, N'Airbus A320', N'Nội Bài (HAN)', N'Tioman (TOD)', N'Kuala Lumpur (KUL)', N'1h25',
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 15. TP.HCM → Koh Samui (Thái Lan)
+(15, N'Airbus A319', N'Tân Sơn Nhất (SGN)', N'Koh Samui (USM)', N'Bangkok (BKK)', N'50 phút',
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 16. Hà Nội → Nusa Penida (Indonesia)
+(16, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Nusa Penida (NDP)', N'Denpasar (DPS)', N'1h10',
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
+
+-- 17. TP.HCM → Palawan (Philippines)
+(17, N'Airbus A321neo', N'Tân Sơn Nhất (SGN)', N'Palawan (PPS)', N'Manila (MNL)', N'1h00',
+ N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.');
+
+ UPDATE FlightSchedules
+SET transitAirport = N'Bangkok (BKK)',
+    transitDuration = '00:45:00',
+    notes = N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'
+WHERE scheduleId = 1;
+
+/* lenh join lay lich trinh bay chi tiet
+SELECT 
+    fs.scheduleId,
+    a.airlineName AS HangBay,
+    f.flightNumber AS MaChuyenBay,
+    fs.departureAirport AS DiemDi,
+    fs.arrivalAirport AS DiemDen,
+    f.departureTime AS GioKhoiHanh,
+    f.arrivalTime AS GioDen,
+    fs.transitAirport AS SanBayQuaCanh,
+    fs.transitDuration AS ThoiGianDung,
+    fs.notes AS GhiChu
+FROM FlightSchedules fs
+JOIN Flights f ON fs.flightId = f.flightId
+JOIN Airlines a ON f.airlineId = a.airlineId
+ORDER BY fs.scheduleId;
+
+*/
+
+/* lenh join lay thong tin chuyen bay
 SELECT 
     f.flightId,
     f.flightNumber,
@@ -300,7 +412,7 @@ SELECT
 FROM Flights f
 JOIN Airlines a ON f.airlineId = a.airlineId;
 
-
+*/
 
 select * from flights
 GO
@@ -1190,8 +1302,13 @@ VALUES
 (10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
 
 
-
-
+update Flights
+set destinationIslandId= 1
+where flightId=18
+/*
+delete from Flights
+DBCC CHECKIDENT ('Flights', RESEED, 0);
+*/
 -- flights
 select * from Flights
 INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
@@ -1201,6 +1318,10 @@ VALUES
 --  Từ Hà Nội đến Phú Quốc
 ('VN101', 1, N'Hà Nội', N'Phú Quốc', 1, '07:30', '09:45', '16:00', '18:15', 2200000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/phuquoc.jpg'),
 ('VJ301', 2, N'Hà Nội', N'Phú Quốc', 1, '12:00', '14:10', NULL, NULL, 1100000, N'Một chiều', N'Thương gia', 'views/home/images/islands/phuquoc.jpg'),
+('QH210', 3, N'Hà Nội', N'Phú Quốc', 1, '08:40', '10:15', NULL, NULL, 1530000, N'Một chiều', N'Thương gia', 'views/home/images/islands/phuquoc.jpg'),
+('VN101', 1, N'TP.HCM', N'Phú Quốc', 1, '09:00', '10:35', NULL, NULL, 1322000, N'Một chiều', N'Phổ thông', 'views/home/images/islands/phuquoc.jpg'),
+('QH210', 3, N'Hà Nội', N'Phú Quốc', 1, '07:50', '10:00', '21:30', '00:15', 3530000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/phuquoc.jpg'),
+('VJ301', 2, N'TP.HCM', N'Phú Quốc', 1, '08:25', '9:55', '20:45', '21:50', 3530000, N'Khứ hồi', N'Thương gia', 'views/home/images/islands/phuquoc.jpg'),
 
 --  Từ TP.HCM đến Langkawi
 ('VN205', 1, N'TP.HCM', N'Langkawi', 2, '08:00', '10:30', '17:00', '19:30', 3200000, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/langkawi.jpg'),
