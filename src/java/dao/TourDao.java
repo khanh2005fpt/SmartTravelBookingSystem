@@ -24,12 +24,12 @@ import model.TourItinerary;
  * @author Admin
  */
 public class TourDao extends DBContext {
-    
+
     //Lay danh sach tour tron goi theo dao
-    public List<Tour> getListToursById(int id) throws SQLException{
+    public List<Tour> getListToursById(int id) throws SQLException {
         List<Tour> list = new ArrayList<>();
         String sql = "select * from tours a join islands b on a.islandId = b.islandId where b.islandId = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { // lấy nhiều tour
@@ -48,9 +48,9 @@ public class TourDao extends DBContext {
         }
         return list;
     }
-    
+
     //Lay thong tin chi tiet cua tour tron goi
-    public Tour getTourDetailById(int id) throws SQLException{
+    public Tour getTourDetailById(int id) throws SQLException {
         String sql = "select * from tours where tourId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -71,12 +71,12 @@ public class TourDao extends DBContext {
         }
         return null;
     }
-    
+
     //Lay lich trinh cua tour theo tung tour tron goi rieng
-    public List<TourItinerary> getListTourItineriesById(int id) throws SQLException{
+    public List<TourItinerary> getListTourItineriesById(int id) throws SQLException {
         List<TourItinerary> list = new ArrayList<>();
         String sql = "select * from TourItinerary where tourId = ? order by dayNumber";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { // lấy nhiều island
@@ -93,12 +93,12 @@ public class TourDao extends DBContext {
         }
         return list;
     }
-    
+
     //Lay hoat dong cua tour theo tung tour tron goi rieng
-    public List<TourActivities> getListTourActivitiesByItineraryId(int id) throws SQLException{
+    public List<TourActivities> getListTourActivitiesByItineraryId(int id) throws SQLException {
         List<TourActivities> list = new ArrayList<>();
         String sql = "select * from TourActivities where itineraryId = ? order by activityOrder";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { // lấy nhiều island
@@ -115,12 +115,12 @@ public class TourDao extends DBContext {
         }
         return list;
     }
-    
+
     //Ham tao tour le theo cac dich vu
     public int createCustomTour(CustomTour tour) throws SQLException {
         //sql tra ve ID vua moi insert
         String sql = "INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice) OUTPUT INSERTED.customTourId VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, tour.getIslandId());
             ps.setString(2, tour.getTourName());
             ps.setDate(3, java.sql.Date.valueOf(tour.getStartDate()));
@@ -140,13 +140,13 @@ public class TourDao extends DBContext {
         }
         return 0;
     }
-    
+
     //Lay lich trinh cua tour rieng le
-    public List<CustomTourItinerary> getListCustomTourItineriesById(int id) throws SQLException{
+    public List<CustomTourItinerary> getListCustomTourItineriesById(int id) throws SQLException {
         List<CustomTourItinerary> list = new ArrayList<>();
         String sql = "SELECT * FROM CustomTourItinerary WHERE customTourId = ? ORDER BY dayNumber";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
 
@@ -166,9 +166,9 @@ public class TourDao extends DBContext {
         }
         return list;
     }
-    
+
     //update gia theo tour rieng le
-    public void updateTotalPrice(int customTourId, int totalPrice) throws SQLException{
+    public void updateTotalPrice(int customTourId, int totalPrice) throws SQLException {
         String sql = "UPDATE CustomTours SET totalPrice = ? WHERE customTourId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, totalPrice);
@@ -178,9 +178,9 @@ public class TourDao extends DBContext {
             throw new SQLException("Lỗi khi cập nhật tổng giá custom tour, customTourId = " + customTourId, e);
         }
     }
-    
+
     //Tao thong tin chi tiet cua tour le
-    public void createCustomTourDetail(CustomTourDetail detail) throws SQLException{
+    public void createCustomTourDetail(CustomTourDetail detail) throws SQLException {
         String sql = "INSERT INTO CustomTourDetails (customTourId, serviceType, serviceId, price) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, detail.getCustomTourId());
@@ -189,19 +189,21 @@ public class TourDao extends DBContext {
             ps.setInt(4, detail.getPrice());
             ps.executeUpdate();
         } catch (SQLException e) {
-             throw new SQLException("Lỗi khi tạo chi tiết custom tour, customTourId = " + detail.getCustomTourId(), e);
+            throw new SQLException("Lỗi khi tạo chi tiết custom tour, customTourId = " + detail.getCustomTourId(), e);
         }
     }
-    
+
     //Tao thong tin lich trinh cua tour le
     public void createSampleItinerary(int customTourId, LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = "INSERT INTO CustomTourItinerary " +
-                     "(customTourId, dayNumber, activity, location, startTime, endTime) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO CustomTourItinerary "
+                + "(customTourId, dayNumber, activity, location, startTime, endTime) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
         // Tính số ngày tour, bao gồm cả ngày bắt đầu và kết thúc
         int numberOfDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
-        if (numberOfDays <= 0) numberOfDays = 1;
+        if (numberOfDays <= 0) {
+            numberOfDays = 1;
+        }
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             for (int day = 1; day <= numberOfDays; day++) {
@@ -228,12 +230,11 @@ public class TourDao extends DBContext {
                 ps.addBatch();
             }
             ps.executeBatch();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new SQLException("Lỗi khi tạo lịch trình mẫu cho custom tour, customTourId=" + customTourId, e);
         }
     }
-    
+
     //Lay tour rieng le theo id
     public CustomTour getTourById(int tourId) throws SQLException {
         String sql = "SELECT * FROM CustomTours WHERE customTourId = ?";
@@ -251,14 +252,13 @@ public class TourDao extends DBContext {
                 tour.setCustomTourId(rs.getInt("customTourId"));
                 return tour;
             }
-            
-        }
-        catch (SQLException e) {
+
+        } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy custom tour theo customTourId = " + tourId, e);
         }
         return null;
     }
-    
+
     //Lay thong tin chi tiet tour le theo id
     public List<CustomTourDetail> getTourDetails(int tourId) throws SQLException {
         List<CustomTourDetail> list = new ArrayList<>();
@@ -277,8 +277,7 @@ public class TourDao extends DBContext {
 
                 list.add(detail);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy chi tiết custom tour, customTourId = " + tourId, e);
         }
         return list;
@@ -300,13 +299,12 @@ public class TourDao extends DBContext {
                         rs.getTime("endTime")
                 ));
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy lịch trình custom tour, customTourId=" + tourId, e);
         }
         return list;
     }
-    
+
     //Lay gia cua dich vu theo loai dich vu
     public int getServicePrice(String serviceType, int serviceId) throws SQLException {
         String sql = "";
@@ -320,6 +318,9 @@ public class TourDao extends DBContext {
             case "Chuyến bay":
                 sql = "SELECT price FROM Flights WHERE flightId = ?";
                 break;
+            case "Địa điểm nổi bật":
+                sql = "SELECT ticketPrice AS price FROM Places WHERE placeId = ?";
+                break;
         }
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, serviceId);
@@ -328,13 +329,12 @@ public class TourDao extends DBContext {
                     return rs.getInt("price");
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy giá dịch vụ (" + serviceType + "), id=" + serviceId, e);
         }
         return 0;
     }
-    
+
     //Lay ten dich vu theo loai dich vu
     public void setServiceName(CustomTourDetail detail) throws SQLException {
         String sql = "";
@@ -347,6 +347,9 @@ public class TourDao extends DBContext {
                 break;
             case "Chuyến bay":
                 sql = "SELECT flightNumber AS name FROM Flights WHERE flightId = ?";
+                break;
+            case "Địa điểm nổi bật":
+                sql = "SELECT placeName AS name FROM Places WHERE placeId = ?";
                 break;
             default:
                 throw new SQLException("Unknown service type: " + detail.getServiceType());
@@ -361,8 +364,7 @@ public class TourDao extends DBContext {
                     detail.setServiceName(""); // nếu không tìm thấy, set rỗng
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy tên dịch vụ, serviceType=" + detail.getServiceType(), e);
         }
     }

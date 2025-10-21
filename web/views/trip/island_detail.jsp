@@ -313,7 +313,7 @@
                                 <c:otherwise>
                                     <c:forEach var="p" items="${places}">
                                         <div class="col-sm-6 col-lg-4">
-                                            <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden position-relative card-hover">
+                                            <div class="card place-card border-0 shadow-lg rounded-4 h-100 overflow-hidden position-relative card-hover" data-placeid="${p.placeId}">
 
                                                 <!-- Ảnh địa điểm -->
                                                 <div class="ratio ratio-16x9">
@@ -353,7 +353,7 @@
 
                                                     <!-- Nút chọn -->
                                                     <button type="button"
-                                                            class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-btn">
+                                                            class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-place-btn">
                                                         <i class="bi bi-check2-circle"></i> Chọn
                                                     </button>
                                                 </div>
@@ -363,14 +363,9 @@
                                 </c:otherwise>
                             </c:choose>
                         </div>
+                        <!-- Input ẩn để lưu ID của địa điểm được chọn -->
+                        <input type="hidden" id="selectedPlaceId" name="selectedPlaceId" value="">
                     </section>
-
-      
-
-
-
-
-
 
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-primary btn-lg px-5 py-2 rounded-pill fw-semibold">
@@ -506,10 +501,13 @@
             document.addEventListener("DOMContentLoaded", function () {
                 const vehicleButtons = document.querySelectorAll(".vehicle-card .select-btn");
                 const hotelButtons = document.querySelectorAll(".hotel-card .select-hotel-btn");
+                const placeButtons = document.querySelectorAll(".place-card .select-place-btn");
+
                 const vehicleInput = document.getElementById("selectedVehicleId");
                 const hotelInput = document.getElementById("selectedHotelId");
+                const placeInput = document.getElementById("selectedPlaceId");
 
-                // --- CHỌN KHÁCH SẠN (BẮT BUỘC) ---
+                // --- CHỌN KHÁCH SẠN (BẮT BUỘC, CHỈ ĐƯỢC 1) ---
                 hotelButtons.forEach(button => {
                     button.addEventListener("click", function () {
                         // Reset các nút khách sạn
@@ -558,6 +556,33 @@
                             // Lưu ID xe đã chọn
                             vehicleInput.value = vehicleId;
                         }
+                    });
+                });
+
+                // --- CHỌN NHIỀU ĐỊA ĐIỂM (TÙY CHỌN, NHIỀU CÁI) ---
+                placeButtons.forEach(button => {
+                    button.addEventListener("click", function () {
+                        const card = this.closest(".place-card");
+                        const placeId = card.getAttribute("data-placeid");
+
+                        if (selectedPlaces.has(placeId)) {
+                            // 👉 Bỏ chọn
+                            selectedPlaces.delete(placeId);
+                            this.classList.remove("btn-success");
+                            this.classList.add("btn-primary");
+                            this.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
+                            this.style.opacity = "1"; // 🌟 làm nút sáng lại
+                        } else {
+                            // 👉 Chọn thêm
+                            selectedPlaces.add(placeId);
+                            this.classList.remove("btn-primary");
+                            this.classList.add("btn-success");
+                            this.innerHTML = '<i class="bi bi-check-lg"></i> Đã chọn';
+                            this.style.opacity = "0.6"; // 🌟 làm nút mờ đi để báo đã chọn
+                        }
+
+                        // Cập nhật input ẩn
+                        placeInput.value = Array.from(selectedPlaces).join(",");
                     });
                 });
             });
