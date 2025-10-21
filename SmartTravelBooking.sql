@@ -192,17 +192,6 @@ CREATE TABLE Hotels (
 );
 select * from hotels
 
-
-
-
-
-
-
-
-
-
-
-
 go
 select * from hotels a join islands b on a.islandId = b.islandId where a.islandId = 1
 
@@ -261,11 +250,10 @@ CREATE TABLE Places (
     location NVARCHAR(150),               
     description NVARCHAR(500),              
     hasTicket BIT DEFAULT 0,                 
-    ticketPrice INT CHECK (ticketPrice >= 0),
-    image NVARCHAR(255),                    
+    ticketPrice INT CHECK (ticketPrice >= 0),                  
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-
+select * from Places
 
 CREATE TABLE CustomTours (
     customTourId INT IDENTITY(1,1) PRIMARY KEY,
@@ -281,7 +269,7 @@ CREATE TABLE CustomTourDetails (
     detailId INT IDENTITY(1,1) PRIMARY KEY,
     customTourId INT NOT NULL,
     serviceType NVARCHAR(50)
-        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện')),
+        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
     serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
     price INT CHECK (price >= 0),
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
@@ -542,25 +530,24 @@ CREATE TABLE UserPromotions (
 --1. user
 
 -- Admin
-
-INSERT INTO Users (username, password, email, fullName, phone, role, status)
+INSERT INTO Users (username, password, email, fullName, phone, roleId, status)
 VALUES 
-('admin1', 'admin123!', 'admin1@example.com', 'Admin', '0987654321', 'ADMIN', 'ACTIVE');
+('admin1', 'admin123!', 'admin1@example.com', N'Admin', N'0987654321', 1, 'ACTIVE');
 
 -- Booking Manager
-INSERT INTO Users (username, password, email, fullName, phone, role, status)
+INSERT INTO Users (username, password, email, fullName, phone, roleId, status)
 VALUES 
-('bookingmanager1', 'managerpass123!', 'nqaghuyyy6969@gmail.com', 'Booking Manager', '0369409004', 'BOOKING MANAGER', 'ACTIVE');
-
--- Service Provider
-INSERT INTO Users (username, password, email, fullName, phone, role, status)
-VALUES 
-('provider1', 'providerpass123!', 'provider@example.com', 'Staff', '0987654321', 'STAFF', 'ACTIVE');
-
+('bookingmanager1', 'managerpass123!', 'nqaghuyyy6969@gmail.com', N'Booking Manager', N'0369409004', 2, 'ACTIVE');
 -- Customer
-INSERT INTO Users (username, password, email, fullName, phone, role, status)
+INSERT INTO Users (username, password, email, fullName, phone, roleId, status)
 VALUES 
-('quanghuy123', 'huyvipmn5', 'huynqhe182510@fpt.edu.vn', 'David Huy', '0982706236', 'CUSTOMER', 'ACTIVE');
+('quanghuy123', 'huyvipmn5', 'huynqhe182510@fpt.edu.vn', N'David Huy', N'0982706236', 3, 'ACTIVE');
+
+-- (Staff)
+INSERT INTO Users (username, password, email, fullName, phone, roleId, status)
+VALUES 
+('provider1', 'providerpass123!', 'provider@example.com', N'Staff', N'0987654321', 4, 'ACTIVE');
+
 
 select * from dbo.Users
 DELETE FROM Users;
@@ -584,7 +571,7 @@ INSERT INTO Countries (countryName) VALUES
 (N'Brunei'),
 (N'Đông Timor');
 select * from Countries
-
+select * from islands
 INSERT INTO Islands (islandName, countryId, shortDescription, longDescription, bestSeason, activities, imageUrl, location)
 VALUES
 (N'Phú Quốc', 1, 
@@ -983,8 +970,59 @@ VALUES
 (10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
 
 
+INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice)
+VALUES
+-- === PHÚ QUỐC ===
+(1, N'Suối Tranh', N'Xã Dương Tơ, TP. Phú Quốc', N'Thác nước tự nhiên giữa rừng, thích hợp dã ngoại và tắm suối.', 1, 30000),
+(1, N'Bãi Sao', N'Xã An Thới, TP. Phú Quốc', N'Bãi biển nổi tiếng với cát trắng mịn và nước biển trong xanh.', 0, NULL),
+(1, N'Nhà tù Phú Quốc', N'350 Đường Nguyễn Văn Cừ, TT. An Thới', N'Di tích lịch sử ghi dấu thời kỳ chiến tranh Việt Nam.', 1, 20000),
 
+-- === LANGKAWI ===
+(2, N'Langkawi Sky Bridge', N'Gunung Mat Cincang, Kedah', N'Cầu treo nổi tiếng với tầm nhìn toàn cảnh tuyệt đẹp.', 1, 40000),
+(2, N'Pantai Cenang', N'Mukim Kedawang, Langkawi', N'Bãi biển sôi động với nhiều quán bar và hoạt động thể thao nước.', 0, NULL),
+(2, N'Langkawi Cable Car', N'Oriental Village, Burau Bay', N'Cáp treo đưa du khách lên đỉnh núi ngắm cảnh đảo.', 1, 45000),
 
+-- === PHUKET ===
+(3, N'Patong Beach', N'Patong, Kathu District, Phuket', N'Bãi biển nổi tiếng nhất Phuket, trung tâm giải trí về đêm.', 0, NULL),
+(3, N'Big Buddha', N'Karon, Mueang Phuket District', N'Tượng Phật lớn bằng đá cẩm thạch trắng, biểu tượng của Phuket.', 0, NULL),
+(3, N'Phuket Old Town', N'Thalang Rd, Talat Yai, Mueang Phuket', N'Khu phố cổ với kiến trúc Bồ Đào Nha độc đáo và quán cà phê cổ điển.', 0, NULL),
+
+-- === BALI ===
+(4, N'Tanah Lot Temple', N'Tabanan Regency, Bali', N'Ngôi đền nổi trên biển, điểm du lịch tâm linh nổi tiếng của Bali.', 1, 50000),
+(4, N'Ubud Monkey Forest', N'Jl. Monkey Forest, Ubud, Gianyar', N'Khu rừng linh thiêng với hàng trăm con khỉ tự nhiên.', 1, 60000),
+(4, N'Tegallalang Rice Terrace', N'Tegallalang, Gianyar, Bali', N'Ruộng bậc thang xanh mướt nổi tiếng với cảnh quan ngoạn mục.', 0, NULL),
+
+-- === BORACAY ===
+(5, N'White Beach', N'Station 2, Boracay Island, Aklan', N'Bãi biển chính của Boracay, nổi tiếng với cát trắng mịn và nước trong.', 0, NULL),
+(5, N'Willy’s Rock', N'Station 1, Balabag, Boracay', N'Hòn đá biểu tượng của đảo Boracay với tượng Đức Mẹ Maria.', 0, NULL),
+(5, N'Puka Shell Beach', N'Yapak, Boracay Island', N'Bãi biển yên tĩnh, nổi tiếng với vỏ sò tự nhiên.', 0, NULL),
+
+-- === SIHANOUKVILLE ===
+(6, N'Otres Beach', N'Sangkat 4, Sihanoukville', N'Bãi biển yên bình với quán bar nhỏ và hoàng hôn tuyệt đẹp.', 0, NULL),
+(6, N'Ream National Park', N'Ream Commune, Preah Sihanouk', N'Công viên quốc gia với rừng ngập mặn và động vật hoang dã.', 1, 25000),
+(6, N'Koh Rong Island', N'Koh Rong, Sihanoukville Province', N'Hòn đảo nổi tiếng với biển xanh và cát trắng tinh khiết.', 0, NULL),
+
+-- === TIOMAN ===
+(7, N'Juara Beach', N'Juara Village, Tioman Island', N'Bãi biển yên tĩnh, lý tưởng cho bơi lội và lặn ngắm san hô.', 0, NULL),
+(7, N'Asah Waterfall', N'Mukim Tioman, Pahang', N'Thác nước tự nhiên giữa rừng, điểm đến yêu thích của du khách.', 0, NULL),
+(7, N'Tekek Village', N'Kampung Tekek, Tioman Island', N'Ngôi làng lớn nhất trên đảo với cửa hàng và nhà hàng địa phương.', 0, NULL),
+
+-- === KOH SAMUI ===
+(8, N'Chaweng Beach', N'Bo Put, Koh Samui District', N'Bãi biển dài với khu nghỉ dưỡng và hoạt động giải trí sôi động.', 0, NULL),
+(8, N'Big Buddha Temple', N'Bang Rak, Bophut, Koh Samui', N'Tượng Phật lớn mạ vàng cao 12m, biểu tượng của Koh Samui.', 0, NULL),
+(8, N'Na Muang Waterfall', N'Maret, Koh Samui', N'Thác nước đôi hùng vĩ giữa thiên nhiên xanh mát.', 0, NULL),
+
+-- === NUSA PENIDA ===
+(9, N'Kelingking Beach', N'Bunga Mekar, Nusa Penida', N'Bãi biển nổi tiếng với vách đá hình khủng long.', 0, NULL),
+(9, N'Angel’s Billabong', N'Sompang Village, Nusa Penida', N'Hồ bơi tự nhiên tuyệt đẹp giữa đá vôi ven biển.', 0, NULL),
+(9, N'Broken Beach', N'Sompang Village, Nusa Penida', N'Vòm đá tự nhiên tạo thành khung cảnh biển độc đáo.', 0, NULL),
+
+-- === PALAWAN ===
+(10, N'Puerto Princesa Underground River', N'Sabang, Puerto Princesa', N'Dòng sông ngầm tự nhiên dài 8km – kỳ quan thiên nhiên thế giới.', 1, 100000),
+(10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL),
+(10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL);
+
+select * from Places
 
 
 

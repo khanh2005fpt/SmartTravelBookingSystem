@@ -139,34 +139,6 @@ public class IslandDao extends DBContext {
         return list;
     }
 
-    public List<Island> getIslandsByPage(int page, int pageSize) throws SQLException {
-        List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId order by islandId offset ? rows fetch next ? rows only";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, (page - 1) * pageSize);
-            ps.setInt(2, pageSize);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(new Island(
-                        rs.getInt("islandId"),
-                        rs.getString("islandName"),
-                        rs.getString("countryName"),
-                        rs.getString("shortDescription"),
-                        rs.getString("longDescription"),
-                        rs.getString("bestSeason"),
-                        rs.getString("activities"),
-                        rs.getString("imageUrl"),
-                        rs.getString("location")
-                ));
-            }
-        } catch (SQLException e) {
-            throw new SQLException("Lỗi khi lấy danh sách đảo ở trang " + page + ".", e);
-        }
-
-        return list;
-    }
-
     public int getTotalIslands() throws SQLException {
         int total = 0;
         String sql = "select count(*) from Islands";

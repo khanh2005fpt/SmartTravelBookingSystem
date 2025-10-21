@@ -8,7 +8,6 @@
 
         <%@ include file="/views/common/css.jsp" %>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     </head>
     <body>
@@ -171,7 +170,7 @@
                     <section class="mb-5">
                         <h2 class="h3 mb-4 text-center text-primary fw-bold border-bottom pb-2">🏨 Chọn khách sạn</h2>
 
-                        <div class="hotel-scroll-container">
+                        <div class="hotel-scroll-container ">
                             <c:choose>
                                 <c:when test="${not empty hotels}">
                                     <c:forEach var="hotel" items="${hotels}">
@@ -183,6 +182,7 @@
                                                     <span class="badge bg-info text-dark position-absolute top-0 start-0 m-2 px-3 py-2 rounded-pill shadow-sm">
                                                         ${hotel.roomType}
                                                     </span>
+
                                                 </div>
 
                                                 <div class="card-body d-flex flex-column">
@@ -293,6 +293,82 @@
                         <!-- Input ẩn để lưu ID của phương tiện được chọn -->
                         <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
                     </section>
+                    <!-- Places Section -->
+                    <section class="mb-5">
+                        <h2 class="h3 mb-4 text-center fw-bold text-primary">
+                            📍 Các địa điểm nổi bật tại đảo
+                        </h2>
+
+                        <div class="row g-4">
+                            <c:choose>
+                                <c:when test="${empty places}">
+                                    <div class="col-12">
+                                        <div class="alert alert-warning text-center rounded-3 shadow-sm py-4">
+                                            <i class="bi bi-exclamation-circle text-warning fs-4"></i>
+                                            Hiện chưa có địa điểm nào được thêm cho đảo này.
+                                        </div>
+                                    </div>
+                                </c:when>
+
+                                <c:otherwise>
+                                    <c:forEach var="p" items="${places}">
+                                        <div class="col-sm-6 col-lg-4">
+                                            <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden position-relative card-hover">
+
+                                                <!-- Ảnh địa điểm -->
+                                                <div class="ratio ratio-16x9">
+                                                    <img src="${pageContext.request.contextPath}/views/home/images/places/${p.placeName}.jpg"
+                                                         class="card-img-top object-fit-cover"
+                                                         alt="${p.placeName}">
+                                                </div>
+
+                                                <!-- Nội dung -->
+                                                <div class="card-body d-flex flex-column p-4">
+                                                    <h5 class="card-title fw-bold text-dark mb-2">
+                                                        <i class="bi bi-map text-primary me-1"></i>${p.placeName}
+                                                    </h5>
+                                                    <p class="text-muted small mb-2">
+                                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>${p.location}
+                                                    </p>
+                                                    <p class="card-text text-muted small flex-grow-1">
+                                                        ${p.description}
+                                                    </p>
+
+                                                    <!-- Vé -->
+                                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                                        <c:choose>
+                                                            <c:when test="${p.hasTicket}">
+                                                                <span class="badge bg-success-subtle text-success fw-semibold">
+                                                                    Có vé: 
+                                                                    <fmt:formatNumber value="${p.ticketPrice}" type="number" groupingUsed="true"/> VNĐ
+                                                                </span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="badge bg-secondary-subtle text-secondary fw-semibold">
+                                                                    Miễn phí tham quan
+                                                                </span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+
+                                                    <!-- Nút chọn -->
+                                                    <button type="button"
+                                                            class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-btn">
+                                                        <i class="bi bi-check2-circle"></i> Chọn
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </section>
+
+      
+
+
+
 
 
 
