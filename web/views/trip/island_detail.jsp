@@ -106,14 +106,6 @@
                                                 <p class="card-text text-muted small mb-3">
                                                     ${tour.description}
                                                 </p>
-
-                                                <!-- Thông tin thêm -->
-                                                <!--                                            <ul class="list-unstyled small mb-3 text-muted">
-                                                                                                <li>⏳ Thời gian: <span class="fw-semibold text-dark">ngày</span></li>
-                                                                                                <li>📍 Điểm khởi hành: <span class="fw-semibold text-dark"></span></li>
-                                                                                                <li>👥 Còn lại: <span class="fw-semibold text-dark"></span> chỗ</li>
-                                                                                            </ul>-->
-
                                                 <div class="mt-auto">
                                                     <p class="text-primary fw-bold fs-5 mb-2 text-end">
                                                         Giá tour: 
@@ -215,9 +207,6 @@
                                                                 Xem chi tiết
                                                             </button>
                                                         </div>
-
-
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -250,10 +239,6 @@
                             scroll-snap-align: start;
                         }
                     </style>
-
-
-
-
                     <!-- Vehicles Section -->
                     <section class="mb-5">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">🚘 Chọn phương tiện di chuyển trong đảo</h2>
@@ -335,21 +320,23 @@
                                                     </p>
 
                                                     <!-- Vé -->
-                                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                                    <div class="text-end">
                                                         <c:choose>
                                                             <c:when test="${p.hasTicket}">
-                                                                <span class="badge bg-success-subtle text-success fw-semibold">
+                                                                <span class="badge bg-success-subtle text-success fs-6 py-2 px-3">
                                                                     Có vé: 
                                                                     <fmt:formatNumber value="${p.ticketPrice}" type="number" groupingUsed="true"/> VNĐ
                                                                 </span>
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <span class="badge bg-secondary-subtle text-secondary fw-semibold">
+                                                                <span class="badge bg-secondary-subtle text-secondary fs-6 py-2 px-3">
                                                                     Miễn phí tham quan
                                                                 </span>
                                                             </c:otherwise>
+
                                                         </c:choose>
                                                     </div>
+
 
                                                     <!-- Nút chọn -->
                                                     <button type="button"
@@ -506,7 +493,7 @@
                 const vehicleInput = document.getElementById("selectedVehicleId");
                 const hotelInput = document.getElementById("selectedHotelId");
                 const placeInput = document.getElementById("selectedPlaceId");
-
+                const selectedPlaces = new Set();
                 // --- CHỌN KHÁCH SẠN (BẮT BUỘC, CHỈ ĐƯỢC 1) ---
                 hotelButtons.forEach(button => {
                     button.addEventListener("click", function () {
@@ -563,19 +550,17 @@
                 placeButtons.forEach(button => {
                     button.addEventListener("click", function () {
                         const card = this.closest(".place-card");
-                        const placeId = card.getAttribute("data-placeid");
+                        const placeId = card.getAttribute("data-placeId");
 
                         if (selectedPlaces.has(placeId)) {
                             // 👉 Bỏ chọn
                             selectedPlaces.delete(placeId);
                             this.classList.remove("btn-success");
-                            this.classList.add("btn-primary");
                             this.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
                             this.style.opacity = "1"; // 🌟 làm nút sáng lại
                         } else {
                             // 👉 Chọn thêm
                             selectedPlaces.add(placeId);
-                            this.classList.remove("btn-primary");
                             this.classList.add("btn-success");
                             this.innerHTML = '<i class="bi bi-check-lg"></i> Đã chọn';
                             this.style.opacity = "0.6"; // 🌟 làm nút mờ đi để báo đã chọn

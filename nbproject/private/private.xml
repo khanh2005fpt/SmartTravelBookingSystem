@@ -4,18 +4,13 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/services/CreateCustomTourController.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/services/HotelsController.java</file>
             <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/IslandDao.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/booking/BookingCustomTourController.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/trip/custom_tour_detail.jsp</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/trip/island_detail.jsp</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/booking/BookingController.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/CustomTourDao.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/home/SearchIslandController.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/CustomTourItinerary.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/CustomTourDetail.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/services/TourDetailController.java</file>
             <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/home/IslandDetailController.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/trip/tour_detail.jsp</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/trip/island_detail.jsp</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/Place.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/ServiceDao.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/TourDao.java</file>
             <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/home/index.jsp</file>
         </group>
     </open-files>

@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import model.CustomTour;
 import model.CustomTourDetail;
@@ -89,14 +90,15 @@ public class CreateCustomTourController extends HttpServlet {
             String islandIdStr = request.getParameter("islandId");
             String hotelIdStr = request.getParameter("selectedHotelId");
             String vehicleIdStr = request.getParameter("selectedVehicleId"); // tùy chọn
+            String selectedPlaces = request.getParameter("selectedPlaceId");
             String startDateStr = request.getParameter("startDate");
             String endDateStr = request.getParameter("endDate");
             int id = Integer.parseInt(islandIdStr);
 
             // Kiểm tra các tham số bắt buộc
-//            if (islandIdStr == null || hotelIdStr == null || startDateStr == null || endDateStr == null) {
-//                throw new ServletException("Thiếu tham số yêu cầu để tạo tour.");
-//            }
+            if (islandIdStr == null || hotelIdStr == null || startDateStr == null || endDateStr == null) {
+                throw new ServletException("Thiếu tham số yêu cầu để tạo tour.");
+            }
             if (hotelIdStr == null || hotelIdStr.isEmpty()) {
                 request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn khách sạn.");
                 response.sendRedirect("IslandDetailController?detailId=" + id);
@@ -112,10 +114,19 @@ public class CreateCustomTourController extends HttpServlet {
                 vehicleId = Integer.parseInt(vehicleIdStr);
             }
 
-//            if (islandIdStr == null) {
-//                response.sendRedirect("error.jsp");
-//                return;
-//            }
+            List<Integer> pids = new ArrayList<>();
+            int placePrice = 0;
+            Integer placeId = null;
+            if (selectedPlaces != null && !selectedPlaces.isEmpty()) {
+                String[] placeIds = selectedPlaces.split(",");
+                for (String pid : placeIds) {
+                    placeId = Integer.parseInt(pid.trim());
+                    pids.add(placeId);
+                    int pPrice = dao.getServicePrice("Địa điểm nổi bật", placeId);
+                    placePrice += pPrice;
+                }
+            }
+
             LocalDate startDate = LocalDate.parse(startDateStr);
             LocalDate endDate = LocalDate.parse(endDateStr);
 
@@ -144,9 +155,10 @@ public class CreateCustomTourController extends HttpServlet {
                 vehiclePrice = dao.getServicePrice("Phương tiện", vehicleId);
             }
 
+
             long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
             long nights = days - 1;
-            int totalPrice = (int) ((hotelPrice + vehiclePrice) * (days));
+            int totalPrice = (int) ((hotelPrice) * (days)) + vehiclePrice + placePrice;
 
             // Tạo tên tour
             String islandName = islandDao.getIslandNameById(islandId);
@@ -165,6 +177,12 @@ public class CreateCustomTourController extends HttpServlet {
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Phương tiện", vehicleId, vehiclePrice));
             }
             
+                        
+            for (int pId : pids) {
+                int pPrice = dao.getServicePrice("Địa điểm nổi bật", pId);
+                dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Địa điểm nổi bật", pId, pPrice));
+            }
+
             // Tạo lịch trình mẫu
             dao.createSampleItinerary(customTourId, startDate, endDate);
 

@@ -119,6 +119,7 @@ CREATE TABLE UserPhones (
 );
 
 
+
 CREATE TABLE Countries (
     countryId INT IDENTITY(1,1) PRIMARY KEY,
     countryName NVARCHAR(100) UNIQUE NOT NULL,
@@ -241,7 +242,7 @@ CREATE TABLE IslandVehicles (
 );
 
 go
-select * from IslandVehicles
+select * from CustomTourDetails
 
 CREATE TABLE Places (
     placeId INT IDENTITY(1,1) PRIMARY KEY,
@@ -253,8 +254,9 @@ CREATE TABLE Places (
     ticketPrice INT CHECK (ticketPrice >= 0),                  
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-select * from Places
-
+select * from CustomTourDetails
+INSERT INTO CustomTourDetails (detailId, customTourId, serviceType, serviceId, price) VALUES
+(38, 20, N'Địa điểm nổi bật', 60, 2000000),
 CREATE TABLE CustomTours (
     customTourId INT IDENTITY(1,1) PRIMARY KEY,
     islandId INT NOT NULL,
@@ -274,6 +276,7 @@ CREATE TABLE CustomTourDetails (
     price INT CHECK (price >= 0),
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
+
 
 select * from Users
 CREATE TABLE CustomTourItinerary (
