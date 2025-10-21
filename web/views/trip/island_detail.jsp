@@ -175,10 +175,11 @@
 
 <section class="mb-5">
     <h2 class="h2 text-center text-primary fw-bold mb-4">
-        ✈️</i>Chuyến bay du lịch
+        Chuyến bay du lịch
     </h2>
 
-    <div class="card shadow rounded-4 mb-4 ">
+    <!-- NÚT CHỌN LOẠI CHUYẾN -->
+     <div class="card shadow rounded-4 mb-4 ">
         <div class="card-body p-4 text-center">
             <div class="d-flex gap-2  btn-group w-100 w-md-auto " role="group">
                 <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=motchieu"
@@ -192,8 +193,7 @@
             </div>
         </div>
     </div>
-
-    <script>
+       <script>
           document.querySelectorAll('#flightTypeButtons .btn').forEach(btn => {
             btn.addEventListener('click', () => {
            document.querySelectorAll('#flightTypeButtons .btn').forEach(b => b.classList.remove('btn-primary', 'active'));
@@ -202,72 +202,84 @@
                   });
     </script>
 
-    <div class="flight-scroll-container row ">
+            
+                   
+    <!-- DANH SÁCH CHUYẾN BAY -->
+    <div class="flight-scroll-container row">
         <c:choose>
             <c:when test="${not empty flights}">
-                <c:forEach var="flight" items="${flights}">
+                <c:forEach var="schedule" items="${flights}">
+                    <c:set var="f" value="${schedule.flight}" /> 
+
                     <div class="col-lg-4 col-md-6 mb-4 flight-item">
-                        <div class="card flight-item-card h-100 shadow-lg border-0 rounded-3 overflow-hidden" data-flightId="${flight.flightId}">
-                         <div class="position-relative flight-card">
-                             <img src="${pageContext.request.contextPath}/${flight.destinationImageUrl}"
-                                  alt="${flight.flightNumber}"
-                                  class="card-img-top"
-                                  style="height:220px; object-fit:cover; border-radius:10px;">
-
-                             <!-- Logo hãng bay -->
-                             <div class="airline-logo-wrapper">
-                                 <img src="${pageContext.request.contextPath}/${flight.airline.logoUrl}"
-                                      alt="${flight.airline.airlineName}"
-                                      class="airline-logo">
-                             </div>
-                         </div>
-
-
+                        <div class="card flight-item-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
+                             data-flightId="${f.flightId}">
+                            
+                            <!-- Ảnh + Logo -->
+                            <div class="position-relative flight-card">
+                                <img src="${pageContext.request.contextPath}/${f.destinationImageUrl}"
+                                     alt="${f.flightNumber}"
+                                     class="card-img-top"
+                                     style="height:220px; object-fit:cover; border-radius:10px;">
+                                <div class="airline-logo-wrapper">
+                                    <img src="${pageContext.request.contextPath}/${f.airline.logoUrl}"
+                                         alt="${f.airline.airlineName}"
+                                         class="airline-logo">
+                                </div>
+                            </div>
 
                             <div class="card-body d-flex flex-column">
-                                <div class="mb-1 " style="text-align:left;">
-                                    <h5 class="card-title fw-bold mb-1 ">
+                                <div class="mb-1" style="text-align:left;">
+                                    <h5 class="card-title fw-bold mb-1">
                                         <c:choose>
                                             <c:when test="${flightType == 'khuhoi'}">
-                                                ${flight.departure} ⇌ ${flight.destination}
+                                                ${f.departure} ⇌${f.destination}
                                             </c:when>
                                             <c:otherwise>
-                                                ${flight.departure} → ${flight.destination}
+                                                ${f.departure} → ${f.destination}
                                             </c:otherwise>
                                         </c:choose>
                                     </h5>
-                                    <p class="mb-1 ticket_available" style="margin-left: 2px;"><strong>Số lượng vé:</strong> <span class="text-success">${flight.ticketAvailable}</span></p>
-
-                                   <p class="card-text">
-  <span class="badge bg-primary text-white px-2 py-1 fs-6">${flight.flightClass}</span>
-
-</p>
-
-
+                                    <p class="mb-1 ticket_available" style="margin-left: 2px;">
+                                        <strong>Số lượng vé:</strong>
+                                        <span class="text-success">${f.ticketAvailable}</span>
+                                    </p>
+                                    <p class="card-text">
+                                        <span class="badge bg-primary text-white px-2 py-1 fs-6">${f.flightClass}</span>
+                                    </p>
                                 </div>
 
-                                <p class="fw-bold text-danger fs-5 text-end mt-3 ">
-                                    <fmt:formatNumber value="${flight.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
+                                <p class="fw-bold text-danger fs-5 text-end mt-3">
+                                    <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
                                 </p>
 
                                 <div class="mt-0 d-flex gap-2">
-
-
-
+                                    <!-- NÚT CHỌN -->
                                     <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn"
-                                            data-flight-id="${flight.flightId}">
-                                        <i class="bi bi-check-circle"></i> Chọn
+                                            data-flight-id="${f.flightId}">
+                                        Chọn
                                     </button>
+
+                                    <!-- NÚT XEM CHI TIẾT -->
                                     <button type="button" class="btn btn-success flex-fill rounded-pill w-100"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#flightDetailModal"
-                                           data-flightnumber="${flight.flightNumber}"
-                                           data-flightimage="${pageContext.request.contextPath}/${flight.destinationImageUrl}">
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#flightDetailModal"
+                                            data-flightnumber="${f.flightNumber}"
+                                            data-flightimage="${pageContext.request.contextPath}/${f.destinationImageUrl}"
+                                            data-departureairport="${schedule.departureAirport}"
+                                            data-arrivalairport="${schedule.arrivalAirport}"
+                                            data-departuretime="${f.departureTime != null ? f.departureTime : ''}"
+                                            data-arrivaltime="${f.arrivalTime != null ? f.arrivalTime : ''}"
+                                            data-transitairport="${schedule.transitAirport}"
+                                            data-transitduration="${schedule.transitDuration}"
+                                            data-returndeparturetime="${f.returnDepartureTime != null ? f.returnDepartureTime : ''}"
+                                            data-returnarrivaltime="${f.returnArrivalTime != null ? f.returnArrivalTime : ''}"
+                                            data-planemodel="${schedule.planeModel}"
+                                            data-notes="${schedule.notes}">
                                         Xem chi tiết
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </c:forEach>
@@ -275,11 +287,12 @@
             <c:otherwise>
                 <div class="col-12 text-center text-muted py-5">
                     <i class="bi bi-airplane fs-1 d-block mb-3"></i>
-                    <i class="bi bi-search"></i>  Vui lòng hãy tìm kiếm chuyến bay cho tour của bạn
+                    Vui lòng chọn loại chuyến bay
                 </div>
             </c:otherwise>
         </c:choose>
     </div>
+
     <input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
 </section>
 
@@ -338,6 +351,7 @@
                                                                     data-bs-target="#hotelDetailModal" 
                                                                     data-hotelname="${hotel.hotelName}"
                                                                     data-hotelimage="${pageContext.request.contextPath}/${hotel.hotelImageUrl}">
+                                                                     
 
                                                                 Xem chi tiết
                                                             </button>
@@ -544,53 +558,193 @@
         </div>
                    
                    
-          <!-- Thong tin chi tiet Chuyến bay -->            
+          <!-- Thong tin chi tiet Chuyến bay ---------------------------------------------->            
        
-<div class="modal fade" id="flightDetailModal" tabindex="-1" aria-labelledby="flightDetailLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content shadow-lg rounded-4 border-0">
-            
-            <!-- Header -->
-            <div class="modal-header p-3 text-white"
-                 style="background: linear-gradient(90deg, #4e73df, #224abe); border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
-                <h5 class="modal-title fw-bold" id="flightDetailLabel">Thông tin chuyến bay</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <!-- Modal Thông tin chi tiết chuyến bay -->
+  <!-- Modal Thông tin chi tiết chuyến bay -->
+<div class="modal fade" id="flightDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg rounded-4 border-0 overflow-hidden">
+
+            <!-- Header: Ảnh -->
+            <div class="modal-header p-0 position-relative">
+                <img id="modalFlightImage" src="" alt="Flight Banner"
+                     style="width:100%; height:250px; object-fit:cover;">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-2 bg-white rounded-circle"
+                        data-bs-dismiss="modal"></button>
             </div>
 
             <!-- Body -->
             <div class="modal-body p-4">
                 <div class="row g-4">
-                    <!-- Ảnh bên trái -->
-                    <div class="col-md-6">
-                        <img id="modalFlightImage" src="" alt="Flight Image"
-                             class="d-block w-100 rounded-3 shadow-sm"
-                             style="height:350px; object-fit:cover; border:1px solid #dee2e6;">
-                    </div>
 
-                    <!-- Thông tin bên phải -->
-                    <div class="col-md-6 text-start">
-                        <div class="mt-3 d-flex flex-column justify-content-start gap-2">
-                            <p class="mb-2"><strong class="fs-5">Mã chuyến bay:</strong>
-                                <span class="fs-5" id="flightNumber"></span></p>
+                    <!-- CỘT TRÁI: Lịch trình -->
+                    <div class="col-lg-5">
+                        <div class="timeline-flight mt-2">
 
-                            <p><strong class="fs-5">Tiện nghi:</strong></p>
-                            <div class="row row-cols-2 g-2 mb-2">
-                                <div class="col"><i class="bi bi-wifi me-2"></i>WiFi miễn phí</div>
-                                <div class="col"><i class="bi bi-card-image me-2"></i>Tầm nhìn ra khung cảnh</div>
-                                <div class="col"><i class="bi bi-house-door me-2"></i>Phòng gia đình</div>
-                                <div class="col"><i class="bi bi-slash-circle me-2"></i>Không hút thuốc</div>
-                                <div class="col"><i class="bi bi-snow me-2"></i>Điều hòa</div>
-                                <div class="col"><i class="bi bi-car-front me-2"></i>Chỗ đỗ xe</div>
-                                <div class="col"><i class="bi bi-tv me-2"></i>TV màn hình phẳng</div>
+                            <!-- CHUYẾN ĐI (luôn hiện) -->
+                            <!-- Điểm đi -->
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2 text-success" style="font-size:0.9rem;" id="departureTime">-</strong>
+                                    <div class="timeline-dot rounded-circle border border-2 border-success"
+                                         style="width:20px;height:20px; background:transparent;"></div>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h6 class="mb-0 fw-bold" id="departureAirport">-</h6>
+                                    <p class="text-muted small mb-0">
+                                        Sân bay <span id="departureAirportName">-</span> • Nhà ga 1
+                                    </p>
+                                </div>
                             </div>
 
-                            <p class="mb-2 fs-5"><strong>Chính sách:</strong> Nhận phòng từ 14h, trả trước 12h, hủy miễn phí trong 24h</p>
-                        </div>
+                            <!-- Mũi tên -->
+                            <div class="connector-wrap"><div class="timeline-connector"></div></div>
 
-                        <div class="mt-3 d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
-                                Đóng
-                            </button>
+                            <!-- QUÁ CẢNH (ẩn mặc định) -->
+                            <div id="transitSection" style="display:none;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="timeline-dot rounded-circle border border-2 border-warning"
+                                             style="width:20px;height:20px;"></div>
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <h6 class="mb-0 fw-bold" id="transitAirport">-</h6>
+                                        <p class="text-muted small mb-0">
+                                            Thời gian quá cảnh: <span id="transitDuration">-</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="connector-wrap"><div class="timeline-connector"></div></div>
+                            </div>
+
+                            <!-- Điểm đến -->
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2 text-success" style="font-size:0.9rem;" id="arrivalTime">-</strong>
+                                    <div class="timeline-dot rounded-circle bg-success"
+                                         style="width:20px;height:20px;"></div>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h6 class="mb-0 fw-bold" id="arrivalAirport">-</h6>
+                                    <p class="text-muted small mb-0">
+                                        Sân bay <span id="arrivalAirportName">-</span> • Nhà ga 1
+                                        <span id="arrivalDayPlus" class="text-muted"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- CHUYẾN VỀ (ẩn nếu không phải khứ hồi) -->
+                            <div id="returnSection" style="display:none;">
+                                <hr class="my-4">
+                                <h6 class="fw-bold mb-3 text-primary">Chuyến về</h6>
+
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <strong class="me-2 text-success" style="font-size:0.9rem;" id="returnDepartureTime">-</strong>
+                                        <div class="timeline-dot rounded-circle border border-2 border-success"
+                                             style="width:20px;height:20px;"></div>
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <h6 class="mb-0 fw-bold" id="returnDepartureAirport">-</h6>
+                                    </div>
+                                </div>
+
+                                <div class="connector-wrap"><div class="timeline-connector"></div></div>
+
+                                <div class="d-flex align-items-center mt-3">
+                                    <div class="d-flex align-items-center">
+                                        <strong class="me-2 text-success" style="font-size:0.9rem;" id="returnArrivalTime">-</strong>
+                                        <div class="timeline-dot rounded-circle bg-success"
+                                             style="width:20px;height:20px;"></div>
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <h6 class="mb-0 fw-bold" id="returnArrivalAirport">-</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CỘT PHẢI: Thông tin -->
+                    <div class="col-lg-7">
+                        <div class="h-100 d-flex flex-column justify-content-between">
+
+                            <!-- Mã chuyến + Badge -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold text-danger mb-0">
+                                    Mã chuyến bay: <span id="flightNumber">-</span>
+                                </h5>
+                                <span id="flightBadge" class="badge bg-success fs-6 px-3 py-2">Bay thẳng</span>
+                            </div>
+                            <hr class="my-3">
+
+                            <!-- Thông tin máy bay -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-airplane text-primary fs-5"></i>
+                                        <div>
+                                            <small class="text-muted">Loại máy bay</small>
+                                            <p class="fw-bold mb-0" id="planeModel">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-clock-history text-primary fs-5"></i>
+                                        <div>
+                                            <small class="text-muted">Thời gian bay</small>
+<p class="fw-bold mb-0" id="flightDuration">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-briefcase text-primary fs-5"></i>
+                                        <div>
+                                            <small class="text-muted">Hành lý xách tay</small>
+                                            <p class="fw-bold mb-0">7 kg</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-chair text-primary fs-5"></i>
+                                        <div>
+                                            <small class="text-muted">Khoảng cách ghế</small>
+                                            <p class="fw-bold mb-0">25 inch (dưới tiêu chuẩn)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dịch vụ -->
+                            <h6 class="fw-bold mb-3">Dịch vụ & Tiện ích</h6>
+                            <div class="row row-cols-2 g-2 text-muted small">
+                                <div class="col d-flex align-items-center gap-2">
+                                    <i class="bi bi-x-circle text-danger"></i> Không có WiFi
+                                </div>
+                                <div class="col d-flex align-items-center gap-2">
+                                    <i class="bi bi-x-circle text-danger"></i> Không có suất ăn
+                                </div>
+                                <div class="col d-flex align-items-center gap-2">
+                                    <i class="bi bi-x-circle text-danger"></i> Không giải trí
+                                </div>
+                                <div class="col d-flex align-items-center gap-2">
+                                    <i class="bi bi-check-circle text-success"></i> Ghế tiêu chuẩn
+                                </div>
+                            </div>
+                            <hr class="my-3">
+
+                            <!-- Ghi chú -->
+                            <p id="notes" class="text-muted small mb-0" style="display:none;"></p>
+
+                            <!-- Nút -->
+                            <div class="mt-4 d-flex gap-2 justify-content-end">
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
+                                        data-bs-dismiss="modal">Đóng</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -598,14 +752,6 @@
         </div>
     </div>
 </div>
-
-                   
-                   
-                   
-                   
-                   
-                   
-
 
         <!-- Footer -->
         <%@ include file="/views/common/footer.jsp" %>
@@ -677,7 +823,7 @@
             });
         </script>
         <script>
-            // Lấy modal element
+            //2. Lấy modal element
             const hotelModal = document.getElementById('hotelDetailModal');
 
             hotelModal.addEventListener('show.bs.modal', event => {
@@ -694,23 +840,158 @@
             });
             
             
-            //detail modal flight
-            
-        const flightModal = document.getElementById('flightDetailModal');
+     //2.detail modal flight
+    const flightModal = document.getElementById('flightDetailModal');
 
-    // Khi modal hiển thị
     flightModal.addEventListener('show.bs.modal', event => {
-        // Nút được click
         const button = event.relatedTarget;
 
-        // Lấy dữ liệu từ data-* attributes trong button
+        // === LẤY DATA TỪ NÚT ===
         const flightNumber = button.getAttribute('data-flightnumber');
         const flightImage = button.getAttribute('data-flightimage');
+        const departureAirport = button.getAttribute('data-departureairport');
+        const arrivalAirport = button.getAttribute('data-arrivalairport');
+        const departureTime = button.getAttribute('data-departuretime');
+        const arrivalTime = button.getAttribute('data-arrivaltime');
+        const transitAirport = button.getAttribute('data-transitairport');
+        const transitDuration = button.getAttribute('data-transitduration');
+        const returnDepartureTime = button.getAttribute('data-returndeparturetime');
+        const returnArrivalTime = button.getAttribute('data-returnarrivaltime');
+        const planeModel = button.getAttribute('data-planemodel');
+        const notes = button.getAttribute('data-notes');
 
-        // Gán dữ liệu vào modal
-        flightModal.querySelector('#flightNumber').textContent = flightNumber;
-        flightModal.querySelector('#modalFlightImage').src = flightImage;
+        // === ĐỌC flightType TỪ URL (hoặc từ data-flighttype) ===
+        const urlParams = new URLSearchParams(window.location.search);
+        const flightType = urlParams.get('flightType') || button.getAttribute('data-flighttype');
+
+        // === CẬP NHẬT ẢNH + MÃ ===
+        set('#modalFlightImage', 'src', flightImage);
+        setText('#flightNumber', flightNumber);
+        setText('#planeModel', planeModel || 'Không rõ');
+
+        // === CHUYẾN ĐI ===
+        setText('#departureTime', formatTime(departureTime));
+        setText('#arrivalTime', formatTime(arrivalTime));
+        setText('#departureAirport', departureAirport);
+        setText('#arrivalAirport', arrivalAirport);
+        setText('#departureAirportName', splitAirport(departureAirport));
+        setText('#arrivalAirportName', splitAirport(arrivalAirport));
+
+        // Thời gian bay
+        setText('#flightDuration', calculateDuration(departureTime, arrivalTime));
+
+       
+
+        // === QUÁ CẢNH ===
+        if (transitAirport && transitDuration) {
+            setText('#transitAirport', transitAirport);
+            setText('#transitDuration', transitDuration);
+            show('#transitSection');
+        } else {
+            hide('#transitSection');
+        }
+
+        // === KHỨ HỒI: ĐẢO CHIỀU ===
+        if (flightType === 'khuhoi' && returnDepartureTime && returnArrivalTime) {
+            setText('#returnDepartureTime', formatTime(returnDepartureTime));
+            setText('#returnArrivalTime', formatTime(returnArrivalTime));
+            setText('#returnDepartureAirport', arrivalAirport);     // về từ điểm đến
+            setText('#returnArrivalAirport', departureAirport);     // về đến điểm đi
+            show('#returnSection');
+        } else {
+            hide('#returnSection');
+        }
+
+        // === BADGE ===
+        const badge = document.getElementById('flightBadge');
+        if (transitAirport) {
+            badge.textContent = 'Quá cảnh';
+            badge.className = 'badge bg-warning fs-6 px-3 py-2';
+        } else {
+            badge.textContent = 'Bay thẳng';
+            badge.className = 'badge bg-success fs-6 px-3 py-2';
+        }
+
+        // === GHI CHÚ ===
+        const notesEl = document.getElementById('notes');
+        if (notes && notes.trim()) {
+            notesEl.textContent = notes;
+            notesEl.style.display = 'block';
+        } else {
+            notesEl.style.display = 'none';
+        }
     });
+
+    // === HÀM HỖ TRỢ ===
+    function setText(selector, text) {
+        const el = document.querySelector(selector);
+        if (el) el.textContent = text || '-';
+    }
+
+    function set(selector, attr, value) {
+        const el = document.querySelector(selector);
+        if (el) el.setAttribute(attr, value);
+    }
+
+    function show(selector) {
+        const el = document.querySelector(selector);
+        if (el) el.style.display = 'block';
+    }
+
+    function hide(selector) {
+        const el = document.querySelector(selector);
+        if (el) el.style.display = 'none';
+    }
+
+    function formatTime(time) {
+        return time ? time.substring(0, 5) : '-';
+    }
+
+    function splitAirport(airport) {
+        return airport ? airport.split('(')[0].trim() : '-';
+    }
+
+// LOG ĐỂ KIỂM TRA
+    console.log('departureTime:', departureTime);
+    console.log('arrivalTime:', arrivalTime);
+
+    // Tính giờ bay
+    const duration = calculateDuration(departureTime, arrivalTime);
+    console.log('duration:', duration);
+
+
+function calculateDuration(departureTime, arrivalTime) {
+    // Nếu rỗng hoặc không hợp lệ
+    if (!departureTime || !arrivalTime) return 'giờ phút';
+
+    // Cắt đúng 5 ký tự đầu nếu có thêm giây (vd: "14:10:00")
+    const start = departureTime.substring(0, 5);
+    const end = arrivalTime.substring(0, 5);
+
+    // Tách giờ và phút
+    const [h1, m1] = start.split(':').map(Number);
+    const [h2, m2] = end.split(':').map(Number);
+
+    // Kiểm tra hợp lệ
+    if ([h1, m1, h2, m2].some(isNaN)) return 'giờ phút';
+
+    // Chuyển sang phút
+    let startMinutes = h1 * 60 + m1;
+    let endMinutes = h2 * 60 + m2;
+
+    // Nếu qua ngày hôm sau (vd: 23:00 -> 01:00)
+    if (endMinutes < startMinutes) {
+        endMinutes += 24 * 60;
+    }
+
+    // Tính chênh lệch
+    const diff = endMinutes - startMinutes;
+    const hours = Math.floor(diff / 60);
+    const minutes = diff % 60;
+
+    // Định dạng kết quả gọn gàng
+    return `${hours} giờ${minutes > 0 ? ' ' + minutes + ' phút' : ''}`;
+}
           
           
         </script>

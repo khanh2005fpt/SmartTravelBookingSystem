@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Flight;
+import model.FlightSchedule;
 
 /**
  *
@@ -97,12 +98,14 @@ public class FlightSearchController extends HttpServlet {
             return;
     }
     
-    System.out.println("flightType = " + flightType);
-    
+   
     // lay list de hien thi thong tin chuyen bay
-    List<Flight> flights = serviceDAO.getFlightsByIslandIdAndType(islandId, flightType);
+  
+      List<FlightSchedule> flights = serviceDAO.getFlightSchedules(islandId, flightType);
+  
     request.setAttribute("flights", flights);
     request.setAttribute("flightType", flightType);
+   
   
     
     response.sendRedirect(request.getContextPath() + "/IslandDetailController?detailId=" + islandId + "&flightType=" + flightTypeRaw);

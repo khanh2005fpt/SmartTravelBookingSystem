@@ -16,6 +16,7 @@ import model.Island;
 import model.IslandVehicle;
 import utils.DBContext;
 import java.sql.Time;
+import model.FlightSchedule;
 
 
 /**
@@ -265,100 +266,140 @@ public class ServiceDao extends DBContext{
 
    
  // la danh sach ve may bay dua theo diem den  logo , maCode
-   public List<Flight> getFlightsByIslandIdAndType(int islandId, String flightType) throws Exception{
-     
-       List<Flight> listFlights = new ArrayList<>();
-          // join de lay logo va maCode
-        String sql = """
-    SELECT 
-        f.flightId,
-        f.flightNumber,
-        f.departure,
-        f.destination,
-        f.departureTime,
-        f.arrivalTime,
-        f.basePrice,
-        f.ticketAvailable,  
-        f.returnDepartureTime,
-        f.returnArrivalTime,                           
-        f.flightType,
-        f.flightClass,
-        f.destinationImageUrl,
-        f.airlineId,
-        f.destinationIslandId,
-        a.airlineName,
-        a.iataCode,
-        a.logoUrl
-    FROM Flights f
-    JOIN Airlines a ON f.airlineId = a.airlineId
-    WHERE f.destinationIslandId = ? AND f.flightType = ?
-    ORDER BY f.basePrice ASC
-""";
-            try ( PreparedStatement ps = connection.prepareStatement(sql))
-         {
 
+   public List<FlightSchedule> getFlightSchedules(int islandId, String flightType) throws Exception {
+    List<FlightSchedule> list = new ArrayList<>();
+    
+    String sql = """
+        SELECT 
+            fs.scheduleId,
+            fs.planeModel,
+            fs.departureAirport,
+            fs.arrivalAirport,
+            fs.transitAirport,
+            fs.transitDuration,
+            fs.notes,
+            
+            -- Flight
+            f.flightId,
+            f.flightNumber,
+            f.departure,
+            f.destinationIslandId,   
+            f.destination,
+            f.basePrice,
+            f.ticketAvailable,
+            f.flightClass,
+            f.destinationImageUrl,
+            f.departureTime,
+            f.arrivalTime,
+            f.returnDepartureTime,
+            f.returnArrivalTime,
+            
+            -- Airline
+            a.airlineId,
+            a.airlineName,
+            a.iataCode,
+            a.logoUrl
+        FROM FlightSchedules fs
+        JOIN Flights f ON fs.flightId = f.flightId
+        JOIN Airlines a ON f.airlineId = a.airlineId
+        WHERE f.destinationIslandId = ? AND f.flightType = ?
+        ORDER BY f.basePrice ASC
+        """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
         ps.setInt(1, islandId);
         ps.setString(2, flightType);
 
         try (ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                
-                  Flight flight = new Flight();
-            
-                 flight.setFlightId(rs.getInt("flightId"));
+                // === Tạo Airline ===
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+
+                // === Tạo Flight ===
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
                 flight.setFlightNumber(rs.getString("flightNumber"));
                 flight.setDeparture(rs.getString("departure"));
                 flight.setDestination(rs.getString("destination"));
                 flight.setBasePrice(rs.getInt("basePrice"));
                 flight.setTicketAvailable(rs.getInt("ticketAvailable"));
-                flight.setFlightType(rs.getString("flightType"));
                 flight.setFlightClass(rs.getString("flightClass"));
                 flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
-
-                // Gán Airline
-                Airlines airline = new Airlines();
-                airline.setAirlineId(rs.getInt("airlineId"));
-                  // Thông tin hãng hàng không
-               airline.setAirlineName(rs.getString("airlineName"));
-               airline.setIataCode(rs.getString("iataCode"));
-                airline.setLogoUrl(rs.getString("logoUrl"));
                 flight.setAirline(airline);
-
-                // Gán Island
+                
+                // === Tạo Island ===
                 Island island = new Island();
                 island.setIslandId(rs.getInt("destinationIslandId"));
                 flight.setDestinationIsland(island);
-
-                // Chuyển từ Time sang LocalTime
+                
+                
+                
+                // Thời gian
                 Time dep = rs.getTime("departureTime");
                 flight.setDepartureTime(dep != null ? dep.toLocalTime() : null);
-
                 Time arr = rs.getTime("arrivalTime");
                 flight.setArrivalTime(arr != null ? arr.toLocalTime() : null);
-
                 // Xử lý giá trị null cho chiều về
-                Time returnDep = rs.getTime("returnDepartureTime");
-                flight.setReturnDepartureTime(returnDep != null ? returnDep.toLocalTime() : null);
+                Time retDep = rs.getTime("returnDepartureTime");
+                flight.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+                Time retArr = rs.getTime("returnArrivalTime");
+                flight.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
 
-                Time returnArr = rs.getTime("returnArrivalTime");
-                flight.setReturnArrivalTime(returnArr != null ? returnArr.toLocalTime() : null);
+                // === Tạo FlightSchedule ===
+                FlightSchedule schedule = new FlightSchedule();
+                schedule.setScheduleId(rs.getInt("scheduleId"));
+                schedule.setFlight(flight);
+                schedule.setPlaneModel(rs.getString("planeModel"));
+                schedule.setDepartureAirport(rs.getString("departureAirport"));
+                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                schedule.setTransitAirport(rs.getString("transitAirport"));
+                schedule.setTransitDuration(rs.getString("transitDuration"));
+                schedule.setNotes(rs.getString("notes"));
 
-             
-                listFlights.add(flight);
-                
+                list.add(schedule);
             }
         }
-           
-           
-       } catch (Exception e) {
-           e.printStackTrace();
+    } catch (Exception e) {
+        e.printStackTrace();
         throw e;
-       }
-            
-       return listFlights;
-
-       
-   }
+    }
+    return list;
+}
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
    
    
 
@@ -368,11 +409,11 @@ public class ServiceDao extends DBContext{
         
         int islandId = 1;
       try{
-           List<Flight> flights = dao.getFlightsByIslandIdAndType(islandId, "Một chiều");
+           List<FlightSchedule> flights = dao.getFlightSchedules(islandId, "Một chiều");
            
             System.out.println("=== DANH SÁCH CHUYẾN BAY ĐẾN ISLAND ID " + islandId + " ===");
-        for (Flight f : flights) {
-           System.out.println("Flight: " + f.getFlightNumber() + ", Airline: " + f.getAirline().getAirlineName() + ", Logo: " + f.getAirline().getLogoUrl());
+        for (FlightSchedule f : flights) {
+            System.out.println(f);
         }
 
         if (flights.isEmpty()) {

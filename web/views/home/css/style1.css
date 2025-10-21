@@ -442,8 +442,60 @@ input::placeholder {
 }
 
 
+/* flight schedule */
+.timeline-dot {
+    font-size: 0.75rem;
+    font-weight: bold;
+}
 
+.timeline-flight {
+    position: relative;
+}
 
+.timeline-flight::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    bottom: 40px;
+    left: 18px;
+    width: 2px;
+    background: #ddd;
+    z-index: 0;
+}
 
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+}
 
- 
+ .timeline-connector {
+    width: 1px;
+    height: 70px; /* chiều dài mũi tên */
+    background-color: #adb5bd; 
+    margin: 0 auto;
+    position: relative;
+    border-radius: 1px;
+   
+  }
+
+  /* Mũi tên ở cuối đường */
+  .timeline-connector::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #6c757d; /* màu xám đậm hơn */
+  }
+
+  .connector-wrap {
+    height: 70px; /* tổng chiều cao */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+   
+  }

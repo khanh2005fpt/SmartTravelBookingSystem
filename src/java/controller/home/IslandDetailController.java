@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import model.Flight;
+import model.FlightSchedule;
 import model.Hotel;
 import model.Island;
 import model.IslandVehicle;
@@ -85,9 +86,9 @@ public class IslandDetailController extends HttpServlet {
             TourDao td = new TourDao();
             List<Tour> listT = td.getListToursById(id);
 
-// Lấy danh sách flights dựa trên flightType (
-            List<Flight> flights = new ArrayList<>();
-          
+            // Lấy danh sách flights dựa trên flightType 
+            
+             List<FlightSchedule> flights= new ArrayList<>();
             if (flightTypeRaw != null) {
                 String flightType;
                 switch (flightTypeRaw.toLowerCase()) {
@@ -101,8 +102,9 @@ public class IslandDetailController extends HttpServlet {
                         flightType = null;
                 }
                 if (flightType != null) {
-                    flights = serviceDao.getFlightsByIslandIdAndType(id, flightType);
-                  
+                   
+                    flights= serviceDao.getFlightSchedules(id, flightType);
+                 
                 }
             }
                 request.setAttribute("islandvehicles", listV);
@@ -110,13 +112,17 @@ public class IslandDetailController extends HttpServlet {
                 request.setAttribute("hotels", listH);
                 request.setAttribute("tours", listT);
                 request.setAttribute("flights", flights);
-             
+           
+                
                 request.setAttribute("flightType", flightTypeRaw != null ? flightTypeRaw : ""); // Truyền flightType để hiển thị
                 request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
-          
+           } catch (NumberFormatException e) {
+            response.sendError(400, "ID không hợp lệ");
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendError(500, "Lỗi hệ thống");
         }
+       
     }
 
     /**

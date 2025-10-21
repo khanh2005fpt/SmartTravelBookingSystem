@@ -243,9 +243,8 @@ select *from Airlines
 select * from Flights
 SELECT * FROM FlightSchedules 
 select *from Countries
-update Airlines
-set  logoUrl='views/home/images/flights/Vietnam_Airlines-Logo.png'
-where airlineId=1
+
+
 --images/airlines/bamboo_airways.png
 CREATE TABLE Airlines (
     airlineId INT IDENTITY(1,1) PRIMARY KEY,
@@ -285,16 +284,16 @@ CREATE TABLE Flights (
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
-CREATE TABLE FlightSchedules (
-    scheduleId INT IDENTITY(1,1) PRIMARY KEY,
-    flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
-    planeModel NVARCHAR(100) NULL,          -- loại máy bay
-    departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
-    arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
-    transitAirport NVARCHAR(100) NULL,       -- sân bay trung chuyển (nếu có)
-    transitDuration NVARCHAR(50) NULL,       -- thời gian dừng (VD: '7h30', '45 phút')
-    notes NVARCHAR(255) NULL                 -- ghi chú (VD: "Hành khách không cần nhận lại hành lý...")
-);
+	CREATE TABLE FlightSchedules (
+		scheduleId INT IDENTITY(1,1) PRIMARY KEY,
+		flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
+		planeModel NVARCHAR(100) NULL,          -- loại máy bay
+		departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
+		arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
+		transitAirport NVARCHAR(100) NULL,       -- sân bay trung chuyển (nếu có)
+		transitDuration NVARCHAR(50) NULL,       -- thời gian dừng (VD: '7h30', '45 phút')
+		notes NVARCHAR(255) NULL                 -- ghi chú (VD: "Hành khách không cần nhận lại hành lý...")
+	);
 
 
 
@@ -378,12 +377,17 @@ WHERE scheduleId = 1;
 /* lenh join lay lich trinh bay chi tiet
 SELECT 
     fs.scheduleId,
-    a.airlineName AS HangBay,
-    f.flightNumber AS MaChuyenBay,
+	fs.flightId,
+    a.airlineName AS airlineName,
+    f.flightNumber AS flightNumber,
+	fs.planeModel AS planeModel,
+	f.flightType   AS flightType,
     fs.departureAirport AS DiemDi,
     fs.arrivalAirport AS DiemDen,
     f.departureTime AS GioKhoiHanh,
     f.arrivalTime AS GioDen,
+	f.returnDepartureTime AS GioKhoiHanhVe,
+	f.returnArrivalTime AS GioDenVe,
     fs.transitAirport AS SanBayQuaCanh,
     fs.transitDuration AS ThoiGianDung,
     fs.notes AS GhiChu
@@ -1303,8 +1307,9 @@ VALUES
 
 
 update Flights
-set destinationIslandId= 1
-where flightId=18
+set ticketAvailable= 58
+where flightId=15
+
 /*
 delete from Flights
 DBCC CHECKIDENT ('Flights', RESEED, 0);
