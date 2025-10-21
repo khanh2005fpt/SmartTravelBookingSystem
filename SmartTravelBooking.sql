@@ -362,9 +362,7 @@ CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
     amount DECIMAL(10,3) NOT NULL,
-    method VARCHAR(20) CHECK (method IN ('VNPAY','PAYPAL','STRIPE','CREDITCARD')) NOT NULL,
     status VARCHAR(20) CHECK (status IN ('SUCCESS','FAILED','PENDING')) DEFAULT 'PENDING',
-    transactionDate DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 go

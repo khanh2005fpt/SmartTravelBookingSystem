@@ -145,10 +145,6 @@
                 </c:forEach>
             </div>
         </div>
-
-
-
-
     </div>
 
     <!-- Right Column: Booking -->

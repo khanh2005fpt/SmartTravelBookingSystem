@@ -222,13 +222,13 @@ public class TourDao extends DBContext {
         }
 
         // Loai bo trung lap dia diem
-        Set<String> uniquePlaces = new LinkedHashSet<>(places);
+        Set<String> uniquePlaces = new LinkedHashSet<>(places); //Neu trung lap thi se bo qua
         places = new ArrayList<>(uniquePlaces);
 
         String[] times = {"Buổi sáng", "Buổi chiều", "Buổi tối"};
 
         // Tao danh sach slot theo tung slot (bo sang ngay dau va chieu voi toi ngay cuoi)
-        List<int[]> scheduleSlots = new ArrayList<>(); //Mang lay cac slot tinh tu chieu ngay dau den sang ngay cuoi
+        List<int[]> scheduleSlots = new ArrayList<>(); //Mang lay cac slot tinh tu chieu ngay dau den sang ngay cuoi(mang chua mang)
         for (int day = 1; day <= numberOfDays; day++) {
             for (int t = 0; t < times.length; t++) {
                 String time = times[t];
@@ -238,7 +238,7 @@ public class TourDao extends DBContext {
                 if (day == numberOfDays && (time.equals("Buổi chiều") || time.equals("Buổi tối"))) {
                     continue;
                 }
-                scheduleSlots.add(new int[]{day, t}); //scheduleSlots là một danh sách chứa các cặp giá trị {day, t}
+                scheduleSlots.add(new int[]{day, t}); //scheduleSlots là một danh sách chứa các cặp giá trị {day, t} Vi du (1, 0)
             }
         }
 

@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import model.Booking;
+import model.Payment;
 
 
 /**
@@ -23,8 +24,7 @@ public class BookingDao extends DBContext {
     public void createBooking(Booking booking) throws SQLException {
         String sql = "INSERT INTO Bookings (profileId, customerId, price, departureDate, adultQuantity, childQuantity, status) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setInt(1, booking.getProfileId());
             ps.setInt(2, booking.getCustomerId());
             ps.setInt(3, booking.getPrice());
@@ -42,5 +42,32 @@ public class BookingDao extends DBContext {
             System.out.println(e);
         }
     }
+    
+    public void createPayment(Payment payment) throws SQLException {
+        String sql = "INSERT INTO Payments (bookingId, amount, status) "
+                   + "VALUES (?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, payment.getBookingId());
+            ps.setDouble(2, payment.getAmount());
+            ps.setString(3, payment.getStatus());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi thêm Payment cho bookingId = " + payment.getBookingId(), e);
+        }
+    }
+    
+    public void updateStatus(int bookingId, String status) throws SQLException {
+        String sql = "UPDATE Bookings SET status=? WHERE bookingId=?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, bookingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi cập nhật trạng thái bookingId = " + bookingId, e);
+        }
+    }
+
 
 }
