@@ -11,7 +11,9 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import model.CustomTour;
 import model.CustomTourDetail;
 import model.CustomTourItinerary;
@@ -155,8 +157,7 @@ public class TourDao extends DBContext {
                 tourI.setDayNumber(rs.getInt("dayNumber"));
                 tourI.setActivity(rs.getString("activity"));
                 tourI.setLocation(rs.getString("location"));
-                tourI.setStartTime(rs.getTime("startTime"));
-                tourI.setEndTime(rs.getTime("endTime"));
+                tourI.setTimeOfDay(rs.getString("timeOfDay"));
 
                 list.add(tourI);
             }
@@ -196,42 +197,116 @@ public class TourDao extends DBContext {
     //Tao thong tin lich trinh cua tour le
     public void createSampleItinerary(int customTourId, LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = "INSERT INTO CustomTourItinerary "
-                + "(customTourId, dayNumber, activity, location, startTime, endTime) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "(customTourId, dayNumber, activity, location, timeOfDay) "
+                + "VALUES (?, ?, ?, ?, ?)";
 
-        // Tính số ngày tour, bao gồm cả ngày bắt đầu và kết thúc
+        // Lay danh sach dich vu trong tour
+        List<CustomTourDetail> services = getTourDetails(customTourId);
+
+        // Tinh so ngay tour
         int numberOfDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
         if (numberOfDays <= 0) {
             numberOfDays = 1;
         }
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            for (int day = 1; day <= numberOfDays; day++) {
-                ps.setInt(1, customTourId);
-                ps.setInt(2, day);
+        // Tach rieng khach san va dia diem noi bat
+        String hotelName = null;
+        List<String> places = new ArrayList<>();
 
-                // Logic tạo hoạt động theo ngày
+        for (CustomTourDetail detail : services) {
+            if ("Khách sạn".equals(detail.getServiceType())) {
+                hotelName = detail.getServiceName(); //Boi vi khach san chi co 1
+            } else if ("Địa điểm nổi bật".equals(detail.getServiceType())) {
+                places.add(detail.getServiceName()); //Dia diem noi bat la 1 danh sach hoac khong
+            }
+        }
+
+        // Loai bo trung lap dia diem
+        Set<String> uniquePlaces = new LinkedHashSet<>(places);
+        places = new ArrayList<>(uniquePlaces);
+
+        String[] times = {"Buổi sáng", "Buổi chiều", "Buổi tối"};
+
+        // Tao danh sach slot theo tung slot (bo sang ngay dau va chieu voi toi ngay cuoi)
+        List<int[]> scheduleSlots = new ArrayList<>(); //Mang lay cac slot tinh tu chieu ngay dau den sang ngay cuoi
+        for (int day = 1; day <= numberOfDays; day++) {
+            for (int t = 0; t < times.length; t++) {
+                String time = times[t];
+                if (day == 1 && time.equals("Buổi sáng")) {
+                    continue;
+                }
+                if (day == numberOfDays && (time.equals("Buổi chiều") || time.equals("Buổi tối"))) {
+                    continue;
+                }
+                scheduleSlots.add(new int[]{day, t}); //scheduleSlots là một danh sách chứa các cặp giá trị {day, t}
+            }
+        }
+
+        // Dem so slot (khong tinh check-in/out)
+        int totalSlots = 0;
+        for (int[] slot : scheduleSlots) {
+            int day = slot[0];
+            String time = times[slot[1]];
+            if (!(day == 1 && time.equals("Buổi chiều")) && !(day == numberOfDays && time.equals("Buổi sáng"))) {
+                totalSlots++;
+            }
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int placeIndex = 0;
+
+            for (int[] slot : scheduleSlots) {
+                int day = slot[0];
+                String timeOfDay = times[slot[1]];
                 String activity;
-                if (day == 1) {
-                    activity = "Check-in khách sạn và ổn định chỗ ở";
-                } else if (day == numberOfDays) {
-                    activity = "Check-out khách sạn và kết thúc tour";
-                } else {
-                    activity = "Tham quan và trải nghiệm đảo";
+                String location;
+
+             
+                if (timeOfDay.equals("Buổi tối")) {
+                    activity = "Hoạt động tự do và nghỉ ngơi";
+                    location = hotelName;
+                } else if (day == 1 && timeOfDay.equals("Buổi chiều")) {
+                    activity = "Check-in " + hotelName + " và ổn định chỗ ở";
+                    location = hotelName;
+                } 
+                else if (day == numberOfDays && timeOfDay.equals("Buổi sáng")) {
+                    activity = "Check-out " + hotelName + " và kết thúc tour";
+                    location = hotelName;
+                } 
+                else {
+                    // Neu so dia diem nhieu hon so slot thi chia deu nhieu dia diem vao mot slot
+                    int remainingPlaces = places.size() - placeIndex;
+                    int remainingSlots = totalSlots - (placeIndex / Math.max(1, (places.size() / Math.max(1, totalSlots))));
+                    int placesPerSlot = Math.max(1, remainingPlaces / Math.max(1, remainingSlots));
+
+                    List<String> slotPlaces = new ArrayList<>();
+                    for (int i = 0; i < placesPerSlot && placeIndex < places.size(); i++) {
+                        slotPlaces.add(places.get(placeIndex++));
+                    }
+
+                    String joinedPlaces = String.join(", ", slotPlaces);
+                    if (slotPlaces.isEmpty()) {
+                        //  Neu khong co dia diem nao thi tu do
+                        activity = "Tự do khám phá hoặc tham quan theo sở thích cá nhân";
+                        location = "Tự do";
+                    } else {
+                        joinedPlaces = String.join(", ", slotPlaces);
+                        activity = "Tham quan và trải nghiệm " + joinedPlaces;
+                        location = joinedPlaces;
+                    }
                 }
 
+                ps.setInt(1, customTourId);
+                ps.setInt(2, day);
                 ps.setString(3, activity);
-                ps.setString(4, "Địa điểm nổi bật ngày " + day);
-
-                // Giờ hoạt động mẫu: 08:00 - 17:00
-                ps.setTime(5, Time.valueOf("08:00:00"));
-                ps.setTime(6, Time.valueOf("17:00:00"));
-
+                ps.setString(4, location);
+                ps.setString(5, timeOfDay);
                 ps.addBatch();
             }
+
             ps.executeBatch();
         } catch (SQLException e) {
-            throw new SQLException("Lỗi khi tạo lịch trình mẫu cho custom tour, customTourId=" + customTourId, e);
+            throw new SQLException("Lỗi khi tạo lịch trình mẫu cho custom tour, customTourId = " + customTourId, e);
         }
     }
 
@@ -295,8 +370,7 @@ public class TourDao extends DBContext {
                         rs.getInt("dayNumber"),
                         rs.getString("activity"),
                         rs.getString("location"),
-                        rs.getTime("startTime"),
-                        rs.getTime("endTime")
+                        rs.getString("timeOfDay")
                 ));
             }
         } catch (SQLException e) {

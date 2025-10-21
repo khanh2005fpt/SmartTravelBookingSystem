@@ -285,10 +285,10 @@ CREATE TABLE CustomTourItinerary (
     dayNumber INT CHECK (dayNumber > 0),
     activity NVARCHAR(255) NOT NULL,
     location NVARCHAR(150),
-    startTime TIME,
-    endTime TIME,
+    timeOfDay NVARCHAR(50),
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
+
 
 
 select * from CustomTourItinerary

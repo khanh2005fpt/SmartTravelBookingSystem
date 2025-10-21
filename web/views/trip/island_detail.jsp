@@ -393,10 +393,12 @@
                         <div class="col-md-6 col-lg-3">
                             <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
                                 <div class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-person-badge-fill text-info fs-3 me-3"></i>
-                                    <h5 class="card-title mb-0 fw-bold">Hướng dẫn viên</h5>
+                                    <i class="bi bi-compass-fill text-warning fs-3 me-3"></i>
+                                    <h5 class="card-title mb-0 fw-bold">Khu du lịch nổi tiếng</h5>
                                 </div>
-                                <p class="card-text text-muted">Hướng dẫn viên chuyên nghiệp, thông thạo nhiều ngôn ngữ, đồng hành cùng bạn.</p>
+                                <p class="card-text text-muted">
+                                    Khám phá những địa điểm du lịch nổi tiếng, cảnh đẹp thiên nhiên hùng vĩ và văn hóa đặc sắc khắp mọi miền.
+                                </p>
                             </div>
                         </div>
 
