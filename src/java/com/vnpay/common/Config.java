@@ -1,4 +1,3 @@
-
 package com.vnpay.common;
 
 import java.io.UnsupportedEncodingException;
@@ -22,10 +21,10 @@ import jakarta.servlet.http.HttpServletRequest;
 public class Config {
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:9999/VnpayReturn";
+    public static String vnp_ReturnUrl = "http://localhost:9999/SmartBookingTravelSystem/VnpayReturn";
     public static String vnp_TmnCode = "YR6975JV";
-    public static String secretKey = "J6KQSVMA2F5V1VI4XRC9X6P0ICPQGAQY";
-    public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+    public static String secretKey = "LBG9Q8U29IWWNAKHW9CL03W4ONR6Z7JD";
+    public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchantv2/";
 
     public static String md5(String message) {
         String digest = null;
@@ -64,7 +63,7 @@ public class Config {
     }
 
     //Util for VNPAY
-    public static String hashAllFields(Map<String, String> fields) {
+    public static String hashAllFields(Map fields) {
         List fieldNames = new ArrayList(fields.keySet());
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
@@ -73,17 +72,18 @@ public class Config {
             String fieldName = (String) itr.next();
             String fieldValue = (String) fields.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                sb.append(fieldName);
+                sb.append(java.net.URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
                 sb.append("=");
-                sb.append(fieldValue);
+                sb.append(java.net.URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
             }
             if (itr.hasNext()) {
                 sb.append("&");
             }
         }
-        return hmacSHA512(secretKey,sb.toString());
+        System.out.println("DEBUG >>> hashData = " + sb.toString());
+        return hmacSHA512(secretKey, sb.toString());
     }
-    
+
     public static String hmacSHA512(final String key, final String data) {
         try {
 
@@ -106,7 +106,7 @@ public class Config {
             return "";
         }
     }
-    
+
     public static String getIpAddress(HttpServletRequest request) {
         String ipAdress;
         try {

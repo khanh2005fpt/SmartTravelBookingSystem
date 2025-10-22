@@ -110,16 +110,20 @@ public class BookingController extends HttpServlet {
 
             // Lấy thông tin người dùng đăng nhập
             User user = (User) request.getSession().getAttribute("user");
+            if (user == null) {
+                request.setAttribute("errorMessage", "❌ Bạn cần đăng nhập trước khi đặt tour!");
+                request.getRequestDispatcher("/views/home/login.jsp").forward(request, response);
+                return;
+            }
 
             int customerId = user.getUserId();
-
+            
             // Tính tổng tiền
             double totalPrice = (adultQty * price) + (childQty * price * 0.3);
 
             // Tạo booking
             Booking booking = new Booking();
             booking.setCustomerId(customerId);
-            booking.setPrice((int) totalPrice);
             booking.setDepartureDate(departureDate);
             booking.setAdultQuantity(adultQty);
             booking.setChildQuantity(childQty);
@@ -127,9 +131,6 @@ public class BookingController extends HttpServlet {
 
             BookingDao bd = new BookingDao();
             bd.createBooking(booking);
-
-            // Lưu BookingDetails
-           
 
             // Lấy thông tin tour
             // Gửi dữ liệu sang trang thanh toán

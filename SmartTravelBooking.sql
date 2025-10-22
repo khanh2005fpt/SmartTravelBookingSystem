@@ -191,7 +191,8 @@ CREATE TABLE Hotels (
 	area INT CHECK (area > 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-select * from hotels
+select * from users
+
 
 go
 select * from hotels a join islands b on a.islandId = b.islandId where a.islandId = 1
@@ -319,24 +320,36 @@ BEGIN
 END;
 GO
 
+select * from 
+
+	CREATE TABLE Bookings (
+		bookingId INT IDENTITY(1,1) PRIMARY KEY,
+		customerId INT NOT NULL,
+		departureDate DATE NOT NULL,
+		endDate DATE    ,
+		adultQuantity INT NOT NULL,
+		childQuantity INT NOT NULL,
+		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
+		bookingDate DATETIME DEFAULT GETDATE(),
+--		FOREIGN KEY (customerId) REFERENCES Users(userId),
+	);
+
 select * from users
 
-CREATE TABLE Bookings (
-    bookingId INT IDENTITY(1,1) PRIMARY KEY,
-	profileId INT,
-    customerId INT NOT NULL,
-    price INT, 
-	departureDate DATE NOT NULL,
-	endDate DATE    ,
-	adultQuantity INT NOT NULL,
-    childQuantity INT NOT NULL,
-	status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')) DEFAULT 'PENDING',
-    bookingDate DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (customerId) REFERENCES Users(userId),
-	FOREIGN KEY (profileId) REFERENCES CustomerProfiles (profileId)
+-- Bảng Payments
+  
+
+CREATE TABLE Payments (
+    paymentId INT IDENTITY(1,1) PRIMARY KEY,
+    bookingId INT NOT NULL,
+    amount INT,
+    status VARCHAR(20) CHECK (status IN ('SUCCESS','FAILED','PENDING')) DEFAULT 'PENDING',
+    FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 
 
+go
+select * from Users
 select * from bookings
 go
 
@@ -355,17 +368,7 @@ CREATE TABLE HistoryBooking (
 );
 GO
 
--- Bảng Payments
-  
 
-CREATE TABLE Payments (
-    paymentId INT IDENTITY(1,1) PRIMARY KEY,
-    bookingId INT NOT NULL,
-    amount DECIMAL(10,3) NOT NULL,
-    status VARCHAR(20) CHECK (status IN ('SUCCESS','FAILED','PENDING')) DEFAULT 'PENDING',
-    FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
-);
-go
 
 
 

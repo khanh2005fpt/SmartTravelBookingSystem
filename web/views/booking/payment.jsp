@@ -24,6 +24,9 @@
 
                         <form action="PaymentController" method="post">
                             <input type="hidden" name="totalBill" value="${totalPrice}">
+                            <input type="hidden" name="adultQuantity" value="${booking.adultQuantity}" />
+                            <input type="hidden" name="childQuantity" value="${booking.childQuantity}" />
+                            <input type="hidden" name="departureDate" value="${booking.departureDate}" />
 
                             <div class="mb-3">
                                 <label class="form-label">Họ và tên</label>

@@ -36,57 +36,59 @@ public class VnpayReturn extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
 
         Map<String, String> fields = new HashMap<>();
-        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = params.nextElement();
-            String fieldValue = request.getParameter(fieldName);
-            if (fieldValue != null && !fieldValue.isEmpty()) {
-                fields.put(fieldName, fieldValue);
+        for (String key : request.getParameterMap().keySet()) {
+            String value = request.getParameter(key);
+            if (value != null && !value.isEmpty()) {
+                fields.put(key, value);
             }
         }
-
         String vnp_SecureHash = request.getParameter("vnp_SecureHash");
 
-        fields.remove("vnp_SecureHashType");
-        fields.remove("vnp_SecureHash");
 
+        if (fields.containsKey("vnp_SecureHashType")) {
+            fields.remove("vnp_SecureHashType");
+        }
+        if (fields.containsKey("vnp_SecureHash")) {
+            fields.remove("vnp_SecureHash");
+        }
         String signValue = Config.hashAllFields(fields);
-
+        System.out.println("✅ signValue (local) = " + signValue);
+        System.out.println("✅ vnp_SecureHash (from VNPAY) = " + vnp_SecureHash);
         if (signValue.equals(vnp_SecureHash)) {
-            String vnp_TxnRef = request.getParameter("vnp_TxnRef"); // bookingId
+            String vnp_TxnRef = request.getParameter("vnp_TxnRef");
+            int bookingId;
+            try {
+                String[] txnRefParts = vnp_TxnRef.split("_");
+                bookingId = Integer.parseInt(txnRefParts[0]); // Lấy phần số
+            } catch (NumberFormatException e) {
+                response.getWriter().println("Định dạng vnp_TxnRef không hợp lệ: " + vnp_TxnRef);
+                return;
+            }
             String vnp_Amount = request.getParameter("vnp_Amount");
             String vnp_TransactionStatus = request.getParameter("vnp_TransactionStatus");
-
             boolean isSuccess = "00".equals(vnp_TransactionStatus);
-
             try {
                 BookingDao bookingDao = new BookingDao();
-
                 Payment payment = new Payment();
-                payment.setBookingId(Integer.parseInt(vnp_TxnRef));
-                payment.setAmount(Double.parseDouble(vnp_Amount) / 100); // VNPay nhân 100
-
-                // Trạng thái thanh toán
+                payment.setBookingId(bookingId);
+                payment.setAmount(Integer.parseInt(vnp_Amount) / 100);
                 payment.setStatus(isSuccess ? "Success" : "Failed");
                 bookingDao.createPayment(payment);
-
-                // Update trạng thái booking theo bảng Bookings
                 if (isSuccess) {
-                    bookingDao.updateStatus(Integer.parseInt(vnp_TxnRef), "COMPLETED");
+                    bookingDao.updateStatus(bookingId, "COMPLETED");
                 }
-                // Nếu thất bại, giữ PENDING (không update)
-
                 request.setAttribute("payment", payment);
                 request.setAttribute("result", isSuccess ? "Success" : "Failed");
-                request.getRequestDispatcher("/payment_result.jsp").forward(request, response);
-
+                request.getRequestDispatcher("views/booking/payment_result.jsp").forward(request, response);
             } catch (Exception e) {
                 e.printStackTrace();
                 response.getWriter().println("Lỗi khi lưu dữ liệu thanh toán: " + e.getMessage());
             }
-
         } else {
             response.getWriter().println("❌ Giao dịch không hợp lệ (Invalid signature)");
         }

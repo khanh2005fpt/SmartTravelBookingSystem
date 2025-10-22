@@ -11,13 +11,13 @@ package model;
 public class Payment {
     private int paymentId;
     private int bookingId;
-    private double amount;
+    private int amount;
     private String status;
 
     public Payment() {
     }
 
-    public Payment(int paymentId, int bookingId, double amount, String status) {
+    public Payment(int paymentId, int bookingId, int amount, String status) {
         this.paymentId = paymentId;
         this.bookingId = bookingId;
         this.amount = amount;
@@ -40,11 +40,11 @@ public class Payment {
         this.bookingId = bookingId;
     }
 
-    public double getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 
