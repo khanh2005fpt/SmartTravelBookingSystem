@@ -49,7 +49,6 @@ public class VnpayReturn extends HttpServlet {
         }
         String vnp_SecureHash = request.getParameter("vnp_SecureHash");
 
-
         if (fields.containsKey("vnp_SecureHashType")) {
             fields.remove("vnp_SecureHashType");
         }
@@ -76,7 +75,10 @@ public class VnpayReturn extends HttpServlet {
                 BookingDao bookingDao = new BookingDao();
                 Payment payment = new Payment();
                 payment.setBookingId(bookingId);
-                payment.setAmount(Integer.parseInt(vnp_Amount) / 100);
+                long amount = Long.parseLong(vnp_Amount) / 100;
+
+                payment.setAmount(amount);
+
                 payment.setStatus(isSuccess ? "Success" : "Failed");
                 bookingDao.createPayment(payment);
                 if (isSuccess) {

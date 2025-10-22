@@ -64,7 +64,7 @@ public class ajaxServlet extends HttpServlet {
         response.getWriter().println("DEBUG bookingId param = " + bookingId);
 
         String totalBill = request.getParameter("totalBill"); // số tiền tổng tour
-        long amountLong = (long) (Double.parseDouble(totalBill) * 100);
+        long amountLong = (long) (Double.parseDouble(totalBill) * 100); //số tiền hiển thị trong lúc thanh toán
 
         String vnp_TxnRef = bookingId + "_" + System.currentTimeMillis();
 
