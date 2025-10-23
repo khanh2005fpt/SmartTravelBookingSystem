@@ -150,171 +150,187 @@
                     </c:if>
 
                     <input type="hidden" name="islandId" value="${island.islandId}">
-                    <section class="mb-5 text-center">
-                        <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
+                  
+                     <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
                         <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
                             🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
                         </div>
-                        <h2 class="h2 mb-4 text-primary fw-bold">📅 Chọn thời gian du lịch</h2>
-                        <div class="d-flex justify-content-center gap-4">
-                            <div>
-                                <label for="startDate" class="form-label fw-semibold">Ngày bắt đầu</label>
-                                <input type="date" class="form-control rounded-pill text-center" id="startDate" name="startDate" required>
-                            </div>
-                            <div>
-                                <label for="endDate" class="form-label fw-semibold">Ngày kết thúc</label>
-                                <input type="date" class="form-control rounded-pill text-center" id="endDate" name="endDate" required>
-                            </div>
-                            
-                        </div>
-                        <small class="text-muted d-block mt-2">  <Strong> Ví dụ</Strong>: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
-                        <!-- ==================== CHECKBOX CAM KẾT ==================== -->
-    <div class="mt-4 p-4 bg-light rounded-4 shadow-sm" id="commitSection">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="commitFlight" style="width: 1.4em; height: 1.4em;">
-            <label class="form-check-label fw-semibold text-dark" for="commitFlight">
-                <span class="text-primary">Tôi cam kết:</span> 
-                Chuyến bay <u>khởi hành phải trùng với ngày bắt đầu tour</u>.<br>
-                <small class="text-muted">Hệ thống sẽ chỉ hiển thị chuyến bay phù hợp khi bạn xác nhận.</small>
-            </label>
-        </div>
-    </div>
-                    </section>
-                    
                     
                      <!------- Flights Section -------------------------------------------------------------->
 
                      <section id="flightSection"class="mb-5"  >
-    <h2 class="h2 text-center text-primary fw-bold mb-4">
-        Chuyến bay du lịch
-    </h2>
-                         
-
-    <!-- CHỌN LOẠI CHUYẾN -->
-     <div class="card shadow rounded-4 mb-4 ">
-        <div class="card-body p-4 text-center">
-            <div class="d-flex gap-2  btn-group w-100 w-md-auto " role="group">
-                <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=motchieu"
-                   class="btn btn-primary rounded-pill px-4 py-3 " id="oneWayLink">
-                    <i class="bi bi-arrow-right-circle-fill me-1 "></i> Một chiều
-                </a>
-                <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=khuhoi"
-                   class="btn btn-outline-primary rounded-pill px-4 py-3 " id="roundTripLink">
-                 <i class="bi bi-arrow-repeat me-1"></i> <strong>Khứ hồi</strong>
-                </a>
-            </div>
-        </div>
-    </div>
-       <script>
-          document.querySelectorAll('#flightTypeButtons .btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-           document.querySelectorAll('#flightTypeButtons .btn').forEach(b => b.classList.remove('btn-primary', 'active'));
-            btn.classList.add('btn-primary', 'active');
-              });
-                  });
-    </script>
-
-            
-                   
-    <!-- DANH SÁCH CHUYẾN BAY -->
-    <div class="flight-scroll-container row">
-        <c:choose>
-            <c:when test="${not empty flights}">
-                <c:forEach var="schedule" items="${flights}">
-                    <c:set var="f" value="${schedule.flight}" /> 
-
-                    <div class="col-lg-4 col-md-6 mb-4 flight-item">
-                        <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
-                             data-flightId="${f.flightId}">
-                            
-                            <!-- Ảnh + Logo -->
-                            <div class="position-relative flight-card">
-                                <img src="${pageContext.request.contextPath}/${f.destinationImageUrl}"
-                                     alt="${f.flightNumber}"
-                                     class="card-img-top"
-                                     style="height:220px; object-fit:cover; border-radius:10px;">
-                                <div class="airline-logo-wrapper">
-                                    <img src="${pageContext.request.contextPath}/${f.airline.logoUrl}"
-                                         alt="${f.airline.airlineName}"
-                                         class="airline-logo">
-                                </div>
-                            </div>
-
-                            <div class="card-body d-flex flex-column">
-                                <div class="mb-1" style="text-align:left;">
-                                    <h5 class="card-title fw-bold mb-1">
-                                        <c:choose>
-                                            <c:when test="${flightType == 'khuhoi'}">
-                                                ${f.departure} ⇌${f.destination}
-                                            </c:when>
-                                            <c:otherwise>
-                                                ${f.departure} → ${f.destination}
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </h5>
-                                    <p class="mb-1 ticket_available" style="margin-left: 2px;">
-                                        <strong>Số lượng vé:</strong>
-                                        <span class="text-success">${f.ticketAvailable}</span>
-                                    </p>
-                                    <p class="card-text">
-                                        <span class="badge bg-primary text-white px-2 py-1 fs-6">${f.flightClass}</span>
-                                    </p>
-                                </div>
-
-                                <p class="fw-bold text-danger fs-5 text-end mt-3">
-                                    <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
-                                </p>
-
-                                <div class="mt-0 d-flex gap-2">
-                                    <!-- NÚT CHỌN -->
-                                    <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn"
-                                            data-flight-id="${f.flightId}">
-                                        Chọn
-                                    </button>
-
-                                    <!-- NÚT XEM CHI TIẾT -->
-                                    <button type="button" class="btn btn-success flex-fill rounded-pill w-100"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#flightDetailModal"
-                                            data-flightnumber="${f.flightNumber}"
-                                            data-flightimage="${pageContext.request.contextPath}/${f.destinationImageUrl}"
-                                            data-departureairport="${schedule.departureAirport}"
-                                            data-arrivalairport="${schedule.arrivalAirport}"
-                                            data-departuretime="${f.departureTime != null ? f.departureTime : ''}"
-                                            data-arrivaltime="${f.arrivalTime != null ? f.arrivalTime : ''}"
-                                            data-transitairport="${schedule.transitAirport}"
-                                            data-transitduration="${schedule.transitDuration}"
-                                            data-returndeparturetime="${f.returnDepartureTime != null ? f.returnDepartureTime : ''}"
-                                            data-returnarrivaltime="${f.returnArrivalTime != null ? f.returnArrivalTime : ''}"
-                                            data-planemodel="${schedule.planeModel}"
-                                            data-capacity="${schedule.seatCapacity}"
-                                            data-cabinbaggage="${schedule.cabinBaggage}" 
-                                            data-seatpitch="${schedule.seatPitch}"
-                                            data-notes="${schedule.notes}">
-                                        Xem chi tiết
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </c:forEach>
-            </c:when>
-            <c:otherwise>
-                <div class="col-12 text-center text-muted py-5">
-
-                    <i class="bi bi-airplane fs-1 d-block mb-3"></i>
-                    <i class="bi bi-search me-2"></i>
-                    Vui lòng hãy nhập  <strong>ngày khởi hành</strong> &  <strong> ngày trở về</strong> để tìm chuyến bay
-
-                </div>
+                         <h2 class="h2 text-center text-primary fw-bold mb-4">
+                             Chuyến bay du lịch
+                         </h2>
 
 
-            </c:otherwise>
-        </c:choose>
-    </div>
 
-    <input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
-</section>
+                         <!-- NGÀY BẮT ĐẦU & KẾT THÚC -->
+                         <div class="d-flex justify-content-center gap-4 mb-3 flex-wrap">
+                             <div class="text-center">
+
+                                 <div class="input-group " style="max-width: 180px;">
+                                     <div>
+                                         <label for="startDateFlight" class="form-label fw-semibold">Ngày bắt đầu</label>
+                                         <input type="date" class="form-control rounded-pill text-center" id="startDateFlight" name="startDateFlight" required>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="text-center">
+
+                                 <div class="input-group" style="max-width: 180px;">
+                                     <div>
+                                         <label for="endDateFlight" class="form-label fw-semibold">Ngày kết thúc</label>
+                                         <input type="date" class="form-control rounded-pill text-center" id="endDateFlight" name="endDateFlight" required>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+
+
+                         <small class="text-danger d-block text-center mb-4">
+                             <strong>Chú ý! :</strong> Nếu chọn ngày khởi hành không trùng với ngày bắt đầu của gói Tour , hệ thống sẽ tự động chọn ngày khởi hành theo ngày bắt đầu Tour.
+                         </small>
+
+                         <!-- CAM KẾT -->
+                         <div class="mt-3 p-4 bg-light rounded-4 shadow-sm mx-auto"id="commitSection" style="max-width: 600px;">
+                             <div class="form-check">
+                                 <input class="form-check-input" type="checkbox" id="commitFlight" style="width: 1.4em; height: 1.4em; margin-top: 0.4em;">
+                                 <label class="form-check-label fw-semibold text-dark" for="commitFlight">
+                                     <span class="text-primary">Tôi cam kết:</span> 
+                                     Chuyến bay <u>khởi hành phải trùng với ngày bắt đầu tour</u>.<br>
+                                     <small class="text-muted">Hệ thống sẽ chỉ hiển thị chuyến bay phù hợp khi bạn xác nhận.</small>
+                                 </label>
+                             </div>
+                         </div>
+
+
+
+                         <!-- CHỌN LOẠI CHUYẾN -->
+                         <div class="card shadow rounded-4 mb-4 ">
+                             <div class="card-body p-4 text-center">
+                                 <div class="d-flex gap-2  btn-group w-100 w-md-auto " role="group">
+                                     <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=motchieu"
+                                        class="btn btn-primary rounded-pill px-4 py-3 " id="oneWayLink">
+                                         <i class="bi bi-arrow-right-circle-fill me-1 "></i> Một chiều
+                                     </a>
+                                     <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=khuhoi"
+                                        class="btn btn-outline-primary rounded-pill px-4 py-3 " id="roundTripLink">
+                                         <i class="bi bi-arrow-repeat me-1"></i> <strong>Khứ hồi</strong>
+                                     </a>
+                                 </div>
+                             </div>
+                         </div>
+                         <script>
+                            document.querySelectorAll('#flightTypeButtons .btn').forEach(btn => {
+                              btn.addEventListener('click', () => {
+                             document.querySelectorAll('#flightTypeButtons .btn').forEach(b => b.classList.remove('btn-primary', 'active'));
+                              btn.classList.add('btn-primary', 'active');
+                                });
+                                    });
+                         </script>
+
+
+
+                         <!-- DANH SÁCH CHUYẾN BAY -->
+                         <div class="flight-scroll-container row">
+                             <c:choose>
+                                 <c:when test="${not empty flights}">
+                                     <c:forEach var="schedule" items="${flights}">
+                                         <c:set var="f" value="${schedule.flight}" /> 
+
+                                         <div class="col-lg-4 col-md-6 mb-4 flight-item">
+                                             <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
+                                                  data-flightId="${f.flightId}">
+
+                                                 <!-- Ảnh + Logo -->
+                                                 <div class="position-relative flight-card">
+                                                     <img src="${pageContext.request.contextPath}/${f.destinationImageUrl}"
+                                                          alt="${f.flightNumber}"
+                                                          class="card-img-top"
+                                                          style="height:220px; object-fit:cover; border-radius:10px;">
+                                                     <div class="airline-logo-wrapper">
+                                                         <img src="${pageContext.request.contextPath}/${f.airline.logoUrl}"
+                                                              alt="${f.airline.airlineName}"
+                                                              class="airline-logo">
+                                                     </div>
+                                                 </div>
+
+                                                 <div class="card-body d-flex flex-column">
+                                                     <div class="mb-1" style="text-align:left;">
+                                                         <h5 class="card-title fw-bold mb-1">
+                                                             <c:choose>
+                                                                 <c:when test="${flightType == 'khuhoi'}">
+                                                                     ${f.departure} ⇌${f.destination}
+                                                                 </c:when>
+                                                                 <c:otherwise>
+                                                                     ${f.departure} → ${f.destination}
+                                                                 </c:otherwise>
+                                                             </c:choose>
+                                                         </h5>
+                                                         <p class="mb-1 ticket_available" style="margin-left: 2px;">
+                                                             <strong>Số lượng vé:</strong>
+                                                             <span class="text-success">${f.ticketAvailable}</span>
+                                                         </p>
+                                                         <p class="card-text">
+                                                             <span class="badge bg-primary text-white px-2 py-1 fs-6">${f.flightClass}</span>
+                                                         </p>
+                                                     </div>
+
+                                                     <p class="fw-bold text-danger fs-5 text-end mt-3">
+                                                         <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
+                                                     </p>
+
+                                                     <div class="mt-0 d-flex gap-2">
+                                                         <!-- NÚT CHỌN -->
+                                                         <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn"
+                                                                 data-flight-id="${f.flightId}">
+                                                             Chọn
+                                                         </button>
+
+                                                         <!-- NÚT XEM CHI TIẾT -->
+                                                         <button type="button" class="btn btn-success flex-fill rounded-pill w-100"
+                                                                 data-bs-toggle="modal"
+                                                                 data-bs-target="#flightDetailModal"
+                                                                 data-flightnumber="${f.flightNumber}"
+                                                                 data-flightimage="${pageContext.request.contextPath}/${f.destinationImageUrl}"
+                                                                 data-departureairport="${schedule.departureAirport}"
+                                                                 data-arrivalairport="${schedule.arrivalAirport}"
+                                                                 data-departuretime="${f.departureTime != null ? f.departureTime : ''}"
+                                                                 data-arrivaltime="${f.arrivalTime != null ? f.arrivalTime : ''}"
+                                                                 data-transitairport="${schedule.transitAirport}"
+                                                                 data-transitduration="${schedule.transitDuration}"
+                                                                 data-returndeparturetime="${f.returnDepartureTime != null ? f.returnDepartureTime : ''}"
+                                                                 data-returnarrivaltime="${f.returnArrivalTime != null ? f.returnArrivalTime : ''}"
+                                                                 data-planemodel="${schedule.planeModel}"
+                                                                 data-capacity="${schedule.seatCapacity}"
+                                                                 data-cabinbaggage="${schedule.cabinBaggage}" 
+                                                                 data-seatpitch="${schedule.seatPitch}"
+                                                                 data-notes="${schedule.notes}">
+                                                             Xem chi tiết
+                                                         </button>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </c:forEach>
+                                 </c:when>
+                                 <c:otherwise>
+                                     <div class="col-12 text-center text-muted py-5">
+
+                                         <i class="bi bi-airplane fs-1 d-block mb-3"></i>
+                                         <i class="bi bi-search me-2"></i>
+                                         Vui lòng hãy nhập  <strong>ngày khởi hành</strong> &  <strong> ngày trở về</strong> để tìm chuyến bay
+
+                                     </div>
+
+
+                                 </c:otherwise>
+                             </c:choose>
+                         </div>
+
+                         <input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
+                     </section>
       
                       <!-- Hotels Section -->
                     <section class="mb-5">
@@ -443,7 +459,23 @@
                         <!-- Input ẩn để lưu ID của phương tiện được chọn -->
                         <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
                     </section>
+                            <section class="mb-5 text-center d-flex justify-content-center flex-column">
+                       
+                        <h2 class="h2 mb-4 text-primary fw-bold">📅 Vui lòng hãy chọn thời gian du lịch</h2>
+                        <div class="d-flex justify-content-center gap-4">
+                            <div>
+                                <label for="startDate" class="form-label fw-semibold">Ngày bắt đầu</label>
+                                <input type="date" class="form-control rounded-pill text-center" id="startDate" name="startDate" required>
+                            </div>
+                            <div>
+                                <label for="endDate" class="form-label fw-semibold">Ngày kết thúc</label>
+                                <input type="date" class="form-control rounded-pill text-center" id="endDate" name="endDate" required>
+                            </div>
+                            
+                        </div>
+                        <small class="text-muted d-block mt-2">  <Strong> Ví dụ</Strong>: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
 
+                    </section>
 
 
                     <div class="text-center mt-4">
@@ -1059,8 +1091,8 @@ function splitAirport(airport) {
       <!-- nhap thong tin ngay de tim chuyen bay va cam ket -->
       <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const startDate = document.getElementById('startDate');
-    const endDate = document.getElementById('endDate');
+    const startDate = document.getElementById('startDateFlight');
+    const endDate = document.getElementById('endDateFlight');
     const oneWayLink = document.getElementById('oneWayLink');
     const roundTripLink = document.getElementById('roundTripLink');
     const commitCheckbox = document.getElementById('commitFlight');
