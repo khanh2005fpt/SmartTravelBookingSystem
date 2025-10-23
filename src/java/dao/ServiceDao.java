@@ -355,6 +355,116 @@ public class ServiceDao extends DBContext{
                 schedule.setScheduleId(rs.getInt("scheduleId"));
                 schedule.setFlight(flight);
                 schedule.setPlaneModel(rs.getString("planeModel"));
+                
+                // --- Xác định sức chứa theo loại máy bay ---
+                String model = rs.getString("planeModel");
+                int capacity = 0;
+
+                if (model != null) {
+                    switch (model.trim()) {
+                        case "Airbus A320":
+                            capacity = 180;
+                            break;
+                        case "Airbus A321":
+                            capacity = 200;
+                            break;
+                        case "Airbus A321neo":
+                            capacity = 206;
+                            break;
+                        case "Airbus A319":
+                            capacity = 144;
+                            break;
+                        case "Boeing 737 MAX 8":
+                            capacity = 178;
+                            break;
+                        case "Boeing 737 MAX 9":
+                            capacity = 193;
+                            break;
+                        case "Boeing 737-800":
+                            capacity = 189;
+                            break;
+                        case "ATR 72-600":
+                            capacity = 70;
+                            break;
+                        default:
+                            capacity = 150; // fallback 
+                            break;
+                    }
+                }
+                schedule.setSeatCapacity(capacity);
+                
+                
+                // === Hành lý và khoảng cách ghế ===
+                String baggage = "7 kg";
+                String pitch = "Không rõ";
+                String flightClass = rs.getString("flightClass");
+                String airlineName = rs.getString("airlineName");
+
+                if (airlineName != null && !airlineName.isBlank()) {
+                    String flightClassName = (flightClass != null) ? flightClass.trim() : "";
+
+                    if (airlineName.contains("Vietnam Airlines")) {
+                        switch (flightClassName) {
+                            case "Thương gia":
+                                baggage = "12 kg";
+                                break;
+                            case "Phổ thông":
+                                baggage = "7 kg";
+                                break;
+                            default:
+                                baggage = "7 kg";
+                        }
+                    } else if (airlineName.contains("Bamboo Airways")) {
+                        switch (flightClassName) {
+                            case "Thương gia":
+                                baggage = "14 kg";
+                                break;
+                            case "Phổ thông":
+                                baggage = "7 kg";
+                                break;
+                            default:
+                                baggage = "7 kg";
+                        }
+                    } else if (airlineName.contains("VietJet Air") || airlineName.contains("Vietjet")) {
+                        switch (flightClassName) {
+                            case "Thương gia":
+                                baggage = "10 kg"; // SkyBoss+
+                                break;
+                            case "Phổ thông":
+                                baggage = "7 kg";
+                                break;
+                            default:
+                                baggage = "7 kg";
+                        }
+                    }
+                }
+
+                if (model != null) {
+                    switch (model.trim()) {
+                        case "Airbus A320":
+                        case "Airbus A319":
+                            pitch = "30 inch (tiêu chuẩn)";
+                            break;
+                        case "Airbus A321":
+                        case "Airbus A321neo":
+                            pitch = "32 inch (rộng hơn trung bình)";
+                            break;
+                        case "Boeing 737 MAX 8":
+                        case "Boeing 737-800":
+                            pitch = "30 inch (tiêu chuẩn)";
+                            break;
+                        case "Boeing 737 MAX 9":
+                            pitch = "31 inch (hơi rộng)";
+                            break;
+                        case "ATR 72-600":
+                            pitch = "29 inch (ngắn hơn tiêu chuẩn)";
+                            break;
+                    }
+                }
+
+                schedule.setCabinBaggage(baggage);
+                schedule.setSeatPitch(pitch);
+
                 schedule.setDepartureAirport(rs.getString("departureAirport"));
                 schedule.setArrivalAirport(rs.getString("arrivalAirport"));
                 schedule.setTransitAirport(rs.getString("transitAirport"));
@@ -370,36 +480,6 @@ public class ServiceDao extends DBContext{
     }
     return list;
 }
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
    
    
 

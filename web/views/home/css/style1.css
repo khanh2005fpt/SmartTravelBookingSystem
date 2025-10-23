@@ -499,3 +499,8 @@ input::placeholder {
     
    
   }
+  
+  #seatCapacity {
+  display: block;
+  margin-top: 2px;
+}

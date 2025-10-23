@@ -416,6 +416,10 @@ SELECT
 FROM Flights f
 JOIN Airlines a ON f.airlineId = a.airlineId;
 
+
+
+
+
 */
 
 select * from flights

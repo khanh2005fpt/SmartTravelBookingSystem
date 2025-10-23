@@ -16,12 +16,15 @@ public class FlightSchedule {
     private String arrivalAirport;
     private String transitAirport;
     private String transitDuration;
+    private int seatCapacity;
+    private String cabinBaggage;
+    private String seatPitch;
     private String notes;
 
     public FlightSchedule() {
     }
 
-    public FlightSchedule(int scheduleId, Flight flight, String planeModel, String departureAirport, String arrivalAirport, String transitAirport, String transitDuration, String notes) {
+    public FlightSchedule(int scheduleId, Flight flight, String planeModel, String departureAirport, String arrivalAirport, String transitAirport, String transitDuration, int seatCapacity, String cabinBaggage, String seatPitch, String notes) {
         this.scheduleId = scheduleId;
         this.flight = flight;
         this.planeModel = planeModel;
@@ -29,6 +32,9 @@ public class FlightSchedule {
         this.arrivalAirport = arrivalAirport;
         this.transitAirport = transitAirport;
         this.transitDuration = transitDuration;
+        this.seatCapacity = seatCapacity;
+        this.cabinBaggage = cabinBaggage;
+        this.seatPitch = seatPitch;
         this.notes = notes;
     }
 
@@ -88,6 +94,34 @@ public class FlightSchedule {
         this.transitDuration = transitDuration;
     }
 
+    public int getSeatCapacity() {
+        return seatCapacity;
+    }
+
+    public void setSeatCapacity(int seatCapacity) {
+        this.seatCapacity = seatCapacity;
+    }
+    
+      public String getCabinBaggage() {
+        return cabinBaggage;
+    }
+
+    
+
+  
+
+    public void setCabinBaggage(String cabinBaggage) {
+        this.cabinBaggage = cabinBaggage;
+    }
+
+    public String getSeatPitch() {
+        return seatPitch;
+    }
+
+    public void setSeatPitch(String seatPitch) {
+        this.seatPitch = seatPitch;
+    }
+
     public String getNotes() {
         return notes;
     }
@@ -98,9 +132,8 @@ public class FlightSchedule {
 
     @Override
     public String toString() {
-        return "FlightSchedule{" + "scheduleId=" + scheduleId + ", flight=" + flight + ", planeModel=" + planeModel + ", departureAirport=" + departureAirport + ", arrivalAirport=" + arrivalAirport + ", transitAirport=" + transitAirport + ", transitDuration=" + transitDuration + ", notes=" + notes + '}';
+        return "FlightSchedule{" + "scheduleId=" + scheduleId + ", flight=" + flight + ", planeModel=" + planeModel + ", departureAirport=" + departureAirport + ", arrivalAirport=" + arrivalAirport + ", transitAirport=" + transitAirport + ", transitDuration=" + transitDuration + ", seatCapacity=" + seatCapacity + ", cabinBaggage=" + cabinBaggage + ", seatPitch=" + seatPitch + ", notes=" + notes + '}';
     }
-
   
-    
+  
 }

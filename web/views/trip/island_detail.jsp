@@ -275,6 +275,9 @@
                                             data-returndeparturetime="${f.returnDepartureTime != null ? f.returnDepartureTime : ''}"
                                             data-returnarrivaltime="${f.returnArrivalTime != null ? f.returnArrivalTime : ''}"
                                             data-planemodel="${schedule.planeModel}"
+                                            data-capacity="${schedule.seatCapacity}"
+                                            data-cabinbaggage="${schedule.cabinBaggage}" 
+                                            data-seatpitch="${schedule.seatPitch}"
                                             data-notes="${schedule.notes}">
                                         Xem chi tiết
                                     </button>
@@ -296,8 +299,7 @@
     <input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
 </section>
 
-<!-- HIDDEN INPUT -->
-<input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
+
 
 
 
@@ -666,7 +668,7 @@
                         </div>
                     </div>
 
-                    <!-- CỘT PHẢI: Thông tin -->
+                    <!--  Thông tin -->
                     <div class="col-lg-7">
                         <div class="h-100 d-flex flex-column justify-content-between">
 
@@ -691,20 +693,20 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-clock-history text-primary fs-5"></i>
-                                        <div>
-                                            <small class="text-muted">Thời gian bay</small>
-<p class="fw-bold mb-0" id="flightDuration">-</p>
-                                        </div>
-                                    </div>
+                                     <div class="d-flex align-items-center gap-2">
+    <i class="bi bi-person-lines-fill text-primary fs-5"></i>
+    <div>
+      <small class="text-muted d-block">Sức chứa</small>
+      <p id="seatCapacity" class="fw-bold mb-0">-</p>
+    </div>
+  </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="bi bi-briefcase text-primary fs-5"></i>
                                         <div>
                                             <small class="text-muted">Hành lý xách tay</small>
-                                            <p class="fw-bold mb-0">7 kg</p>
+                                             <p id="cabinBaggage" class="fw-bold mb-0">-</p>
                                         </div>
                                     </div>
                                 </div>
@@ -713,23 +715,23 @@
                                         <i class="bi bi-chair text-primary fs-5"></i>
                                         <div>
                                             <small class="text-muted">Khoảng cách ghế</small>
-                                            <p class="fw-bold mb-0">25 inch (dưới tiêu chuẩn)</p>
+                                            <p id="seatPitch" class="fw-bold mb-0">-</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Dịch vụ -->
-                            <h6 class="fw-bold mb-3">Dịch vụ & Tiện ích</h6>
+                            <h6 class="fw-bold mb-3 text-primary">Dịch vụ & Tiện ích</h6>
                             <div class="row row-cols-2 g-2 text-muted small">
                                 <div class="col d-flex align-items-center gap-2">
                                     <i class="bi bi-x-circle text-danger"></i> Không có WiFi
                                 </div>
                                 <div class="col d-flex align-items-center gap-2">
-                                    <i class="bi bi-x-circle text-danger"></i> Không có suất ăn
+                                    <i class="bi bi-check-circle text-success"></i> Có suất ăn
                                 </div>
                                 <div class="col d-flex align-items-center gap-2">
-                                    <i class="bi bi-x-circle text-danger"></i> Không giải trí
+                                    <i class="bi bi-check-circle text-success"></i>  Có giải trí
                                 </div>
                                 <div class="col d-flex align-items-center gap-2">
                                     <i class="bi bi-check-circle text-success"></i> Ghế tiêu chuẩn
@@ -841,160 +843,140 @@
             
             
      //2.detail modal flight
-    const flightModal = document.getElementById('flightDetailModal');
+const flightModal = document.getElementById('flightDetailModal');
 
-    flightModal.addEventListener('show.bs.modal', event => {
-        const button = event.relatedTarget;
+flightModal.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
 
-        // === LẤY DATA TỪ NÚT ===
-        const flightNumber = button.getAttribute('data-flightnumber');
-        const flightImage = button.getAttribute('data-flightimage');
-        const departureAirport = button.getAttribute('data-departureairport');
-        const arrivalAirport = button.getAttribute('data-arrivalairport');
-        const departureTime = button.getAttribute('data-departuretime');
-        const arrivalTime = button.getAttribute('data-arrivaltime');
-        const transitAirport = button.getAttribute('data-transitairport');
-        const transitDuration = button.getAttribute('data-transitduration');
-        const returnDepartureTime = button.getAttribute('data-returndeparturetime');
-        const returnArrivalTime = button.getAttribute('data-returnarrivaltime');
-        const planeModel = button.getAttribute('data-planemodel');
-        const notes = button.getAttribute('data-notes');
+    // === LẤY DATA TỪ NÚT ===
+    const flightNumber = button.getAttribute('data-flightnumber');
+    const flightImage = button.getAttribute('data-flightimage');
+    const departureAirport = button.getAttribute('data-departureairport');
+    const arrivalAirport = button.getAttribute('data-arrivalairport');
+    const departureTime = button.getAttribute('data-departuretime');
+    const arrivalTime = button.getAttribute('data-arrivaltime');
+    const transitAirport = button.getAttribute('data-transitairport');
+    const transitDuration = button.getAttribute('data-transitduration');
+    const returnDepartureTime = button.getAttribute('data-returndeparturetime');
+    const returnArrivalTime = button.getAttribute('data-returnarrivaltime');
+    const planeModel = button.getAttribute('data-planemodel');
+    const seatCapacity = button.getAttribute('data-capacity');
+    const seatPitch = button.getAttribute('data-seatpitch');
+    const cabinBaggage = button.getAttribute('data-cabinbaggage');
+    const notes = button.getAttribute('data-notes');
 
-        // === ĐỌC flightType TỪ URL (hoặc từ data-flighttype) ===
-        const urlParams = new URLSearchParams(window.location.search);
-        const flightType = urlParams.get('flightType') || button.getAttribute('data-flighttype');
+    // === ĐỌC flightType ===
+    const urlParams = new URLSearchParams(window.location.search);
+    const flightType = urlParams.get('flightType') || button.getAttribute('data-flighttype');
 
-        // === CẬP NHẬT ẢNH + MÃ ===
-        set('#modalFlightImage', 'src', flightImage);
-        setText('#flightNumber', flightNumber);
-        setText('#planeModel', planeModel || 'Không rõ');
+    // === CẬP NHẬT GIAO DIỆN ===
+    set('#modalFlightImage', 'src', flightImage);
+    setText('#flightNumber', flightNumber);
+    setText('#planeModel', planeModel || 'Không rõ');
 
-        // === CHUYẾN ĐI ===
-        setText('#departureTime', formatTime(departureTime));
-        setText('#arrivalTime', formatTime(arrivalTime));
-        setText('#departureAirport', departureAirport);
-        setText('#arrivalAirport', arrivalAirport);
-        setText('#departureAirportName', splitAirport(departureAirport));
-        setText('#arrivalAirportName', splitAirport(arrivalAirport));
-
-        // Thời gian bay
-        setText('#flightDuration', calculateDuration(departureTime, arrivalTime));
-
-       
-
-        // === QUÁ CẢNH ===
-        if (transitAirport && transitDuration) {
-            setText('#transitAirport', transitAirport);
-            setText('#transitDuration', transitDuration);
-            show('#transitSection');
-        } else {
-            hide('#transitSection');
-        }
-
-        // === KHỨ HỒI: ĐẢO CHIỀU ===
-        if (flightType === 'khuhoi' && returnDepartureTime && returnArrivalTime) {
-            setText('#returnDepartureTime', formatTime(returnDepartureTime));
-            setText('#returnArrivalTime', formatTime(returnArrivalTime));
-            setText('#returnDepartureAirport', arrivalAirport);     // về từ điểm đến
-            setText('#returnArrivalAirport', departureAirport);     // về đến điểm đi
-            show('#returnSection');
-        } else {
-            hide('#returnSection');
-        }
-
-        // === BADGE ===
-        const badge = document.getElementById('flightBadge');
-        if (transitAirport) {
-            badge.textContent = 'Quá cảnh';
-            badge.className = 'badge bg-warning fs-6 px-3 py-2';
-        } else {
-            badge.textContent = 'Bay thẳng';
-            badge.className = 'badge bg-success fs-6 px-3 py-2';
-        }
-
-        // === GHI CHÚ ===
-        const notesEl = document.getElementById('notes');
-        if (notes && notes.trim()) {
-            notesEl.textContent = notes;
-            notesEl.style.display = 'block';
-        } else {
-            notesEl.style.display = 'none';
-        }
-    });
-
-    // === HÀM HỖ TRỢ ===
-    function setText(selector, text) {
-        const el = document.querySelector(selector);
-        if (el) el.textContent = text || '-';
+    // === HIỂN THỊ GIỜ ĐI / ĐẾN ===
+    const depTime = formatTime(departureTime);
+    const arrTime = formatTime(arrivalTime);
+    setText('#departureTime', depTime);
+    setText('#arrivalTime', arrTime);
+    setText('#departureAirport', departureAirport);
+    setText('#arrivalAirport', arrivalAirport);
+    setText('#departureAirportName', splitAirport(departureAirport));
+    setText('#arrivalAirportName', splitAirport(arrivalAirport));
+    
+    
+    
+ 
+    // === QUÁ CẢNH ===
+    if (transitAirport && transitDuration) {
+        setText('#transitAirport', transitAirport);
+        setText('#transitDuration', transitDuration);
+        show('#transitSection');
+    } else {
+        hide('#transitSection');
     }
 
-    function set(selector, attr, value) {
-        const el = document.querySelector(selector);
-        if (el) el.setAttribute(attr, value);
+    // === KHỨ HỒI ===
+    if (flightType === 'khuhoi' && returnDepartureTime && returnArrivalTime) {
+        setText('#returnDepartureTime', formatTime(returnDepartureTime));
+        setText('#returnArrivalTime', formatTime(returnArrivalTime));
+        setText('#returnDepartureAirport', arrivalAirport);
+        setText('#returnArrivalAirport', departureAirport);
+        show('#returnSection');
+    } else {
+        hide('#returnSection');
     }
 
-    function show(selector) {
-        const el = document.querySelector(selector);
-        if (el) el.style.display = 'block';
+    // === BADGE ===
+    const badge = document.getElementById('flightBadge');
+    if (transitAirport) {
+        badge.textContent = 'Quá cảnh';
+        badge.className = 'badge bg-warning fs-6 px-3 py-2';
+    } else {
+        badge.textContent = 'Bay thẳng';
+        badge.className = 'badge bg-success fs-6 px-3 py-2';
+    }
+    
+    
+    // === HIỂN THỊ SỨC CHỨA === 
+    const seatCapacityEl = document.getElementById('seatCapacity');
+    if (seatCapacity > 0) {
+        seatCapacityEl.textContent = seatCapacity + ' ghế';
+        seatCapacityEl.style.display = 'inline';
+    } else {
+        seatCapacityEl.textContent = 'Không rõ';
     }
 
-    function hide(selector) {
-        const el = document.querySelector(selector);
-        if (el) el.style.display = 'none';
+       // === HIỂN THỊ HÀNH LÝ XÁCH TAY === 
+       const baggageEl = document.getElementById('cabinBaggage');
+       setText('#cabinBaggage', cabinBaggage);
+
+
+// === HIỂN THỊ KHOẢNG CÁCH GHẾ === 
+       const pitchEl = document.getElementById('seatPitch');
+       setText('#seatPitch', seatPitch);
+
+    // === GHI CHÚ ===
+    const notesEl = document.getElementById('notes');
+    if (notes && notes.trim()) {
+        notesEl.textContent = notes;
+        notesEl.style.display = 'block';
+    } else {
+        notesEl.style.display = 'none';
     }
+});
 
-    function formatTime(time) {
-        return time ? time.substring(0, 5) : '-';
-    }
+// ==================== HÀM HỖ TRỢ  ====================
 
-    function splitAirport(airport) {
-        return airport ? airport.split('(')[0].trim() : '-';
-    }
-
-// LOG ĐỂ KIỂM TRA
-    console.log('departureTime:', departureTime);
-    console.log('arrivalTime:', arrivalTime);
-
-    // Tính giờ bay
-    const duration = calculateDuration(departureTime, arrivalTime);
-    console.log('duration:', duration);
-
-
-function calculateDuration(departureTime, arrivalTime) {
-    // Nếu rỗng hoặc không hợp lệ
-    if (!departureTime || !arrivalTime) return 'giờ phút';
-
-    // Cắt đúng 5 ký tự đầu nếu có thêm giây (vd: "14:10:00")
-    const start = departureTime.substring(0, 5);
-    const end = arrivalTime.substring(0, 5);
-
-    // Tách giờ và phút
-    const [h1, m1] = start.split(':').map(Number);
-    const [h2, m2] = end.split(':').map(Number);
-
-    // Kiểm tra hợp lệ
-    if ([h1, m1, h2, m2].some(isNaN)) return 'giờ phút';
-
-    // Chuyển sang phút
-    let startMinutes = h1 * 60 + m1;
-    let endMinutes = h2 * 60 + m2;
-
-    // Nếu qua ngày hôm sau (vd: 23:00 -> 01:00)
-    if (endMinutes < startMinutes) {
-        endMinutes += 24 * 60;
-    }
-
-    // Tính chênh lệch
-    const diff = endMinutes - startMinutes;
-    const hours = Math.floor(diff / 60);
-    const minutes = diff % 60;
-
-    // Định dạng kết quả gọn gàng
-    return `${hours} giờ${minutes > 0 ? ' ' + minutes + ' phút' : ''}`;
+function setText(selector, text) {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = text || '-';
 }
-          
-          
-        </script>
+
+function set(selector, attr, value) {
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+}
+
+function show(selector) {
+    const el = document.querySelector(selector);
+    if (el) el.style.display = 'block';
+}
+
+function hide(selector) {
+    const el = document.querySelector(selector);
+    if (el) el.style.display = 'none';
+}
+
+function formatTime(time) {
+    return time ? time.substring(0, 5) : '-';
+}
+
+function splitAirport(airport) {
+    return airport ? airport.split('(')[0].trim() : '-';
+}
+
+      </script>
         
 
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
