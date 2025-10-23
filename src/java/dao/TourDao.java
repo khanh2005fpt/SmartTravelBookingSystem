@@ -33,7 +33,7 @@ public class TourDao extends DBContext {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) { // lấy nhiều tour
+            while (rs.next()) { // get multiple tours
                 Tour t = new Tour();
                 t.setTourId(rs.getInt("tourId"));
                 t.setIslandId(rs.getInt("islandId"));
@@ -81,7 +81,7 @@ public class TourDao extends DBContext {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) { // lấy nhiều island
+            while (rs.next()) { // get multiple islands
                 TourItinerary tourI = new TourItinerary();
                 tourI.setItineraryId(rs.getInt("itineraryId"));
                 tourI.setTourId(rs.getInt("tourId"));
@@ -104,7 +104,7 @@ public class TourDao extends DBContext {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) { // lấy nhiều island
+            while (rs.next()) { // get multiple activities
                 TourActivities tourA = new TourActivities();
                 tourA.setActivityId(rs.getInt("activityId"));
                 tourA.setItineraryId(rs.getInt("itineraryId"));
@@ -214,20 +214,20 @@ public class TourDao extends DBContext {
                 ps.setInt(1, customTourId);
                 ps.setInt(2, day);
 
-                // Logic tạo hoạt động theo ngày
+                // Logic to create activities by day
                 String activity;
                 if (day == 1) {
-                    activity = "Check-in khách sạn và ổn định chỗ ở";
+                    activity = "Hotel check-in and accommodation setup";
                 } else if (day == numberOfDays) {
-                    activity = "Check-out khách sạn và kết thúc tour";
+                    activity = "Hotel check-out and tour completion";
                 } else {
-                    activity = "Tham quan và trải nghiệm đảo";
+                    activity = "Island sightseeing and experiences";
                 }
 
                 ps.setString(3, activity);
-                ps.setString(4, "Địa điểm nổi bật ngày " + day);
+                ps.setString(4, "Featured location day " + day);
 
-                // Giờ hoạt động mẫu: 08:00 - 17:00
+                // Sample activity hours: 08:00 - 17:00
                 ps.setTime(5, Time.valueOf("08:00:00"));
                 ps.setTime(6, Time.valueOf("17:00:00"));
 
@@ -357,24 +357,330 @@ public class TourDao extends DBContext {
             }
         }
     }
-    
-    public static void main(String[] args) {
-          try {
-   
 
-        // Tạo DAO
-       TourDao tDao = new  TourDao();
+    // ==================== CRUD OPERATIONS FOR TOURS (STAFF FUNCTIONS) ====================
 
-        // Test service type "Chuyến bay" và flightId = 1 (thay ID có thật trong DB)
-        int flightId = 1;
-        String serviceType = "Chuyến bay";
+    //Tao tour tron goi moi (Create)
+    public int createTour(Tour tour) throws SQLException {
+        String sql = "INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) OUTPUT INSERTED.tourId VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, tour.getIslandId());
+            ps.setString(2, tour.getTourName());
+            ps.setString(3, tour.getDescription());
+            ps.setInt(4, tour.getPrice());
+            ps.setString(5, tour.getTourImageUrl());
 
-        int price = tDao.getServicePrice(serviceType, flightId);
-
-        System.out.println("Giá chuyến bay ID " + flightId + " = " + price);
-
-    } catch (SQLException e) {
-        e.printStackTrace();
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Creating tour failed: " + e.getMessage());
+        }
+        return 0;
     }
+
+    //Cap nhat thong tin tour tron goi (Update)
+    public boolean updateTour(Tour tour) throws SQLException {
+        String sql = "UPDATE Tours SET islandId = ?, tourName = ?, description = ?, price = ?, tourImageUrl = ? WHERE tourId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, tour.getIslandId());
+            ps.setString(2, tour.getTourName());
+            ps.setString(3, tour.getDescription());
+            ps.setInt(4, tour.getPrice());
+            ps.setString(5, tour.getTourImageUrl());
+            ps.setInt(6, tour.getTourId());
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Updating tour failed: " + e.getMessage());
+        }
+    }
+
+    //Xoa tour tron goi (Delete)
+    public boolean deleteTour(int tourId) throws SQLException {
+        String sql = "DELETE FROM Tours WHERE tourId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, tourId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Deleting tour failed: " + e.getMessage());
+        }
+    }
+
+    //Lay tat ca tour tron goi (Read All)
+    public List<Tour> getAllTours() throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        String sql = "SELECT * FROM Tours ORDER BY tourId";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Tour t = new Tour();
+                t.setTourId(rs.getInt("tourId"));
+                t.setIslandId(rs.getInt("islandId"));
+                t.setTourName(rs.getString("tourName"));
+                t.setDescription(rs.getString("description"));
+                t.setPrice(rs.getInt("price"));
+                t.setTourImageUrl(rs.getString("tourImageUrl"));
+                list.add(t);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting all tours failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //Lay tat ca tour voi ten dao
+    public List<Tour> getAllToursWithIslandNames() throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        String sql = "SELECT t.*, i.islandName FROM Tours t " +
+                     "LEFT JOIN Islands i ON t.islandId = i.islandId " +
+                     "ORDER BY t.tourId";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Tour t = new Tour();
+                t.setTourId(rs.getInt("tourId"));
+                t.setIslandId(rs.getInt("islandId"));
+                t.setTourName(rs.getString("tourName"));
+                t.setDescription(rs.getString("description"));
+                t.setPrice(rs.getInt("price"));
+                t.setTourImageUrl(rs.getString("tourImageUrl"));
+                t.setIslandName(rs.getString("islandName"));
+                list.add(t);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting all tours with island names failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //Lay tour theo trang (Pagination)
+    public List<Tour> getToursByPage(int page, int pageSize) throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT * FROM Tours ORDER BY tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Tour t = new Tour();
+                    t.setTourId(rs.getInt("tourId"));
+                    t.setIslandId(rs.getInt("islandId"));
+                    t.setTourName(rs.getString("tourName"));
+                    t.setDescription(rs.getString("description"));
+                    t.setPrice(rs.getInt("price"));
+                    t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    list.add(t);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting tours by page failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //Lay tour theo trang voi ten dao (Pagination with Island Names)
+    public List<Tour> getToursByPageWithIslandNames(int page, int pageSize) throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT t.*, i.islandName FROM Tours t " +
+                     "LEFT JOIN Islands i ON t.islandId = i.islandId " +
+                     "ORDER BY t.tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Tour t = new Tour();
+                    t.setTourId(rs.getInt("tourId"));
+                    t.setIslandId(rs.getInt("islandId"));
+                    t.setTourName(rs.getString("tourName"));
+                    t.setDescription(rs.getString("description"));
+                    t.setPrice(rs.getInt("price"));
+                    t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    t.setIslandName(rs.getString("islandName"));
+                    list.add(t);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting tours by page with island names failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //Dem tong so tour
+    public int getTotalToursCount() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Tours";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting total tours count failed: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    //Tim kiem tour theo ten voi phan trang
+    public List<Tour> searchToursByNameWithPagination(String searchTerm, int page, int pageSize) throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT * FROM Tours WHERE tourName LIKE ? ORDER BY tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + searchTerm + "%");
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Tour t = new Tour();
+                    t.setTourId(rs.getInt("tourId"));
+                    t.setIslandId(rs.getInt("islandId"));
+                    t.setTourName(rs.getString("tourName"));
+                    t.setDescription(rs.getString("description"));
+                    t.setPrice(rs.getInt("price"));
+                    t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    list.add(t);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Searching tours by name with pagination failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //Tim kiem tour theo ten voi phan trang va ten dao
+    public List<Tour> searchToursByNameWithPaginationAndIslandNames(String searchTerm, int page, int pageSize) throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT t.*, i.islandName FROM Tours t " +
+                     "LEFT JOIN Islands i ON t.islandId = i.islandId " +
+                     "WHERE t.tourName LIKE ? ORDER BY t.tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + searchTerm + "%");
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Tour t = new Tour();
+                    t.setTourId(rs.getInt("tourId"));
+                    t.setIslandId(rs.getInt("islandId"));
+                    t.setTourName(rs.getString("tourName"));
+                    t.setDescription(rs.getString("description"));
+                    t.setPrice(rs.getInt("price"));
+                    t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    t.setIslandName(rs.getString("islandName"));
+                    list.add(t);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Searching tours by name with pagination and island names failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //Dem so tour tim duoc theo ten
+    public int getSearchToursCount(String searchTerm) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Tours WHERE tourName LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + searchTerm + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting search tours count failed: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    //Kiem tra tour co ton tai khong
+    public boolean tourExists(int tourId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Tours WHERE tourId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, tourId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Checking tour existence failed: " + e.getMessage());
+        }
+        return false;
+    }
+
+    //Kiem tra ten tour co trung khong (cho validation)
+    public boolean tourNameExists(String tourName, int excludeTourId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Tours WHERE tourName = ? AND tourId != ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, tourName);
+            ps.setInt(2, excludeTourId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Checking tour name existence failed: " + e.getMessage());
+        }
+        return false;
+    }
+
+    //Tim kiem tour theo ten
+    public List<Tour> searchToursByName(String searchTerm) throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        String sql = "SELECT * FROM Tours WHERE tourName LIKE ? ORDER BY tourName";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + searchTerm + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Tour t = new Tour();
+                    t.setTourId(rs.getInt("tourId"));
+                    t.setIslandId(rs.getInt("islandId"));
+                    t.setTourName(rs.getString("tourName"));
+                    t.setDescription(rs.getString("description"));
+                    t.setPrice(rs.getInt("price"));
+                    t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    list.add(t);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Searching tours failed: " + e.getMessage());
+        }
+        return list;
     }
 }
