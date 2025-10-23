@@ -443,64 +443,140 @@ input::placeholder {
 
 
 /* flight schedule */
+/* ========== TIMELINE LAYOUT ========== */
+/* wrapper per timeline block so each has its own vertical line */
+.timeline-block {
+  position: relative;
+  padding-left: 52px;  /* chừa không gian cho thời gian + dot */
+  margin-bottom: 24px;
+}
+
+/* vertical line for each block (not global) */
+.timeline-block::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  bottom: 16px;
+  left: 30px;            /* căn vào giữa của time-col */
+  width: 2px;
+  background: #e9ecef;
+  z-index: 0;
+  border-radius: 1px;
+}
+
+/* header (optional) */
+.timeline-header {
+  position: relative;
+  margin-left: 0;
+  margin-bottom: 8px;
+}
+
+/* each row (time + content) */
+.timeline-row {
+  position: relative;
+  z-index: 2; /* ensure content sits above the line */
+}
+
+/* column with time and dot */
+.time-col {
+  width: 80px;         
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  position: relative;
+  z-index: 3;
+}
+
+/* time text style */
+.time-text {
+  font-size: 0.9rem;
+}
+
+/* dot appearance - ensure above the vertical line */
 .timeline-dot {
-    font-size: 0.75rem;
-    font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: transparent;
+  z-index: 4;
+  position: relative;
 }
 
-.timeline-flight {
-    position: relative;
+/* filled dot */
+.timeline-dot.bg-success {
+  background-color: #28a745;
+  border: none !important;
 }
 
-.timeline-flight::before {
-    content: '';
-    position: absolute;
-    top: 40px;
-    bottom: 40px;
-    left: 18px;
-    width: 2px;
-    background: #ddd;
-    z-index: 0;
+
+.connector-wrap {
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 30px; /* center under the vertical line */
 }
 
+.timeline-connector {
+  width: 1px;
+  height: 70px;
+  background-color: #adb5bd;
+  margin: 0 auto;
+  position: relative;
+  border-radius: 1px;   
+}
+
+.timeline-connector::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid #6c757d;
+}
+
+/* responsive tweaks */
 @media (max-width: 768px) {
-    .modal-xl {
-        max-width: 95%;
-    }
+  .timeline-block::before { left: 22px; }
+  .time-col { width: 68px; min-width: 68px; }
+  .connector-wrap { margin-left: 22px; }
 }
 
- .timeline-connector {
-    width: 1px;
-    height: 70px; /* chiều dài mũi tên */
-    background-color: #adb5bd; 
-    margin: 0 auto;
-    position: relative;
-    border-radius: 1px;
-   
-  }
+/* style transit*/
 
-  /* Mũi tên ở cuối đường */
-  .timeline-connector::after {
-    content: "";
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 12px solid #6c757d; /* màu xám đậm hơn */
-  }
+.transit-title {
+    color: #555;
+    font-size: 14px;
+}
 
-  .connector-wrap {
-    height: 70px; /* tổng chiều cao */
+.timeline-dot.border-warning {
+  background-color: #ffc107 !important;
+    border: none !important
+    width: 13px;
+    height: 14px;
+}
+
+.timeline-row .time-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+}
+
+.connector-wrap {
     display: flex;
     justify-content: center;
-    align-items: center;
-    
-   
-  }
-  
-  #seatCapacity {
-  display: block;
-  margin-top: 2px;
 }
+
+.timeline-connector {
+    width: 2px;
+    height: 40px;
+    background-color: #c9c9c9;
+}
+
+
+

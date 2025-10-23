@@ -103,9 +103,16 @@ public class CreateCustomTourController extends HttpServlet {
                 response.sendRedirect("IslandDetailController?detailId=" + id);
                 return;
             }
+            if (flightIdStr == null ||flightIdStr.isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
+                response.sendRedirect("IslandDetailController?detailId=" + id);
+                return;
+            }
+            
 
             int islandId = Integer.parseInt(islandIdStr);
             int hotelId = Integer.parseInt(hotelIdStr);
+            int flightId = Integer.parseInt(flightIdStr);
 
             // Vehicle tùy chọn
             Integer vehicleId = null;
@@ -140,6 +147,7 @@ public class CreateCustomTourController extends HttpServlet {
             }
             // Lấy giá dịch vụ
             int hotelPrice = dao.getServicePrice("Khách sạn", hotelId);
+            int ticketFlightPrice = dao.getServicePrice("Chuyến bay", flightId );
             int vehiclePrice = 0;
             if (vehicleId != null) {
                 vehiclePrice = dao.getServicePrice("Phương tiện", vehicleId);
@@ -162,6 +170,7 @@ public class CreateCustomTourController extends HttpServlet {
 
             // Lưu chi tiết dịch vụ
             dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Khách sạn", hotelId, hotelPrice));
+            dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Chuyến bay", flightId, ticketFlightPrice));
             if (vehicleId != null) {
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Phương tiện", vehicleId, vehiclePrice));
             }
