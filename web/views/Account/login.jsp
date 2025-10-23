@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -106,8 +107,9 @@
 
                             <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" required="">
-                                    <label class="form-check-label" for="remember" >Ghi nhớ đăng nhập</label>
+                                  <input class="form-check-input" type="checkbox" name="remember" id="remember" 
+                   ${rememberedUser != null ? 'checked' : ''}>
+            <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
                                 </div>
                                 <a href="#" class="forgot-pass text-primary" data-toggle="modal" data-target="#forgetModal"> Quên mật khẩu?</a>
                             </div>

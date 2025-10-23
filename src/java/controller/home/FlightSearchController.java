@@ -65,7 +65,7 @@ public class FlightSearchController extends HttpServlet {
     throws ServletException, IOException {
         try {
             
-             String idRaw = request.getParameter("islandId");
+    String idRaw = request.getParameter("islandId");
     String flightTypeRaw = request.getParameter("flightType"); // Nhận "MotChieu" hoặc "KhuHoi"
     
     System.out.println("DEBUG: Raw islandId = " + idRaw);
@@ -112,7 +112,7 @@ public class FlightSearchController extends HttpServlet {
             
             
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace();    
             System.out.println(e);
         }
   

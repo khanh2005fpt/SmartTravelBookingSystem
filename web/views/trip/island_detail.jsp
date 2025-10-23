@@ -165,28 +165,41 @@
                                 <label for="endDate" class="form-label fw-semibold">Ngày kết thúc</label>
                                 <input type="date" class="form-control rounded-pill text-center" id="endDate" name="endDate" required>
                             </div>
+                            
                         </div>
                         <small class="text-muted d-block mt-2">  <Strong> Ví dụ</Strong>: 12/03 - 16/03 tương ứng lịch trình 4 ngày 3 đêm.</small>
+                        <!-- ==================== CHECKBOX CAM KẾT ==================== -->
+    <div class="mt-4 p-4 bg-light rounded-4 shadow-sm" id="commitSection">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="commitFlight" style="width: 1.4em; height: 1.4em;">
+            <label class="form-check-label fw-semibold text-dark" for="commitFlight">
+                <span class="text-primary">Tôi cam kết:</span> 
+                Chuyến bay <u>khởi hành phải trùng với ngày bắt đầu tour</u>.<br>
+                <small class="text-muted">Hệ thống sẽ chỉ hiển thị chuyến bay phù hợp khi bạn xác nhận.</small>
+            </label>
+        </div>
+    </div>
                     </section>
                     
                     
                      <!------- Flights Section -------------------------------------------------------------->
 
-<section class="mb-5">
+                     <section id="flightSection"class="mb-5"  >
     <h2 class="h2 text-center text-primary fw-bold mb-4">
         Chuyến bay du lịch
     </h2>
+                         
 
     <!-- CHỌN LOẠI CHUYẾN -->
      <div class="card shadow rounded-4 mb-4 ">
         <div class="card-body p-4 text-center">
             <div class="d-flex gap-2  btn-group w-100 w-md-auto " role="group">
                 <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=motchieu"
-                   class="btn btn-primary rounded-pill px-4 py-3 ">
+                   class="btn btn-primary rounded-pill px-4 py-3 " id="oneWayLink">
                     <i class="bi bi-arrow-right-circle-fill me-1 "></i> Một chiều
                 </a>
                 <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=khuhoi"
-                   class="btn btn-outline-primary rounded-pill px-4 py-3 ">
+                   class="btn btn-outline-primary rounded-pill px-4 py-3 " id="roundTripLink">
                  <i class="bi bi-arrow-repeat me-1"></i> <strong>Khứ hồi</strong>
                 </a>
             </div>
@@ -291,7 +304,7 @@
 
                     <i class="bi bi-airplane fs-1 d-block mb-3"></i>
                     <i class="bi bi-search me-2"></i>
-                    Vui lòng chọn loại chuyến bay
+                    Vui lòng hãy nhập  <strong>ngày khởi hành</strong> &  <strong> ngày trở về</strong> để tìm chuyến bay
 
                 </div>
 
@@ -577,7 +590,7 @@
                         <!-- TIMELINE BLOCK - Chuyến đi -->
                         <div class="timeline-block">
                             <div class="timeline-header">
-                                <h6 class="fw-bold mb-3 text-primary">Chuyến đi</h6>
+                                <h6 class="fw-bold mb-3 text-success">Chuyến đi</h6>
                             </div>
 
                             <div class="d-flex align-items-center mb-3 timeline-row">
@@ -1043,6 +1056,70 @@ function splitAirport(airport) {
 
       </script>
         
+      <!-- nhap thong tin ngay de tim chuyen bay va cam ket -->
+      <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const oneWayLink = document.getElementById('oneWayLink');
+    const roundTripLink = document.getElementById('roundTripLink');
+    const commitCheckbox = document.getElementById('commitFlight');
+
+    // Lưu href gốc
+    const oneWayHref = oneWayLink.href;
+    const roundTripHref = roundTripLink.href;
+
+
+
+
+    // Hàm kiểm tra và bật/tắt nút
+    function updateButtons() {
+        const hasStart = startDate.value.trim() !== '';
+        const hasEnd = endDate.value.trim() !== '';
+        const isCommitted = commitCheckbox.checked;
+        // Cập nhật nút Một chiều
+        if (hasStart && isCommitted) {
+            oneWayLink.href = oneWayHref;
+            oneWayLink.classList.remove('disabled');
+            oneWayLink.style.pointerEvents = 'auto';
+            oneWayLink.style.opacity = '1';
+        } else {
+            oneWayLink.removeAttribute('href');
+            oneWayLink.classList.add('disabled');
+            oneWayLink.style.pointerEvents = 'none';
+            oneWayLink.style.opacity = '0.5';
+        }
+
+        // Cập nhật nút Khứ hồi
+        if (hasStart && hasEnd && isCommitted) {
+            roundTripLink.href = roundTripHref;
+            roundTripLink.classList.remove('disabled');
+            roundTripLink.style.pointerEvents = 'auto';
+            roundTripLink.style.opacity = '1';
+        } else {
+            roundTripLink.removeAttribute('href');
+            roundTripLink.classList.add('disabled');
+            roundTripLink.style.pointerEvents = 'none';
+            roundTripLink.style.opacity = '0.5';
+        }
+        // Nếu chưa có ngày → tự bỏ tick cam kết
+        if (!hasStart && commitCheckbox.checked) {
+            commitCheckbox.checked = false;
+        }
+    }
+
+    // Gọi lần đầu
+    updateButtons();
+
+    // Lắng nghe thay đổi ngày
+    startDate.addEventListener('change', updateButtons);
+    endDate.addEventListener('change', updateButtons);
+    commitCheckbox.addEventListener('change', updateButtons);
+
+});
+</script>
+      
+      
 
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
