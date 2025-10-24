@@ -1,4 +1,4 @@
-﻿Create database SmartTravelBooking
+﻿﻿Create database SmartTravelBooking
 go
 use SmartTravelBooking
 go
@@ -1133,6 +1133,16 @@ VALUES
 (10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5),
 (10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
 
+CREATE TABLE Places (
+    placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
+    islandId INT NOT NULL,                   -- Mã đảo (liên kết đến bảng Islands)
+    placeName NVARCHAR(255) NOT NULL,        -- Tên địa điểm
+    location NVARCHAR(255),                  -- Địa chỉ / vị trí
+    description NVARCHAR(MAX),               -- Mô tả chi tiết
+    hasTicket BIT NOT NULL,                  -- Có vé hay không (true/false)
+    ticketPrice INT NULL,                    -- Giá vé (nếu có)
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
 
 INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice)
 VALUES
@@ -1392,4 +1402,3 @@ WHERE paymentId = 1;
 
 
 -------------------------------------------------------------------------------------------------------
-
