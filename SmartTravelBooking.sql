@@ -322,7 +322,7 @@ GO
 
 select * from 
 
-	CREATE TABLE Bookings (
+CREATE TABLE Bookings (
 		bookingId INT IDENTITY(1,1) PRIMARY KEY,
 		customerId INT NOT NULL,
 		departureDate DATE NOT NULL,
@@ -332,7 +332,7 @@ select * from
 		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
 		bookingDate DATETIME DEFAULT GETDATE(),
 --		FOREIGN KEY (customerId) REFERENCES Users(userId),
-	);
+);
 
 select * from users
 
@@ -346,7 +346,7 @@ CREATE TABLE Payments (
     status VARCHAR(20) CHECK (status IN ('SUCCESS','FAILED','PENDING')) DEFAULT 'PENDING',
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
-drop table payments
+
 go
 select * from Users
 select * from bookings
@@ -355,15 +355,15 @@ go
 
 
 CREATE TABLE HistoryBooking (
-    history_id INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
-    customer_id INT NOT NULL,                                
-    booking_id INT NULL,                                     
-    action NVARCHAR(50) NOT NULL CHECK (action IN ('CREATED', 'UPDATED', 'CANCELLED')), -- Hành động
-    action_date DATETIME DEFAULT GETDATE(),                   -- Thời điểm hành động
+    historyId INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
+    customerId INT NOT NULL,                                
+    paymentId INT NOT NULL,                                   
     note NVARCHAR(255) NULL,                                  -- Ghi chú
-
-    FOREIGN KEY (customer_id) REFERENCES CustomerProfiles(userId) ON DELETE CASCADE,
-    FOREIGN KEY (booking_id) REFERENCES Bookings( bookingId) ON DELETE SET NULL
+    tourStatus NVARCHAR(20) NOT NULL CHECK (
+        tourStatus IN ('COMPLETED', 'INCOMPLETE')
+    ) DEFAULT 'INCOMPLETE', 
+--    FOREIGN KEY (customerId) REFERENCES CustomerProfiles(userId) ON DELETE CASCADE,
+    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE
 );
 GO
 
