@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import model.User;
 
-@WebServlet(name = "CustomerServlet", urlPatterns = {"/customer"})
+@WebServlet(name = "CustomerServlet", urlPatterns = {"/manager/customer"})
 public class CustomerServlet extends HttpServlet {
 
     private CustomerDAO customerDAO = new CustomerDAO();
