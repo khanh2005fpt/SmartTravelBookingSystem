@@ -7,11 +7,7 @@
 <html lang="vi">
     <head>
         <title>Smart Ticket Booking</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
         
-          <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
 
         <%@ include file="/views/common/css.jsp" %>
 
@@ -152,7 +148,7 @@
             </div>
         </div>
 
-        <section class="ftco-section ftco-no-pb ftco-no-pt">
+        <section class="ftco-section ftco-no-pb ftco-no-pt mt-5 pt-5">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -165,7 +161,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12 tab-wrap">
-                                    <div class="tab-content" id="v-pills-tabContent">
+                                    <div class="" id="v-pills-tabContent">
 
                                         <!-- Tab tìm kiếm đảo -->
                                         <div class="tab-pane fade show active" id="v-pills-1" role="tabpanel">
@@ -225,7 +221,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
         </section>
+
 
 
 
@@ -290,7 +288,7 @@
                         <nav aria-label="Page navigation example">
                             <ul class="pagination justify-content-center mt-4">
                                 <li class="page-item active">
-                                    <a class="page-link" href="#">1</a>
+                                    <a class="page-link btn btn-primary" href="#">1</a>
                                 </li>
                             </ul>
                         </nav>
@@ -302,20 +300,20 @@
 
                                 <c:if test="${currentPage > 1}">
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=${currentPage - 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Previous</a>
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage - 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Previous</a>
                                     </li>
                                 </c:if>
 
                                 <c:forEach begin="1" end="${totalPages}" var="i">
                                     <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                        <a class="page-link" href="?page=${i}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">${i}</a>
+                                        <a class="page-link btn btn-primary" href="?page=${i}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">${i}</a>
                                     </li>
                                 </c:forEach>
 
 
                                 <c:if test="${currentPage < totalPages}">
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Next</a>
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Next</a>
                                     </li>
                                 </c:if>
 
@@ -421,9 +419,8 @@
                     <div class="col-md-12 text-center">
                         <div class="img" style="background-image: url(${pageContext.request.contextPath}/views/home/images/bg_2.jpg);">
                             <div class="overlay"></div>
-                            <h2>Chúng tôi là Pacific - Công ty Du lịch</h2>
-                            <p>Chúng tôi có thể quản lý giấc mơ xây dựng của bạn. Một con sông nhỏ tên là Duden chảy qua nơi họ ở.</p>
-                            <p class="mb-0"><a href="#" class="btn btn-primary px-4 py-3">Yêu cầu Báo giá</a></p>
+                            <h2>Chúng tôi là Meland - Công ty Du lịch</h2>
+                            <p>Chúng tôi biến ước mơ khám phá biển đảo của bạn thành hiện thực. Những hòn đảo nhiệt đới xinh đẹp đang chờ bạn ghé thăm cùng Meland.</p>
                         </div>
                     </div>
                 </div>
@@ -431,7 +428,6 @@
         </section>
 
         <%@ include file="/views/common/footer.jsp" %>
-
 
 
         <!-- loader -->

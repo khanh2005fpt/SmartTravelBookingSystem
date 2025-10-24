@@ -6,7 +6,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Service_TermsPage</title>
-         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/service_term_Style.css">
+         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/service_term_style.css">
          <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
 

@@ -18,11 +18,11 @@ public class Config {
     static {
         try {
           
-            InputStream input = config.Config.class.getClassLoader().getResourceAsStream("config/config.properties");
+            InputStream input = config_Example.Config.class.getClassLoader().getResourceAsStream("config/config.properties");
 
             if (input ==null) {
            
-                input = config.Config.class.getClassLoader().getResourceAsStream("config.properties");
+                input = config_Example.Config.class.getClassLoader().getResourceAsStream("config.properties");
             }
 
             if (input == null) {

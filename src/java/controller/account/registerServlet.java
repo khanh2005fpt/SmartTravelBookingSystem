@@ -11,7 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dao.userDao;
+import dao.UserDao;
 import jakarta.servlet.http.HttpSession;
 
 /**
@@ -19,14 +19,14 @@ import jakarta.servlet.http.HttpSession;
  * @author nqagh
  */
 @WebServlet(name = "registerServlet", urlPatterns = {"/register"})
-public class registerServlet extends HttpServlet {
+public class RegisterServlet extends HttpServlet {
 
-    private userDao userDAO;
+    private UserDao userDAO;
 
     @Override
     public void init() throws ServletException {
         try {
-            userDAO = userDao.INSTANCE;
+            userDAO = UserDao.INSTANCE;
             System.out.println("userDao initialized successfully in RegisterServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in RegisterServlet: " + e.getMessage());
@@ -95,7 +95,7 @@ public class registerServlet extends HttpServlet {
                 || Phone == null || Phone.isEmpty()) {
 
             session.setAttribute("errorMess", "Thiếu các thông tin bắt buộc, vui lòng nhập đầy đủ!");
-            response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
             return;
 
         }
@@ -153,7 +153,7 @@ public class registerServlet extends HttpServlet {
             if (error != null) {
 
                 session.setAttribute("errorMess", error);
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
                 return;
             }
         }
@@ -168,34 +168,34 @@ public class registerServlet extends HttpServlet {
 
             if (userNameExist && emailExist && fullNamelExist && phoneExist) {
                 session.setAttribute("errorMess", "Tài khoản này đã tồn tại!");
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
                 return;
             }
             if (userNameExist) {
                 session.setAttribute("errorMess", "Tên đăng nhập đã tồn tại!");
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
                 return;
             }
             if (emailExist) {
                 session.setAttribute("errorMess", "Email đã tồn tại!");
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
                 return;
             }
             if (phoneExist) {
                 session.setAttribute("errorMess", "Số điện thoại đã tồn tại!");
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
                 return;
             }
 
             if (fullNamelExist) {
                 session.setAttribute("errorMess", "Họ và tên đã tồn tại!");
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
                 return;
             }
 
         } catch (Exception e) {
             session.setAttribute("errorMess", "Lỗi khi kiểm tra thông tin: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
         }
 
          
@@ -210,12 +210,12 @@ public class registerServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             } else {
                 session.setAttribute("errorMess", signUpResult);
-                response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
             }
 
         } catch (Exception e) {
             session.setAttribute("errorMess", "Đăng kí thất bại: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/views/home/register.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
         }
     }
 

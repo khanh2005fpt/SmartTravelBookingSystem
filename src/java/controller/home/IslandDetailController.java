@@ -4,8 +4,8 @@
  */
 package controller.home;
 
-import dao.HotelDao;
 import dao.IslandDao;
+import dao.ServiceDao;
 import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,10 +13,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import model.Flight;
+import model.FlightSchedule;
 import model.Hotel;
 import model.Island;
+import model.IslandVehicle;
 import model.Tour;
 
 /**
@@ -24,6 +28,8 @@ import model.Tour;
  * @author Admin
  */
 public class IslandDetailController extends HttpServlet {
+
+
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -63,35 +69,60 @@ public class IslandDetailController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+     
 
         try {
             String idRaw = request.getParameter("detailId");
-            if (idRaw == null) {
-                response.sendRedirect("error.jsp");
-                return;
-            }
-            int id = Integer.parseInt(idRaw);
 
+            int id = Integer.parseInt(idRaw);
+            String flightTypeRaw = request.getParameter("flightType");
             IslandDao dao = new IslandDao();
             Island island = dao.getIslandById(id);
-            HotelDao hd = new HotelDao();
-            List<Hotel> listH = hd.getListHotelsById(id);
+            ServiceDao serviceDao = new ServiceDao();
+            List<Hotel> listH = serviceDao.getListHotelsById(id);
+
+            IslandVehicle v = new IslandVehicle();
+            List<IslandVehicle> listV = serviceDao.getListVehicleById(id);
             TourDao td = new TourDao();
             List<Tour> listT = td.getListToursById(id);
 
-            if (island != null) {
-
+            // Lấy danh sách flights dựa trên flightType 
+            
+             List<FlightSchedule> flights= new ArrayList<>();
+            if (flightTypeRaw != null) {
+                String flightType;
+                switch (flightTypeRaw.toLowerCase()) {
+                    case "motchieu":
+                        flightType = "Một chiều";
+                        break;
+                    case "khuhoi":
+                        flightType = "Khứ hồi";
+                        break;
+                    default:
+                        flightType = null;
+                }
+                if (flightType != null) {
+                   
+                    flights= serviceDao.getFlightSchedules(id, flightType);
+                 
+                }
+            }
+                request.setAttribute("islandvehicles", listV);
                 request.setAttribute("island", island);
                 request.setAttribute("hotels", listH);
                 request.setAttribute("tours", listT);
+                request.setAttribute("flights", flights);
+           
+                
+                request.setAttribute("flightType", flightTypeRaw != null ? flightTypeRaw : ""); // Truyền flightType để hiển thị
                 request.getRequestDispatcher("/views/trip/island_detail.jsp").forward(request, response);
-            } else {
-                response.sendRedirect("error.jsp");
-            }
+           } catch (NumberFormatException e) {
+            response.sendError(400, "ID không hợp lệ");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
+            response.sendError(500, "Lỗi hệ thống");
         }
+       
     }
 
     /**

@@ -1,21 +1,38 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.math.BigDecimal;
-import java.util.List;
+import java.util.Date;
 
+/**
+ *
+ * @author Admin
+ */
 public class Booking {
-
     private int bookingId;
-    private int profileId;     
-    private int customerId;    
-    private Integer price;     
-    private BookingStatus status;      
-    private LocalDateTime bookingDate; 
+    private int profileId;
+    private int customerId;
+    private int price;
+    private Date departureDate;
+    private int adultQuantity;
+    private int childQuantity;
+    private String status;
+    private Date bookingDate;
 
-    
-    private List<BookingDetail> details;
+    public Booking() {
+    }
+
+    public Booking(int profileId, int customerId, int price, Date departureDate, int adultQuantity, int childQuantity, String status) {
+        this.profileId = profileId;
+        this.customerId = customerId;
+        this.price = price;
+        this.departureDate = departureDate;
+        this.adultQuantity = adultQuantity;
+        this.childQuantity = childQuantity;
+        this.status = status;
+    }
 
     public int getBookingId() {
         return bookingId;
@@ -41,35 +58,45 @@ public class Booking {
         this.customerId = customerId;
     }
 
-    public Integer getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
-    public BookingStatus getStatus() {
+    public Date getDepartureDate() {
+        return departureDate;
+    }
+
+    public void setDepartureDate(Date departureDate) {
+        this.departureDate = departureDate;
+    }
+
+    public int getAdultQuantity() {
+        return adultQuantity;
+    }
+
+    public void setAdultQuantity(int adultQuantity) {
+        this.adultQuantity = adultQuantity;
+    }
+
+    public int getChildQuantity() {
+        return childQuantity;
+    }
+
+    public void setChildQuantity(int childQuantity) {
+        this.childQuantity = childQuantity;
+    }
+
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(BookingStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public LocalDateTime getBookingDate() {
-        return bookingDate;
-    }
-
-    public void setBookingDate(LocalDateTime bookingDate) {
-        this.bookingDate = bookingDate;
-    }
-
-    public List<BookingDetail> getDetails() {
-        return details;
-    }
-
-    public void setDetails(List<BookingDetail> details) {
-        this.details = details;
-    }
+    
 }

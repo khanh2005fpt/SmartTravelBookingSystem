@@ -15,8 +15,8 @@
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
 
-        <div class="container py-5">
-            <div class="row g-4">
+        <div class="container" style="max-width: 1400px;">
+            <div class="row" style="margin-top: 120px">
                 <!-- Cột nội dung tour -->
                 <div class="col-lg-7">
 
@@ -129,45 +129,61 @@
 
                 <!-- Cột sidebar -->
                 <div class="col-lg-5">
-
-
-
                     <div class="card shadow-sm p-4">
-
                         <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
-
-                        <form action="" method="">
-
-
-                            <div class="mb-3">
-                                <label class="form-label">Ngày khởi hành</label>
-                                <input type="date" class="form-control" name="departureDate" required>
+                        <c:if test="${not empty errorMessage}">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${errorMessage}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
+                            <c:remove var="errorMessage" scope="request"/> 
+                        </c:if>
 
-                            <div class="row">
-                                <div class="col">
-                                    <label class="form-label">Người lớn ( > 15 tuổi)</label>
-                                    <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.user}">
+                                <form action="BookingController" method="post">
+                                    <input type="hidden" name="tourId" value="${tour.tourId}">
+                                    <input type="hidden" name="price" value="${tour.price}">
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Ngày khởi hành</label>
+                                        <input type="date" class="form-control" name="departureDate" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label">Người lớn (>15 tuổi)</label>
+                                            <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label">Trẻ em (≤15 tuổi)</label>
+                                            <input type="number" class="form-control" name="childQty" min="0" value="0" required>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mt-4 text-primary">Giá Tour</h5>
+                                    <h4 class="text-primary fw-bold mb-3">
+                                        <fmt:setLocale value="vi_VN" />
+                                        <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
+                                    </h4>
+
+                                    <button type="submit" class="btn btn-primary btn-block fw-bold">
+                                        <i class="bi bi-check-circle"></i> Đặt Tour Ngay
+                                    </button>
+                                </form>
+                            </c:when>
+
+                            <c:otherwise>
+                                <div class="alert alert-warning">
+                                    Bạn cần <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
                                 </div>
-                                <div class="col">
-                                    <label class="form-label">Trẻ em ( <= 15 tuổi)</label>
-                                    <input type="number" class="form-control" name="childQty" min="0" value="0" required>
-                                </div>
-                            </div>
-                            <h5 class="mb-3 text-primary mt-4">Giá Tour</h5>
-
-                            <h4 class="text-primary font-weight-bold mb-3">
-                                <fmt:setLocale value="vi_VN" />
-                                <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ</h4>
-                            <button type="submit" class="btn btn-primary btn-block font-weight-bold">
-                                <i class="bi bi-check-circle"></i> Đặt Tour Ngay
-                            </button>
-                        </form>
-
-
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <%@ include file="/views/common/footer.jsp" %>

@@ -21,7 +21,7 @@ import jakarta.mail.internet.MimeMessage;
  *
  * @author nqagh
  */
-public class resetService {
+public class ResetService {
 
     // nqaghuyyy6969@gmail.com mail Server
     public final String from = "nqaghuyyy6969@gmail.com";

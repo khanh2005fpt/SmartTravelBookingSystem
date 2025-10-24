@@ -5,8 +5,8 @@
 
 package controller.account;
 
-import dao.tokenDao;
-import dao.userDao;
+
+import dao.UserDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -22,24 +22,24 @@ import model.User;
  *
  * @author nqagh
  */
-@WebServlet(name="resetPassword", urlPatterns={"/resetPassword"})
-public class resetPassword extends HttpServlet {
+@WebServlet(name="ResetPassword", urlPatterns={"/ResetPassword"})
+public class ResetPassword extends HttpServlet {
     
-   private tokenDao TokenDao;
-   private userDao UserDao;
+  public UserDao userDAO ;
+    
     
     @Override
-      public void init(){
-             try {
-            TokenDao = tokenDao.getInstance();
-               UserDao = userDao.INSTANCE;
-            System.out.println("tokenDao or UserDao initialized successfully in requestPasswordServlet");
+     public void init() throws ServletException {
+        try {
+           userDAO = UserDao.INSTANCE;
+               
+            System.out.println("userDao initialized successfully in requestPasswordServlet");
         } catch (Exception e) {
-            System.out.println("Error initializing tokenDao or UserDao in requestPassword: " + e.getMessage());
+            System.out.println("Error initializing userDao in requestPassword: " + e.getMessage());
             e.printStackTrace();
-           
+            throw new ServletException("Failed to initialize requestPassword", e);
         }
-      }
+    }
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -78,20 +78,20 @@ public class resetPassword extends HttpServlet {
     throws ServletException, IOException {
       String token = request.getParameter("token");
        
-Token tokenForget = tokenDao.getInstance().checkValidToken(token);
+Token tokenForget = userDAO.checkValidToken(token);
 
 if (tokenForget == null) {
     request.getSession().setAttribute("errorMess", "Link đặt lại mật khẩu đã hết hạn. Hãy gửi yêu cầu lại!");
-    response.sendRedirect("views/home/login.jsp");
+    response.sendRedirect("views/account/login.jsp");
     return;
 }
 
   // luu token va email vao session
-User user = UserDao.getUserById(tokenForget.getUserId());
+User user = userDAO.getUserById(tokenForget.getUserId());
 request.getSession().setAttribute("resetEmail", user.getEmail());
 request.getSession().setAttribute("token", tokenForget.getTokenValue());
 
-response.sendRedirect("views/home/resetPassword.jsp");
+response.sendRedirect("views/account/reset_password.jsp");
 
     } 
 
@@ -116,11 +116,11 @@ response.sendRedirect("views/home/resetPassword.jsp");
         // get token 
         String tokenValue = (String) session.getAttribute("token");
         
-        Token tokenForget = tokenDao.getInstance().checkValidToken(tokenValue);
+        Token tokenForget =  userDAO.checkValidToken(tokenValue);
 
         if (tokenForget == null) {
             request.getSession().setAttribute("errorPass", "Mã OTP đã hết hạn. Hãy gửi yêu cầu lại!");
-            response.sendRedirect("views/home/resetPassword.jsp");
+            response.sendRedirect("views/account/reset_password.jsp");
             return;
         }
 
@@ -138,31 +138,31 @@ response.sendRedirect("views/home/resetPassword.jsp");
 
             if (otpInput == null || otpInput.trim().isEmpty()) {
                 session.setAttribute("errorPass", "Vui lòng nhập OTP!");
-                 response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
+                 response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
                 return;
             }
 
             if (!otpInput.equals(otpSession)) {
                 attempt++;
                 session.setAttribute("otpAttempt", attempt);
-                TokenDao.updateOtpAndAttempt(tokenForget.getTokenId(), otpInput, attempt);
+                userDAO.updateOtpAndAttempt(tokenForget.getTokenId(), otpInput, attempt);
 
                 if (attempt >= 3) {
                     session.invalidate(); // clear het session
                     HttpSession newSession = request.getSession(true);
                     newSession.setAttribute("errorMess", "Bạn đã nhập sai OTP quá 3 lần. Vui lòng gửi lại yêu cầu!");
-                    response.sendRedirect(request.getContextPath() + "/views/home/login.jsp");
+                    response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
                     return;
                 }
 
                 session.setAttribute("errorPass", "OTP sai! Bạn còn " + (3 - attempt) + " lần thử.");
-                response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
                 return;
             }
 
             // OTP dung → set flag 
             session.setAttribute("otpVerified", true); 
-              response.sendRedirect(request.getContextPath() + "/views/home/resetPassword.jsp");
+              response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
                 return; 
          }   
          // neu user chua nhap mat khau → quay lai form de nhap mat khau(flow 1&2)
@@ -170,25 +170,25 @@ response.sendRedirect("views/home/resetPassword.jsp");
         if (password == null || password.trim().isEmpty()
                 || rePassword == null || rePassword.trim().isEmpty()) {
             session.setAttribute("errorPass", "Vui lòng nhập mật khẩu và xác nhận!");
-            response.sendRedirect("views/home/resetPassword.jsp");
+            response.sendRedirect("views/account/reset_password.jsp");
             return;
         }
     // 4. Check confirm password
         if (!password.equals(rePassword)) {
             session.setAttribute("errorPass", "Mật khẩu xác nhận không khớp!");
-            response.sendRedirect("views/home/resetPassword.jsp");
+            response.sendRedirect("views/account/reset_password.jsp");
             return;
         }
 
         // update is used of token 
         //update password , status
-        UserDao.updatePassword(email, password);
-        TokenDao.markTokenAsUsed(tokenValue);
+        userDAO.updatePassword(email, password);
+        userDAO.markTokenAsUsed(tokenValue);
       
          // luu otp sau khi doi mat khau thanh cong
           String otpUsed = request.getParameter("otp");
           if (otpUsed != null && !otpUsed.trim().isEmpty()) {
-         TokenDao.updateOtpAndAttempt(tokenForget.getTokenId(), otpUsed,0 ); 
+         userDAO.updateOtpAndAttempt(tokenForget.getTokenId(), otpUsed,0 ); 
          
      
 
@@ -197,7 +197,7 @@ response.sendRedirect("views/home/resetPassword.jsp");
        
         //  save user and redirect to home
         session.setAttribute("successMessage", "Đổi mật khẩu thành công.");
-        response.sendRedirect("views/home/login.jsp");
+        response.sendRedirect("views/account/login.jsp");
 
         
     }
