@@ -18,7 +18,9 @@ import model.User;
 public class CustomerServlet extends HttpServlet {
 
     private CustomerDAO customerDAO = new CustomerDAO();
-
+    
+    private static final String CUSTOMER_LIST_VIEW = "/views/customer/customerList.jsp";
+    private static final String CUSTOMER_DETAIL_VIEW = "/views/customer/customerDetail.jsp";
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -58,7 +60,7 @@ public class CustomerServlet extends HttpServlet {
         req.setAttribute("customers", list);
         req.setAttribute("currentPage", page);
         req.setAttribute("totalPages", totalPages);
-        req.getRequestDispatcher("views/customer/customerList.jsp").forward(req, resp);
+        req.getRequestDispatcher(CUSTOMER_LIST_VIEW).forward(req, resp);
     }
 
     private void showCustomerDetail(HttpServletRequest req, HttpServletResponse resp)
@@ -66,7 +68,7 @@ public class CustomerServlet extends HttpServlet {
         int id = Integer.parseInt(req.getParameter("id"));
         User customer = customerDAO.getCustomerById(id);
         req.setAttribute("customer", customer);
-        req.getRequestDispatcher("views/customer/customerDetail.jsp").forward(req, resp);
+        req.getRequestDispatcher(CUSTOMER_DETAIL_VIEW).forward(req, resp);
     }
 
     private void searchCustomers(HttpServletRequest req, HttpServletResponse resp)

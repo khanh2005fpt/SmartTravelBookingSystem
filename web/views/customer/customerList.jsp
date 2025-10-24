@@ -8,7 +8,7 @@
     <title>Danh sách khách hàng</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-
+    <%@include file="/views/common/css.jsp" %>
     <style>
         :root {
             --primary-color: #007bff;
@@ -216,7 +216,7 @@
                             </td>
                             <td>${c.createdAt}</td>
                             <td>
-                                <a href="customer?action=detail&id=${c.userId}" class="action-link">
+                                <a href="<c:url value="/manager/customer?action=detail&id=${c.userId}"/>" class="action-link">
                                     <i class="fa-solid fa-eye"></i> Xem chi tiết
                                 </a>
                             </td>
@@ -239,7 +239,7 @@
                             <span class="active">${i}</span>
                         </c:when>
                         <c:otherwise>
-                            <a href="customer?action=list&page=${i}">${i}</a>
+                            <a href="/manager/customer?action=list&page=${i}"/>">${i}</a>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>

@@ -157,8 +157,8 @@
             <li><a href="<c:url value="/manager/payments/refund"/>"><i class="fas fa-undo-alt"></i> Xử lý Vấn đề Thanh toán</a></li>
             
             <li class="menu-item-group"><h4>4. Quản lý Khách hàng</h4></li>
-            <li><a href="<c:url value="/manager/customer"/>"><i class="fas fa-users"></i> Xem thông tin Khách hàng</a></li>
-            
+            <li><a href="<c:url value="/manager/customer?action=list"/>"><i class="fas fa-users"></i> Xem thông tin Khách hàng</a></li>
+           
             <li class="menu-item-group"><h4>5. Tạo Báo cáo</h4></li>
             <li><a href="<c:url value="/admin/report"/>"><i class="fas fa-chart-pie"></i> Tạo báo cáo Doanh số</a></li>
             
