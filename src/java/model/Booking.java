@@ -12,9 +12,7 @@ import java.util.Date;
  */
 public class Booking {
     private int bookingId;
-    private int profileId;
     private int customerId;
-    private int price;
     private Date departureDate;
     private int adultQuantity;
     private int childQuantity;
@@ -24,10 +22,8 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(int profileId, int customerId, int price, Date departureDate, int adultQuantity, int childQuantity, String status) {
-        this.profileId = profileId;
+    public Booking(int customerId, Date departureDate, int adultQuantity, int childQuantity, String status) {
         this.customerId = customerId;
-        this.price = price;
         this.departureDate = departureDate;
         this.adultQuantity = adultQuantity;
         this.childQuantity = childQuantity;
@@ -42,13 +38,6 @@ public class Booking {
         this.bookingId = bookingId;
     }
 
-    public int getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(int profileId) {
-        this.profileId = profileId;
-    }
 
     public int getCustomerId() {
         return customerId;
@@ -58,13 +47,6 @@ public class Booking {
         this.customerId = customerId;
     }
 
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
 
     public Date getDepartureDate() {
         return departureDate;

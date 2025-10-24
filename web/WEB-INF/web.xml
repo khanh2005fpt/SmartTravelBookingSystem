@@ -76,6 +76,7 @@
         <servlet-name>VnpayReturn</servlet-name>
         <url-pattern>/VnpayReturn</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>CreateCustomTourController</servlet-name>
         <url-pattern>/CreateCustomTourController</url-pattern>

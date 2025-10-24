@@ -21,6 +21,7 @@ import model.FlightSchedule;
 import model.Hotel;
 import model.Island;
 import model.IslandVehicle;
+import model.Place;
 import model.Tour;
 
 /**
@@ -80,9 +81,8 @@ public class IslandDetailController extends HttpServlet {
             Island island = dao.getIslandById(id);
             ServiceDao serviceDao = new ServiceDao();
             List<Hotel> listH = serviceDao.getListHotelsById(id);
-
-            IslandVehicle v = new IslandVehicle();
             List<IslandVehicle> listV = serviceDao.getListVehicleById(id);
+            List<Place> listP = serviceDao.getListPlaceById(id);
             TourDao td = new TourDao();
             List<Tour> listT = td.getListToursById(id);
 
@@ -111,6 +111,7 @@ public class IslandDetailController extends HttpServlet {
                 request.setAttribute("island", island);
                 request.setAttribute("hotels", listH);
                 request.setAttribute("tours", listT);
+                request.setAttribute("places", listP);
                 request.setAttribute("flights", flights);
            
                 
