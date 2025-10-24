@@ -193,6 +193,8 @@
 
 
                 </div>
+                
+                <c:if test="${not empty islands}">
                 <c:choose>
                     <c:when test="${totalPages == 1}">
                         <nav aria-label="Page navigation example">
@@ -231,7 +233,7 @@
                         </nav>
                     </c:otherwise>
                 </c:choose>
-
+                </c:if>
             </div>
         </section>
 
