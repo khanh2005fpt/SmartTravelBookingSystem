@@ -22,5 +22,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
         <script src="${pageContext.request.contextPath}/views/home/js/scrollax.min.js"></script>
         <script src="${pageContext.request.contextPath}/views/home/js/main.js"></script>
+        
+        <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>
 
    

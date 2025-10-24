@@ -228,7 +228,6 @@ input::placeholder {
 .login-container .form-check {
   margin: 0;
 }
-
   /*  --------------------------------------------------------------------------------------/
   /*  btn login and register at homepage*/
     .btn-login1 {
@@ -578,5 +577,8 @@ input::placeholder {
     background-color: #c9c9c9;
 }
 
-
+.btn.disabled {
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
 

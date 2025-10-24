@@ -154,7 +154,6 @@
         text-align: center;
     }
 
-
     .logout-header {
         font-size: 1.5rem;
         font-weight: 800;
@@ -182,7 +181,6 @@
         background: #1976d2;
         color: #fff !important;
     }
-
 
     .btn-logout {
         background: #1976d2;

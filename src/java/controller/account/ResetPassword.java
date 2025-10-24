@@ -22,7 +22,7 @@ import model.User;
  *
  * @author nqagh
  */
-@WebServlet(name="resetPassword", urlPatterns={"/resetPassword"})
+@WebServlet(name="ResetPassword", urlPatterns={"/ResetPassword"})
 public class ResetPassword extends HttpServlet {
     
   public UserDao userDAO ;
@@ -91,7 +91,7 @@ User user = userDAO.getUserById(tokenForget.getUserId());
 request.getSession().setAttribute("resetEmail", user.getEmail());
 request.getSession().setAttribute("token", tokenForget.getTokenValue());
 
-response.sendRedirect("views/account/resetPassword.jsp");
+response.sendRedirect("views/account/reset_password.jsp");
 
     } 
 
@@ -120,7 +120,7 @@ response.sendRedirect("views/account/resetPassword.jsp");
 
         if (tokenForget == null) {
             request.getSession().setAttribute("errorPass", "Mã OTP đã hết hạn. Hãy gửi yêu cầu lại!");
-            response.sendRedirect("views/account/resetPassword.jsp");
+            response.sendRedirect("views/account/reset_password.jsp");
             return;
         }
 
@@ -138,7 +138,7 @@ response.sendRedirect("views/account/resetPassword.jsp");
 
             if (otpInput == null || otpInput.trim().isEmpty()) {
                 session.setAttribute("errorPass", "Vui lòng nhập OTP!");
-                 response.sendRedirect(request.getContextPath() + "/views/account/resetPassword.jsp");
+                 response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
                 return;
             }
 
@@ -156,13 +156,13 @@ response.sendRedirect("views/account/resetPassword.jsp");
                 }
 
                 session.setAttribute("errorPass", "OTP sai! Bạn còn " + (3 - attempt) + " lần thử.");
-                response.sendRedirect(request.getContextPath() + "/views/account/resetPassword.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
                 return;
             }
 
             // OTP dung → set flag 
             session.setAttribute("otpVerified", true); 
-              response.sendRedirect(request.getContextPath() + "/views/account/resetPassword.jsp");
+              response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
                 return; 
          }   
          // neu user chua nhap mat khau → quay lai form de nhap mat khau(flow 1&2)
@@ -170,13 +170,13 @@ response.sendRedirect("views/account/resetPassword.jsp");
         if (password == null || password.trim().isEmpty()
                 || rePassword == null || rePassword.trim().isEmpty()) {
             session.setAttribute("errorPass", "Vui lòng nhập mật khẩu và xác nhận!");
-            response.sendRedirect("views/account/resetPassword.jsp");
+            response.sendRedirect("views/account/reset_password.jsp");
             return;
         }
     // 4. Check confirm password
         if (!password.equals(rePassword)) {
             session.setAttribute("errorPass", "Mật khẩu xác nhận không khớp!");
-            response.sendRedirect("views/account/resetPassword.jsp");
+            response.sendRedirect("views/account/reset_password.jsp");
             return;
         }
 

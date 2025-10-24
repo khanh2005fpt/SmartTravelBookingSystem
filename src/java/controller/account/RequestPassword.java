@@ -115,7 +115,7 @@ public class RequestPassword extends HttpServlet {
          
        // link reset co token
        session.setAttribute("otpSession", otp);
-String linkReset = "http://localhost:9090/SWP391_Group3_SE1957-KS/resetPassword?token=" + token;
+String linkReset = "http://localhost:9090/SmartBookingTravelSystem/ResetPassword?token=" + token;
 
 
         boolean isSent = service.sendEmail(email, linkReset, user.getFullName(), otp);

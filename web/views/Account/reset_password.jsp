@@ -1,24 +1,14 @@
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-    <%@page contentType="text/html" pageEncoding="UTF-8"%>
+    <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
   <title>Reset Password</title>
   <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/animate.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.carousel.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.theme.default.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/magnific-popup.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap-datepicker.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/jquery.timepicker.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/flaticon.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap/bootstrap.min.css">
+   <%@ include file="/views/common/css.jsp" %>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -124,7 +114,7 @@ background-size: cover;
 <body>
   <div class="reset-container">
     <h2>🔑Reset Password</h2>
-    <form action="${pageContext.request.contextPath}/resetPassword" method="post">
+    <form action="${pageContext.request.contextPath}/ResetPassword" method="post">
       
     <%
       Boolean otpVerified = (Boolean) session.getAttribute("otpVerified");
@@ -191,8 +181,8 @@ background-size: cover;
       <button type="submit" class="btn-submit">Xác nhận</button>
     </form>
         <!-- Link quay lại login -->
-<div class="text-center mt-3">
-  <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="back-link">
+<div class="text-center  mt-3 ">
+  <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="back-link" style="color:#007BFF">
     <i class="fa fa-arrow-left"></i> Quay lại đăng nhập
   </a>
 </div>
@@ -232,8 +222,6 @@ background-size: cover;
 </script>
 
   
-   <!-- Bootstrap JS -->
-    <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>
-    <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>
+<%@ include file="/views/common/script.jsp" %>
 </body>
 </html>
