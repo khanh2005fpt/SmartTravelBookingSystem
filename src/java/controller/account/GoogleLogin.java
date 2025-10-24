@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package controller.account;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import constant.Iconstant;
@@ -13,7 +12,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Form;
 
 import org.apache.http.client.fluent.Request;
-
 /**
  *
  * @author nqagh
@@ -48,7 +46,6 @@ public class GoogleLogin {
 
     }
     // ham nay tra ve thong tin (doi tuong) tai khoan khi truyen accessToken
-
     //getUserInfo dung de gui yeu cau  httpGet den google de lay thong tin User = ma accessToken
     public static GoogleAccount getUserInfo(final String accessToken) throws ClientProtocolException, IOException {
 

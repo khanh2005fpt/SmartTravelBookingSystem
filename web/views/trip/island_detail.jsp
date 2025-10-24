@@ -172,7 +172,7 @@
                                  <div class="input-group " style="max-width: 180px;">
                                      <div>
                                          <label for="startDateFlight" class="form-label fw-semibold">Ngày bắt đầu</label>
-                                         <input type="date" class="form-control rounded-pill text-center" id="startDateFlight" name="startDateFlight" required>
+                                         <input type="date" class="form-control rounded-pill text-center" id="startDateFlight" name="startDateFlight" >
                                      </div>
                                  </div>
                              </div>
@@ -181,7 +181,7 @@
                                  <div class="input-group" style="max-width: 180px;">
                                      <div>
                                          <label for="endDateFlight" class="form-label fw-semibold">Ngày kết thúc</label>
-                                         <input type="date" class="form-control rounded-pill text-center" id="endDateFlight" name="endDateFlight" required>
+                                         <input type="date" class="form-control rounded-pill text-center" id="endDateFlight" name="endDateFlight">
                                      </div>
                                  </div>
                              </div>

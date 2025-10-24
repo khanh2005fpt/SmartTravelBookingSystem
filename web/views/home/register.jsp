@@ -1,13 +1,25 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Register Page</title>
-        <%@ include file="/views/common/css.jsp" %>
+        <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/animate.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.carousel.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.theme.default.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/magnific-popup.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap-datepicker.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/jquery.timepicker.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/flaticon.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/bootstrap/bootstrap.min.css">
+
     </head>
    <body>
     <div class="container-fluid">
@@ -24,7 +36,7 @@
                 
                 <!-- Nút về trang chủ -->
             <div class="d-flex justify-content-end mb-5" style="max-width: 480px; width: 100%;">
-                    <a href="${pageContext.request.contextPath}/views/home/index.jsp" class="btn btn-outline-primary ">
+                    <a href="index.jsp" class="btn btn-outline-primary ">
                         <i class="fa fa-home"></i> Trang Chủ
                     </a>
                     
@@ -94,16 +106,16 @@
                         <div class="form-check mb-4 ml-3">
                             <input class="form-check-input" type="checkbox" id="terms" required>
                             <label class="form-check-label" for="terms">
-                                Tôi đồng ý với <a href=" ${pageContext.request.contextPath}/views/home/service_terms.jsp" target="_blank">điều khoản dịch vụ</a>
+                                Tôi đồng ý với <a href="Service_Terms.jsp" target="_blank">điều khoản dịch vụ</a>
                             </label>
                         </div>
 
-                            <button type="submit" class="btn w-100 text-white" style="background:#007BFF ">Đăng Ký</button>
+                        <button type="submit" class="btn btn-primary w-100">Đăng Ký</button>
                     </form>
 
                     <!-- Link đăng nhập -->
                     <div class="login-link text-center mt-3 text_login">
-                        <p>Đã có tài khoản? <a href="${pageContext.request.contextPath}/views/account/login.jsp">Đăng nhập</a></p>
+                        <p>Đã có tài khoản? <a href="login.jsp">Đăng nhập</a></p>
                     </div>
                 </div>
             </div>
@@ -111,7 +123,10 @@
     </div>
           
                         
-        <%@ include file="/views/common/script.jsp" %>
+              <!-- Bootstrap JS and jquery (bundle đã gồm Popper.js) -->
+            <script src="${pageContext.request.contextPath}/views/home/js/jquery-3.6.0.min.js"></script>
+            <script src="${pageContext.request.contextPath}/views/home/js/bootstrap.bundle.min.js"></script>              
+                        
 </body>
 
 </html>
