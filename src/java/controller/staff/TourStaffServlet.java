@@ -27,6 +27,7 @@ import java.util.List;
 import model.Tour;
 import model.User;
 import model.Island;
+import model.TourItinerary;
 
 /**
  * Servlet for CRUD operations on tour data, specifically designed for staff users
@@ -220,8 +221,12 @@ public class TourStaffServlet extends HttpServlet {
             // Load island data for the tour
             Island island = islandDao.getIslandById(tour.getIslandId());
             
+            // Load tour itinerary data
+            List<TourItinerary> tourItineraries = tourDao.getListTourItineriesById(tourId);
+            
             request.setAttribute("tour", tour);
             request.setAttribute("island", island);
+            request.setAttribute("tourItineraries", tourItineraries);
             request.setAttribute("action", "view");
             request.getRequestDispatcher("/views/staff/tour-view.jsp").forward(request, response);
             

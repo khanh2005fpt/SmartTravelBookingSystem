@@ -159,7 +159,7 @@ public class VehicleStaffServlet extends HttpServlet {
             }
             
             request.setAttribute("vehicle", vehicle);
-            request.setAttribute("pageTitle", "Vehicle Details - " + vehicle.getVehicleName());
+            request.setAttribute("pageTitle", "Vehicle Details - " + vehicle.getModelName());
             request.getRequestDispatcher("/views/staff/vehicle-detail.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
@@ -214,7 +214,7 @@ public class VehicleStaffServlet extends HttpServlet {
             
             request.setAttribute("vehicle", vehicle);
             request.setAttribute("islands", islands);
-            request.setAttribute("pageTitle", "Edit Vehicle - " + vehicle.getVehicleName());
+            request.setAttribute("pageTitle", "Edit Vehicle - " + vehicle.getModelName());
             request.getRequestDispatcher("/views/staff/vehicle-form.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
@@ -416,13 +416,9 @@ public class VehicleStaffServlet extends HttpServlet {
     private IslandVehicle createVehicleFromRequest(HttpServletRequest request) {
         IslandVehicle vehicle = new IslandVehicle();
         
-        vehicle.setVehicleName(request.getParameter("vehicleName"));
+        // Set basic fields that exist in database
         vehicle.setVehicleType(request.getParameter("vehicleType"));
-        vehicle.setDescription(request.getParameter("description"));
-        vehicle.setImageUrl(request.getParameter("imageUrl"));
-        vehicle.setContactPhone(request.getParameter("contactPhone"));
-        vehicle.setContactEmail(request.getParameter("contactEmail"));
-        vehicle.setLocation(request.getParameter("location"));
+        vehicle.setModelName(request.getParameter("modelName"));
         
         // Set numeric fields
         String pricePerDayStr = request.getParameter("pricePerDay");
@@ -430,22 +426,20 @@ public class VehicleStaffServlet extends HttpServlet {
             vehicle.setPricePerDay(Double.parseDouble(pricePerDayStr));
         }
         
-        String quantityAvailableStr = request.getParameter("quantityAvailable");
-        if (quantityAvailableStr != null && !quantityAvailableStr.trim().isEmpty()) {
-            vehicle.setQuantityAvailable(Integer.parseInt(quantityAvailableStr));
+        String capacityStr = request.getParameter("capacity");
+        if (capacityStr != null && !capacityStr.trim().isEmpty()) {
+            vehicle.setCapacity(Integer.parseInt(capacityStr));
         }
         
-        String seatingCapacityStr = request.getParameter("seatingCapacity");
-        if (seatingCapacityStr != null && !seatingCapacityStr.trim().isEmpty()) {
-            vehicle.setSeatingCapacity(Integer.parseInt(seatingCapacityStr));
+        String availabilityStr = request.getParameter("availability");
+        if (availabilityStr != null && !availabilityStr.trim().isEmpty()) {
+            vehicle.setAvailability(Integer.parseInt(availabilityStr));
         }
         
-        // Set island if provided
+        // Set island ID
         String islandIdStr = request.getParameter("islandId");
         if (islandIdStr != null && !islandIdStr.trim().isEmpty()) {
-            Island island = new Island();
-            island.setIslandId(Integer.parseInt(islandIdStr));
-            vehicle.setIsland(island);
+            vehicle.setIslandId(Integer.parseInt(islandIdStr));
         }
         
         return vehicle;

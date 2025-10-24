@@ -290,6 +290,161 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Tour Itinerary Styles */
+        .itinerary-timeline {
+            position: relative;
+        }
+        
+        .itinerary-day {
+            margin-bottom: 30px;
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .itinerary-day:before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: -30px;
+            width: 2px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+        
+        .itinerary-day:last-child:before {
+            bottom: 0;
+        }
+        
+        .day-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+        
+        .day-number {
+            position: relative;
+            z-index: 2;
+            margin-left: -30px;
+        }
+        
+        .day-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .day-title h4 {
+            margin: 0;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.3em;
+        }
+        
+        .day-activities {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-left: 15px;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .activity-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .activity-order {
+            flex-shrink: 0;
+        }
+        
+        .activity-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .activity-description {
+            margin: 0;
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        .no-activities {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .itinerary-day {
+                padding-left: 20px;
+            }
+            
+            .day-number {
+                margin-left: -20px;
+            }
+            
+            .day-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .day-activities {
+                margin-left: 5px;
+                padding: 15px;
+            }
+            
+            .activity-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .activity-order {
+                align-self: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -416,6 +571,62 @@
                                     </c:when>
                                     <c:otherwise>
                                         <em class="text-muted">Chưa có mô tả cho tour này.</em>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+
+                        <!-- Tour Itinerary -->
+                        <div class="info-section">
+                            <h3><i class="fa fa-calendar"></i> Lịch trình Tour</h3>
+                            <div class="itinerary-content">
+                                <c:choose>
+                                    <c:when test="${not empty tourItineraries}">
+                                        <div class="itinerary-timeline">
+                                            <c:forEach var="itinerary" items="${tourItineraries}" varStatus="status">
+                                                <div class="itinerary-day">
+                                                    <div class="day-header">
+                                                        <div class="day-number">
+                                                            <span class="day-badge">Ngày ${itinerary.dayNumber}</span>
+                                                        </div>
+                                                        <div class="day-title">
+                                                            <h4>${itinerary.title}</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="day-activities">
+                                                        <c:choose>
+                                                            <c:when test="${not empty itinerary.activities}">
+                                                                <c:forEach var="activity" items="${itinerary.activities}" varStatus="actStatus">
+                                                                    <div class="activity-item">
+                                                                        <div class="activity-order">
+                                                                            <span class="activity-number">${activity.activityOrder}</span>
+                                                                        </div>
+                                                                        <div class="activity-content">
+                                                                            <h5 class="activity-title">${activity.activityTitle}</h5>
+                                                                            <c:if test="${not empty activity.description}">
+                                                                                <p class="activity-description">${activity.description}</p>
+                                                                            </c:if>
+                                                                        </div>
+                                                                    </div>
+                                                                </c:forEach>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <div class="no-activities">
+                                                                    <em class="text-muted">Chưa có hoạt động cho ngày này.</em>
+                                                                </div>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="no-itinerary" 
+                                             style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 10px; padding: 40px; text-align: center; color: #6c757d;">
+                                            <i class="fa fa-calendar-o" style="font-size: 3em; margin-bottom: 15px; opacity: 0.5;"></i>
+                                            <p style="margin: 0; font-style: italic;">Chưa có lịch trình cho tour này</p>
+                                        </div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
