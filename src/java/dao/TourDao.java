@@ -390,7 +390,7 @@ public class TourDao extends DBContext {
                 sql = "SELECT pricePerDay AS price FROM IslandVehicles WHERE vehicleId = ?";
                 break;
             case "Chuyến bay":
-                sql = "SELECT price FROM Flights WHERE flightId = ?";
+                sql = "SELECT basePrice  AS price FROM Flights WHERE flightId = ?";
                 break;
             case "Địa điểm nổi bật":
                 sql = "SELECT ticketPrice AS price FROM Places WHERE placeId = ?";
@@ -441,5 +441,25 @@ public class TourDao extends DBContext {
         } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy tên dịch vụ, serviceType=" + detail.getServiceType(), e);
         }
+    }
+    
+    public static void main(String[] args) {
+          try {
+   
+
+        // Tạo DAO
+       TourDao tDao = new  TourDao();
+
+        // Test service type "Chuyến bay" và flightId = 1 (thay ID có thật trong DB)
+        int flightId = 1;
+        String serviceType = "Chuyến bay";
+
+        int price = tDao.getServicePrice(serviceType, flightId);
+
+        System.out.println("Giá chuyến bay ID " + flightId + " = " + price);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
     }
 }

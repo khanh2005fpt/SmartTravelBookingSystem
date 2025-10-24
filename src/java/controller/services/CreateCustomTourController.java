@@ -89,6 +89,7 @@ public class CreateCustomTourController extends HttpServlet {
             // Lấy dữ liệu từ form
             String islandIdStr = request.getParameter("islandId");
             String hotelIdStr = request.getParameter("selectedHotelId");
+            String flightIdStr = request.getParameter("selectedFlightId");
             String vehicleIdStr = request.getParameter("selectedVehicleId"); // tùy chọn
             String selectedPlaces = request.getParameter("selectedPlaceId");
             String startDateStr = request.getParameter("startDate");
@@ -100,13 +101,20 @@ public class CreateCustomTourController extends HttpServlet {
                 throw new ServletException("Thiếu tham số yêu cầu để tạo tour.");
             }
             if (hotelIdStr == null || hotelIdStr.isEmpty()) {
-                request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn khách sạn.");
+                request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
                 response.sendRedirect("IslandDetailController?detailId=" + id);
                 return;
             }
+            if (flightIdStr == null ||flightIdStr.isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
+                response.sendRedirect("IslandDetailController?detailId=" + id);
+                return;
+            }
+            
 
             int islandId = Integer.parseInt(islandIdStr);
             int hotelId = Integer.parseInt(hotelIdStr);
+            int flightId = Integer.parseInt(flightIdStr);
 
             // Vehicle tùy chọn
             Integer vehicleId = null;
@@ -150,6 +158,7 @@ public class CreateCustomTourController extends HttpServlet {
             }
             // Lấy giá dịch vụ
             int hotelPrice = dao.getServicePrice("Khách sạn", hotelId);
+            int ticketFlightPrice = dao.getServicePrice("Chuyến bay", flightId );
             int vehiclePrice = 0;
             if (vehicleId != null) {
                 vehiclePrice = dao.getServicePrice("Phương tiện", vehicleId);
@@ -173,6 +182,7 @@ public class CreateCustomTourController extends HttpServlet {
 
             // Lưu chi tiết dịch vụ
             dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Khách sạn", hotelId, hotelPrice));
+            dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Chuyến bay", flightId, ticketFlightPrice));
             if (vehicleId != null) {
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Phương tiện", vehicleId, vehiclePrice));
             }

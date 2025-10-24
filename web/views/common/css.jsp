@@ -16,7 +16,7 @@
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <!-- Local CSS -->
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/animate.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/owl.carousel.min.css">
@@ -26,17 +26,8 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/jquery.timepicker.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/flaticon.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style1.css">
 
 
 
-<!-- Remote js -->
-
-<!-- jQuery (phải load trước) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Popper.js (cần cho modal, dropdown, tooltip) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-
-<!-- Bootstrap 4 JS -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/profile.css">

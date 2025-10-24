@@ -11,6 +11,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.CallableStatement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import model.Token;
 import utils.DBContext;
 
@@ -18,9 +21,9 @@ import utils.DBContext;
  *
  * @author nqagh
  */
-public class userDao extends DBContext {
+public class UserDao extends DBContext {
 
-    public static userDao INSTANCE = new userDao();
+    public static UserDao INSTANCE = new UserDao();
 
     public String status;
 
@@ -74,9 +77,12 @@ public class userDao extends DBContext {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 User user = new User();
-                user.setFullName(rs.getString("fullName"));
+                user.setUserId(rs.getInt("userId"));
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password")); // lấy hash từ DB
+                user.setFullName(rs.getString("fullName")); 
+                user.setEmail(rs.getString("email"));
+                user.setPhone(rs.getString("phone"));
                 user.setStatus(rs.getString("status"));
 
                 String storedPassword = user.getPassword();
@@ -348,15 +354,128 @@ public class userDao extends DBContext {
         }
     }
 
-    public static void main(String[] args) {
-        userDao dao = new userDao();
-        String email = "nqaghuyyy6969@gmail.com";
-        User existing = dao.getUserByEmail(email);
-        if (existing != null) {
-            System.out.println("ton tai email login thanh cong");
-        } else {
-            System.out.println(" email chưa ton tai co the dky");
+    public String getFormatDate(LocalDateTime myDateObj) {
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = myDateObj.format(myFormatObj);
+        return formattedDate;
+    }
+
+      // luu token moi
+    public boolean insertToken(Token tokenForget) {
+
+        try {
+            String sqlToken = "INSERT INTO Tokens (UserId, TokenValue, ExpiryDate, IsUsed , OtpCode , AttemptCount) VALUES (?, ?, ?, ? , ? , ?)";
+            try (PreparedStatement ps = connection.prepareStatement(sqlToken)) {
+                ps.setInt(1, tokenForget.getUserId());
+                ps.setString(2, tokenForget.getTokenValue());
+                ps.setTimestamp(3, Timestamp.valueOf(tokenForget.getExpiryDate()));
+                ps.setBoolean(4, tokenForget.isIsUsed());
+                ps.setString(5,tokenForget.getOtpCode());
+                ps.setInt(6, tokenForget.getAttemptCount());
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            String errorMessage = "Lỗi khi luu token: " + e.getMessage();
+        }
+        return false;
+    }
+    
+     // check validToken
+public Token checkValidToken(String tokenValue) {
+    Token token = getTokenByValue(tokenValue);
+
+    if (token == null) {
+        return null; 
+    }
+    if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+        return null;
+    }
+    if (token.isIsUsed()) {
+        return null;
+    }
+
+    return token; // token hợp lệ
+}
+
+
+ // danh dau token da su dung
+    public void markTokenAsUsed(String tokenValue) {
+
+        try {
+            String sqlMark = "UPDATE Tokens SET IsUsed = 1 WHERE TokenValue=?";
+            try (PreparedStatement ps = connection.prepareStatement(sqlMark)) {
+                ps.setString(1, tokenValue);
+                ps.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            String errorMessage = "Lỗi khi danh dau token: " + e.getMessage();
         }
     }
+
+ // xoa token het han 
+    public void deleteExpiredTokens() {
+
+        try {
+            String sql = "DELETE FROM Tokens WHERE ExpiryDate < GetDate() OR IsUsed=1";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String errorMessage = "Lỗi khi xoa token: " + e.getMessage();
+        }
+
+    }
+    
+     // get token 
+
+    public Token getTokenByValue(String tokenValue) {
+        try {
+            String sql = "SELECT * FROM Tokens WHERE TokenValue =? ";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, tokenValue);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    return new Token(
+                            rs.getInt("TokenId"),
+                            rs.getInt("UserId"),
+                            rs.getString("TokenValue"),
+                            rs.getTimestamp("ExpiryDate").toLocalDateTime(),
+                            rs.getBoolean("IsUsed"),
+                            rs.getString("OtpCode"),
+                            rs.getInt("AttemptCount")
+                    );
+                    
+
+                    
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+    
+     // update otpcode va attempt cout
+    
+      public void updateOtpAndAttempt(int tokenId , String OtpCode , int AttemptCount){
+            try{
+                String sqlOtp ="UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
+                try(PreparedStatement ps = connection.prepareStatement(sqlOtp)){
+                     ps.setString(1, OtpCode); 
+              
+                     ps.setInt(2, AttemptCount);
+                     ps.setInt(3, tokenId);
+                     
+                     ps.executeUpdate();
+                }
+                
+            }catch(SQLException e){
+                e.printStackTrace();
+                System.out.println(e);
+            }
+      }
 
 }

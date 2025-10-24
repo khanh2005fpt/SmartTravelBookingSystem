@@ -1,10 +1,18 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.User" %>
+<%@ page import="model.CustomerProfile" %>
 
 <!-- lay thong tin user tu session  -->
 <%
     User user = (User)session.getAttribute("user");
 %>
+
+<!-- lay thong tin customer_profile tu session  -->
+  <%
+                           CustomerProfile profile_customer = (CustomerProfile)session.getAttribute("profile_customer");
+                           
+                            
+        %>
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/SearchIslandController">Meland<span>Công ty Du lịch</span></a>
@@ -46,7 +54,7 @@
                         // Chưa đăng nhập → Hiện nút login/register
                 %>
                 <li class="nav-item ml-lg-5 ml-5 " ">
-                    <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="btn btn-login1"> 
+                    <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="btn btn-login1"> 
 
                         Đăng nhập</a>
 
@@ -57,7 +65,7 @@
 
 
                 <li class="nav-item ml-lg-3">
-                    <a href="${pageContext.request.contextPath}/views/home/register.jsp" class="btn btn-register1 "   >Đăng ký</a>
+                    <a href="${pageContext.request.contextPath}/views/account/register.jsp" class="btn btn-register1 "   >Đăng ký</a>
                 </li> 
 
 
@@ -77,18 +85,23 @@
                        style="background: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: #0077b6;">
 
                         <i class="bi bi-person-circle mr-2" style="font-size: 20px;"></i>
-                         <span><%= user != null ? user.getFullName() : "Khách" %> | 0 Điểm</span>
+                        <span lang="vi"><%= user != null ? user.getFullName() : "Khách" %> | ${sessionScope.profile_customer.loyaltyPoints} Điểm</span>
                     </a>
 
                     <!-- Menu xổ xuống -->
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
-                        <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
-                        <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=account#"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
+                            <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=member-priority#"><i class="bi bi-award"></i> Membership Level</a>
+                                <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=historyBooking#"><i class="bi bi-calendar2-check"></i>Lịch sử đặt chỗ của tôi</a>
+                                  <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=notifications#"><i class="bi bi-bell mr-2"></i> Thông báo</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=favorites#"><i class="bi bi-heart-fill"></i>Tours and Services</a>
+                    
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
                             <i class="bi bi-box-arrow-right mr-2"></i> Đăng xuất
-                        </a>    </div>
+                        </a>   
+                    </div>
                 </li>
 
                 <%
@@ -141,7 +154,6 @@
         text-align: center;
     }
 
-
     .logout-header {
         font-size: 1.5rem;
         font-weight: 800;
@@ -169,7 +181,6 @@
         background: #1976d2;
         color: #fff !important;
     }
-
 
     .btn-logout {
         background: #1976d2;

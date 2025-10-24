@@ -20,7 +20,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 
     .profile-container {
       display: flex;
-      flex-wrap: wrap; /* 👉 Cho phép xuống hàng khi hẹp */
+      flex-wrap: wrap; /* Cho phép xuống hàng khi hẹp */
       gap: 25px;
       max-width: 1200px;
       width: 100%;
@@ -29,7 +29,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 
     /* ============= SIDEBAR ============= */
     .profile-sidebar {
-      flex: 0 0 270px; /* chiếm 270px, nhưng vẫn co trên màn nhỏ */
+      flex: 0 0 270px; 
       background: #fff;
       border-radius: 14px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
@@ -37,7 +37,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
       display: flex;
       flex-direction: column;
       gap: 14px;
-      min-width: 220px;
+   
     }
 
     .profile-header {
@@ -49,11 +49,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     }
 
     .profile-avatar {
-      width: 55px;
-      height: 55px;
+     width: 150px;
+     height: 150px;
       border-radius: 50%;
       background: #f2f2f2;
+      
+     
       object-fit: cover;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     .profile-info h4 {
@@ -134,7 +137,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 
     /* ============= ACCOUNT CONTENT ============= */
     .account-container {
-      flex: 1; /* 👉 Tự co giãn chiếm phần còn lại */
+      flex: 1; /* Tự co giãn chiếm phần còn lại */
       background: #fff;
       border-radius: 14px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
@@ -437,4 +440,341 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
   padding: 10px;
   border: none;
   outline: none;
+}
+
+
+/* ========================Logout modal profile================================================= */ 
+ .logout-box {
+        width: 380px;
+        max-width: 100%;
+        border-radius: 12px;
+        margin: auto;
+        background: #fff;
+        border: none;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+
+
+    .logout-header {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1976d2; /* xanh dương */
+    }
+
+    .logout-body h5 {
+        font-size: 1rem;
+        font-weight: normal;
+        color: #000;
+    }
+
+  
+    .btn-cancel {
+        background: #fff;
+        color: #1976d2;
+        font-weight: 600;
+        padding: 8px 20px;
+        border: 2px solid #1976d2;
+        border-radius: 6px;
+        transition: 0.25s;
+    }
+
+    .btn-cancel:hover {
+        background: #1976d2;
+        color: #fff !important;
+    }
+
+
+    .btn-logout {
+        background: #1976d2;
+        color: #fff;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 6px;
+        border: none;
+        transition: 0.25s;
+    }
+
+    .btn-logout:hover {
+        background: #0d47a1;
+        color: #fff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(25,118,210,0.3);
+
+    }
+
+    /* Nền ngoài modal sáng hơn */
+    .modal-backdrop.show {
+        opacity: 0.3 !important;
+    }
+
+    
+    
+
+/* Dropdown tổng thể */
+.dropdown-menu {
+  min-width: 300px;
+  border-radius: 10px;
+  padding: 6px 0;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /*  tránh lòi màu hover ra ngoài */
+}
+
+/* Các item trong menu */
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent; /* reset mặc định */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin-left: 15px;
+}
+
+/* Khi hover */
+.dropdown-item:hover {
+  background-color: #eaf6ff !important; /* nền xanh nhẹ */
+  color: #0077b6 !important;
+}
+
+
+.dropdown-item i {
+  font-size: 18px;
+  color: #0077b6;
+}
+
+
+.dropdown-item:hover i {
+  color: #0077b6;
+}
+
+/* ========================Avatar Customer================================================= */ 
+.profile-sidebar-avatar {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    width: 260px;
+    margin: 0 auto;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.avatar-wrapper:hover .profile-avatar {
+    transform: scale(1.05);
+}
+
+/* Overlay khi hover */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    opacity: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 185px; /* chỉnh kích thước avatar */
+    height: 190px;
+    border-radius: 50%;
+    overflow: hidden; /* để overlay không tràn ra ngoài */
+}
+
+.avatar-wrapper:hover .overlay {
+    opacity: 1;
+}
+
+.change-photo {
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 10px;
+    border-radius: 10px;
+    transition: background 0.3s;
+}
+
+.change-photo:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+
+.btn-upload:hover {
+    background-color: #e64a19;
+    transform: translateY(-2px);
+}
+
+/* Text info */
+.profile-info h5 {
+    font-size: 16px;
+    margin-top: 8px;
+}
+
+.profile-info p {
+    font-size: 14px;
+    color: #888;
+}
+
+/* ========================Membership Customer================================================= */ 
+
+
+.membership-container{
+      flex: 1; /* Tự co giãn chiếm phần còn lại */
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 20px 30px;
+      min-width: 300px;
+}
+.tab-header-membership img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 300px;
+     width: 100%;
+    object-fit: cover;
+}
+.tab-header-card {
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 23px;
+      gap: 20px;
+  
+      
+    }
+
+    
+  .membership-info {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.membership-info h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ff8c00; /* màu cam nhạt */
+  margin-bottom: 2rem;
+}
+
+/* Card cấp độ */
+.membership-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 30px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.membership-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Tên cấp độ */
+.membership-card h5 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+/* Biểu tượng */
+.membership-card .level-icon {
+  font-size: 1.5rem;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+/* Mô tả cấp độ */
+.membership-card p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Danh sách ưu đãi */
+.membership-card ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+  text-align: left;
+}
+
+.membership-card ul li {
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+/* Màu sắc từng cấp */
+.bronze h5 { color: #b87333; }     /* đồng */
+.silver h5 { color: #a9a9a9; }     /* bạc */
+.gold h5 { color: #d4af37; }       /* vàng */
+.platinum h5 { color: #1e90ff; }   /* xanh ánh kim */
+
+/* Responsive */
+@media (max-width: 768px) {
+  .membership-card {
+    margin-bottom: 20px;
+  }
+}
+
+/* ========================Notifications Customer================================================= */ 
+
+.notifications-container{
+      flex: 1; 
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 20px 30px;
+      min-width: 300px;
+}
+.tab-header-notifications img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 300px;
+     width: 100%;
+    object-fit: cover;
+}
+
+
+.bg-warning-subtle {
+  background-color: #fff6e5 !important;
+}
+
+#notifications section::-webkit-scrollbar {
+    width: 6px;
+}
+
+#notifications section::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+#notifications section::-webkit-scrollbar-track {
+    background-color: transparent;
 }
