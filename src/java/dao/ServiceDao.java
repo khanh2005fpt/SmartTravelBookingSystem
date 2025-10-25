@@ -164,7 +164,7 @@ public class ServiceDao extends DBContext{
         return list;
     }
 
-    
+
     //Tinh tong so khach san
     public int getTotalIslands() throws SQLException{
         int total = 0;
@@ -185,7 +185,7 @@ public class ServiceDao extends DBContext{
         List<Place> list = new ArrayList<>();
         String sql = "select * from places a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)){
-            ps.setInt(1, id); 
+            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { // lấy nhiều địa điểm
                  Place place = new Place(
@@ -202,9 +202,9 @@ public class ServiceDao extends DBContext{
         } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy danh sách địa điểm nổi tiếng cho đảo có islandId = " + id, e);
         }
-        return list; 
+        return list;
     }
-     
+
 //     public static void main(String[] args) {
 //        ServiceDao sd = new ServiceDao();
 //        List<Place> place;
@@ -214,9 +214,116 @@ public class ServiceDao extends DBContext{
 //        } catch (SQLException ex) {
 //            Logger.getLogger(ServiceDao.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-//       
+//
 //    }
-    // la danh sach ve may bay dua theo diem den 
+    // ==================== HOTEL CRUD OPERATIONS ====================
+
+    // CREATE - Them khach san moi
+    public boolean createHotel(Hotel hotel) {
+        String sql = "INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl, area) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, hotel.getIslandId());
+            ps.setString(2, hotel.getHotelName());
+            ps.setString(3, hotel.getRoomType());
+            ps.setInt(4, hotel.getPricePerNight());
+            ps.setInt(5, hotel.getRoomAvailable());
+            ps.setDouble(6, hotel.getRating());
+            ps.setString(7, hotel.getHotelImageUrl());
+            ps.setInt(8, 50); // Default area value
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // READ - Lay khach san theo ID
+    public Hotel getHotelById(int hotelId) {
+        String sql = "SELECT h.*, i.islandName, c.countryName FROM Hotels h " +
+                    "JOIN Islands i ON h.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE h.hotelId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, hotelId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Hotel hotel = new Hotel();
+                hotel.setHotelId(rs.getInt("hotelId"));
+                hotel.setIslandId(rs.getInt("islandId"));
+                hotel.setHotelName(rs.getString("hotelName"));
+                hotel.setCountryName(rs.getString("countryName"));
+                hotel.setHotelImageUrl(rs.getString("hotelImageUrl"));
+                hotel.setRoomType(rs.getString("roomType"));
+                hotel.setPricePerNight(rs.getInt("pricePerNight"));
+                hotel.setRoomAvailable(rs.getInt("roomsAvailable"));
+                hotel.setRating(rs.getDouble("rating"));
+                return hotel;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // UPDATE - Cap nhat thong tin khach san
+    public boolean updateHotel(Hotel hotel) {
+        String sql = "UPDATE Hotels SET islandId = ?, hotelName = ?, roomType = ?, pricePerNight = ?, roomsAvailable = ?, rating = ?, hotelImageUrl = ? WHERE hotelId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, hotel.getIslandId());
+            ps.setString(2, hotel.getHotelName());
+            ps.setString(3, hotel.getRoomType());
+            ps.setInt(4, hotel.getPricePerNight());
+            ps.setInt(5, hotel.getRoomAvailable());
+            ps.setDouble(6, hotel.getRating());
+            ps.setString(7, hotel.getHotelImageUrl());
+            ps.setInt(8, hotel.getHotelId());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // DELETE - Xoa khach san
+    public boolean deleteHotel(int hotelId) {
+        String sql = "DELETE FROM Hotels WHERE hotelId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, hotelId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Cap nhat so phong con trong
+    public boolean updateHotelAvailability(int hotelId, int newAvailability) {
+        String sql = "UPDATE Hotels SET roomsAvailable = ? WHERE hotelId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, newAvailability);
+            ps.setInt(2, hotelId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // la danh sach ve may bay dua theo diem den
    public List<Flight> getFlightsByIslandId(int islandId) {
     List<Flight> list = new ArrayList<>();
     String sql = "SELECT * FROM Flights WHERE destinationIslandId = ?";
@@ -267,12 +374,9 @@ public class ServiceDao extends DBContext{
         e.printStackTrace();
     }
     return list;
-}
-   
+    }
 
-   
  // la danh sach ve may bay dua theo diem den  logo , maCode
-
    public List<FlightSchedule> getFlightSchedules(int islandId, String flightType) throws Exception {
     List<FlightSchedule> list = new ArrayList<>();
     
@@ -485,7 +589,7 @@ public class ServiceDao extends DBContext{
         throw e;
     }
     return list;
-}
+    }
    
    
 
@@ -510,9 +614,933 @@ public class ServiceDao extends DBContext{
       }catch(Exception e){
           System.out.println(e);
       }
-       
-       
     }
+
+    // ==================== FLIGHT CRUD OPERATIONS ====================
+
+    // CREATE - Them chuyen bay moi
+    public boolean createFlight(Flight flight) {
+        String sql = "INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, " +
+                    "departureTime, arrivalTime, returnDepartureTime, returnArrivalTime, basePrice, ticketAvailable, " +
+                    "flightType, flightClass, destinationImageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, flight.getFlightNumber());
+            ps.setInt(2, flight.getAirline().getAirlineId());
+            ps.setString(3, flight.getDeparture());
+            ps.setString(4, flight.getDestination());
+
+            if (flight.getDestinationIsland() != null) {
+                ps.setInt(5, flight.getDestinationIsland().getIslandId());
+            } else {
+                ps.setNull(5, java.sql.Types.INTEGER);
+            }
+
+            if (flight.getDepartureTime() != null) {
+                ps.setTime(6, Time.valueOf(flight.getDepartureTime()));
+            } else {
+                ps.setNull(6, java.sql.Types.TIME);
+            }
+
+            if (flight.getArrivalTime() != null) {
+                ps.setTime(7, Time.valueOf(flight.getArrivalTime()));
+            } else {
+                ps.setNull(7, java.sql.Types.TIME);
+            }
+
+            if (flight.getReturnDepartureTime() != null) {
+                ps.setTime(8, Time.valueOf(flight.getReturnDepartureTime()));
+            } else {
+                ps.setNull(8, java.sql.Types.TIME);
+            }
+
+            if (flight.getReturnArrivalTime() != null) {
+                ps.setTime(9, Time.valueOf(flight.getReturnArrivalTime()));
+            } else {
+                ps.setNull(9, java.sql.Types.TIME);
+            }
+
+            ps.setInt(10, flight.getBasePrice());
+            ps.setInt(11, flight.getTicketAvailable());
+            ps.setString(12, flight.getFlightType());
+            ps.setString(13, flight.getFlightClass());
+            ps.setString(14, flight.getDestinationImageUrl());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
+    // READ - Lay chuyen bay theo ID
+    public Flight getFlightById(int flightId) {
+        String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, i.islandName " +
+                    "FROM Flights f " +
+                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
+                    "LEFT JOIN Islands i ON f.destinationIslandId = i.islandId " +
+                    "WHERE f.flightId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, flightId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+                flight.setBasePrice(rs.getInt("basePrice"));
+                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                // Set times
+                Time depTime = rs.getTime("departureTime");
+                flight.setDepartureTime(depTime != null ? depTime.toLocalTime() : null);
+                Time arrTime = rs.getTime("arrivalTime");
+                flight.setArrivalTime(arrTime != null ? arrTime.toLocalTime() : null);
+                Time retDepTime = rs.getTime("returnDepartureTime");
+                flight.setReturnDepartureTime(retDepTime != null ? retDepTime.toLocalTime() : null);
+                Time retArrTime = rs.getTime("returnArrivalTime");
+                flight.setReturnArrivalTime(retArrTime != null ? retArrTime.toLocalTime() : null);
+
+                // Set airline
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+                flight.setAirline(airline);
+
+                // Set destination island if exists
+                if (rs.getInt("destinationIslandId") != 0) {
+                    Island island = new Island();
+                    island.setIslandId(rs.getInt("destinationIslandId"));
+                    island.setIslandName(rs.getString("islandName"));
+                    flight.setDestinationIsland(island);
+                }
+
+                return flight;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // UPDATE - Cap nhat thong tin chuyen bay
+    public boolean updateFlight(Flight flight) {
+        String sql = "UPDATE Flights SET flightNumber = ?, airlineId = ?, departure = ?, destination = ?, " +
+                    "destinationIslandId = ?, departureTime = ?, arrivalTime = ?, returnDepartureTime = ?, " +
+                    "returnArrivalTime = ?, basePrice = ?, ticketAvailable = ?, flightType = ?, flightClass = ?, " +
+                    "destinationImageUrl = ? WHERE flightId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, flight.getFlightNumber());
+            ps.setInt(2, flight.getAirline().getAirlineId());
+            ps.setString(3, flight.getDeparture());
+            ps.setString(4, flight.getDestination());
+
+            if (flight.getDestinationIsland() != null) {
+                ps.setInt(5, flight.getDestinationIsland().getIslandId());
+            } else {
+                ps.setNull(5, java.sql.Types.INTEGER);
+            }
+
+            if (flight.getDepartureTime() != null) {
+                ps.setTime(6, Time.valueOf(flight.getDepartureTime()));
+            } else {
+                ps.setNull(6, java.sql.Types.TIME);
+            }
+
+            if (flight.getArrivalTime() != null) {
+                ps.setTime(7, Time.valueOf(flight.getArrivalTime()));
+            } else {
+                ps.setNull(7, java.sql.Types.TIME);
+            }
+
+            if (flight.getReturnDepartureTime() != null) {
+                ps.setTime(8, Time.valueOf(flight.getReturnDepartureTime()));
+            } else {
+                ps.setNull(8, java.sql.Types.TIME);
+            }
+
+            if (flight.getReturnArrivalTime() != null) {
+                ps.setTime(9, Time.valueOf(flight.getReturnArrivalTime()));
+            } else {
+                ps.setNull(9, java.sql.Types.TIME);
+            }
+
+            ps.setInt(10, flight.getBasePrice());
+            ps.setInt(11, flight.getTicketAvailable());
+            ps.setString(12, flight.getFlightType());
+            ps.setString(13, flight.getFlightClass());
+            ps.setString(14, flight.getDestinationImageUrl());
+            ps.setInt(15, flight.getFlightId());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // DELETE - Xoa chuyen bay
+    public boolean deleteFlight(int flightId) {
+        String sql = "DELETE FROM Flights WHERE flightId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, flightId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Cap nhat so ve con lai
+    public boolean updateFlightAvailability(int flightId, int newAvailability) {
+        String sql = "UPDATE Flights SET ticketAvailable = ? WHERE flightId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, newAvailability);
+            ps.setInt(2, flightId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Lay tat ca chuyen bay
+    public List<Flight> getAllFlights() {
+        List<Flight> list = new ArrayList<>();
+        String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, i.islandName " +
+                    "FROM Flights f " +
+                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
+                    "LEFT JOIN Islands i ON f.destinationIslandId = i.islandId " +
+                    "ORDER BY f.flightId";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+                flight.setBasePrice(rs.getInt("basePrice"));
+                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                // Set times
+                Time depTime = rs.getTime("departureTime");
+                flight.setDepartureTime(depTime != null ? depTime.toLocalTime() : null);
+                Time arrTime = rs.getTime("arrivalTime");
+                flight.setArrivalTime(arrTime != null ? arrTime.toLocalTime() : null);
+                Time retDepTime = rs.getTime("returnDepartureTime");
+                flight.setReturnDepartureTime(retDepTime != null ? retDepTime.toLocalTime() : null);
+                Time retArrTime = rs.getTime("returnArrivalTime");
+                flight.setReturnArrivalTime(retArrTime != null ? retArrTime.toLocalTime() : null);
+
+                // Set airline
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+                flight.setAirline(airline);
+
+                // Set destination island if exists
+                if (rs.getInt("destinationIslandId") != 0) {
+                    Island island = new Island();
+                    island.setIslandId(rs.getInt("destinationIslandId"));
+                    island.setIslandName(rs.getString("islandName"));
+                    flight.setDestinationIsland(island);
+                }
+
+                list.add(flight);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ==================== AIRLINES CRUD OPERATIONS ====================
+
+    // CREATE - Them hang hang khong moi
+    public boolean createAirline(Airlines airline) {
+        String sql = "INSERT INTO Airlines (airlineName, iataCode, countryId, hotline, logoUrl) VALUES (?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, airline.getAirlineName());
+            ps.setString(2, airline.getIataCode());
+            ps.setInt(3, airline.getCountryId());
+            ps.setString(4, airline.getHotline());
+            ps.setString(5, airline.getLogoUrl());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // READ - Lay hang hang khong theo ID
+    public Airlines getAirlineById(int airlineId) {
+        String sql = "SELECT * FROM Airlines WHERE airlineId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, airlineId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setCountryId(rs.getInt("countryId"));
+                airline.setHotline(rs.getString("hotline"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+
+                return airline;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // UPDATE - Cap nhat thong tin hang hang khong
+    public boolean updateAirline(Airlines airline) {
+        String sql = "UPDATE Airlines SET airlineName = ?, iataCode = ?, countryId = ?, hotline = ?, logoUrl = ? " +
+                    "WHERE airlineId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, airline.getAirlineName());
+            ps.setString(2, airline.getIataCode());
+            ps.setInt(3, airline.getCountryId());
+            ps.setString(4, airline.getHotline());
+            ps.setString(5, airline.getLogoUrl());
+            ps.setInt(6, airline.getAirlineId());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // DELETE - Xoa hang hang khong
+    public boolean deleteAirline(int airlineId) {
+        String sql = "DELETE FROM Airlines WHERE airlineId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, airlineId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Lay tat ca hang hang khong
+    public List<Airlines> getAllAirlines() {
+        List<Airlines> list = new ArrayList<>();
+        String sql = "SELECT * FROM Airlines ORDER BY airlineName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setCountryId(rs.getInt("countryId"));
+                airline.setHotline(rs.getString("hotline"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+
+                list.add(airline);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Tim kiem hang hang khong theo ten hoac ma IATA
+    public List<Airlines> searchAirlines(String keyword) {
+        List<Airlines> list = new ArrayList<>();
+        String sql = "SELECT * FROM Airlines WHERE airlineName LIKE ? OR iataCode LIKE ? " +
+                    "ORDER BY airlineName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setCountryId(rs.getInt("countryId"));
+                airline.setHotline(rs.getString("hotline"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+
+                list.add(airline);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
+
+    // CREATE - Them phuong tien moi
+    public boolean createIslandVehicle(IslandVehicle vehicle) {
+        String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, vehicle.getIslandId());
+            ps.setString(2, vehicle.getVehicleType());
+            ps.setString(3, vehicle.getModelName());
+            ps.setDouble(4, vehicle.getPricePerDay());
+            ps.setInt(5, vehicle.getCapacity());
+            ps.setInt(6, vehicle.getAvailability());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // READ - Lay phuong tien theo ID
+    public IslandVehicle getIslandVehicleById(int vehicleId) {
+        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv " +
+                    "JOIN Islands i ON iv.islandId = i.islandId " +
+                    "WHERE iv.vehicleId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, vehicleId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                IslandVehicle vehicle = new IslandVehicle();
+                vehicle.setVehicleId(rs.getInt("vehicleId"));
+                vehicle.setIslandId(rs.getInt("islandId"));
+                vehicle.setVehicleType(rs.getString("vehicleType"));
+                vehicle.setModelName(rs.getString("modelName"));
+                vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
+                vehicle.setCapacity(rs.getInt("capacity"));
+                vehicle.setAvailability(rs.getInt("availability"));
+                
+                // Set island name from JOIN
+                vehicle.setIslandName(rs.getString("islandName"));
+                
+                // Set default values for properties not in database
+                vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
+                vehicle.setBrand(""); // Default empty brand
+                vehicle.setModel(rs.getString("modelName")); // Use modelName as model
+                vehicle.setContactInfo(""); // Default empty contact info
+                vehicle.setLocation(""); // Default empty location
+                vehicle.setDescription(""); // Default empty description
+                vehicle.setVehicleImageUrl(""); // Default empty image URL
+
+                return vehicle;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // UPDATE - Cap nhat thong tin phuong tien
+    public boolean updateIslandVehicle(IslandVehicle vehicle) {
+        String sql = "UPDATE IslandVehicles SET islandId = ?, vehicleType = ?, modelName = ?, " +
+                    "pricePerDay = ?, capacity = ?, availability = ? WHERE vehicleId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, vehicle.getIslandId());
+            ps.setString(2, vehicle.getVehicleType());
+            ps.setString(3, vehicle.getModelName());
+            ps.setDouble(4, vehicle.getPricePerDay());
+            ps.setInt(5, vehicle.getCapacity());
+            ps.setInt(6, vehicle.getAvailability());
+            ps.setInt(7, vehicle.getVehicleId());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // DELETE - Xoa phuong tien
+    public boolean deleteIslandVehicle(int vehicleId) {
+        String sql = "DELETE FROM IslandVehicles WHERE vehicleId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, vehicleId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Cap nhat tinh trang phuong tien
+    public boolean updateVehicleAvailability(int vehicleId, int newAvailability) {
+        String sql = "UPDATE IslandVehicles SET availability = ? WHERE vehicleId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, newAvailability);
+            ps.setInt(2, vehicleId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Lay tat ca phuong tien
+    public List<IslandVehicle> getAllIslandVehicles() {
+        List<IslandVehicle> list = new ArrayList<>();
+        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv " +
+                    "JOIN Islands i ON iv.islandId = i.islandId " +
+                    "ORDER BY iv.vehicleId";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                IslandVehicle vehicle = new IslandVehicle();
+                vehicle.setVehicleId(rs.getInt("vehicleId"));
+                vehicle.setIslandId(rs.getInt("islandId"));
+                vehicle.setVehicleType(rs.getString("vehicleType"));
+                vehicle.setModelName(rs.getString("modelName"));
+                vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
+                vehicle.setCapacity(rs.getInt("capacity"));
+                vehicle.setAvailability(rs.getInt("availability"));
+                
+                // Set island name from JOIN
+                vehicle.setIslandName(rs.getString("islandName"));
+                
+                // Set default values for properties not in database
+                vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
+                vehicle.setBrand(""); // Default empty brand
+                vehicle.setModel(rs.getString("modelName")); // Use modelName as model
+                vehicle.setContactInfo(""); // Default empty contact info
+                vehicle.setLocation(""); // Default empty location
+                vehicle.setDescription(""); // Default empty description
+                vehicle.setVehicleImageUrl(""); // Default empty image URL
+
+                list.add(vehicle);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Tim kiem phuong tien theo loai hoac model
+    public List<IslandVehicle> searchIslandVehicles(String keyword) {
+        List<IslandVehicle> list = new ArrayList<>();
+        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv " +
+                    "JOIN Islands i ON iv.islandId = i.islandId " +
+                    "WHERE iv.vehicleType LIKE ? OR iv.modelName LIKE ? " +
+                    "ORDER BY iv.vehicleId";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                IslandVehicle vehicle = new IslandVehicle();
+                vehicle.setVehicleId(rs.getInt("vehicleId"));
+                vehicle.setIslandId(rs.getInt("islandId"));
+                vehicle.setVehicleType(rs.getString("vehicleType"));
+                vehicle.setModelName(rs.getString("modelName"));
+                vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
+                vehicle.setCapacity(rs.getInt("capacity"));
+                vehicle.setAvailability(rs.getInt("availability"));
+                
+                // Set island name from JOIN
+                vehicle.setIslandName(rs.getString("islandName"));
+                
+                // Set default values for properties not in database
+                vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
+                vehicle.setBrand(""); // Default empty brand
+                vehicle.setModel(rs.getString("modelName")); // Use modelName as model
+                vehicle.setContactInfo(""); // Default empty contact info
+                vehicle.setLocation(""); // Default empty location
+                vehicle.setDescription(""); // Default empty description
+                vehicle.setVehicleImageUrl(""); // Default empty image URL
+
+                list.add(vehicle);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ==================== FLIGHT SCHEDULE CRUD OPERATIONS ====================
+
+    // CREATE - Them lich bay moi
+    public boolean createFlightSchedule(FlightSchedule schedule) {
+        String sql = "INSERT INTO FlightSchedules (flightId, planeModel, departureAirport, arrivalAirport, " +
+                    "transitAirport, transitDuration, seatCapacity, cabinBaggage, seatPitch, notes) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, schedule.getFlight().getFlightId());
+            ps.setString(2, schedule.getPlaneModel());
+            ps.setString(3, schedule.getDepartureAirport());
+            ps.setString(4, schedule.getArrivalAirport());
+            ps.setString(5, schedule.getTransitAirport());
+            ps.setString(6, schedule.getTransitDuration());
+            ps.setInt(7, schedule.getSeatCapacity());
+            ps.setString(8, schedule.getCabinBaggage());
+            ps.setString(9, schedule.getSeatPitch());
+            ps.setString(10, schedule.getNotes());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // READ - Lay lich bay theo ID
+    public FlightSchedule getFlightScheduleById(int scheduleId) {
+        String sql = "SELECT fs.*, f.flightNumber, f.departure, f.destination, a.airlineName, a.iataCode, a.logoUrl " +
+                    "FROM FlightSchedules fs " +
+                    "JOIN Flights f ON fs.flightId = f.flightId " +
+                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
+                    "WHERE fs.scheduleId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, scheduleId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                FlightSchedule schedule = new FlightSchedule();
+                schedule.setScheduleId(rs.getInt("scheduleId"));
+                schedule.setPlaneModel(rs.getString("planeModel"));
+                schedule.setDepartureAirport(rs.getString("departureAirport"));
+                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                schedule.setTransitAirport(rs.getString("transitAirport"));
+                schedule.setTransitDuration(rs.getString("transitDuration"));
+                schedule.setSeatCapacity(rs.getInt("seatCapacity"));
+                schedule.setCabinBaggage(rs.getString("cabinBaggage"));
+                schedule.setSeatPitch(rs.getString("seatPitch"));
+                schedule.setNotes(rs.getString("notes"));
+
+                // Set flight information
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+
+                Airlines airline = new Airlines();
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+                flight.setAirline(airline);
+
+                schedule.setFlight(flight);
+
+                return schedule;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // UPDATE - Cap nhat thong tin lich bay
+    public boolean updateFlightSchedule(FlightSchedule schedule) {
+        String sql = "UPDATE FlightSchedules SET flightId = ?, planeModel = ?, departureAirport = ?, " +
+                    "arrivalAirport = ?, transitAirport = ?, transitDuration = ?, seatCapacity = ?, " +
+                    "cabinBaggage = ?, seatPitch = ?, notes = ? WHERE scheduleId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, schedule.getFlight().getFlightId());
+            ps.setString(2, schedule.getPlaneModel());
+            ps.setString(3, schedule.getDepartureAirport());
+            ps.setString(4, schedule.getArrivalAirport());
+            ps.setString(5, schedule.getTransitAirport());
+            ps.setString(6, schedule.getTransitDuration());
+            ps.setInt(7, schedule.getSeatCapacity());
+            ps.setString(8, schedule.getCabinBaggage());
+            ps.setString(9, schedule.getSeatPitch());
+            ps.setString(10, schedule.getNotes());
+            ps.setInt(11, schedule.getScheduleId());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // DELETE - Xoa lich bay
+    public boolean deleteFlightSchedule(int scheduleId) {
+        String sql = "DELETE FROM FlightSchedules WHERE scheduleId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, scheduleId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Lay tat ca lich bay
+    public List<FlightSchedule> getAllFlightSchedules() {
+        List<FlightSchedule> list = new ArrayList<>();
+        String sql = "SELECT fs.*, f.flightNumber, f.departure, f.destination, a.airlineName, a.iataCode, a.logoUrl " +
+                    "FROM FlightSchedules fs " +
+                    "JOIN Flights f ON fs.flightId = f.flightId " +
+                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
+                    "ORDER BY fs.scheduleId";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                FlightSchedule schedule = new FlightSchedule();
+                schedule.setScheduleId(rs.getInt("scheduleId"));
+                schedule.setPlaneModel(rs.getString("planeModel"));
+                schedule.setDepartureAirport(rs.getString("departureAirport"));
+                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                schedule.setTransitAirport(rs.getString("transitAirport"));
+                schedule.setTransitDuration(rs.getString("transitDuration"));
+                schedule.setSeatCapacity(rs.getInt("seatCapacity"));
+                schedule.setCabinBaggage(rs.getString("cabinBaggage"));
+                schedule.setSeatPitch(rs.getString("seatPitch"));
+                schedule.setNotes(rs.getString("notes"));
+
+                // Set flight information
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+
+                Airlines airline = new Airlines();
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setIataCode(rs.getString("iataCode"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+                flight.setAirline(airline);
+
+                schedule.setFlight(flight);
+                list.add(schedule);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ==================== ISLAND CRUD OPERATIONS ====================
+
+    // CREATE - Them dao moi
+    public boolean createIsland(Island island, int countryId) {
+        String sql = "INSERT INTO Islands (islandName, countryId, shortDescription, longDescription, " +
+                    "bestSeason, activities, imageUrl, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, island.getIslandName());
+            ps.setInt(2, countryId);
+            ps.setString(3, island.getShortDescription());
+            ps.setString(4, island.getLongDescription());
+            ps.setString(5, island.getBestSeason());
+            ps.setString(6, island.getActivities());
+            ps.setString(7, island.getImageUrl());
+            ps.setString(8, island.getLocation());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // READ - Lay dao theo ID
+    public Island getIslandById(int islandId) {
+        String sql = "SELECT i.*, c.countryName " +
+                    "FROM Islands i " +
+                    "LEFT JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE i.islandId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, islandId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Island island = new Island();
+                island.setIslandId(rs.getInt("islandId"));
+                island.setIslandName(rs.getString("islandName"));
+                island.setCountryName(rs.getString("countryName"));
+                island.setShortDescription(rs.getString("shortDescription"));
+                island.setLongDescription(rs.getString("longDescription"));
+                island.setBestSeason(rs.getString("bestSeason"));
+                island.setActivities(rs.getString("activities"));
+                island.setImageUrl(rs.getString("imageUrl"));
+                island.setLocation(rs.getString("location"));
+
+                return island;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // UPDATE - Cap nhat thong tin dao
+    public boolean updateIsland(Island island, int countryId) {
+        String sql = "UPDATE Islands SET islandName = ?, countryId = ?, shortDescription = ?, " +
+                    "longDescription = ?, bestSeason = ?, activities = ?, imageUrl = ?, location = ? " +
+                    "WHERE islandId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, island.getIslandName());
+            ps.setInt(2, countryId);
+            ps.setString(3, island.getShortDescription());
+            ps.setString(4, island.getLongDescription());
+            ps.setString(5, island.getBestSeason());
+            ps.setString(6, island.getActivities());
+            ps.setString(7, island.getImageUrl());
+            ps.setString(8, island.getLocation());
+            ps.setInt(9, island.getIslandId());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // DELETE - Xoa dao
+    public boolean deleteIsland(int islandId) {
+        String sql = "DELETE FROM Islands WHERE islandId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, islandId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Lay tat ca dao
+    public List<Island> getAllIslands() {
+        List<Island> list = new ArrayList<>();
+        String sql = "SELECT i.*, c.countryName " +
+                    "FROM Islands i " +
+                    "LEFT JOIN Countries c ON i.countryId = c.countryId " +
+                    "ORDER BY i.islandName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Island island = new Island();
+                island.setIslandId(rs.getInt("islandId"));
+                island.setIslandName(rs.getString("islandName"));
+                island.setCountryName(rs.getString("countryName"));
+                island.setShortDescription(rs.getString("shortDescription"));
+                island.setLongDescription(rs.getString("longDescription"));
+                island.setBestSeason(rs.getString("bestSeason"));
+                island.setActivities(rs.getString("activities"));
+                island.setImageUrl(rs.getString("imageUrl"));
+                island.setLocation(rs.getString("location"));
+
+                list.add(island);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Tim kiem dao theo ten
+    public List<Island> searchIslandsByName(String searchTerm) {
+        List<Island> list = new ArrayList<>();
+        String sql = "SELECT i.*, c.countryName " +
+                    "FROM Islands i " +
+                    "LEFT JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE i.islandName LIKE ? OR c.countryName LIKE ? " +
+                    "ORDER BY i.islandName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            String searchPattern = "%" + searchTerm + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Island island = new Island();
+                island.setIslandId(rs.getInt("islandId"));
+                island.setIslandName(rs.getString("islandName"));
+                island.setCountryName(rs.getString("countryName"));
+                island.setShortDescription(rs.getString("shortDescription"));
+                island.setLongDescription(rs.getString("longDescription"));
+                island.setBestSeason(rs.getString("bestSeason"));
+                island.setActivities(rs.getString("activities"));
+                island.setImageUrl(rs.getString("imageUrl"));
+                island.setLocation(rs.getString("location"));
+
+                list.add(island);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+}
     
 

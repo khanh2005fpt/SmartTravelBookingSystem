@@ -13,18 +13,35 @@ import java.util.Date;
 public class Booking {
     private int bookingId;
     private int customerId;
+    private int tourId;
+    private int customTourId;
+    private int price;
     private Date departureDate;
+    private Date endDate;
     private int adultQuantity;
     private int childQuantity;
     private String status;
     private Date bookingDate;
 
+    // Additional fields for display purposes
+    private String customerName;
+    private String tourName;
+    private String customTourName;
+
     public Booking() {
     }
 
-    public Booking(int customerId, Date departureDate, int adultQuantity, int childQuantity, String status) {
+    public Booking(
+//            int profileId,
+                   int customerId, int tourId, int customTourId, int price,
+                   Date departureDate, Date endDate, int adultQuantity, int childQuantity, String status) {
+        //this.profileId = profileId;
         this.customerId = customerId;
+        this.tourId = tourId;
+        this.customTourId = customTourId;
+        this.price = price;
         this.departureDate = departureDate;
+        this.endDate = endDate;
         this.adultQuantity = adultQuantity;
         this.childQuantity = childQuantity;
         this.status = status;
@@ -80,5 +97,59 @@ public class Booking {
         this.status = status;
     }
 
-    
+    public int getTourId() {
+        return tourId;
+    }
+
+    public void setTourId(int tourId) {
+        this.tourId = tourId;
+    }
+
+    public int getCustomTourId() {
+        return customTourId;
+    }
+
+    public void setCustomTourId(int customTourId) {
+        this.customTourId = customTourId;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Date getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(Date bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getTourName() {
+        return tourName;
+    }
+
+    public void setTourName(String tourName) {
+        this.tourName = tourName;
+    }
+
+    public String getCustomTourName() {
+        return customTourName;
+    }
+
+    public void setCustomTourName(String customTourName) {
+        this.customTourName = customTourName;
+    }
 }

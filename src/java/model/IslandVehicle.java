@@ -16,6 +16,16 @@ public class IslandVehicle {
     private double pricePerDay;
     private int capacity;
     private int availability;
+    
+    // Additional properties for JSP compatibility
+    private String vehicleImageUrl;
+    private String vehicleName;
+    private String brand;
+    private String model;
+    private String islandName;
+    private String contactInfo;
+    private String location;
+    private String description;
 
     public IslandVehicle() {
     }
@@ -28,6 +38,25 @@ public class IslandVehicle {
         this.pricePerDay = pricePerDay;
         this.capacity = capacity;
         this.availability = availability;
+    }
+    
+    public IslandVehicle(int vehicleId, int islandId, String vehicleType, String modelName, double pricePerDay, int capacity, int availability,
+                        String vehicleImageUrl, String vehicleName, String brand, String model, String islandName, String contactInfo, String location, String description) {
+        this.vehicleId = vehicleId;
+        this.islandId = islandId;
+        this.vehicleType = vehicleType;
+        this.modelName = modelName;
+        this.pricePerDay = pricePerDay;
+        this.capacity = capacity;
+        this.availability = availability;
+        this.vehicleImageUrl = vehicleImageUrl;
+        this.vehicleName = vehicleName;
+        this.brand = brand;
+        this.model = model;
+        this.islandName = islandName;
+        this.contactInfo = contactInfo;
+        this.location = location;
+        this.description = description;
     }
 
     public int getVehicleId() {
@@ -85,6 +114,89 @@ public class IslandVehicle {
     public void setAvailability(int availability) {
         this.availability = availability;
     }
-    
-    
+
+    public String getVehicleImageUrl() {
+        return vehicleImageUrl;
+    }
+
+    public void setVehicleImageUrl(String vehicleImageUrl) {
+        this.vehicleImageUrl = vehicleImageUrl;
+    }
+
+    public String getVehicleName() {
+        return vehicleName;
+    }
+
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getIslandName() {
+        return islandName;
+    }
+
+    public void setIslandName(String islandName) {
+        this.islandName = islandName;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public void setContactInfo(String contactInfo) {
+        this.contactInfo = contactInfo;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "IslandVehicle{" +
+                "vehicleId=" + vehicleId +
+                ", islandId=" + islandId +
+                ", vehicleType='" + vehicleType + '\'' +
+                ", modelName='" + modelName + '\'' +
+                ", pricePerDay=" + pricePerDay +
+                ", capacity=" + capacity +
+                ", availability=" + availability +
+                ", vehicleImageUrl='" + vehicleImageUrl + '\'' +
+                ", vehicleName='" + vehicleName + '\'' +
+                ", brand='" + brand + '\'' +
+                ", model='" + model + '\'' +
+                ", islandName='" + islandName + '\'' +
+                ", contactInfo='" + contactInfo + '\'' +
+                ", location='" + location + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

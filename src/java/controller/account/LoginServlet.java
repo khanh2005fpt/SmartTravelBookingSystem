@@ -94,63 +94,63 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        String code = request.getParameter("code");
-        GoogleLogin gg = new GoogleLogin();
-        String accessToken = gg.getToken(code);
-        System.out.println(accessToken);
-        GoogleAccount acc = gg.getUserInfo(accessToken);
-        System.out.println(acc);
-
-        //check tk nay da dky chua
-        User existing = userDAO.getUserByEmail(acc.getEmail());
-        if (existing != null) {
-            // user ton tai -> login
-            session.setAttribute("user", existing);
-            session.setAttribute("loginSuccess", "oke");
-            
-        // gui thong bang session den trang profile
-            CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
-            session.setAttribute("profile_customer", profile);
-
- 
-    
-            List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
-            List<EmailCustomer> emailList =customerDao.getEmailsByUserId(existing.getUserId());
-            List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(existing.getUserId());
-            
-          
-            session.setAttribute("listNotification", listNotification);
-            session.setAttribute("emailList_Current", emailList);
-            session.setAttribute("phoneList_Current", phoneList);
- 
-
-            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-            return;
-        } else {
-            // user chua co acc --> dky luon cho user
-
-            String randomPass = userDAO.generateRandomPassword(10);
-            String fullName = acc.getFamily_name() + " " + acc.getGiven_name();
-
-            String result = userDAO.AutoSignupByGoogle(acc.getEmail(), randomPass, acc.getEmail(), fullName, null);
-
-            if (result.startsWith("Success")) {
-                // sau khi add thi check user de login
-                User newUser = userDAO.getUserByEmail(acc.getEmail());
-                // List<PhoneCustomer> listPhone = phoneDAO.getPhoneCustomersByUserId(0);
-                //login
-                session.setAttribute("user", newUser);
-                session.setAttribute("userId", newUser.getUserId());
-
-                session.setAttribute("loginSuccess", "oke");
-                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-            } else {
-                session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
-                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-
-            }
-
-        }
+//        String code = request.getParameter("code");
+////        GoogleLogin gg = new GoogleLogin();
+////        String accessToken = gg.getToken(code);
+////        System.out.println(accessToken);
+////        GoogleAccount acc = gg.getUserInfo(accessToken);
+////        System.out.println(acc);
+//
+//        //check tk nay da dky chua
+//        User existing = userDAO.getUserByEmail(acc.getEmail());
+//        if (existing != null) {
+//            // user ton tai -> login
+//            session.setAttribute("user", existing);
+//            session.setAttribute("loginSuccess", "oke");
+//
+//        // gui thong bang session den trang profile
+//            CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
+//            session.setAttribute("profile_customer", profile);
+//
+//
+//
+//            List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
+//            List<EmailCustomer> emailList =customerDao.getEmailsByUserId(existing.getUserId());
+//            List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(existing.getUserId());
+//
+//
+//            session.setAttribute("listNotification", listNotification);
+//            session.setAttribute("emailList_Current", emailList);
+//            session.setAttribute("phoneList_Current", phoneList);
+//
+//
+//            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+//            return;
+//        } else {
+//            // user chua co acc --> dky luon cho user
+//
+//            String randomPass = userDAO.generateRandomPassword(10);
+//            String fullName = acc.getFamily_name() + " " + acc.getGiven_name();
+//
+//            String result = userDAO.AutoSignupByGoogle(acc.getEmail(), randomPass, acc.getEmail(), fullName, null);
+//
+//            if (result.startsWith("Success")) {
+//                // sau khi add thi check user de login
+//                User newUser = userDAO.getUserByEmail(acc.getEmail());
+//                // List<PhoneCustomer> listPhone = phoneDAO.getPhoneCustomersByUserId(0);
+//                //login
+//                session.setAttribute("user", newUser);
+//                session.setAttribute("userId", newUser.getUserId());
+//
+//                session.setAttribute("loginSuccess", "oke");
+//                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+//            } else {
+//                session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
+//                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+//
+//            }
+//
+//        }
 
         //insertAccout , tao password ham random tu dong
     }

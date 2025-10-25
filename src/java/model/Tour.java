@@ -17,6 +17,7 @@ public class Tour {
     private String description;
     private int price;
     private String tourImageUrl;
+    private String islandName; // Added for displaying island name
 
     public Tour() {
     }
@@ -80,9 +81,17 @@ public class Tour {
         this.tourImageUrl = tourImageUrl;
     }
 
+    public String getIslandName() {
+        return islandName;
+    }
+
+    public void setIslandName(String islandName) {
+        this.islandName = islandName;
+    }
+
     @Override
     public String toString() {
-        return "Tour{" + "tourId=" + tourId + ", islandId=" + islandId + ", tourName=" + tourName + ", description=" + description + ", price=" + price + ", tourImageUrl=" + tourImageUrl + '}' + "\n";
+        return "Tour{" + "tourId=" + tourId + ", islandId=" + islandId + ", tourName=" + tourName + ", description=" + description + ", price=" + price + ", tourImageUrl=" + tourImageUrl + ", islandName=" + islandName + '}' + "\n";
     }
     
     
