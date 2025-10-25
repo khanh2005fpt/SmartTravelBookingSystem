@@ -11,6 +11,7 @@ import model.User;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,11 @@ import jakarta.servlet.http.HttpSession;
  * @author Admin
  */
 @WebServlet(name = "VehicleStaffServlet", urlPatterns = {"/staff/vehicles"})
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
+    maxFileSize = 1024 * 1024 * 10,       // 10MB
+    maxRequestSize = 1024 * 1024 * 50     // 50MB
+)
 public class VehicleStaffServlet extends HttpServlet {
     
     private ServiceDao serviceDao;
@@ -99,6 +105,12 @@ public class VehicleStaffServlet extends HttpServlet {
         String action = request.getParameter("action");
         
         try {
+            if (action == null || action.trim().isEmpty()) {
+                // If no action specified, redirect to list view
+                response.sendRedirect(request.getContextPath() + "/staff/vehicles?action=list");
+                return;
+            }
+            
             switch (action) {
                 case "create":
                     handleCreateVehicle(request, response);
@@ -113,7 +125,7 @@ public class VehicleStaffServlet extends HttpServlet {
                     handleUpdateAvailability(request, response);
                     break;
                 default:
-                    response.sendRedirect(request.getContextPath() + "/staff/vehicles");
+                    response.sendRedirect(request.getContextPath() + "/staff/vehicles?action=list");
                     break;
             }
         } catch (Exception e) {
@@ -315,10 +327,14 @@ public class VehicleStaffServlet extends HttpServlet {
         try {
             // Validate input
             if (!validateVehicleInput(request)) {
-                String vehicleIdStr = request.getParameter("vehicleId");
-                if (vehicleIdStr != null) {
-                    IslandVehicle vehicle = serviceDao.getIslandVehicleById(Integer.parseInt(vehicleIdStr));
-                    request.setAttribute("vehicle", vehicle);
+                String vehicleIdStr = request.getParameter("id");
+                if (vehicleIdStr != null && !vehicleIdStr.trim().isEmpty()) {
+                    try {
+                        IslandVehicle vehicle = serviceDao.getIslandVehicleById(Integer.parseInt(vehicleIdStr));
+                        request.setAttribute("vehicle", vehicle);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid vehicle ID format: " + vehicleIdStr);
+                    }
                 }
                 List<Island> islands = serviceDao.getAllIslands();
                 request.setAttribute("islands", islands);
@@ -329,7 +345,30 @@ public class VehicleStaffServlet extends HttpServlet {
             
             // Create vehicle object
             IslandVehicle vehicle = createVehicleFromRequest(request);
-            vehicle.setVehicleId(Integer.parseInt(request.getParameter("vehicleId")));
+            
+            // Parse and set vehicle ID with error handling
+            String vehicleIdStr = request.getParameter("id");
+            if (vehicleIdStr == null || vehicleIdStr.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Vehicle ID is missing. Cannot update vehicle.");
+                request.setAttribute("vehicle", vehicle);
+                List<Island> islands = serviceDao.getAllIslands();
+                request.setAttribute("islands", islands);
+                request.setAttribute("pageTitle", "Edit Vehicle");
+                request.getRequestDispatcher("/views/staff/vehicle-form.jsp").forward(request, response);
+                return;
+            }
+            
+            try {
+                vehicle.setVehicleId(Integer.parseInt(vehicleIdStr));
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "Invalid vehicle ID format. Cannot update vehicle.");
+                request.setAttribute("vehicle", vehicle);
+                List<Island> islands = serviceDao.getAllIslands();
+                request.setAttribute("islands", islands);
+                request.setAttribute("pageTitle", "Edit Vehicle");
+                request.getRequestDispatcher("/views/staff/vehicle-form.jsp").forward(request, response);
+                return;
+            }
             
             // Update vehicle
             boolean success = serviceDao.updateIslandVehicle(vehicle);
@@ -442,6 +481,11 @@ public class VehicleStaffServlet extends HttpServlet {
             vehicle.setIslandId(Integer.parseInt(islandIdStr));
         }
         
+        // Set JSP compatibility fields to modelName for display purposes
+        vehicle.setVehicleName(vehicle.getModelName());
+        vehicle.setModel(vehicle.getModelName());
+        vehicle.setBrand("");
+        
         return vehicle;
     }
 
@@ -451,9 +495,9 @@ public class VehicleStaffServlet extends HttpServlet {
     private boolean validateVehicleInput(HttpServletRequest request) {
         boolean isValid = true;
         
-        String vehicleName = request.getParameter("vehicleName");
-        if (vehicleName == null || vehicleName.trim().isEmpty()) {
-            request.setAttribute("errorVehicleName", "Vehicle name is required");
+        String modelName = request.getParameter("modelName");
+        if (modelName == null || modelName.trim().isEmpty()) {
+            request.setAttribute("errorModelName", "Model name is required");
             isValid = false;
         }
         
@@ -480,45 +524,43 @@ public class VehicleStaffServlet extends HttpServlet {
             }
         }
         
-        String quantityAvailableStr = request.getParameter("quantityAvailable");
-        if (quantityAvailableStr != null && !quantityAvailableStr.trim().isEmpty()) {
+        String capacityStr = request.getParameter("capacity");
+        if (capacityStr == null || capacityStr.trim().isEmpty()) {
+            request.setAttribute("errorCapacity", "Capacity is required");
+            isValid = false;
+        } else {
             try {
-                int quantityAvailable = Integer.parseInt(quantityAvailableStr);
-                if (quantityAvailable < 0) {
-                    request.setAttribute("errorQuantityAvailable", "Quantity available cannot be negative");
+                int capacity = Integer.parseInt(capacityStr);
+                if (capacity <= 0) {
+                    request.setAttribute("errorCapacity", "Capacity must be greater than 0");
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("errorQuantityAvailable", "Invalid quantity format");
+                request.setAttribute("errorCapacity", "Invalid capacity format");
                 isValid = false;
             }
         }
         
-        String seatingCapacityStr = request.getParameter("seatingCapacity");
-        if (seatingCapacityStr != null && !seatingCapacityStr.trim().isEmpty()) {
+        String availabilityStr = request.getParameter("availability");
+        if (availabilityStr == null || availabilityStr.trim().isEmpty()) {
+            request.setAttribute("errorAvailability", "Availability is required");
+            isValid = false;
+        } else {
             try {
-                int seatingCapacity = Integer.parseInt(seatingCapacityStr);
-                if (seatingCapacity <= 0) {
-                    request.setAttribute("errorSeatingCapacity", "Seating capacity must be greater than 0");
+                int availability = Integer.parseInt(availabilityStr);
+                if (availability < 0) {
+                    request.setAttribute("errorAvailability", "Availability cannot be negative");
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("errorSeatingCapacity", "Invalid seating capacity format");
+                request.setAttribute("errorAvailability", "Invalid availability format");
                 isValid = false;
             }
         }
         
-        String contactEmail = request.getParameter("contactEmail");
-        if (contactEmail != null && !contactEmail.trim().isEmpty()) {
-            if (!contactEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                request.setAttribute("errorContactEmail", "Invalid email format");
-                isValid = false;
-            }
-        }
-        
-        String location = request.getParameter("location");
-        if (location == null || location.trim().isEmpty()) {
-            request.setAttribute("errorLocation", "Location is required");
+        String islandIdStr = request.getParameter("islandId");
+        if (islandIdStr == null || islandIdStr.trim().isEmpty()) {
+            request.setAttribute("errorIslandId", "Island selection is required");
             isValid = false;
         }
         

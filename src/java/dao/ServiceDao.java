@@ -1057,6 +1057,18 @@ public class ServiceDao extends DBContext{
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
+                
+                // Set island name from JOIN
+                vehicle.setIslandName(rs.getString("islandName"));
+                
+                // Set default values for properties not in database
+                vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
+                vehicle.setBrand(""); // Default empty brand
+                vehicle.setModel(rs.getString("modelName")); // Use modelName as model
+                vehicle.setContactInfo(""); // Default empty contact info
+                vehicle.setLocation(""); // Default empty location
+                vehicle.setDescription(""); // Default empty description
+                vehicle.setVehicleImageUrl(""); // Default empty image URL
 
                 return vehicle;
             }
@@ -1138,6 +1150,18 @@ public class ServiceDao extends DBContext{
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
+                
+                // Set island name from JOIN
+                vehicle.setIslandName(rs.getString("islandName"));
+                
+                // Set default values for properties not in database
+                vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
+                vehicle.setBrand(""); // Default empty brand
+                vehicle.setModel(rs.getString("modelName")); // Use modelName as model
+                vehicle.setContactInfo(""); // Default empty contact info
+                vehicle.setLocation(""); // Default empty location
+                vehicle.setDescription(""); // Default empty description
+                vehicle.setVehicleImageUrl(""); // Default empty image URL
 
                 list.add(vehicle);
             }
@@ -1170,6 +1194,18 @@ public class ServiceDao extends DBContext{
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
+                
+                // Set island name from JOIN
+                vehicle.setIslandName(rs.getString("islandName"));
+                
+                // Set default values for properties not in database
+                vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
+                vehicle.setBrand(""); // Default empty brand
+                vehicle.setModel(rs.getString("modelName")); // Use modelName as model
+                vehicle.setContactInfo(""); // Default empty contact info
+                vehicle.setLocation(""); // Default empty location
+                vehicle.setDescription(""); // Default empty description
+                vehicle.setVehicleImageUrl(""); // Default empty image URL
 
                 list.add(vehicle);
             }

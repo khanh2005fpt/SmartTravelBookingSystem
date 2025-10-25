@@ -87,6 +87,54 @@
     font-size: 1.1em;
 }
 
+.nav-parent {
+    cursor: pointer;
+    position: relative;
+}
+
+.nav-parent .expand-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+.nav-parent.expanded .expand-icon {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.nav-children {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: rgba(0,0,0,0.1);
+    margin: 0 15px;
+    border-radius: 8px;
+}
+
+.nav-children.expanded {
+    max-height: 300px;
+}
+
+.nav-child {
+    margin: 0;
+}
+
+.nav-child .nav-link {
+    padding: 10px 20px 10px 40px;
+    font-size: 0.9em;
+    border-radius: 0;
+}
+
+.nav-child:first-child .nav-link {
+    border-radius: 8px 8px 0 0;
+}
+
+.nav-child:last-child .nav-link {
+    border-radius: 0 0 8px 8px;
+}
+
 .sidebar-footer {
     position: absolute;
     bottom: 0;
@@ -146,11 +194,41 @@
         </div>
 
         <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/services" 
-               class="nav-link <%= "services".equals(currentPage) ? "active" : "" %>">
+            <div class="nav-link nav-parent expanded" id="servicesParent">
                 <i class="fa fa-cogs"></i>
                 Quản lý Dịch vụ
-            </a>
+                <i class="fa fa-chevron-right expand-icon"></i>
+            </div>
+            <div class="nav-children expanded" id="servicesChildren">
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/hotels" 
+                       class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-building"></i>
+                        Quản lý Khách sạn
+                    </a>
+                </div>
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/vehicles?action=list" 
+                       class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-car"></i>
+                        Quản lý Phương tiện
+                    </a>
+                </div>
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/restaurants" 
+                       class="nav-link <%= "restaurants".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-cutlery"></i>
+                        Quản lý Nhà hàng
+                    </a>
+                </div>
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/places" 
+                       class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-map-pin"></i>
+                        Quản lý Địa điểm
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="nav-item">
@@ -203,6 +281,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 !sidebarToggle.contains(e.target)) {
                 sidebar.classList.remove('show');
             }
+        });
+    }
+    
+    // Handle expandable navigation
+    const servicesParent = document.getElementById('servicesParent');
+    const servicesChildren = document.getElementById('servicesChildren');
+    
+    if (servicesParent && servicesChildren) {
+        servicesParent.addEventListener('click', function() {
+            // Toggle expanded class
+            servicesParent.classList.toggle('expanded');
+            servicesChildren.classList.toggle('expanded');
         });
     }
 });

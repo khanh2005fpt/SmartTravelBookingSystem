@@ -240,7 +240,7 @@ public class TourStaffServlet extends HttpServlet {
      * Show create tour form
      */
     private void createTour(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, SQLException {
         
         // Load islands data for dropdown
         List<Island> islands = islandDao.getIslands();

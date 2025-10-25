@@ -8,14 +8,20 @@ import dao.ServiceDao;
 import model.Hotel;
 import model.Island;
 import model.User;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 /**
  * Servlet for managing hotel operations for staff members
@@ -24,6 +30,11 @@ import jakarta.servlet.http.HttpSession;
  * @author Admin
  */
 @WebServlet(name = "HotelStaffServlet", urlPatterns = {"/staff/hotels"})
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
+    maxFileSize = 1024 * 1024 * 10,       // 10MB
+    maxRequestSize = 1024 * 1024 * 50     // 50MB
+)
 public class HotelStaffServlet extends HttpServlet {
     
     private ServiceDao serviceDao;
@@ -99,6 +110,11 @@ public class HotelStaffServlet extends HttpServlet {
         String action = request.getParameter("action");
         
         try {
+            if (action == null) {
+                response.sendRedirect(request.getContextPath() + "/staff/hotels");
+                return;
+            }
+            
             switch (action) {
                 case "create":
                     handleCreateHotel(request, response);
@@ -127,7 +143,7 @@ public class HotelStaffServlet extends HttpServlet {
     private void handleHotelList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            List<Hotel> hotels = serviceDao.getAllHotels();
+            List<Hotel> hotels = serviceDao.getHotels();
             request.setAttribute("hotels", hotels);
             request.setAttribute("pageTitle", "Hotel Management");
             request.getRequestDispatcher("/views/staff/hotel-list.jsp").forward(request, response);
@@ -239,10 +255,11 @@ public class HotelStaffServlet extends HttpServlet {
             List<Hotel> hotels;
             
             if (keyword != null && !keyword.trim().isEmpty()) {
-                hotels = serviceDao.searchHotels(keyword.trim());
+                // Use searchHotels with proper parameters (country, roomType, minPrice, maxPrice)
+                hotels = serviceDao.searchHotels(keyword.trim(), "", "", "");
                 request.setAttribute("searchKeyword", keyword.trim());
             } else {
-                hotels = serviceDao.getAllHotels();
+                hotels = serviceDao.getHotels();
             }
             
             // Apply additional filters if provided
@@ -315,7 +332,7 @@ public class HotelStaffServlet extends HttpServlet {
         try {
             // Validate input
             if (!validateHotelInput(request)) {
-                String hotelIdStr = request.getParameter("hotelId");
+                String hotelIdStr = request.getParameter("id");
                 if (hotelIdStr != null) {
                     Hotel hotel = serviceDao.getHotelById(Integer.parseInt(hotelIdStr));
                     request.setAttribute("hotel", hotel);
@@ -329,7 +346,7 @@ public class HotelStaffServlet extends HttpServlet {
             
             // Create hotel object
             Hotel hotel = createHotelFromRequest(request);
-            hotel.setHotelId(Integer.parseInt(request.getParameter("hotelId")));
+            hotel.setHotelId(Integer.parseInt(request.getParameter("id")));
             
             // Update hotel
             boolean success = serviceDao.updateHotel(hotel);
@@ -356,7 +373,7 @@ public class HotelStaffServlet extends HttpServlet {
     private void handleDeleteHotel(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String hotelIdStr = request.getParameter("hotelId");
+            String hotelIdStr = request.getParameter("id");
             if (hotelIdStr == null || hotelIdStr.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/staff/hotels?error=invalid_id");
                 return;
@@ -384,7 +401,7 @@ public class HotelStaffServlet extends HttpServlet {
     private void handleUpdateAvailability(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String hotelIdStr = request.getParameter("hotelId");
+            String hotelIdStr = request.getParameter("id");
             String availabilityStr = request.getParameter("availability");
             
             if (hotelIdStr == null || availabilityStr == null) {
@@ -413,16 +430,52 @@ public class HotelStaffServlet extends HttpServlet {
     /**
      * Create hotel object from request parameters
      */
-    private Hotel createHotelFromRequest(HttpServletRequest request) {
+    private Hotel createHotelFromRequest(HttpServletRequest request) throws ServletException, IOException {
         Hotel hotel = new Hotel();
         
         hotel.setHotelName(request.getParameter("hotelName"));
-        hotel.setAddress(request.getParameter("address"));
-        hotel.setDescription(request.getParameter("description"));
-        hotel.setImageUrl(request.getParameter("imageUrl"));
-        hotel.setContactPhone(request.getParameter("contactPhone"));
-        hotel.setContactEmail(request.getParameter("contactEmail"));
-        hotel.setWebsite(request.getParameter("website"));
+        
+        // Handle image URL - check for file upload first, then fallback to current URL
+        String imageUrl = request.getParameter("currentImageUrl"); // Default to existing image
+        
+        try {
+            Part filePart = request.getPart("hotelImageFile");
+            if (filePart != null && filePart.getSize() > 0) {
+                // Get original filename
+                String originalName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
+                
+                // Generate unique filename
+                String fileExtension = originalName.substring(originalName.lastIndexOf("."));
+                String uniqueFileName = "hotel_" + System.currentTimeMillis() + "_" + 
+                                      Math.random() * 1000 + fileExtension;
+                
+                // Create upload directory if it doesn't exist
+                String uploadDir = getServletContext().getRealPath("/") + "UploadData" + File.separator + "Hotels";
+                File uploadDirFile = new File(uploadDir);
+                if (!uploadDirFile.exists()) {
+                    uploadDirFile.mkdirs();
+                }
+                
+                // Save the file
+                String filePath = uploadDir + File.separator + uniqueFileName;
+                filePart.write(filePath);
+                
+                // Set the relative path for database storage
+                imageUrl = "UploadData/Hotels/" + uniqueFileName;
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling file upload: " + e.getMessage());
+            e.printStackTrace();
+            // Continue with existing image URL if file upload fails
+        }
+        
+        hotel.setHotelImageUrl(imageUrl);
+        
+        // Set room type
+        String roomType = request.getParameter("roomType");
+        if (roomType != null && !roomType.trim().isEmpty()) {
+            hotel.setRoomType(roomType);
+        }
         
         // Set numeric fields
         String pricePerNightStr = request.getParameter("pricePerNight");
@@ -430,9 +483,9 @@ public class HotelStaffServlet extends HttpServlet {
             hotel.setPricePerNight(Integer.parseInt(pricePerNightStr));
         }
         
-        String starRatingStr = request.getParameter("starRating");
-        if (starRatingStr != null && !starRatingStr.trim().isEmpty()) {
-            hotel.setStarRating(Integer.parseInt(starRatingStr));
+        String ratingStr = request.getParameter("rating");
+        if (ratingStr != null && !ratingStr.trim().isEmpty()) {
+            hotel.setRating(Double.parseDouble(ratingStr));
         }
         
         String roomAvailableStr = request.getParameter("roomAvailable");
@@ -440,12 +493,16 @@ public class HotelStaffServlet extends HttpServlet {
             hotel.setRoomAvailable(Integer.parseInt(roomAvailableStr));
         }
         
-        // Set island if provided
+        // Set island ID
         String islandIdStr = request.getParameter("islandId");
         if (islandIdStr != null && !islandIdStr.trim().isEmpty()) {
-            Island island = new Island();
-            island.setIslandId(Integer.parseInt(islandIdStr));
-            hotel.setIsland(island);
+            hotel.setIslandId(Integer.parseInt(islandIdStr));
+        }
+        
+        // Set country name
+        String countryName = request.getParameter("countryName");
+        if (countryName != null && !countryName.trim().isEmpty()) {
+            hotel.setCountryName(countryName);
         }
         
         return hotel;
@@ -456,79 +513,82 @@ public class HotelStaffServlet extends HttpServlet {
      */
     private boolean validateHotelInput(HttpServletRequest request) {
         boolean isValid = true;
+        Map<String, String> errors = new HashMap<>();
         
+        // Validate hotel name (required)
         String hotelName = request.getParameter("hotelName");
         if (hotelName == null || hotelName.trim().isEmpty()) {
-            request.setAttribute("errorHotelName", "Hotel name is required");
+            errors.put("hotelName", "Hotel name is required");
+            isValid = false;
+        } else if (hotelName.trim().length() > 255) {
+            errors.put("hotelName", "Hotel name cannot exceed 255 characters");
             isValid = false;
         }
         
-        String address = request.getParameter("address");
-        if (address == null || address.trim().isEmpty()) {
-            request.setAttribute("errorAddress", "Address is required");
-            isValid = false;
-        }
-        
-        String pricePerNightStr = request.getParameter("pricePerNight");
-        if (pricePerNightStr == null || pricePerNightStr.trim().isEmpty()) {
-            request.setAttribute("errorPricePerNight", "Price per night is required");
+        // Validate island ID (required)
+        String islandIdStr = request.getParameter("islandId");
+        if (islandIdStr == null || islandIdStr.trim().isEmpty()) {
+            errors.put("islandId", "Island selection is required");
             isValid = false;
         } else {
             try {
-                int pricePerNight = Integer.parseInt(pricePerNightStr);
-                if (pricePerNight <= 0) {
-                    request.setAttribute("errorPricePerNight", "Price per night must be greater than 0");
+                int islandId = Integer.parseInt(islandIdStr);
+                if (islandId <= 0) {
+                    errors.put("islandId", "Invalid island selection");
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("errorPricePerNight", "Invalid price format");
+                errors.put("islandId", "Invalid island selection");
                 isValid = false;
             }
         }
         
+        // Validate rating (optional, but if provided must be valid)
+        String ratingStr = request.getParameter("rating");
+        if (ratingStr != null && !ratingStr.trim().isEmpty()) {
+            try {
+                double rating = Double.parseDouble(ratingStr);
+                if (rating < 0 || rating > 5) {
+                    errors.put("rating", "Rating must be between 0 and 5");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                errors.put("rating", "Invalid rating format");
+                isValid = false;
+            }
+        }
+        
+        // Validate star rating (optional, but if provided must be valid)
         String starRatingStr = request.getParameter("starRating");
         if (starRatingStr != null && !starRatingStr.trim().isEmpty()) {
             try {
                 int starRating = Integer.parseInt(starRatingStr);
                 if (starRating < 1 || starRating > 5) {
-                    request.setAttribute("errorStarRating", "Star rating must be between 1 and 5");
+                    errors.put("starRating", "Star rating must be between 1 and 5");
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("errorStarRating", "Invalid star rating format");
+                errors.put("starRating", "Invalid star rating format");
                 isValid = false;
             }
         }
         
-        String roomAvailableStr = request.getParameter("roomAvailable");
-        if (roomAvailableStr != null && !roomAvailableStr.trim().isEmpty()) {
-            try {
-                int roomAvailable = Integer.parseInt(roomAvailableStr);
-                if (roomAvailable < 0) {
-                    request.setAttribute("errorRoomAvailable", "Room availability cannot be negative");
-                    isValid = false;
-                }
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorRoomAvailable", "Invalid room availability format");
-                isValid = false;
-            }
+        // Validate room type (required)
+        String roomType = request.getParameter("roomType");
+        if (roomType == null || roomType.trim().isEmpty()) {
+            errors.put("roomType", "Room type selection is required");
+            isValid = false;
         }
-        
-        String contactEmail = request.getParameter("contactEmail");
-        if (contactEmail != null && !contactEmail.trim().isEmpty()) {
-            if (!contactEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                request.setAttribute("errorContactEmail", "Invalid email format");
-                isValid = false;
-            }
+
+        // Validate country name (optional, but if provided check length)
+        String countryName = request.getParameter("countryName");
+        if (countryName != null && countryName.trim().length() > 100) {
+            errors.put("countryName", "Country name cannot exceed 100 characters");
+            isValid = false;
         }
-        
-        String website = request.getParameter("website");
-        if (website != null && !website.trim().isEmpty()) {
-            if (!website.matches("^(https?://).*")) {
-                request.setAttribute("errorWebsite", "Website must start with http:// or https://");
-                isValid = false;
-            }
-        }
+
+        // Set the errors map as an attribute
+        request.setAttribute("errors", errors);
         
         return isValid;
     }

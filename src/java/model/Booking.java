@@ -31,9 +31,11 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(int profileId, int customerId, int tourId, int customTourId, int price,
+    public Booking(
+//            int profileId,
+                   int customerId, int tourId, int customTourId, int price,
                    Date departureDate, Date endDate, int adultQuantity, int childQuantity, String status) {
-        this.profileId = profileId;
+        //this.profileId = profileId;
         this.customerId = customerId;
         this.tourId = tourId;
         this.customTourId = customTourId;

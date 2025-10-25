@@ -80,7 +80,7 @@ public class VnpayReturn extends HttpServlet {
                 payment.setAmount(amount);
 
                 payment.setStatus(isSuccess ? "Success" : "Failed");
-                bookingDao.createPayment(payment);
+               // bookingDao.createPayment(payment);
                 if (isSuccess) {
                     bookingDao.updateStatus(bookingId, "COMPLETED");
                 }

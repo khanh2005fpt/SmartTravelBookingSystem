@@ -300,7 +300,6 @@ public class TourDao extends DBContext {
                 ps.setInt(2, day);
 
                 // Logic to create activities by day
-                String activity;
                 if (day == 1) {
                     activity = "Hotel check-in and accommodation setup";
                 } else if (day == numberOfDays) {

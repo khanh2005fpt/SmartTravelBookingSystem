@@ -29,32 +29,31 @@ public class BookingDao extends DBContext {
 
     public static BookingDao INSTANCE = new BookingDao();
 
-    public void createBooking(Booking booking) throws SQLException {
-        String sql = "INSERT INTO Bookings (profileId, customerId, tourId, customTourId, price, departureDate, endDate, adultQuantity, childQuantity, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public int createBooking(Booking booking) throws SQLException {
+        String sql = "INSERT INTO Bookings ( customerId, tourId, customTourId, departureDate, endDate, adultQuantity, childQuantity, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, booking.getProfileId());
-            ps.setInt(2, booking.getCustomerId());
-            ps.setInt(3, booking.getTourId());
-            ps.setInt(4, booking.getCustomTourId());
-            ps.setInt(5, booking.getPrice());
-            ps.setDate(6, new java.sql.Date(booking.getDepartureDate().getTime()));
-            ps.setDate(7, booking.getEndDate() != null ? new java.sql.Date(booking.getEndDate().getTime()) : null);
-            ps.setInt(8, booking.getAdultQuantity());
-            ps.setInt(9, booking.getChildQuantity());
-            ps.setString(10, booking.getStatus());
+            ps.setInt(1, booking.getCustomerId());
+            ps.setInt(2, booking.getTourId());
+            ps.setInt(3, booking.getCustomTourId());
+            ps.setDate(4, new java.sql.Date(booking.getDepartureDate().getTime()));
+            ps.setDate(5, booking.getEndDate() != null ? new java.sql.Date(booking.getEndDate().getTime()) : null);
+            ps.setInt(6, booking.getAdultQuantity());
+            ps.setInt(7, booking.getChildQuantity());
+            ps.setString(8, booking.getStatus());
 
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 int paymentId = rs.getInt(1);
-                payment.setPaymentId(paymentId);
+                //payment.setPaymentId(paymentId);
                 return paymentId;
             }
         } catch (Exception e) {
             System.out.println(e);
         }
+        return 0;
     }
 
     /**
@@ -230,11 +229,11 @@ public class BookingDao extends DBContext {
     private Booking mapResultSetToBooking(ResultSet rs) throws SQLException {
         Booking booking = new Booking();
         booking.setBookingId(rs.getInt("bookingId"));
-        booking.setProfileId(rs.getInt("profileId"));
+        //booking.setProfileId(rs.getInt("profileId"));
         booking.setCustomerId(rs.getInt("customerId"));
         booking.setTourId(rs.getInt("tourId"));
         booking.setCustomTourId(rs.getInt("customTourId"));
-        booking.setPrice(rs.getInt("price"));
+        //booking.setPrice(rs.getInt("price"));
         booking.setDepartureDate(rs.getDate("departureDate"));
         booking.setEndDate(rs.getDate("endDate"));
         booking.setAdultQuantity(rs.getInt("adultQuantity"));
