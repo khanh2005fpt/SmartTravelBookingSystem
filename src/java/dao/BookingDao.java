@@ -4,19 +4,29 @@
  */
 package dao;
 
+import java.util.Date;
+import utils.DBContext;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import model.Booking;
 import utils.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Payment;
 
 /**
  *
  * @author Admin
  */
 public class BookingDao extends DBContext {
-    
+
     public static BookingDao INSTANCE = new BookingDao();
 
     public void createBooking(Booking booking) throws SQLException {
@@ -38,13 +48,15 @@ public class BookingDao extends DBContext {
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                booking.setBookingId(rs.getInt(1)); // Gán lại ID vừa được sinh
+                int paymentId = rs.getInt(1);
+                payment.setPaymentId(paymentId);
+                return paymentId;
             }
         } catch (Exception e) {
             System.out.println(e);
         }
     }
-    
+
     /**
      * Get all bookings with customer and tour information for staff view
      */
@@ -64,10 +76,10 @@ public class BookingDao extends DBContext {
             LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
             ORDER BY b.bookingDate DESC
             """;
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            
+
             while (rs.next()) {
                 Booking booking = mapResultSetToBooking(rs);
                 bookings.add(booking);
@@ -75,10 +87,10 @@ public class BookingDao extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return bookings;
     }
-    
+
     /**
      * Get booking by ID with detailed information
      */
@@ -97,7 +109,7 @@ public class BookingDao extends DBContext {
             LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
             WHERE b.bookingId = ?
             """;
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, bookingId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -108,10 +120,10 @@ public class BookingDao extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
-    
+
     /**
      * Search bookings by various criteria
      */
@@ -131,36 +143,36 @@ public class BookingDao extends DBContext {
             LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
             WHERE 1=1
             """);
-        
+
         List<Object> parameters = new ArrayList<>();
-        
+
         if (customerName != null && !customerName.trim().isEmpty()) {
             sql.append(" AND u.fullName LIKE ?");
             parameters.add("%" + customerName.trim() + "%");
         }
-        
+
         if (status != null && !status.trim().isEmpty()) {
             sql.append(" AND b.status = ?");
             parameters.add(status);
         }
-        
+
         if (dateFrom != null && !dateFrom.trim().isEmpty()) {
             sql.append(" AND b.bookingDate >= ?");
             parameters.add(dateFrom);
         }
-        
+
         if (dateTo != null && !dateTo.trim().isEmpty()) {
             sql.append(" AND b.bookingDate <= ?");
             parameters.add(dateTo + " 23:59:59");
         }
-        
+
         sql.append(" ORDER BY b.bookingDate DESC");
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < parameters.size(); i++) {
                 ps.setObject(i + 1, parameters.get(i));
             }
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Booking booking = mapResultSetToBooking(rs);
@@ -170,34 +182,34 @@ public class BookingDao extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return bookings;
     }
-    
+
     /**
      * Update booking status
      */
     public boolean updateBookingStatus(int bookingId, String status) {
         String sql = "UPDATE Bookings SET status = ? WHERE bookingId = ?";
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, bookingId);
-            
+
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get booking statistics for dashboard
      */
     public int getBookingCountByStatus(String status) {
         String sql = "SELECT COUNT(*) FROM Bookings WHERE status = ?";
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, status);
             try (ResultSet rs = ps.executeQuery()) {
@@ -208,10 +220,10 @@ public class BookingDao extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return 0;
     }
-    
+
     /**
      * Helper method to map ResultSet to Booking object
      */
@@ -232,8 +244,48 @@ public class BookingDao extends DBContext {
         booking.setCustomerName(rs.getString("customerName"));
         booking.setTourName(rs.getString("tourName"));
         booking.setCustomTourName(rs.getString("customTourName"));
-        
+
         return booking;
     }
 
+    public void updateStatus(int bookingId, String status) throws SQLException {
+        String sql = "UPDATE Bookings SET status=? WHERE bookingId=?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, bookingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi cập nhật trạng thái bookingId = " + bookingId, e);
+        }
+    }
+
+    public static void main(String[] args) {
+        BookingDao bookingDao = new BookingDao();
+
+        // Tạo đối tượng Booking mẫu
+        Booking booking = new Booking();
+
+        // **Quan trọng:** customerId phải tồn tại trong bảng Users
+        booking.setCustomerId(5); // Giả sử userId 1 có trong Users
+        try {
+            // Chuyển đổi string thành java.util.Date
+            Date departureDate = new SimpleDateFormat("yyyy-MM-dd").parse("2025-10-25");
+            booking.setDepartureDate(departureDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        booking.setAdultQuantity(2);
+        booking.setChildQuantity(1);
+        booking.setStatus("PENDING");
+
+        try {
+            bookingDao.createBooking(booking);
+            System.out.println("Tạo booking thành công. Booking ID: " + booking.getBookingId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Tạo booking thất bại: " + e.getMessage());
+        }
+    }
 }

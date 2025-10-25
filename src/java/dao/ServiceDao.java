@@ -9,11 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Airlines;
 import model.Flight;
 import model.Hotel;
 import model.Island;
 import model.IslandVehicle;
+import model.Place;
 import utils.DBContext;
 import java.sql.Time;
 import model.FlightSchedule;
@@ -27,14 +30,13 @@ public class ServiceDao extends DBContext{
   public static final ServiceDao INSTANCE = new ServiceDao();
     
     //Lay danh sach phuong tien theo dao
-    public List<IslandVehicle> getListVehicleById(int id) {
+    public List<IslandVehicle> getListVehicleById(int id) throws SQLException{
         List<IslandVehicle> list = new ArrayList<>();
         String sql = "select * from IslandVehicles a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setInt(1, id); 
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) { // lấy nhiều island
+            while (rs.next()) { // lấy nhiều phương tiện
                  IslandVehicle v = new IslandVehicle(
                     rs.getInt("vehicleId"),
                     rs.getInt("islandId"),
@@ -46,14 +48,14 @@ public class ServiceDao extends DBContext{
                 );
                 list.add(v);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách phương tiện cho đảo có islandId = " + id, e);
         }
         return list; 
     }
     
     //Lay tat ca khach san
-      public List<Hotel> getHotels() {
+      public List<Hotel> getHotels() throws SQLException{
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId";
         try {
@@ -72,21 +74,20 @@ public class ServiceDao extends DBContext{
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách khách sạn từ cơ sở dữ liệu.", e);
         }
         return list;
     }
     
-      //lay danh sach dao theo dao
-     public List<Hotel> getListHotelsById(int id) {
+      //lay danh sach khach san theo dao
+     public List<Hotel> getListHotelsById(int id) throws SQLException{
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setInt(1, id); 
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) { // lấy nhiều island
+            while (rs.next()) { // lấy nhiều khách sạn
                 Hotel h = new Hotel();
                 h.setHotelId(rs.getInt("hotelId"));
                 h.setIslandId(rs.getInt("islandId"));
@@ -99,15 +100,15 @@ public class ServiceDao extends DBContext{
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách khách sạn cho đảo có islandId = " + id, e);
         }
         return list; 
     }
      
      
      //Tim kiem danh sach khach san theo quoc gia va loai phong
-    public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) {
+    public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) throws SQLException{
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where 1=1";
 
@@ -127,8 +128,7 @@ public class ServiceDao extends DBContext{
             sql += " and a.pricePerNight <= ?";
         }
 
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             int idx = 1;
 
             if (country != null && !country.isEmpty()) {
@@ -158,60 +158,66 @@ public class ServiceDao extends DBContext{
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    //Lay danh sach khach san theo tung trang
-    public List<Hotel> getIslandsByPage(int page, int pageSize) {
-        List<Hotel> list = new ArrayList<>();
-        String sql = "Select * from Hotels order by hotelId offset ? rows fetch next ? rows only";
-
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, (page - 1) * pageSize); 
-            ps.setInt(2, pageSize);              
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(new Hotel(
-                        rs.getInt("hotelId"),
-                        rs.getInt("islandId"),
-                        rs.getString("hotelName"),
-                        rs.getString("country"),
-                        rs.getString("hotelImageUrl"),
-                        rs.getString("roomType"),
-                        rs.getInt("pricePerNight"),
-                        rs.getInt("roomAvailable"),
-                        rs.getDouble("rating")
-                ));
-            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException("Lỗi khi tìm kiếm khách sạn theo quốc gia hoặc loại phòng.", e);
         }
-
         return list;
     }
-    
+
+
     //Tinh tong so khach san
-    public int getTotalIslands() {
+    public int getTotalIslands() throws SQLException{
         int total = 0;
         String sql = "select count(*) from Hotels";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 total = rs.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException("Lỗi khi tính tổng số lượng khách sạn trong cơ sở dữ liệu.", e);
         }
         return total;
     }
     
+    //Lay danh sach dia diem noi tieng theo dao
+     public List<Place> getListPlaceById(int id) throws SQLException{
+        List<Place> list = new ArrayList<>();
+        String sql = "select * from places a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) { // lấy nhiều địa điểm
+                 Place place = new Place(
+                    rs.getInt("placeId"),
+                    rs.getInt("islandId"),
+                    rs.getString("placeName"),
+                    rs.getString("location"),
+                    rs.getString("description"),
+                    rs.getBoolean("hasTicket"),
+                    rs.getInt("ticketPrice")
+                );
+                list.add(place);
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách địa điểm nổi tiếng cho đảo có islandId = " + id, e);
+        }
+        return list;
+    }
+
+//     public static void main(String[] args) {
+//        ServiceDao sd = new ServiceDao();
+//        List<Place> place;
+//        try {
+//            place = sd.getListPlaceById(1);
+//              System.out.println(place.toString());
+//        } catch (SQLException ex) {
+//            Logger.getLogger(ServiceDao.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//    }
     // ==================== HOTEL CRUD OPERATIONS ====================
-    
+
     // CREATE - Them khach san moi
     public boolean createHotel(Hotel hotel) {
         String sql = "INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl, area) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -225,7 +231,7 @@ public class ServiceDao extends DBContext{
             ps.setDouble(6, hotel.getRating());
             ps.setString(7, hotel.getHotelImageUrl());
             ps.setInt(8, 50); // Default area value
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -233,7 +239,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // READ - Lay khach san theo ID
     public Hotel getHotelById(int hotelId) {
         String sql = "SELECT h.*, i.islandName, c.countryName FROM Hotels h " +
@@ -244,7 +250,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, hotelId);
             ResultSet rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 Hotel hotel = new Hotel();
                 hotel.setHotelId(rs.getInt("hotelId"));
@@ -263,7 +269,7 @@ public class ServiceDao extends DBContext{
         }
         return null;
     }
-    
+
     // UPDATE - Cap nhat thong tin khach san
     public boolean updateHotel(Hotel hotel) {
         String sql = "UPDATE Hotels SET islandId = ?, hotelName = ?, roomType = ?, pricePerNight = ?, roomsAvailable = ?, rating = ?, hotelImageUrl = ? WHERE hotelId = ?";
@@ -277,38 +283,7 @@ public class ServiceDao extends DBContext{
             ps.setDouble(6, hotel.getRating());
             ps.setString(7, hotel.getHotelImageUrl());
             ps.setInt(8, hotel.getHotelId());
-            
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-    // DELETE - Xoa khach san
-    public boolean deleteHotel(int hotelId) {
-        String sql = "DELETE FROM Hotels WHERE hotelId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, hotelId);
-            
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-    // Cap nhat so phong con trong
-    public boolean updateHotelAvailability(int hotelId, int newAvailability) {
-        String sql = "UPDATE Hotels SET roomsAvailable = ? WHERE hotelId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, newAvailability);
-            ps.setInt(2, hotelId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -317,7 +292,38 @@ public class ServiceDao extends DBContext{
         }
     }
 
-    // la danh sach ve may bay dua theo diem den 
+    // DELETE - Xoa khach san
+    public boolean deleteHotel(int hotelId) {
+        String sql = "DELETE FROM Hotels WHERE hotelId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, hotelId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Cap nhat so phong con trong
+    public boolean updateHotelAvailability(int hotelId, int newAvailability) {
+        String sql = "UPDATE Hotels SET roomsAvailable = ? WHERE hotelId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, newAvailability);
+            ps.setInt(2, hotelId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // la danh sach ve may bay dua theo diem den
    public List<Flight> getFlightsByIslandId(int islandId) {
     List<Flight> list = new ArrayList<>();
     String sql = "SELECT * FROM Flights WHERE destinationIslandId = ?";
@@ -609,9 +615,9 @@ public class ServiceDao extends DBContext{
           System.out.println(e);
       }
     }
-    
+
     // ==================== FLIGHT CRUD OPERATIONS ====================
-    
+
     // CREATE - Them chuyen bay moi
     public boolean createFlight(Flight flight) {
         String sql = "INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, " +
@@ -623,43 +629,43 @@ public class ServiceDao extends DBContext{
             ps.setInt(2, flight.getAirline().getAirlineId());
             ps.setString(3, flight.getDeparture());
             ps.setString(4, flight.getDestination());
-            
+
             if (flight.getDestinationIsland() != null) {
                 ps.setInt(5, flight.getDestinationIsland().getIslandId());
             } else {
                 ps.setNull(5, java.sql.Types.INTEGER);
             }
-            
+
             if (flight.getDepartureTime() != null) {
                 ps.setTime(6, Time.valueOf(flight.getDepartureTime()));
             } else {
                 ps.setNull(6, java.sql.Types.TIME);
             }
-            
+
             if (flight.getArrivalTime() != null) {
                 ps.setTime(7, Time.valueOf(flight.getArrivalTime()));
             } else {
                 ps.setNull(7, java.sql.Types.TIME);
             }
-            
+
             if (flight.getReturnDepartureTime() != null) {
                 ps.setTime(8, Time.valueOf(flight.getReturnDepartureTime()));
             } else {
                 ps.setNull(8, java.sql.Types.TIME);
             }
-            
+
             if (flight.getReturnArrivalTime() != null) {
                 ps.setTime(9, Time.valueOf(flight.getReturnArrivalTime()));
             } else {
                 ps.setNull(9, java.sql.Types.TIME);
             }
-            
+
             ps.setInt(10, flight.getBasePrice());
             ps.setInt(11, flight.getTicketAvailable());
             ps.setString(12, flight.getFlightType());
             ps.setString(13, flight.getFlightClass());
             ps.setString(14, flight.getDestinationImageUrl());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -667,7 +673,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // READ - Lay chuyen bay theo ID
     public Flight getFlightById(int flightId) {
         String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, i.islandName " +
@@ -679,7 +685,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, flightId);
             ResultSet rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 Flight flight = new Flight();
                 flight.setFlightId(rs.getInt("flightId"));
@@ -691,7 +697,7 @@ public class ServiceDao extends DBContext{
                 flight.setFlightType(rs.getString("flightType"));
                 flight.setFlightClass(rs.getString("flightClass"));
                 flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
-                
+
                 // Set times
                 Time depTime = rs.getTime("departureTime");
                 flight.setDepartureTime(depTime != null ? depTime.toLocalTime() : null);
@@ -701,7 +707,7 @@ public class ServiceDao extends DBContext{
                 flight.setReturnDepartureTime(retDepTime != null ? retDepTime.toLocalTime() : null);
                 Time retArrTime = rs.getTime("returnArrivalTime");
                 flight.setReturnArrivalTime(retArrTime != null ? retArrTime.toLocalTime() : null);
-                
+
                 // Set airline
                 Airlines airline = new Airlines();
                 airline.setAirlineId(rs.getInt("airlineId"));
@@ -709,7 +715,7 @@ public class ServiceDao extends DBContext{
                 airline.setIataCode(rs.getString("iataCode"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
                 flight.setAirline(airline);
-                
+
                 // Set destination island if exists
                 if (rs.getInt("destinationIslandId") != 0) {
                     Island island = new Island();
@@ -717,7 +723,7 @@ public class ServiceDao extends DBContext{
                     island.setIslandName(rs.getString("islandName"));
                     flight.setDestinationIsland(island);
                 }
-                
+
                 return flight;
             }
         } catch (SQLException e) {
@@ -725,7 +731,7 @@ public class ServiceDao extends DBContext{
         }
         return null;
     }
-    
+
     // UPDATE - Cap nhat thong tin chuyen bay
     public boolean updateFlight(Flight flight) {
         String sql = "UPDATE Flights SET flightNumber = ?, airlineId = ?, departure = ?, destination = ?, " +
@@ -738,44 +744,44 @@ public class ServiceDao extends DBContext{
             ps.setInt(2, flight.getAirline().getAirlineId());
             ps.setString(3, flight.getDeparture());
             ps.setString(4, flight.getDestination());
-            
+
             if (flight.getDestinationIsland() != null) {
                 ps.setInt(5, flight.getDestinationIsland().getIslandId());
             } else {
                 ps.setNull(5, java.sql.Types.INTEGER);
             }
-            
+
             if (flight.getDepartureTime() != null) {
                 ps.setTime(6, Time.valueOf(flight.getDepartureTime()));
             } else {
                 ps.setNull(6, java.sql.Types.TIME);
             }
-            
+
             if (flight.getArrivalTime() != null) {
                 ps.setTime(7, Time.valueOf(flight.getArrivalTime()));
             } else {
                 ps.setNull(7, java.sql.Types.TIME);
             }
-            
+
             if (flight.getReturnDepartureTime() != null) {
                 ps.setTime(8, Time.valueOf(flight.getReturnDepartureTime()));
             } else {
                 ps.setNull(8, java.sql.Types.TIME);
             }
-            
+
             if (flight.getReturnArrivalTime() != null) {
                 ps.setTime(9, Time.valueOf(flight.getReturnArrivalTime()));
             } else {
                 ps.setNull(9, java.sql.Types.TIME);
             }
-            
+
             ps.setInt(10, flight.getBasePrice());
             ps.setInt(11, flight.getTicketAvailable());
             ps.setString(12, flight.getFlightType());
             ps.setString(13, flight.getFlightClass());
             ps.setString(14, flight.getDestinationImageUrl());
             ps.setInt(15, flight.getFlightId());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -783,14 +789,14 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // DELETE - Xoa chuyen bay
     public boolean deleteFlight(int flightId) {
         String sql = "DELETE FROM Flights WHERE flightId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, flightId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -798,7 +804,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // Cap nhat so ve con lai
     public boolean updateFlightAvailability(int flightId, int newAvailability) {
         String sql = "UPDATE Flights SET ticketAvailable = ? WHERE flightId = ?";
@@ -806,7 +812,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, newAvailability);
             ps.setInt(2, flightId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -814,7 +820,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // Lay tat ca chuyen bay
     public List<Flight> getAllFlights() {
         List<Flight> list = new ArrayList<>();
@@ -826,7 +832,7 @@ public class ServiceDao extends DBContext{
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Flight flight = new Flight();
                 flight.setFlightId(rs.getInt("flightId"));
@@ -838,7 +844,7 @@ public class ServiceDao extends DBContext{
                 flight.setFlightType(rs.getString("flightType"));
                 flight.setFlightClass(rs.getString("flightClass"));
                 flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
-                
+
                 // Set times
                 Time depTime = rs.getTime("departureTime");
                 flight.setDepartureTime(depTime != null ? depTime.toLocalTime() : null);
@@ -848,7 +854,7 @@ public class ServiceDao extends DBContext{
                 flight.setReturnDepartureTime(retDepTime != null ? retDepTime.toLocalTime() : null);
                 Time retArrTime = rs.getTime("returnArrivalTime");
                 flight.setReturnArrivalTime(retArrTime != null ? retArrTime.toLocalTime() : null);
-                
+
                 // Set airline
                 Airlines airline = new Airlines();
                 airline.setAirlineId(rs.getInt("airlineId"));
@@ -856,7 +862,7 @@ public class ServiceDao extends DBContext{
                 airline.setIataCode(rs.getString("iataCode"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
                 flight.setAirline(airline);
-                
+
                 // Set destination island if exists
                 if (rs.getInt("destinationIslandId") != 0) {
                     Island island = new Island();
@@ -864,7 +870,7 @@ public class ServiceDao extends DBContext{
                     island.setIslandName(rs.getString("islandName"));
                     flight.setDestinationIsland(island);
                 }
-                
+
                 list.add(flight);
             }
         } catch (SQLException e) {
@@ -872,9 +878,9 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
+
     // ==================== AIRLINES CRUD OPERATIONS ====================
-    
+
     // CREATE - Them hang hang khong moi
     public boolean createAirline(Airlines airline) {
         String sql = "INSERT INTO Airlines (airlineName, iataCode, countryId, hotline, logoUrl) VALUES (?, ?, ?, ?, ?)";
@@ -885,7 +891,7 @@ public class ServiceDao extends DBContext{
             ps.setInt(3, airline.getCountryId());
             ps.setString(4, airline.getHotline());
             ps.setString(5, airline.getLogoUrl());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -893,7 +899,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // READ - Lay hang hang khong theo ID
     public Airlines getAirlineById(int airlineId) {
         String sql = "SELECT * FROM Airlines WHERE airlineId = ?";
@@ -901,7 +907,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, airlineId);
             ResultSet rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 Airlines airline = new Airlines();
                 airline.setAirlineId(rs.getInt("airlineId"));
@@ -910,7 +916,7 @@ public class ServiceDao extends DBContext{
                 airline.setCountryId(rs.getInt("countryId"));
                 airline.setHotline(rs.getString("hotline"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
-                
+
                 return airline;
             }
         } catch (SQLException e) {
@@ -918,7 +924,7 @@ public class ServiceDao extends DBContext{
         }
         return null;
     }
-    
+
     // UPDATE - Cap nhat thong tin hang hang khong
     public boolean updateAirline(Airlines airline) {
         String sql = "UPDATE Airlines SET airlineName = ?, iataCode = ?, countryId = ?, hotline = ?, logoUrl = ? " +
@@ -931,7 +937,7 @@ public class ServiceDao extends DBContext{
             ps.setString(4, airline.getHotline());
             ps.setString(5, airline.getLogoUrl());
             ps.setInt(6, airline.getAirlineId());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -939,14 +945,14 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // DELETE - Xoa hang hang khong
     public boolean deleteAirline(int airlineId) {
         String sql = "DELETE FROM Airlines WHERE airlineId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, airlineId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -954,7 +960,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // Lay tat ca hang hang khong
     public List<Airlines> getAllAirlines() {
         List<Airlines> list = new ArrayList<>();
@@ -962,7 +968,7 @@ public class ServiceDao extends DBContext{
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Airlines airline = new Airlines();
                 airline.setAirlineId(rs.getInt("airlineId"));
@@ -971,7 +977,7 @@ public class ServiceDao extends DBContext{
                 airline.setCountryId(rs.getInt("countryId"));
                 airline.setHotline(rs.getString("hotline"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
-                
+
                 list.add(airline);
             }
         } catch (SQLException e) {
@@ -979,7 +985,7 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
+
     // Tim kiem hang hang khong theo ten hoac ma IATA
     public List<Airlines> searchAirlines(String keyword) {
         List<Airlines> list = new ArrayList<>();
@@ -991,7 +997,7 @@ public class ServiceDao extends DBContext{
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Airlines airline = new Airlines();
                 airline.setAirlineId(rs.getInt("airlineId"));
@@ -1000,7 +1006,7 @@ public class ServiceDao extends DBContext{
                 airline.setCountryId(rs.getInt("countryId"));
                 airline.setHotline(rs.getString("hotline"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
-                
+
                 list.add(airline);
             }
         } catch (SQLException e) {
@@ -1008,9 +1014,9 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
+
     // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
-    
+
     // CREATE - Them phuong tien moi
     public boolean createIslandVehicle(IslandVehicle vehicle) {
         String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability) " +
@@ -1023,7 +1029,7 @@ public class ServiceDao extends DBContext{
             ps.setDouble(4, vehicle.getPricePerDay());
             ps.setInt(5, vehicle.getCapacity());
             ps.setInt(6, vehicle.getAvailability());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1031,7 +1037,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // READ - Lay phuong tien theo ID
     public IslandVehicle getIslandVehicleById(int vehicleId) {
         String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv " +
@@ -1041,7 +1047,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicleId);
             ResultSet rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 IslandVehicle vehicle = new IslandVehicle();
                 vehicle.setVehicleId(rs.getInt("vehicleId"));
@@ -1051,7 +1057,7 @@ public class ServiceDao extends DBContext{
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
-                
+
                 return vehicle;
             }
         } catch (SQLException e) {
@@ -1059,7 +1065,7 @@ public class ServiceDao extends DBContext{
         }
         return null;
     }
-    
+
     // UPDATE - Cap nhat thong tin phuong tien
     public boolean updateIslandVehicle(IslandVehicle vehicle) {
         String sql = "UPDATE IslandVehicles SET islandId = ?, vehicleType = ?, modelName = ?, " +
@@ -1073,7 +1079,7 @@ public class ServiceDao extends DBContext{
             ps.setInt(5, vehicle.getCapacity());
             ps.setInt(6, vehicle.getAvailability());
             ps.setInt(7, vehicle.getVehicleId());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1081,14 +1087,14 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // DELETE - Xoa phuong tien
     public boolean deleteIslandVehicle(int vehicleId) {
         String sql = "DELETE FROM IslandVehicles WHERE vehicleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicleId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1096,7 +1102,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // Cap nhat tinh trang phuong tien
     public boolean updateVehicleAvailability(int vehicleId, int newAvailability) {
         String sql = "UPDATE IslandVehicles SET availability = ? WHERE vehicleId = ?";
@@ -1104,7 +1110,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, newAvailability);
             ps.setInt(2, vehicleId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1112,7 +1118,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // Lay tat ca phuong tien
     public List<IslandVehicle> getAllIslandVehicles() {
         List<IslandVehicle> list = new ArrayList<>();
@@ -1122,7 +1128,7 @@ public class ServiceDao extends DBContext{
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 IslandVehicle vehicle = new IslandVehicle();
                 vehicle.setVehicleId(rs.getInt("vehicleId"));
@@ -1132,7 +1138,7 @@ public class ServiceDao extends DBContext{
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
-                
+
                 list.add(vehicle);
             }
         } catch (SQLException e) {
@@ -1140,7 +1146,7 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
+
     // Tim kiem phuong tien theo loai hoac model
     public List<IslandVehicle> searchIslandVehicles(String keyword) {
         List<IslandVehicle> list = new ArrayList<>();
@@ -1154,7 +1160,7 @@ public class ServiceDao extends DBContext{
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 IslandVehicle vehicle = new IslandVehicle();
                 vehicle.setVehicleId(rs.getInt("vehicleId"));
@@ -1164,7 +1170,7 @@ public class ServiceDao extends DBContext{
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
-                
+
                 list.add(vehicle);
             }
         } catch (SQLException e) {
@@ -1172,9 +1178,9 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
+
     // ==================== FLIGHT SCHEDULE CRUD OPERATIONS ====================
-    
+
     // CREATE - Them lich bay moi
     public boolean createFlightSchedule(FlightSchedule schedule) {
         String sql = "INSERT INTO FlightSchedules (flightId, planeModel, departureAirport, arrivalAirport, " +
@@ -1192,7 +1198,7 @@ public class ServiceDao extends DBContext{
             ps.setString(8, schedule.getCabinBaggage());
             ps.setString(9, schedule.getSeatPitch());
             ps.setString(10, schedule.getNotes());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1200,7 +1206,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // READ - Lay lich bay theo ID
     public FlightSchedule getFlightScheduleById(int scheduleId) {
         String sql = "SELECT fs.*, f.flightNumber, f.departure, f.destination, a.airlineName, a.iataCode, a.logoUrl " +
@@ -1212,7 +1218,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, scheduleId);
             ResultSet rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 FlightSchedule schedule = new FlightSchedule();
                 schedule.setScheduleId(rs.getInt("scheduleId"));
@@ -1225,22 +1231,22 @@ public class ServiceDao extends DBContext{
                 schedule.setCabinBaggage(rs.getString("cabinBaggage"));
                 schedule.setSeatPitch(rs.getString("seatPitch"));
                 schedule.setNotes(rs.getString("notes"));
-                
+
                 // Set flight information
                 Flight flight = new Flight();
                 flight.setFlightId(rs.getInt("flightId"));
                 flight.setFlightNumber(rs.getString("flightNumber"));
                 flight.setDeparture(rs.getString("departure"));
                 flight.setDestination(rs.getString("destination"));
-                
+
                 Airlines airline = new Airlines();
                 airline.setAirlineName(rs.getString("airlineName"));
                 airline.setIataCode(rs.getString("iataCode"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
                 flight.setAirline(airline);
-                
+
                 schedule.setFlight(flight);
-                
+
                 return schedule;
             }
         } catch (SQLException e) {
@@ -1248,7 +1254,7 @@ public class ServiceDao extends DBContext{
         }
         return null;
     }
-    
+
     // UPDATE - Cap nhat thong tin lich bay
     public boolean updateFlightSchedule(FlightSchedule schedule) {
         String sql = "UPDATE FlightSchedules SET flightId = ?, planeModel = ?, departureAirport = ?, " +
@@ -1267,7 +1273,7 @@ public class ServiceDao extends DBContext{
             ps.setString(9, schedule.getSeatPitch());
             ps.setString(10, schedule.getNotes());
             ps.setInt(11, schedule.getScheduleId());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1275,14 +1281,14 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // DELETE - Xoa lich bay
     public boolean deleteFlightSchedule(int scheduleId) {
         String sql = "DELETE FROM FlightSchedules WHERE scheduleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, scheduleId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1290,7 +1296,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // Lay tat ca lich bay
     public List<FlightSchedule> getAllFlightSchedules() {
         List<FlightSchedule> list = new ArrayList<>();
@@ -1302,7 +1308,7 @@ public class ServiceDao extends DBContext{
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 FlightSchedule schedule = new FlightSchedule();
                 schedule.setScheduleId(rs.getInt("scheduleId"));
@@ -1315,20 +1321,20 @@ public class ServiceDao extends DBContext{
                 schedule.setCabinBaggage(rs.getString("cabinBaggage"));
                 schedule.setSeatPitch(rs.getString("seatPitch"));
                 schedule.setNotes(rs.getString("notes"));
-                
+
                 // Set flight information
                 Flight flight = new Flight();
                 flight.setFlightId(rs.getInt("flightId"));
                 flight.setFlightNumber(rs.getString("flightNumber"));
                 flight.setDeparture(rs.getString("departure"));
                 flight.setDestination(rs.getString("destination"));
-                
+
                 Airlines airline = new Airlines();
                 airline.setAirlineName(rs.getString("airlineName"));
                 airline.setIataCode(rs.getString("iataCode"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
                 flight.setAirline(airline);
-                
+
                 schedule.setFlight(flight);
                 list.add(schedule);
             }
@@ -1337,9 +1343,9 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
+
     // ==================== ISLAND CRUD OPERATIONS ====================
-    
+
     // CREATE - Them dao moi
     public boolean createIsland(Island island, int countryId) {
         String sql = "INSERT INTO Islands (islandName, countryId, shortDescription, longDescription, " +
@@ -1354,7 +1360,7 @@ public class ServiceDao extends DBContext{
             ps.setString(6, island.getActivities());
             ps.setString(7, island.getImageUrl());
             ps.setString(8, island.getLocation());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1362,7 +1368,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // READ - Lay dao theo ID
     public Island getIslandById(int islandId) {
         String sql = "SELECT i.*, c.countryName " +
@@ -1373,7 +1379,7 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, islandId);
             ResultSet rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 Island island = new Island();
                 island.setIslandId(rs.getInt("islandId"));
@@ -1385,7 +1391,7 @@ public class ServiceDao extends DBContext{
                 island.setActivities(rs.getString("activities"));
                 island.setImageUrl(rs.getString("imageUrl"));
                 island.setLocation(rs.getString("location"));
-                
+
                 return island;
             }
         } catch (SQLException e) {
@@ -1393,7 +1399,7 @@ public class ServiceDao extends DBContext{
         }
         return null;
     }
-    
+
     // UPDATE - Cap nhat thong tin dao
     public boolean updateIsland(Island island, int countryId) {
         String sql = "UPDATE Islands SET islandName = ?, countryId = ?, shortDescription = ?, " +
@@ -1410,7 +1416,7 @@ public class ServiceDao extends DBContext{
             ps.setString(7, island.getImageUrl());
             ps.setString(8, island.getLocation());
             ps.setInt(9, island.getIslandId());
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1418,14 +1424,14 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // DELETE - Xoa dao
     public boolean deleteIsland(int islandId) {
         String sql = "DELETE FROM Islands WHERE islandId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, islandId);
-            
+
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -1433,7 +1439,7 @@ public class ServiceDao extends DBContext{
             return false;
         }
     }
-    
+
     // Lay tat ca dao
     public List<Island> getAllIslands() {
         List<Island> list = new ArrayList<>();
@@ -1444,7 +1450,7 @@ public class ServiceDao extends DBContext{
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Island island = new Island();
                 island.setIslandId(rs.getInt("islandId"));
@@ -1456,7 +1462,7 @@ public class ServiceDao extends DBContext{
                 island.setActivities(rs.getString("activities"));
                 island.setImageUrl(rs.getString("imageUrl"));
                 island.setLocation(rs.getString("location"));
-                
+
                 list.add(island);
             }
         } catch (SQLException e) {
@@ -1464,7 +1470,7 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
+
     // Tim kiem dao theo ten
     public List<Island> searchIslandsByName(String searchTerm) {
         List<Island> list = new ArrayList<>();
@@ -1479,7 +1485,7 @@ public class ServiceDao extends DBContext{
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Island island = new Island();
                 island.setIslandId(rs.getInt("islandId"));
@@ -1491,7 +1497,7 @@ public class ServiceDao extends DBContext{
                 island.setActivities(rs.getString("activities"));
                 island.setImageUrl(rs.getString("imageUrl"));
                 island.setLocation(rs.getString("location"));
-                
+
                 list.add(island);
             }
         } catch (SQLException e) {

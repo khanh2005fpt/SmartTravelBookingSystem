@@ -11,8 +11,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Country;
 import model.Island;
 
@@ -63,7 +66,7 @@ public class SearchIslandController extends HttpServlet {
 
         String country = request.getParameter("country");
         String bestSeason = request.getParameter("bestSeason");
-        
+
 // Lấy số trang hiện tại từ request, mặc định trang 1
         int page = 1;
         String pageParam = request.getParameter("page");
@@ -75,27 +78,43 @@ public class SearchIslandController extends HttpServlet {
             }
         }
 
-        int pageSize = 6; // số đảo mỗi trang
+        int pageSize = 6; // so dao moi trang
         IslandDao id = new IslandDao();
-        List<Country> countries = id.getAllCountries();
-// Lấy tổng số đảo theo điều kiện tìm kiếm
-        int totalIslands = id.getTotalIslands(); // nếu muốn search kết hợp, cần viết thêm getTotalIslandsSearch
+        List<Country> countries = null;
+        try {
+            countries = id.getAllCountries();
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchIslandController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // Lay tong so dao theo dieu kien tim kiem
+        int totalIslands = 0;
+        try {
+            totalIslands = id.getTotalIslands(); // Lay tong so dao
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchIslandController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         int totalPages = (int) Math.ceil((double) totalIslands / pageSize);
 
-// Lấy danh sách đảo theo tìm kiếm + phân trang
-        List<Island> list = id.searchIslands(country, bestSeason);
+        // Lay danh sach dao tim kiem va phan trang
+        List<Island> list = null;
+        try {
+            list = id.searchIslands(country, bestSeason);
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchIslandController.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-// Lấy subset cho trang hiện tại
+        // Phan trang danh sach dao sau khi tim kiem
         int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, list.size());
         List<Island> pagedList = new ArrayList<>();
-        if(list.size() < pageSize){
+        if (list.size() < pageSize) {
             totalPages = 1;
         }
         if (fromIndex <= toIndex) {
             pagedList = list.subList(fromIndex, toIndex);
         }
-          request.setAttribute("countries", countries);
+        request.setAttribute("countries", countries);
         request.setAttribute("islands", pagedList);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);

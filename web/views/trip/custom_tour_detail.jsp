@@ -94,108 +94,136 @@
                     </div>
 
                     <!-- Itinerary -->
-                    <!-- Itinerary Accordion -->
                     <div class="mb-4">
                         <h5 class="text-primary fw-bold mb-3">🗓️ Lịch trình mẫu</h5>
                         <div class="accordion" id="itineraryAccordion">
+
+                            <c:set var="currentDay" value="-1" />
                             <c:forEach var="i" items="${itinerary}" varStatus="status">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading${status.index}">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#collapse${status.index}" aria-expanded="false"
-                                                aria-controls="collapse${status.index}">
-                                            Ngày ${i.dayNumber}: ${i.activity} tại ${i.location}
-                                        </button>
-                                    </h2>
-                                    <div id="collapse${status.index}" class="accordion-collapse collapse"
-                                         aria-labelledby="heading${status.index}">
-                                        <div class="accordion-body">
-                                            <p><strong>Thời gian:</strong> ${i.startTime} - ${i.endTime}</p>
-                                            <p><strong>Hoạt động chi tiết:</strong> ${i.activity}</p>
-                                            <p><strong>Địa điểm:</strong> ${i.location}</p>
-                                        </div>
+
+                                <c:if test="${i.dayNumber != currentDay}">
+                                    <c:if test="${currentDay != -1}">
+                                    </div> <!-- .accordion-body -->
+                                </div> <!-- .accordion-collapse -->
+                            </div> <!-- .accordion-item -->
+                        </c:if>
+
+                        <div class="accordion-item border-0 shadow-sm mb-3 rounded-3">
+                            <h2 class="accordion-header" id="heading${i.dayNumber}">
+                                <button class="accordion-button collapsed bg-light fw-semibold" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse${i.dayNumber}"
+                                        aria-expanded="false"
+                                        aria-controls="collapse${i.dayNumber}">
+                                    🌅 Ngày ${i.dayNumber}
+                                </button>
+                            </h2>
+
+                            <div id="collapse${i.dayNumber}" class="accordion-collapse collapse"
+                                 aria-labelledby="heading${i.dayNumber}">
+                                <div class="accordion-body">
+                                </c:if>
+
+                                <div class="d-flex mb-2 align-items-start">
+                                    <span class="fw-semibold text-secondary me-2">
+                                        🕒 ${i.timeOfDay}:
+                                    </span>
+                                    <div>
+                                        <span class="text-primary fw-semibold">${i.activity}</span><br/>
+                                        <small></small>
                                     </div>
                                 </div>
-                            </c:forEach>
-                        </div>
-                    </div>
 
-                </div>
+                                <c:set var="currentDay" value="${i.dayNumber}" />
 
-                <!-- Right Column: Booking -->
-                <div class="col-lg-4">
-                    <div class="card shadow-sm mb-4 p-3">
-                        <div class="card-body">
-                            <h4 class="fw-bold text-primary mb-3">📅 Đặt tour</h4>
-                            <p class="text-muted small">Hoàn tất thông tin và tiến hành đặt chỗ. Bạn sẽ nhận email xác nhận sau khi thanh toán.</p>
+                                <c:if test="${status.last}">
+                                </div> <!-- .accordion-body -->
+                            </div> <!-- .accordion-collapse -->
+                        </div> <!-- .accordion-item -->
+                    </c:if>
 
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.user}">
-                                    <form action="BookingCustomTourController" method="post">
-                                        <input type="hidden" name="customTourId" value="${tour.customTourId}">
-                                        <input type="hidden" name="price" value="${tour.totalPrice}">
-                                        <input type="hidden" name="startDate" value="${tour.startDate}">
-
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-6">
-                                                <label class="form-label">Người lớn</label>
-                                                <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label">Trẻ em</label>
-                                                <input type="number" class="form-control" name="childQty" min="0" value="0" required>
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <div class="small text-muted">Tổng giá</div>
-                                            <div class="fw-bold text-primary">
-                                                <fmt:setLocale value="vi_VN"/>
-                                                <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
-                                            </div>
-                                        </div>
-
-                                        <button type="submit" class="btn btn-primary w-100 fw-bold">
-                                            <i class="bi bi-check-circle me-2"></i> Đặt Tour Ngay
-                                        </button>
-                                    </form>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="alert alert-warning mb-0">
-                                        Bạn cần <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="fw-bold">đăng nhập</a> để đặt tour.
-                                    </div>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                    </div>
-
-                    <div class="card p-3 shadow-sm">
-                        <div class="card-body small text-muted">
-                            <p class="mb-1"><strong>Lưu ý:</strong></p>
-                            <ul class="ps-3 mb-0">
-                                <li>Giá hiển thị là tổng ước tính. Giá cuối cùng phụ thuộc vào ngày và số lượng khách.</li>
-                                <li>Vui lòng kiểm tra kỹ ngày khởi hành trước khi thanh toán.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                </c:forEach>
             </div>
+        </div>
+    </div>
 
-            <!-- Back to Home -->
-            <div class="text-center mt-4">
-                <a href="home" class="btn btn-outline-primary rounded-pill px-4">Về trang chủ</a>
+    <!-- Right Column: Booking -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4 p-3">
+            <div class="card-body">
+                <h4 class="fw-bold text-primary mb-3">📅 Đặt tour</h4>
+                <p class="text-muted small">Hoàn tất thông tin và tiến hành đặt chỗ. Bạn sẽ nhận email xác nhận sau khi thanh toán.</p>
+
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <form action="BookingCustomTourController" method="post">
+                            <input type="hidden" name="customTourId" value="${tour.customTourId}">
+                            <input type="hidden" name="price" value="${tour.totalPrice}">
+                            <input type="hidden" name="startDate" value="${tour.startDate}">
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Người lớn</label>
+                                    <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Trẻ em</label>
+                                    <input type="number" class="form-control" name="childQty" min="0" value="0" required>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="small text-muted">Tổng giá</div>
+                                <div class="fw-bold text-primary">
+                                    <fmt:setLocale value="vi_VN"/>
+                                    <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">
+                                <i class="bi bi-check-circle me-2"></i> Đặt Tour Ngay
+                            </button>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="alert alert-warning mb-0">
+                            Bạn cần <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="fw-bold">đăng nhập</a> để đặt tour.
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
 
-        <%@ include file="/views/common/footer.jsp" %>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <div id="ftco-loader" class="show fullscreen">
-            <svg class="circular" width="48px" height="48px">
-            <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
-            <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/>
-            </svg>
+        <div class="card p-3 shadow-sm">
+            <div class="card-body small text-muted">
+                <p class="mb-1"><strong>Lưu ý:</strong></p>
+                <ul class="ps-3 mb-0">
+                    <li>Giá hiển thị là tổng ước tính. Giá cuối cùng phụ thuộc vào ngày và số lượng khách.</li>
+                    <li>Vui lòng kiểm tra kỹ ngày khởi hành trước khi thanh toán.</li>
+                </ul>
+            </div>
         </div>
-        <%@ include file="/views/common/script.jsp" %>
+    </div>
+</div>
 
-    </body>
+<!-- Back to Home -->
+<div class="text-center mt-4">
+    <a href="javascript:history.back()" class="btn btn-outline-primary rounded-pill px-4">
+        Quay lại trang trước
+    </a>
+</div>
+
+</div>
+
+<%@ include file="/views/common/footer.jsp" %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<div id="ftco-loader" class="show fullscreen">
+    <svg class="circular" width="48px" height="48px">
+    <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
+    <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/>
+    </svg>
+</div>
+<%@ include file="/views/common/script.jsp" %>
+
+</body>
 </html>

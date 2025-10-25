@@ -12,19 +12,19 @@ public class CustomTourItinerary {
     private int dayNumber;
     private String activity;
     private String location;
-    private Time startTime;
-    private Time endTime;
+    private String timeOfDay;
 
     public CustomTourItinerary() {
     }
 
-    public CustomTourItinerary(int dayNumber, String activity, String location, Time startTime, Time endTime) {
+    public CustomTourItinerary(int dayNumber, String activity, String location, String timeOfDay) {
         this.dayNumber = dayNumber;
         this.activity = activity;
         this.location = location;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.timeOfDay = timeOfDay;
     }
+
+    
 
     public int getDayNumber() {
         return dayNumber;
@@ -50,21 +50,15 @@ public class CustomTourItinerary {
         this.location = location;
     }
 
-    public Time getStartTime() {
-        return startTime;
+    public String getTimeOfDay() {
+        return timeOfDay;
     }
 
-    public void setStartTime(Time startTime) {
-        this.startTime = startTime;
+    public void setTimeOfDay(String timeOfDay) {
+        this.timeOfDay = timeOfDay;
     }
 
-    public Time getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Time endTime) {
-        this.endTime = endTime;
-    }
+    
     
     
 }

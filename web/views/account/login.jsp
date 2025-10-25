@@ -109,7 +109,7 @@
 
                             <a href="https://accounts.google.com/o/oauth2/auth?scope=email profile openid
 
-&redirect_uri=http://localhost:9090/SmartBookingTravelSystem/login
+&redirect_uri=http://localhost:9999/SmartBookingTravelSystem/login
 
 &response_type=code
 
