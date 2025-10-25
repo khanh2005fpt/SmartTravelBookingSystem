@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 package controller.profile.avatar;
 
 import java.io.IOException;
@@ -13,105 +8,67 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 
 /**
  *
  * @author nqagh
  */
-@WebServlet(name="Avatar_DisplayServlet", urlPatterns={"/Avatar_DisplayServlet"})
+@WebServlet(name = "Avatar_DisplayServlet", urlPatterns = {"/Avatar_DisplayServlet"})
 public class AvatarDisplayServlet extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Avatar_DisplayServlet</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Avatar_DisplayServlet at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-    
-          // xac thuc file that tren o cung 
-          
-              String fileName = request.getParameter("file");
-        String UPLOAD_DIR = "E:/FALL_2025/SWP/SmartBookingTravelSystem/UploadData/Avatars";
-if (fileName == null || fileName.isEmpty()) {
-    
-    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Thiếu tên file");
-    return;
-}
-
-         
-           // tao 1 doi tuong file tro den tep anh thuc te
-              File file = new File(UPLOAD_DIR, fileName);
-        if (!file.exists()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            throws ServletException, IOException {
+        // Lấy tên file từ tham số
+        String fileName = request.getParameter("file");
+        if (fileName == null || fileName.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu tên file");
             return;
         }
-        
-        //Xác định MIME type để trình duyệt hiện thị đúng 
-          String mime = getServletContext().getMimeType(file.getName());
-        if (mime == null) mime = "application/octet-stream";
-        response.setContentType(mime);
-        
-     // Đọc và stream ảnh
-       try (var out = response.getOutputStream()) {
-    Files.copy(file.toPath(), out);
-    out.flush();
-}
-       
-        
-        
-           
-    } 
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
+        // Đường dẫn lưu file (đồng bộ với UploadAvatarServlet)
+        String uploadDir = getServletContext().getRealPath("/web/views/UploadData/Avatars");
+        File file = new File(uploadDir, fileName);
+        System.out.println("Trying to display file: " + file.getAbsolutePath()); // Log để debug
+
+        // Kiểm tra file tồn tại
+        if (!file.exists()) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Ảnh không tồn tại: " + file.getAbsolutePath());
+            return;
+        }
+
+        // Xác định MIME type
+        String mime = getServletContext().getMimeType(file.getName());
+        if (mime == null) {
+            mime = "application/octet-stream";
+        }
+        response.setContentType(mime);
+
+        // Đọc và stream ảnh
+        try (FileInputStream fis = new FileInputStream(file);
+             OutputStream out = response.getOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.flush();
+        } catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi đọc file: " + e.getMessage());
+        }
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response); // Xử lý POST giống GET
+    }
+
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }

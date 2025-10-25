@@ -9,11 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Airlines;
 import model.Flight;
 import model.Hotel;
 import model.Island;
 import model.IslandVehicle;
+import model.Place;
 import utils.DBContext;
 import java.sql.Time;
 import model.FlightSchedule;
@@ -27,14 +30,13 @@ public class ServiceDao extends DBContext{
   public static final ServiceDao INSTANCE = new ServiceDao();
     
     //Lay danh sach phuong tien theo dao
-    public List<IslandVehicle> getListVehicleById(int id) {
+    public List<IslandVehicle> getListVehicleById(int id) throws SQLException{
         List<IslandVehicle> list = new ArrayList<>();
         String sql = "select * from IslandVehicles a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setInt(1, id); 
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) { // lấy nhiều island
+            while (rs.next()) { // lấy nhiều phương tiện
                  IslandVehicle v = new IslandVehicle(
                     rs.getInt("vehicleId"),
                     rs.getInt("islandId"),
@@ -46,14 +48,14 @@ public class ServiceDao extends DBContext{
                 );
                 list.add(v);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách phương tiện cho đảo có islandId = " + id, e);
         }
         return list; 
     }
     
     //Lay tat ca khach san
-      public List<Hotel> getHotels() {
+      public List<Hotel> getHotels() throws SQLException{
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId";
         try {
@@ -72,21 +74,20 @@ public class ServiceDao extends DBContext{
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách khách sạn từ cơ sở dữ liệu.", e);
         }
         return list;
     }
     
-      //lay danh sach dao theo dao
-     public List<Hotel> getListHotelsById(int id) {
+      //lay danh sach khach san theo dao
+     public List<Hotel> getListHotelsById(int id) throws SQLException{
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setInt(1, id); 
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) { // lấy nhiều island
+            while (rs.next()) { // lấy nhiều khách sạn
                 Hotel h = new Hotel();
                 h.setHotelId(rs.getInt("hotelId"));
                 h.setIslandId(rs.getInt("islandId"));
@@ -99,15 +100,15 @@ public class ServiceDao extends DBContext{
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách khách sạn cho đảo có islandId = " + id, e);
         }
         return list; 
     }
      
      
      //Tim kiem danh sach khach san theo quoc gia va loai phong
-    public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) {
+    public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) throws SQLException{
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where 1=1";
 
@@ -127,8 +128,7 @@ public class ServiceDao extends DBContext{
             sql += " and a.pricePerNight <= ?";
         }
 
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             int idx = 1;
 
             if (country != null && !country.isEmpty()) {
@@ -158,58 +158,64 @@ public class ServiceDao extends DBContext{
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    //Lay danh sach khach san theo tung trang
-    public List<Hotel> getIslandsByPage(int page, int pageSize) {
-        List<Hotel> list = new ArrayList<>();
-        String sql = "Select * from Hotels order by hotelId offset ? rows fetch next ? rows only";
-
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, (page - 1) * pageSize); 
-            ps.setInt(2, pageSize);              
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(new Hotel(
-                        rs.getInt("hotelId"),
-                        rs.getInt("islandId"),
-                        rs.getString("hotelName"),
-                        rs.getString("country"),
-                        rs.getString("hotelImageUrl"),
-                        rs.getString("roomType"),
-                        rs.getInt("pricePerNight"),
-                        rs.getInt("roomAvailable"),
-                        rs.getDouble("rating")
-                ));
-            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException("Lỗi khi tìm kiếm khách sạn theo quốc gia hoặc loại phòng.", e);
         }
-
         return list;
     }
+
     
     //Tinh tong so khach san
-    public int getTotalIslands() {
+    public int getTotalIslands() throws SQLException{
         int total = 0;
         String sql = "select count(*) from Hotels";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 total = rs.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException("Lỗi khi tính tổng số lượng khách sạn trong cơ sở dữ liệu.", e);
         }
         return total;
     }
     
+    //Lay danh sach dia diem noi tieng theo dao
+     public List<Place> getListPlaceById(int id) throws SQLException{
+        List<Place> list = new ArrayList<>();
+        String sql = "select * from places a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setInt(1, id); 
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) { // lấy nhiều địa điểm
+                 Place place = new Place(
+                    rs.getInt("placeId"),
+                    rs.getInt("islandId"),
+                    rs.getString("placeName"),
+                    rs.getString("location"),
+                    rs.getString("description"),
+                    rs.getBoolean("hasTicket"),
+                    rs.getInt("ticketPrice")
+                );
+                list.add(place);
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách địa điểm nổi tiếng cho đảo có islandId = " + id, e);
+        }
+        return list; 
+    }
+     
+//     public static void main(String[] args) {
+//        ServiceDao sd = new ServiceDao();
+//        List<Place> place;
+//        try {
+//            place = sd.getListPlaceById(1);
+//              System.out.println(place.toString());
+//        } catch (SQLException ex) {
+//            Logger.getLogger(ServiceDao.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//       
+//    }
     // la danh sach ve may bay dua theo diem den 
    public List<Flight> getFlightsByIslandId(int islandId) {
     List<Flight> list = new ArrayList<>();

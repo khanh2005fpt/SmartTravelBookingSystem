@@ -13,7 +13,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Booking;
 import model.Tour;
 import model.TourItinerary;
@@ -107,16 +110,20 @@ public class BookingController extends HttpServlet {
 
             // Lấy thông tin người dùng đăng nhập
             User user = (User) request.getSession().getAttribute("user");
+            if (user == null) {
+                request.setAttribute("errorMessage", "❌ Bạn cần đăng nhập trước khi đặt tour!");
+                request.getRequestDispatcher("/views/home/login.jsp").forward(request, response);
+                return;
+            }
 
             int customerId = user.getUserId();
-
+            
             // Tính tổng tiền
             double totalPrice = (adultQty * price) + (childQty * price * 0.3);
 
             // Tạo booking
             Booking booking = new Booking();
             booking.setCustomerId(customerId);
-            booking.setPrice((int) totalPrice);
             booking.setDepartureDate(departureDate);
             booking.setAdultQuantity(adultQty);
             booking.setChildQuantity(childQty);
@@ -124,9 +131,6 @@ public class BookingController extends HttpServlet {
 
             BookingDao bd = new BookingDao();
             bd.createBooking(booking);
-
-            // Lưu BookingDetails
-           
 
             // Lấy thông tin tour
             // Gửi dữ liệu sang trang thanh toán
@@ -140,8 +144,18 @@ public class BookingController extends HttpServlet {
             e.printStackTrace();
             int tourId = Integer.parseInt(request.getParameter("tourId"));
             TourDao td = new TourDao();
-            Tour tour = td.getTourDetailById(tourId);
-            List<TourItinerary> itineraries = td.getListTourItineriesById(tourId);
+            Tour tour = null;
+            try {
+                tour = td.getTourDetailById(tourId);
+            } catch (SQLException ex) {
+                Logger.getLogger(BookingController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            List<TourItinerary> itineraries = null;
+            try {
+                itineraries = td.getListTourItineriesById(tourId);
+            } catch (SQLException ex) {
+                Logger.getLogger(BookingController.class.getName()).log(Level.SEVERE, null, ex);
+            }
             request.setAttribute("errorMessage", "Đã xảy ra lỗi trong quá trình xử lý: " + e.getMessage());
             request.setAttribute("tour", tour);
             request.setAttribute("itineraries", itineraries);

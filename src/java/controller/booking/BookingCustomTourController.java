@@ -123,7 +123,6 @@ public class BookingCustomTourController extends HttpServlet {
             // Tạo booking
             Booking booking = new Booking();
             booking.setCustomerId(customerId);
-            booking.setPrice((int) totalPrice);
             booking.setDepartureDate(departureDate);
 
             booking.setAdultQuantity(adultQty);

@@ -283,6 +283,8 @@
 
 
                 </div>
+                
+                <c:if test="${not empty islands}">
                 <c:choose>
                     <c:when test="${totalPages == 1}">
                         <nav aria-label="Page navigation example">
@@ -300,7 +302,7 @@
 
                                 <c:if test="${currentPage > 1}">
                                     <li class="page-item">
-                                        <a class="page-link btn btn-primary" href="?page=${currentPage - 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Previous</a>
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage - 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Trước</a>
                                     </li>
                                 </c:if>
 
@@ -313,7 +315,7 @@
 
                                 <c:if test="${currentPage < totalPages}">
                                     <li class="page-item">
-                                        <a class="page-link btn btn-primary" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Next</a>
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Sau</a>
                                     </li>
                                 </c:if>
 
@@ -321,7 +323,7 @@
                         </nav>
                     </c:otherwise>
                 </c:choose>
-
+                </c:if>
             </div>
         </section>
 
