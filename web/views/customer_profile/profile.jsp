@@ -151,7 +151,7 @@
 
                 <div class="profile-menu">
                     <a href="#" onclick="showMainSection(event, 'member-priority')"><i class="bi bi-award"></i> Membership Level</a>
-                    <a href="#" onclick="showMainSection(event, 'historyBooking')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'historyBookings')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
                     <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
@@ -264,13 +264,54 @@
 
                     </div>
                 </section>
-
-
-
-
             </div>
-                    
-                    
+                  <!-- historyBooking content ----------------------------------------->       
+
+                  <div id="historyBookings" class=" historyBookings-container  main-section" style="display:none;"> 
+
+                      <!-- Banner -->
+                      <div class="tab-header-historyBookings text-center mb-4 w-100">
+                          <img 
+                              src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                              alt="historyBookings Banner"
+                              class="img-fluid rounded-3 shadow-sm w-100">
+                      </div>
+                      <!-- Tiêu đề -->
+                      <div class="text-center mb-4 w-auto">
+                          <span class="badge bg-gradient" 
+                                style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                              🔔 Danh sách thông báo Meland Booking
+                          </span>
+                      </div>
+
+
+                 </div>
+                  
+                 <!-- Payments content ----------------------------------------->
+                 
+                        <!--  content -->
+                        <div id="transactions" class=" transactions-container main-section" style="display:none;">
+                            <!-- Banner -->
+                            <div class="tab-header-transactions text-center mb-4 w-100">
+                                <img 
+                                    src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                                    alt="transactions Banner"
+                                    class="img-fluid rounded-3 shadow-sm w-100">
+                            </div>
+                            <!-- Tiêu đề -->
+                            <div class="text-center mb-4 w-auto">
+                                <span class="badge bg-gradient" 
+                                      style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                                    🔔 Danh sách thông báo Meland Booking
+                                </span>
+                            </div>
+
+
+                                  
+                              </div>
+             
       <!-- Notifications content ----------------------------------------->
       <div id="notifications" class="notifications-container main-section p-3">
 
@@ -396,17 +437,29 @@
               </c:forEach>
           </section>
       </div>
+          <!-- favorites content ----------------------------------------->
+                 <div id="favorites" class=" favorites-container main-section" style="display:none;">
+                 
+                       <!-- Banner -->
+          <div class="tab-header-favorites text-center mb-4 w-100">
+              <img 
+                  src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                  alt="favorites Banner"
+                  class="img-fluid rounded-3 shadow-sm w-100">
+          </div>
+               <!-- Tiêu đề -->
+          <div class="text-center mb-4 w-auto">
+              <span class="badge bg-gradient" 
+                    style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                         🔔 Danh sách thông báo Meland Booking
+              </span>
+          </div>
 
-           
-
-            <!-- booking content -->
-            <div id="historyBooking" class="main-section" style="display:none;"> Lịch sử Nội dung Đặt chỗ của tôi...</div>
-             
-            <!--  content -->
-            <div id="transactions" class="main-section" style="display:none;">Nội dung giao dịch của tôi...</div>
-             
-            
-                 <div id="favorites" class="main-section" style="display:none;">tour và dịch vụ yêu thích</div>
+                 
+                 
+                 
+                 </div>
             
             <!-- account and securit content --> 
             <div id="account" class="account-container main-section " >
