@@ -436,14 +436,13 @@
                                 
                                 <div class="detail-item">
                                     <span class="detail-label">
-                                        <i class="fa fa-money-bill-wave"></i> Giá trung bình
+                                        <i class="fa fa-money-bill-wave"></i> Mức giá
                                     </span>
                                     <span class="detail-value">
                                         <c:choose>
-                                            <c:when test="${not empty restaurant.averagePrice && restaurant.averagePrice > 0}">
+                                            <c:when test="${not empty restaurant.priceRange}">
                                                 <span class="price-display">
-                                                    <fmt:formatNumber value="${restaurant.averagePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
-                                                    <small style="color: #6c757d; font-weight: normal; font-size: 0.8em;">/người</small>
+                                                    ${restaurant.priceRange}
                                                 </span>
                                             </c:when>
                                             <c:otherwise>
@@ -508,23 +507,7 @@
                                     </span>
                                 </div>
                                 
-                                <div class="detail-item">
-                                    <span class="detail-label">
-                                        <i class="fa fa-envelope"></i> Email
-                                    </span>
-                                    <span class="detail-value">
-                                        <c:choose>
-                                            <c:when test="${not empty restaurant.email}">
-                                                <a href="mailto:${restaurant.email}" style="color: #667eea; text-decoration: none;">
-                                                    ${restaurant.email}
-                                                </a>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span style="color: #6c757d;">Chưa cập nhật</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </span>
-                                </div>
+
                             </div>
                         </div>
 

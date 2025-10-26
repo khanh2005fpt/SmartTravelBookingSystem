@@ -402,8 +402,8 @@
             </div>
 
             <form id="vehicleForm" action="${pageContext.request.contextPath}/staff/vehicles" method="post" enctype="multipart/form-data" novalidate>
-                <input type="hidden" name="action" value="${not empty vehicle && vehicle.vehicleId > 0 ? 'update' : 'create'}">
-                <c:if test="${not empty vehicle && vehicle.vehicleId > 0}">
+                <input type="hidden" name="action" value="${empty vehicle ? 'create' : 'update'}">
+                <c:if test="${not empty vehicle}">
                     <input type="hidden" name="id" value="${vehicle.vehicleId}">
                 </c:if>
 

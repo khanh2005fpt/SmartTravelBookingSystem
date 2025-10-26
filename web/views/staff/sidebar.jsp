@@ -208,7 +208,7 @@
                     </a>
                 </div>
                 <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/vehicles?action=list" 
+                    <a href="${pageContext.request.contextPath}/staff/vehicles" 
                        class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
                         <i class="fa fa-car"></i>
                         Quản lý Phương tiện

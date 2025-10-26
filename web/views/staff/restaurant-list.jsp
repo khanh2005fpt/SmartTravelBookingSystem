@@ -423,14 +423,17 @@
                     <label for="cuisineType">Loại ẩm thực</label>
                     <select class="form-control" id="cuisineType" name="cuisineType">
                         <option value="">Tất cả loại</option>
-                        <option value="Vietnamese" ${param.cuisineType == 'Vietnamese' ? 'selected' : ''}>Việt Nam</option>
-                        <option value="Chinese" ${param.cuisineType == 'Chinese' ? 'selected' : ''}>Trung Hoa</option>
-                        <option value="Japanese" ${param.cuisineType == 'Japanese' ? 'selected' : ''}>Nhật Bản</option>
-                        <option value="Korean" ${param.cuisineType == 'Korean' ? 'selected' : ''}>Hàn Quốc</option>
-                        <option value="Western" ${param.cuisineType == 'Western' ? 'selected' : ''}>Âu Mỹ</option>
-                        <option value="Seafood" ${param.cuisineType == 'Seafood' ? 'selected' : ''}>Hải sản</option>
-                        <option value="Vegetarian" ${param.cuisineType == 'Vegetarian' ? 'selected' : ''}>Chay</option>
-                        <option value="FastFood" ${param.cuisineType == 'FastFood' ? 'selected' : ''}>Thức ăn nhanh</option>
+                        <option value="Việt Nam" ${param.cuisineType == 'Việt Nam' ? 'selected' : ''}>Việt Nam</option>
+                                <option value="Thái Lan" ${param.cuisineType == 'Thái Lan' ? 'selected' : ''}>Thái Lan</option>
+                                <option value="Nhật Bản" ${param.cuisineType == 'Nhật Bản' ? 'selected' : ''}>Nhật Bản</option>
+                                <option value="Hàn Quốc" ${param.cuisineType == 'Hàn Quốc' ? 'selected' : ''}>Hàn Quốc</option>
+                                <option value="Trung Quốc" ${param.cuisineType == 'Trung Quốc' ? 'selected' : ''}>Trung Quốc</option>
+                                <option value="Ý" ${param.cuisineType == 'Ý' ? 'selected' : ''}>Ý</option>
+                                <option value="Pháp" ${param.cuisineType == 'Pháp' ? 'selected' : ''}>Pháp</option>
+                                <option value="Hải sản" ${param.cuisineType == 'Hải sản' ? 'selected' : ''}>Hải sản</option>
+                                <option value="Chay" ${param.cuisineType == 'Chay' ? 'selected' : ''}>Chay</option>
+                                <option value="Quốc tế" ${param.cuisineType == 'Quốc tế' ? 'selected' : ''}>Quốc tế</option>
+                                <option value="Khác" ${param.cuisineType == 'Khác' ? 'selected' : ''}>Khác</option>
                     </select>
                 </div>
                 
@@ -543,9 +546,8 @@
                                         <td>
                                             <div class="restaurant-price">
                                                 <c:choose>
-                                                    <c:when test="${not empty restaurant.averagePrice && restaurant.averagePrice > 0}">
-                                                        <fmt:formatNumber value="${restaurant.averagePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
-                                                        <small style="color: #6c757d; font-weight: normal;">/người</small>
+                                                    <c:when test="${not empty restaurant.priceRange}">
+                                                        ${restaurant.priceRange}
                                                     </c:when>
                                                     <c:otherwise>
                                                         <span style="color: #6c757d;">Chưa cập nhật</span>
