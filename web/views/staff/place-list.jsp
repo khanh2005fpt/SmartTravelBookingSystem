@@ -458,15 +458,11 @@
                 </div>
                 
                 <div class="filter-group">
-                    <label for="placeType">Loại địa điểm</label>
-                    <select class="form-control" id="placeType" name="placeType">
-                        <option value="">Tất cả loại</option>
-                        <option value="Tourist" ${param.placeType == 'Tourist' ? 'selected' : ''}>Du lịch</option>
-                        <option value="Historical" ${param.placeType == 'Historical' ? 'selected' : ''}>Lịch sử</option>
-                        <option value="Natural" ${param.placeType == 'Natural' ? 'selected' : ''}>Thiên nhiên</option>
-                        <option value="Cultural" ${param.placeType == 'Cultural' ? 'selected' : ''}>Văn hóa</option>
-                        <option value="Entertainment" ${param.placeType == 'Entertainment' ? 'selected' : ''}>Giải trí</option>
-                        <option value="Religious" ${param.placeType == 'Religious' ? 'selected' : ''}>Tôn giáo</option>
+                    <label for="hasTicket">Loại vé</label>
+                    <select class="form-control" id="hasTicket" name="hasTicket">
+                        <option value="">Tất cả</option>
+                        <option value="true" ${param.hasTicket == 'true' ? 'selected' : ''}>Có vé</option>
+                        <option value="false" ${param.hasTicket == 'false' ? 'selected' : ''}>Miễn phí</option>
                     </select>
                 </div>
                 
@@ -510,11 +506,10 @@
                         <table class="places-table table">
                             <thead>
                                 <tr>
-                                    <th>Hình ảnh</th>
-                                    <th>Thông tin địa điểm</th>
-                                    <th>Loại</th>
-                                    <th>Đánh giá</th>
-                                    <th>Giá vé</th>
+                                    <th>Tên địa điểm</th>
+                                    <th>Vị trí</th>
+                                    <th>Mô tả</th>
+                                    <th>Vé</th>
                                     <th>Đảo</th>
                                     <th>Thao tác</th>
                                 </tr>
@@ -523,68 +518,53 @@
                                 <c:forEach var="place" items="${places}">
                                     <tr>
                                         <td>
+                                            <div class="place-name">${place.placeName}</div>
+                                        </td>
+                                        <td>
                                             <c:choose>
-                                                <c:when test="${not empty place.placeImageUrl}">
-                                                    <img src="${pageContext.request.contextPath}/${place.placeImageUrl}" 
-                                                         alt="${place.placeName}" 
-                                                         class="place-image">
+                                                <c:when test="${not empty place.location}">
+                                                    <i class="fa fa-map-marker-alt"></i> ${place.location}
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <div class="place-image" style="background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d;">
-                                                        <i class="fa fa-map-marked-alt"></i>
-                                                    </div>
+                                                    <span class="text-muted">Chưa có thông tin</span>
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
                                         <td>
-                                            <div class="place-name">${place.placeName}</div>
-                                            <div class="place-type">
-                                                <c:if test="${not empty place.address}">
-                                                    <i class="fa fa-map-marker-alt"></i> ${place.address}
-                                                </c:if>
-                                            </div>
+                                            <c:choose>
+                                                <c:when test="${not empty place.description}">
+                                                    <c:choose>
+                                                        <c:when test="${place.description.length() > 100}">
+                                                            ${place.description.substring(0, 100)}...
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            ${place.description}
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="text-muted">Chưa có mô tả</span>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </td>
                                         <td>
-                                            <span class="type-badge type-${place.placeType.toLowerCase()}">
-                                                <c:choose>
-                                                    <c:when test="${place.placeType == 'Tourist'}">Du lịch</c:when>
-                                                    <c:when test="${place.placeType == 'Historical'}">Lịch sử</c:when>
-                                                    <c:when test="${place.placeType == 'Natural'}">Thiên nhiên</c:when>
-                                                    <c:when test="${place.placeType == 'Cultural'}">Văn hóa</c:when>
-                                                    <c:when test="${place.placeType == 'Entertainment'}">Giải trí</c:when>
-                                                    <c:when test="${place.placeType == 'Religious'}">Tôn giáo</c:when>
-                                                    <c:otherwise>${place.placeType}</c:otherwise>
-                                                </c:choose>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="place-rating">
-                                                <span class="rating-stars">
-                                                    <c:forEach begin="1" end="5" var="star">
+                                            <c:choose>
+                                                <c:when test="${place.hasTicket}">
+                                                    <div class="place-price">
                                                         <c:choose>
-                                                            <c:when test="${star <= place.rating}">
-                                                                <i class="fa fa-star"></i>
+                                                            <c:when test="${not empty place.ticketPrice && place.ticketPrice > 0}">
+                                                                <fmt:formatNumber value="${place.ticketPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <i class="fa fa-star-o"></i>
+                                                                <span style="color: #dc3545;">Có vé</span>
                                                             </c:otherwise>
                                                         </c:choose>
-                                                    </c:forEach>
-                                                </span>
-                                                <span class="rating-value">${place.rating}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="place-price">
-                                                <c:choose>
-                                                    <c:when test="${not empty place.entryFee && place.entryFee > 0}">
-                                                        <fmt:formatNumber value="${place.entryFee}" type="currency" currencySymbol="₫" groupingUsed="true"/>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <span style="color: #28a745; font-weight: 600;">Miễn phí</span>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span style="color: #28a745; font-weight: 600;">Miễn phí</span>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </td>
                                         <td>
                                             <c:choose>
@@ -625,7 +605,7 @@
                                 <ul class="pagination">
                                     <c:if test="${currentPage > 1}">
                                         <li class="page-item">
-                                            <a class="page-link" href="?action=list&page=${currentPage - 1}&search=${param.search}&placeType=${param.placeType}&islandId=${param.islandId}">
+                                            <a class="page-link" href="?action=list&page=${currentPage - 1}&search=${param.search}&hasTicket=${param.hasTicket}&islandId=${param.islandId}">
                                                 <i class="fa fa-chevron-left"></i>
                                             </a>
                                         </li>
@@ -633,7 +613,7 @@
                                     
                                     <c:forEach begin="1" end="${totalPages}" var="pageNum">
                                         <li class="page-item ${pageNum == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="?action=list&page=${pageNum}&search=${param.search}&placeType=${param.placeType}&islandId=${param.islandId}">
+                                            <a class="page-link" href="?action=list&page=${pageNum}&search=${param.search}&hasTicket=${param.hasTicket}&islandId=${param.islandId}">
                                                 ${pageNum}
                                             </a>
                                         </li>
@@ -641,7 +621,7 @@
                                     
                                     <c:if test="${currentPage < totalPages}">
                                         <li class="page-item">
-                                            <a class="page-link" href="?action=list&page=${currentPage + 1}&search=${param.search}&placeType=${param.placeType}&islandId=${param.islandId}">
+                                            <a class="page-link" href="?action=list&page=${currentPage + 1}&search=${param.search}&hasTicket=${param.hasTicket}&islandId=${param.islandId}">
                                                 <i class="fa fa-chevron-right"></i>
                                             </a>
                                         </li>
@@ -710,7 +690,7 @@
         // Enhanced search functionality
         $(document).ready(function() {
             // Auto-submit search form on select change
-            $('#placeType, #islandId').on('change', function() {
+            $('#hasTicket, #islandId').on('change', function() {
                 $(this).closest('form').submit();
             });
             

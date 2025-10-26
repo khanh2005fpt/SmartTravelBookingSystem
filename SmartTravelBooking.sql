@@ -1,4 +1,4 @@
-﻿﻿Create database SmartTravelBooking
+﻿Create database SmartTravelBooking
 go
 use SmartTravelBooking
 go
@@ -176,6 +176,29 @@ CREATE TABLE Hotels (
     rating DECIMAL(3,1),
     hotelImageUrl VARCHAR(255), -- đường dẫn ảnh khách sạn
 	area INT CHECK (area > 0),
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+-- Bảng Restaurants
+CREATE TABLE Restaurants (
+    restaurantId INT IDENTITY(1,1) PRIMARY KEY,
+    islandId INT NOT NULL,
+    restaurantName NVARCHAR(100) NOT NULL,
+    address NVARCHAR(255),
+    description NVARCHAR(MAX),
+    cuisineType NVARCHAR(50) NOT NULL
+        CHECK (cuisineType IN (N'Việt Nam', N'Thái Lan', N'Nhật Bản', N'Hàn Quốc', N'Trung Quốc', N'Ý', N'Pháp', N'Hải sản', N'Chay', N'Quốc tế', N'Khác')),
+    priceRange NVARCHAR(20) NOT NULL
+        CHECK (priceRange IN (N'Bình dân', N'Trung bình', N'Cao cấp', N'Sang trọng')),
+    rating DECIMAL(3,1) CHECK (rating >= 0 AND rating <= 5),
+    openTime TIME,
+    closeTime TIME,
+    openingHours NVARCHAR(100), -- giờ mở cửa dạng text (ví dụ: "08:00 - 22:00")
+    capacity INT CHECK (capacity > 0),
+    phoneNumber NVARCHAR(20),
+    restaurantImageUrl VARCHAR(255), -- đường dẫn ảnh nhà hàng
+    specialties NVARCHAR(MAX), -- món đặc sản của nhà hàng
+    isActive BIT DEFAULT 1, -- 1: hoạt động, 0: tạm đóng
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
@@ -1062,6 +1085,34 @@ VALUES
 (10, N'Astoria Palawan', N'Cao cấp', 1200000, 25, 4.5, 'views/home/images/hotels/astoria_palawan_main.jpg'),
 (10, N'Amanpulo', N'Hạng sang', 5000000, 5, 5.0, 'views/home/images/hotels/amanpulo_main.jpg'),
 (10, N'El Nido Cove Resort', N'Cao cấp', 1400000, 20, 4.7, 'views/home/images/hotels/el_nido_cove_main.jpg');
+
+-- Sample data for Restaurants
+INSERT INTO Restaurants (islandId, restaurantName, address, description, cuisineType, priceRange, rating, openTime, closeTime, capacity, phoneNumber, restaurantImageUrl, isActive)
+VALUES
+-- Phú Quốc (islandId = 1)
+(1, N'Nhà hàng Hải sản Dinh Cậu', N'Dinh Cậu, Dương Đông, Phú Quốc', N'Nhà hàng hải sản tươi sống với view biển tuyệt đẹp, đặc sản cua ghẹ và tôm hùm.', N'Hải sản', N'Trung bình', 4.5, '10:00', '22:00', 80, '0297 3847 123', 'views/home/images/restaurants/dinh_cau_seafood.jpg', 1),
+(1, N'Pepper Tree Restaurant', N'Ông Lang Beach, Phú Quốc', N'Nhà hàng phong cách Âu-Á với không gian lãng mạn bên bờ biển.', N'Quốc tế', N'Cao cấp', 4.7, '17:00', '23:00', 60, '0297 3981 234', 'views/home/images/restaurants/pepper_tree.jpg', 1),
+(1, N'Quán Cơm Gà Kiều Giang', N'30/4, Dương Đông, Phú Quốc', N'Quán cơm gà truyền thống nổi tiếng với hương vị đậm đà.', N'Việt Nam', N'Bình dân', 4.3, '06:00', '21:00', 40, '0297 3847 567', 'views/home/images/restaurants/com_ga_kieu_giang.jpg', 1),
+
+-- Langkawi (islandId = 2)
+(2, N'The Cliff Restaurant', N'Pantai Cenang, Langkawi', N'Nhà hàng cao cấp với view biển tuyệt đẹp, chuyên món Âu và hải sản.', N'Quốc tế', N'Cao cấp', 4.6, '18:00', '23:30', 70, '+60 4-955 1234', 'views/home/images/restaurants/cliff_langkawi.jpg', 1),
+(2, N'Orkid Ria Seafood Restaurant', N'Kuah, Langkawi', N'Nhà hàng hải sản địa phương với giá cả phải chăng và hương vị tuyệt vời.', N'Hải sản', N'Trung bình', 4.4, '11:00', '22:00', 90, '+60 4-966 7890', 'views/home/images/restaurants/orkid_ria.jpg', 1),
+(2, N'Nasi Kandar Tomato', N'Jalan Pandak Mayah, Langkawi', N'Quán ăn Malaysia truyền thống với món Nasi Kandar nổi tiếng.', N'Khác', N'Bình dân', 4.2, '07:00', '15:00', 50, '+60 4-966 2345', 'views/home/images/restaurants/nasi_kandar.jpg', 1),
+
+-- Phuket (islandId = 3)
+(3, N'Mom Tri\'s Kitchen', N'Kata Noi Beach, Phuket', N'Nhà hàng sang trọng với view biển, chuyên món Thái và Âu.', N'Thái Lan', N'Sang trọng', 4.8, '18:00', '23:00', 50, '+66 76-330 015', 'views/home/images/restaurants/mom_tris.jpg', 1),
+(3, N'Raya Restaurant', N'Old Phuket Town', N'Nhà hàng Thái cổ điển trong tòa nhà shophouse lịch sử.', N'Thái Lan', N'Trung bình', 4.5, '11:00', '22:00', 80, '+66 76-218 155', 'views/home/images/restaurants/raya_phuket.jpg', 1),
+(3, N'Kan Eang@Pier', N'Chalong Bay, Phuket', N'Nhà hàng hải sản nổi tiếng với cua cà ri và tôm nướng.', N'Hải sản', N'Trung bình', 4.4, '10:00', '23:00', 120, '+66 76-381 212', 'views/home/images/restaurants/kan_eang.jpg', 1),
+
+-- Bali (islandId = 4)
+(4, N'Locavore Restaurant', N'Ubud, Bali', N'Nhà hàng fine dining với concept farm-to-table, sử dụng nguyên liệu địa phương.', N'Quốc tế', N'Sang trọng', 4.9, '18:00', '22:00', 40, '+62 361-977 733', 'views/home/images/restaurants/locavore_bali.jpg', 1),
+(4, N'Warung Babi Guling Ibu Oka', N'Ubud, Bali', N'Warung truyền thống nổi tiếng với món babi guling (heo quay).', N'Khác', N'Bình dân', 4.3, '11:00', '21:00', 60, '+62 361-976 345', 'views/home/images/restaurants/ibu_oka.jpg', 1),
+(4, N'Jimbaran Bay Seafood', N'Jimbaran Beach, Bali', N'Nhà hàng hải sản trên bãi biển với không khí lãng mạn.', N'Hải sản', N'Cao cấp', 4.6, '17:00', '23:00', 100, '+62 361-701 888', 'views/home/images/restaurants/jimbaran_seafood.jpg', 1),
+
+-- Boracay (islandId = 5)
+(5, N'Aria Restaurant', N'Station 1, Boracay', N'Nhà hàng fine dining với món Ý và hải sản tươi sống.', N'Ý', N'Cao cấp', 4.7, '18:00', '23:00', 60, '+63 36-288 6234', 'views/home/images/restaurants/aria_boracay.jpg', 1),
+(5, N'D\'Talipapa Market', N'Station 2, Boracay', N'Chợ hải sản tươi sống, có thể chọn hải sản và nhờ chế biến.', N'Hải sản', N'Bình dân', 4.2, '06:00', '22:00', 200, '+63 36-288 3456', 'views/home/images/restaurants/dtalipapa.jpg', 1),
+(5, N'Sunny Side Cafe', N'White Beach, Boracay', N'Quán cafe với món ăn Philippines và quốc tế, view biển đẹp.', N'Quốc tế', N'Trung bình', 4.4, '07:00', '22:00', 80, '+63 36-288 7890', 'views/home/images/restaurants/sunny_side.jpg', 1);
 
 
 INSERT INTO Airlines (airlineName, iataCode, countryId, hotline, logoUrl)

@@ -214,23 +214,6 @@
             font-size: 1.05em;
         }
         
-        .rating-display {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .rating-stars {
-            color: #ffc107;
-            font-size: 1.2em;
-        }
-        
-        .rating-value {
-            font-weight: 700;
-            color: #333;
-            font-size: 1.1em;
-        }
-        
         .price-display {
             font-size: 1.3em;
             font-weight: 700;
@@ -244,45 +227,6 @@
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.9em;
-        }
-        
-        .type-badge {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-        
-        .type-tourist {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .type-historical {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-        
-        .type-natural {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-        
-        .type-cultural {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-        
-        .type-entertainment {
-            background: #fce4ec;
-            color: #c2185b;
-        }
-        
-        .type-religious {
-            background: #f1f8e9;
-            color: #689f38;
         }
         
         .action-buttons {
@@ -437,11 +381,11 @@
                         <p class="place-subtitle">
                             <i class="fa fa-map-marker-alt"></i> 
                             <c:choose>
-                                <c:when test="${not empty place.address}">
-                                    ${place.address}
+                                <c:when test="${not empty place.location}">
+                                    ${place.location}
                                 </c:when>
                                 <c:otherwise>
-                                    Địa chỉ chưa cập nhật
+                                    Vị trí chưa cập nhật
                                 </c:otherwise>
                             </c:choose>
                         </p>
@@ -449,79 +393,35 @@
 
                     <div class="place-content">
                         <div class="info-grid">
-                            <!-- Place Image -->
-                            <div class="place-image-section">
-                                <c:choose>
-                                    <c:when test="${not empty place.placeImageUrl}">
-                                        <img src="${pageContext.request.contextPath}/${place.placeImageUrl}" 
-                                             alt="${place.placeName}" 
-                                             class="place-image">
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="no-image">
-                                            <i class="fa fa-map-marked-alt"></i>
-                                            <h4>Chưa có hình ảnh</h4>
-                                            <p>Hình ảnh địa điểm chưa được cập nhật</p>
-                                        </div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-
                             <!-- Basic Information -->
                             <div class="info-section">
                                 <h3><i class="fa fa-info-circle"></i> Thông tin cơ bản</h3>
                                 
                                 <div class="info-item">
                                     <span class="info-label">
-                                        <i class="fa fa-tag"></i> Loại địa điểm
-                                    </span>
-                                    <span class="info-value">
-                                        <span class="type-badge type-${place.placeType.toLowerCase()}">
-                                            <c:choose>
-                                                <c:when test="${place.placeType == 'Tourist'}">Du lịch</c:when>
-                                                <c:when test="${place.placeType == 'Historical'}">Lịch sử</c:when>
-                                                <c:when test="${place.placeType == 'Natural'}">Thiên nhiên</c:when>
-                                                <c:when test="${place.placeType == 'Cultural'}">Văn hóa</c:when>
-                                                <c:when test="${place.placeType == 'Entertainment'}">Giải trí</c:when>
-                                                <c:when test="${place.placeType == 'Religious'}">Tôn giáo</c:when>
-                                                <c:otherwise>${place.placeType}</c:otherwise>
-                                            </c:choose>
-                                        </span>
-                                    </span>
-                                </div>
-                                
-                                <div class="info-item">
-                                    <span class="info-label">
-                                        <i class="fa fa-star"></i> Đánh giá
-                                    </span>
-                                    <span class="info-value">
-                                        <div class="rating-display">
-                                            <span class="rating-stars">
-                                                <c:forEach begin="1" end="5" var="star">
-                                                    <c:choose>
-                                                        <c:when test="${star <= place.rating}">
-                                                            <i class="fa fa-star"></i>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <i class="fa fa-star-o"></i>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </c:forEach>
-                                            </span>
-                                            <span class="rating-value">${place.rating}/5</span>
-                                        </div>
-                                    </span>
-                                </div>
-                                
-                                <div class="info-item">
-                                    <span class="info-label">
-                                        <i class="fa fa-ticket-alt"></i> Giá vé
+                                        <i class="fa fa-map-marker-alt"></i> Vị trí
                                     </span>
                                     <span class="info-value">
                                         <c:choose>
-                                            <c:when test="${not empty place.entryFee && place.entryFee > 0}">
+                                            <c:when test="${not empty place.location}">
+                                                ${place.location}
+                                            </c:when>
+                                            <c:otherwise>
+                                                Chưa cập nhật
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">
+                                        <i class="fa fa-ticket-alt"></i> Thông tin vé
+                                    </span>
+                                    <span class="info-value">
+                                        <c:choose>
+                                            <c:when test="${place.hasTicket}">
                                                 <span class="price-display">
-                                                    <fmt:formatNumber value="${place.entryFee}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                                    <fmt:formatNumber value="${place.ticketPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
                                                 </span>
                                             </c:when>
                                             <c:otherwise>
@@ -530,27 +430,11 @@
                                         </c:choose>
                                     </span>
                                 </div>
-                                
-                                <div class="info-item">
-                                    <span class="info-label">
-                                        <i class="fa fa-clock"></i> Giờ mở cửa
-                                    </span>
-                                    <span class="info-value">
-                                        <c:choose>
-                                            <c:when test="${not empty place.openingHours}">
-                                                ${place.openingHours}
-                                            </c:when>
-                                            <c:otherwise>
-                                                Chưa cập nhật
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </span>
-                                </div>
                             </div>
 
-                            <!-- Location Information -->
+                            <!-- Island Information -->
                             <div class="info-section">
-                                <h3><i class="fa fa-map-marker-alt"></i> Thông tin vị trí</h3>
+                                <h3><i class="fa fa-island-tropical"></i> Thông tin đảo</h3>
                                 
                                 <div class="info-item">
                                     <span class="info-label">
@@ -563,58 +447,6 @@
                                             </c:when>
                                             <c:otherwise>
                                                 Đảo ID: ${place.islandId}
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </span>
-                                </div>
-                                
-                                <div class="info-item">
-                                    <span class="info-label">
-                                        <i class="fa fa-map"></i> Địa chỉ
-                                    </span>
-                                    <span class="info-value">
-                                        <c:choose>
-                                            <c:when test="${not empty place.address}">
-                                                ${place.address}
-                                            </c:when>
-                                            <c:otherwise>
-                                                Chưa cập nhật
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </span>
-                                </div>
-                                
-                                <div class="info-item">
-                                    <span class="info-label">
-                                        <i class="fa fa-phone"></i> Điện thoại
-                                    </span>
-                                    <span class="info-value">
-                                        <c:choose>
-                                            <c:when test="${not empty place.phone}">
-                                                <a href="tel:${place.phone}" style="color: #667eea; text-decoration: none;">
-                                                    ${place.phone}
-                                                </a>
-                                            </c:when>
-                                            <c:otherwise>
-                                                Chưa cập nhật
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </span>
-                                </div>
-                                
-                                <div class="info-item">
-                                    <span class="info-label">
-                                        <i class="fa fa-envelope"></i> Email
-                                    </span>
-                                    <span class="info-value">
-                                        <c:choose>
-                                            <c:when test="${not empty place.email}">
-                                                <a href="mailto:${place.email}" style="color: #667eea; text-decoration: none;">
-                                                    ${place.email}
-                                                </a>
-                                            </c:when>
-                                            <c:otherwise>
-                                                Chưa cập nhật
                                             </c:otherwise>
                                         </c:choose>
                                     </span>

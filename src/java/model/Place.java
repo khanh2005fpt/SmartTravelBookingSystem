@@ -16,6 +16,9 @@ public class Place {
     private String description;
     private boolean hasTicket;
     private int ticketPrice;
+    
+    // Additional field for joins
+    private String islandName;
 
     public Place() {
     }
@@ -86,9 +89,17 @@ public class Place {
         this.ticketPrice = ticketPrice;
     }
 
+    public String getIslandName() {
+        return islandName;
+    }
+
+    public void setIslandName(String islandName) {
+        this.islandName = islandName;
+    }
+
     @Override
     public String toString() {
-        return "Place{" + "placeId=" + placeId + ", islandId=" + islandId + ", placeName=" + placeName + ", location=" + location + ", description=" + description + ", hasTicket=" + hasTicket + ", ticketPrice=" + ticketPrice + '}';
+        return "Place{" + "placeId=" + placeId + ", islandId=" + islandId + ", placeName=" + placeName + ", location=" + location + ", description=" + description + ", hasTicket=" + hasTicket + ", ticketPrice=" + ticketPrice + ", islandName=" + islandName + '}';
     }
     
     

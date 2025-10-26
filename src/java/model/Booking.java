@@ -22,6 +22,7 @@ public class Booking {
     private int childQuantity;
     private String status;
     private Date bookingDate;
+    private int profileId;
 
     // Additional fields for display purposes
     private String customerName;
@@ -151,5 +152,21 @@ public class Booking {
 
     public void setCustomTourName(String customTourName) {
         this.customTourName = customTourName;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getProfileId() {
+        return profileId;
+    }
+
+    public void setProfileId(int profileId) {
+        this.profileId = profileId;
     }
 }

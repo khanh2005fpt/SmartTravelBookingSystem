@@ -1541,6 +1541,407 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
+
+    // ==================== RESTAURANT CRUD OPERATIONS ====================
+    
+    // Lay tat ca nha hang
+    public List<model.Restaurant> getRestaurants() {
+        List<model.Restaurant> list = new ArrayList<>();
+        String sql = "SELECT r.*, i.islandName, c.countryName " +
+                    "FROM Restaurants r " +
+                    "JOIN Islands i ON r.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "ORDER BY r.restaurantName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                model.Restaurant restaurant = new model.Restaurant();
+                restaurant.setRestaurantId(rs.getInt("restaurantId"));
+                restaurant.setIslandId(rs.getInt("islandId"));
+                restaurant.setRestaurantName(rs.getString("restaurantName"));
+                restaurant.setCuisineType(rs.getString("cuisineType"));
+                restaurant.setPriceRange(rs.getString("priceRange"));
+                restaurant.setRating(rs.getDouble("rating"));
+                restaurant.setAddress(rs.getString("address"));
+                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
+                restaurant.setOpeningHours(rs.getString("openingHours"));
+                restaurant.setCapacity(rs.getInt("capacity"));
+                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
+                restaurant.setDescription(rs.getString("description"));
+                restaurant.setSpecialties(rs.getString("specialties"));
+                restaurant.setIslandName(rs.getString("islandName"));
+                restaurant.setCountryName(rs.getString("countryName"));
+                list.add(restaurant);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Lay nha hang theo ID
+    public model.Restaurant getRestaurantById(int restaurantId) {
+        String sql = "SELECT r.*, i.islandName, c.countryName " +
+                    "FROM Restaurants r " +
+                    "JOIN Islands i ON r.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE r.restaurantId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, restaurantId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                model.Restaurant restaurant = new model.Restaurant();
+                restaurant.setRestaurantId(rs.getInt("restaurantId"));
+                restaurant.setIslandId(rs.getInt("islandId"));
+                restaurant.setRestaurantName(rs.getString("restaurantName"));
+                restaurant.setCuisineType(rs.getString("cuisineType"));
+                restaurant.setPriceRange(rs.getString("priceRange"));
+                restaurant.setRating(rs.getDouble("rating"));
+                restaurant.setAddress(rs.getString("address"));
+                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
+                restaurant.setOpeningHours(rs.getString("openingHours"));
+                restaurant.setCapacity(rs.getInt("capacity"));
+                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
+                restaurant.setDescription(rs.getString("description"));
+                restaurant.setSpecialties(rs.getString("specialties"));
+                restaurant.setIslandName(rs.getString("islandName"));
+                restaurant.setCountryName(rs.getString("countryName"));
+                return restaurant;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // CREATE - Them nha hang moi
+    public boolean createRestaurant(model.Restaurant restaurant) {
+        String sql = "INSERT INTO Restaurants (islandId, restaurantName, cuisineType, priceRange, rating, address, phoneNumber, openingHours, capacity, restaurantImageUrl, description, specialties) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, restaurant.getIslandId());
+            ps.setString(2, restaurant.getRestaurantName());
+            ps.setString(3, restaurant.getCuisineType());
+            ps.setString(4, restaurant.getPriceRange());
+            ps.setDouble(5, restaurant.getRating());
+            ps.setString(6, restaurant.getAddress());
+            ps.setString(7, restaurant.getPhoneNumber());
+            ps.setString(8, restaurant.getOpeningHours());
+            ps.setInt(9, restaurant.getCapacity());
+            ps.setString(10, restaurant.getRestaurantImageUrl());
+            ps.setString(11, restaurant.getDescription());
+            ps.setString(12, restaurant.getSpecialties());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // UPDATE - Cap nhat thong tin nha hang
+    public boolean updateRestaurant(model.Restaurant restaurant) {
+        String sql = "UPDATE Restaurants SET islandId = ?, restaurantName = ?, cuisineType = ?, priceRange = ?, rating = ?, address = ?, phoneNumber = ?, openingHours = ?, capacity = ?, restaurantImageUrl = ?, description = ?, specialties = ? WHERE restaurantId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, restaurant.getIslandId());
+            ps.setString(2, restaurant.getRestaurantName());
+            ps.setString(3, restaurant.getCuisineType());
+            ps.setString(4, restaurant.getPriceRange());
+            ps.setDouble(5, restaurant.getRating());
+            ps.setString(6, restaurant.getAddress());
+            ps.setString(7, restaurant.getPhoneNumber());
+            ps.setString(8, restaurant.getOpeningHours());
+            ps.setInt(9, restaurant.getCapacity());
+            ps.setString(10, restaurant.getRestaurantImageUrl());
+            ps.setString(11, restaurant.getDescription());
+            ps.setString(12, restaurant.getSpecialties());
+            ps.setInt(13, restaurant.getRestaurantId());
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // DELETE - Xoa nha hang
+    public boolean deleteRestaurant(int restaurantId) {
+        String sql = "DELETE FROM Restaurants WHERE restaurantId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, restaurantId);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Tim kiem nha hang theo ten
+    public List<model.Restaurant> searchRestaurants(String searchTerm) {
+        List<model.Restaurant> list = new ArrayList<>();
+        String sql = "SELECT r.*, i.islandName, c.countryName " +
+                    "FROM Restaurants r " +
+                    "JOIN Islands i ON r.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE r.restaurantName LIKE ? OR r.cuisineType LIKE ? OR r.address LIKE ? " +
+                    "ORDER BY r.restaurantName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            String searchPattern = "%" + searchTerm + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                model.Restaurant restaurant = new model.Restaurant();
+                restaurant.setRestaurantId(rs.getInt("restaurantId"));
+                restaurant.setIslandId(rs.getInt("islandId"));
+                restaurant.setRestaurantName(rs.getString("restaurantName"));
+                restaurant.setCuisineType(rs.getString("cuisineType"));
+                restaurant.setPriceRange(rs.getString("priceRange"));
+                restaurant.setRating(rs.getDouble("rating"));
+                restaurant.setAddress(rs.getString("address"));
+                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
+                restaurant.setOpeningHours(rs.getString("openingHours"));
+                restaurant.setCapacity(rs.getInt("capacity"));
+                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
+                restaurant.setDescription(rs.getString("description"));
+                restaurant.setSpecialties(rs.getString("specialties"));
+                restaurant.setIslandName(rs.getString("islandName"));
+                restaurant.setCountryName(rs.getString("countryName"));
+                list.add(restaurant);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Lay danh sach nha hang theo dao
+    public List<model.Restaurant> getRestaurantsByIslandId(int islandId) {
+        List<model.Restaurant> list = new ArrayList<>();
+        String sql = "SELECT r.*, i.islandName, c.countryName " +
+                    "FROM Restaurants r " +
+                    "JOIN Islands i ON r.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE r.islandId = ? " +
+                    "ORDER BY r.restaurantName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, islandId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                model.Restaurant restaurant = new model.Restaurant();
+                restaurant.setRestaurantId(rs.getInt("restaurantId"));
+                restaurant.setIslandId(rs.getInt("islandId"));
+                restaurant.setRestaurantName(rs.getString("restaurantName"));
+                restaurant.setCuisineType(rs.getString("cuisineType"));
+                restaurant.setPriceRange(rs.getString("priceRange"));
+                restaurant.setRating(rs.getDouble("rating"));
+                restaurant.setAddress(rs.getString("address"));
+                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
+                restaurant.setOpeningHours(rs.getString("openingHours"));
+                restaurant.setCapacity(rs.getInt("capacity"));
+                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
+                restaurant.setDescription(rs.getString("description"));
+                restaurant.setSpecialties(rs.getString("specialties"));
+                restaurant.setIslandName(rs.getString("islandName"));
+                restaurant.setCountryName(rs.getString("countryName"));
+                list.add(restaurant);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    // ==================== PLACE CRUD OPERATIONS ====================
+    
+    // Lay tat ca dia diem
+    public List<Place> getPlaces() {
+        List<Place> list = new ArrayList<>();
+        String sql = "SELECT p.*, i.islandName, c.countryName " +
+                    "FROM Places p " +
+                    "JOIN Islands i ON p.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "ORDER BY p.placeName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Place place = new Place();
+                place.setPlaceId(rs.getInt("placeId"));
+                place.setIslandId(rs.getInt("islandId"));
+                place.setPlaceName(rs.getString("placeName"));
+                place.setLocation(rs.getString("location"));
+                place.setDescription(rs.getString("description"));
+                place.setHasTicket(rs.getBoolean("hasTicket"));
+                place.setTicketPrice(rs.getInt("ticketPrice"));
+                place.setIslandName(rs.getString("islandName"));
+                list.add(place);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    // Lay dia diem theo ID
+    public Place getPlaceById(int placeId) {
+        String sql = "SELECT p.*, i.islandName, c.countryName " +
+                    "FROM Places p " +
+                    "JOIN Islands i ON p.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE p.placeId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, placeId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Place place = new Place();
+                place.setPlaceId(rs.getInt("placeId"));
+                place.setIslandId(rs.getInt("islandId"));
+                place.setPlaceName(rs.getString("placeName"));
+                place.setLocation(rs.getString("location"));
+                place.setDescription(rs.getString("description"));
+                place.setHasTicket(rs.getBoolean("hasTicket"));
+                place.setTicketPrice(rs.getInt("ticketPrice"));
+                place.setIslandName(rs.getString("islandName"));
+                return place;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    // Them dia diem moi
+    public boolean addPlace(Place place) {
+        String sql = "INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, place.getIslandId());
+            ps.setString(2, place.getPlaceName());
+            ps.setString(3, place.getLocation());
+            ps.setString(4, place.getDescription());
+            ps.setBoolean(5, place.isHasTicket());
+            ps.setInt(6, place.getTicketPrice());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    // Cap nhat dia diem
+    public boolean updatePlace(Place place) {
+        String sql = "UPDATE Places SET islandId = ?, placeName = ?, location = ?, " +
+                    "description = ?, hasTicket = ?, ticketPrice = ? WHERE placeId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, place.getIslandId());
+            ps.setString(2, place.getPlaceName());
+            ps.setString(3, place.getLocation());
+            ps.setString(4, place.getDescription());
+            ps.setBoolean(5, place.isHasTicket());
+            ps.setInt(6, place.getTicketPrice());
+            ps.setInt(7, place.getPlaceId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    // Xoa dia diem
+    public boolean deletePlace(int placeId) {
+        String sql = "DELETE FROM Places WHERE placeId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, placeId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    // Tim kiem dia diem theo ten
+    public List<Place> searchPlaces(String searchTerm) {
+        List<Place> list = new ArrayList<>();
+        String sql = "SELECT p.*, i.islandName, c.countryName " +
+                    "FROM Places p " +
+                    "JOIN Islands i ON p.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ? " +
+                    "ORDER BY p.placeName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            String searchPattern = "%" + searchTerm + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Place place = new Place();
+                place.setPlaceId(rs.getInt("placeId"));
+                place.setIslandId(rs.getInt("islandId"));
+                place.setPlaceName(rs.getString("placeName"));
+                place.setLocation(rs.getString("location"));
+                place.setDescription(rs.getString("description"));
+                place.setHasTicket(rs.getBoolean("hasTicket"));
+                place.setTicketPrice(rs.getInt("ticketPrice"));
+                place.setIslandName(rs.getString("islandName"));
+                list.add(place);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    // Lay danh sach dia diem theo dao
+    public List<Place> getPlacesByIslandId(int islandId) {
+        List<Place> list = new ArrayList<>();
+        String sql = "SELECT p.*, i.islandName, c.countryName " +
+                    "FROM Places p " +
+                    "JOIN Islands i ON p.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE p.islandId = ? " +
+                    "ORDER BY p.placeName";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, islandId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Place place = new Place();
+                place.setPlaceId(rs.getInt("placeId"));
+                place.setIslandId(rs.getInt("islandId"));
+                place.setPlaceName(rs.getString("placeName"));
+                place.setLocation(rs.getString("location"));
+                place.setDescription(rs.getString("description"));
+                place.setHasTicket(rs.getBoolean("hasTicket"));
+                place.setTicketPrice(rs.getInt("ticketPrice"));
+                list.add(place);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
     
 

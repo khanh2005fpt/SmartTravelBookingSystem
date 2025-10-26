@@ -490,70 +490,6 @@
                             </div>
                             
                             <div class="form-group">
-                                <label for="placeType">Loại địa điểm <span class="required">*</span></label>
-                                <select class="form-control" id="placeType" name="placeType" required>
-                                    <option value="">Chọn loại địa điểm</option>
-                                    <option value="Tourist" ${place.placeType == 'Tourist' ? 'selected' : ''}>Du lịch</option>
-                                    <option value="Historical" ${place.placeType == 'Historical' ? 'selected' : ''}>Lịch sử</option>
-                                    <option value="Natural" ${place.placeType == 'Natural' ? 'selected' : ''}>Thiên nhiên</option>
-                                    <option value="Cultural" ${place.placeType == 'Cultural' ? 'selected' : ''}>Văn hóa</option>
-                                    <option value="Entertainment" ${place.placeType == 'Entertainment' ? 'selected' : ''}>Giải trí</option>
-                                    <option value="Religious" ${place.placeType == 'Religious' ? 'selected' : ''}>Tôn giáo</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="rating">Đánh giá</label>
-                                <div class="rating-input">
-                                    <input type="hidden" id="ratingValue" name="rating" value="${place.rating != null ? place.rating : 5}">
-                                    <div id="ratingStars">
-                                        <i class="fa fa-star rating-star" data-rating="1"></i>
-                                        <i class="fa fa-star rating-star" data-rating="2"></i>
-                                        <i class="fa fa-star rating-star" data-rating="3"></i>
-                                        <i class="fa fa-star rating-star" data-rating="4"></i>
-                                        <i class="fa fa-star rating-star" data-rating="5"></i>
-                                    </div>
-                                    <span class="rating-value" id="ratingDisplay">${place.rating != null ? place.rating : 5}/5</span>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="entryFee">Giá vé (₫)</label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="entryFee" 
-                                       name="entryFee" 
-                                       value="${place.entryFee}"
-                                       placeholder="0"
-                                       min="0"
-                                       step="1000">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="openingHours">Giờ mở cửa</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="openingHours" 
-                                   name="openingHours" 
-                                   value="${place.openingHours}"
-                                   placeholder="Ví dụ: 8:00 - 17:00">
-                            <div class="invalid-feedback"></div>
-                        </div>
-                    </div>
-
-                    <!-- Location Information -->
-                    <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fa fa-map-marker-alt"></i> Thông tin vị trí
-                        </h3>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
                                 <label for="islandId">Đảo <span class="required">*</span></label>
                                 <select class="form-control" id="islandId" name="islandId" required>
                                     <option value="">Chọn đảo</option>
@@ -565,46 +501,54 @@
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="address">Địa chỉ</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="address" 
-                                       name="address" 
-                                       value="${place.address}"
-                                       placeholder="Nhập địa chỉ chi tiết">
-                                <div class="invalid-feedback"></div>
-                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="location">Vị trí / Địa chỉ <span class="required">*</span></label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="location" 
+                                   name="location" 
+                                   value="${place.location}"
+                                   placeholder="Nhập vị trí hoặc địa chỉ chi tiết"
+                                   required>
+                            <div class="invalid-feedback"></div>
                         </div>
                     </div>
 
-                    <!-- Contact Information -->
+                    <!-- Ticket Information -->
                     <div class="form-section">
                         <h3 class="section-title">
-                            <i class="fa fa-phone"></i> Thông tin liên hệ
+                            <i class="fa fa-ticket-alt"></i> Thông tin vé
                         </h3>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="phone">Số điện thoại</label>
-                                <input type="tel" 
-                                       class="form-control" 
-                                       id="phone" 
-                                       name="phone" 
-                                       value="${place.phone}"
-                                       placeholder="Nhập số điện thoại">
-                                <div class="invalid-feedback"></div>
+                                <label for="hasTicket">Có vé tham quan</label>
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="hasTicket" 
+                                           name="hasTicket" 
+                                           value="true"
+                                           ${place.hasTicket ? 'checked' : ''}
+                                           onchange="toggleTicketPrice()">
+                                    <label class="form-check-label" for="hasTicket">
+                                        Địa điểm này có thu phí vé tham quan
+                                    </label>
+                                </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" 
+                            <div class="form-group" id="ticketPriceGroup" style="${place.hasTicket ? '' : 'display: none;'}">
+                                <label for="ticketPrice">Giá vé (₫)</label>
+                                <input type="number" 
                                        class="form-control" 
-                                       id="email" 
-                                       name="email" 
-                                       value="${place.email}"
-                                       placeholder="Nhập địa chỉ email">
+                                       id="ticketPrice" 
+                                       name="ticketPrice" 
+                                       value="${place.ticketPrice}"
+                                       placeholder="0"
+                                       min="0"
+                                       step="1000">
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -627,52 +571,7 @@
                         </div>
                     </div>
 
-                    <!-- Image Upload -->
-                    <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fa fa-image"></i> Hình ảnh
-                        </h3>
-                        
-                        <div class="image-upload-section" id="imageUploadSection">
-                            <div class="upload-icon">
-                                <i class="fa fa-cloud-upload-alt"></i>
-                            </div>
-                            <div class="upload-text">
-                                <p><strong>Kéo thả hình ảnh vào đây hoặc</strong></p>
-                                <button type="button" class="upload-btn" onclick="document.getElementById('placeImage').click()">
-                                    Chọn hình ảnh
-                                </button>
-                            </div>
-                            <input type="file" 
-                                   id="placeImage" 
-                                   name="placeImage" 
-                                   class="file-input" 
-                                   accept="image/*">
-                            <small class="text-muted">Định dạng: JPG, PNG, GIF. Kích thước tối đa: 5MB</small>
-                        </div>
-                        
-                        <div class="image-preview" id="imagePreview" style="display: none;">
-                            <img id="previewImg" src="" alt="Preview" class="preview-image">
-                            <br>
-                            <span class="remove-image" onclick="removeImage()">
-                                <i class="fa fa-times"></i> Xóa hình ảnh
-                            </span>
-                        </div>
-                        
-                        <c:if test="${not empty place && not empty place.placeImageUrl}">
-                            <div class="image-preview" id="currentImage">
-                                <p><strong>Hình ảnh hiện tại:</strong></p>
-                                <img src="${pageContext.request.contextPath}/${place.placeImageUrl}" 
-                                     alt="${place.placeName}" 
-                                     class="preview-image">
-                                <br>
-                                <span class="remove-image" onclick="removeCurrentImage()">
-                                    <i class="fa fa-times"></i> Xóa hình ảnh hiện tại
-                                </span>
-                                <input type="hidden" id="removeCurrentImage" name="removeCurrentImage" value="false">
-                            </div>
-                        </c:if>
-                    </div>
+
                 </div>
 
                 <!-- Form Actions -->
@@ -696,114 +595,20 @@
     <jsp:include page="../common/script.jsp" />
 
     <script>
-        // Rating functionality
-        const ratingStars = document.querySelectorAll('.rating-star');
-        const ratingValue = document.getElementById('ratingValue');
-        const ratingDisplay = document.getElementById('ratingDisplay');
-        
-        let currentRating = ${place.rating != null ? place.rating : 5};
-        
-        function updateRatingDisplay(rating) {
-            ratingStars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-            ratingValue.value = rating;
-            ratingDisplay.textContent = rating + '/5';
-        }
-        
-        ratingStars.forEach((star, index) => {
-            star.addEventListener('click', () => {
-                currentRating = index + 1;
-                updateRatingDisplay(currentRating);
-            });
+        // Ticket price toggle functionality
+        function toggleTicketPrice() {
+            const hasTicketCheckbox = document.getElementById('hasTicket');
+            const ticketPriceGroup = document.getElementById('ticketPriceGroup');
+            const ticketPriceInput = document.getElementById('ticketPrice');
             
-            star.addEventListener('mouseover', () => {
-                updateRatingDisplay(index + 1);
-            });
-        });
-        
-        document.getElementById('ratingStars').addEventListener('mouseleave', () => {
-            updateRatingDisplay(currentRating);
-        });
-        
-        // Initialize rating display
-        updateRatingDisplay(currentRating);
-
-        // Image upload functionality
-        const imageUploadSection = document.getElementById('imageUploadSection');
-        const placeImageInput = document.getElementById('placeImage');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewImg = document.getElementById('previewImg');
-
-        // Drag and drop functionality
-        imageUploadSection.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            imageUploadSection.classList.add('dragover');
-        });
-
-        imageUploadSection.addEventListener('dragleave', () => {
-            imageUploadSection.classList.remove('dragover');
-        });
-
-        imageUploadSection.addEventListener('drop', (e) => {
-            e.preventDefault();
-            imageUploadSection.classList.remove('dragover');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleImageFile(files[0]);
+            if (hasTicketCheckbox.checked) {
+                ticketPriceGroup.style.display = 'block';
+                ticketPriceInput.required = true;
+            } else {
+                ticketPriceGroup.style.display = 'none';
+                ticketPriceInput.required = false;
+                ticketPriceInput.value = '';
             }
-        });
-
-        placeImageInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleImageFile(e.target.files[0]);
-            }
-        });
-
-        function handleImageFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Vui lòng chọn file hình ảnh!');
-                return;
-            }
-            
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Kích thước file không được vượt quá 5MB!');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewImg.src = e.target.result;
-                imagePreview.style.display = 'block';
-                
-                // Hide current image if exists
-                const currentImage = document.getElementById('currentImage');
-                if (currentImage) {
-                    currentImage.style.display = 'none';
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeImage() {
-            placeImageInput.value = '';
-            imagePreview.style.display = 'none';
-            
-            // Show current image if exists
-            const currentImage = document.getElementById('currentImage');
-            if (currentImage) {
-                currentImage.style.display = 'block';
-            }
-        }
-
-        function removeCurrentImage() {
-            document.getElementById('removeCurrentImage').value = 'true';
-            document.getElementById('currentImage').style.display = 'none';
         }
 
         // Form validation
@@ -818,8 +623,8 @@
             // Validate required fields
             const requiredFields = [
                 { id: 'placeName', message: 'Vui lòng nhập tên địa điểm' },
-                { id: 'placeType', message: 'Vui lòng chọn loại địa điểm' },
-                { id: 'islandId', message: 'Vui lòng chọn đảo' }
+                { id: 'islandId', message: 'Vui lòng chọn đảo' },
+                { id: 'location', message: 'Vui lòng nhập vị trí' }
             ];
             
             requiredFields.forEach(field => {
@@ -831,20 +636,15 @@
                 }
             });
             
-            // Validate email format
-            const emailInput = document.getElementById('email');
-            if (emailInput.value && !isValidEmail(emailInput.value)) {
-                emailInput.classList.add('is-invalid');
-                emailInput.nextElementSibling.textContent = 'Định dạng email không hợp lệ';
-                isValid = false;
-            }
-            
-            // Validate phone format
-            const phoneInput = document.getElementById('phone');
-            if (phoneInput.value && !isValidPhone(phoneInput.value)) {
-                phoneInput.classList.add('is-invalid');
-                phoneInput.nextElementSibling.textContent = 'Số điện thoại không hợp lệ';
-                isValid = false;
+            // Validate ticket price if has ticket is checked
+            const hasTicketCheckbox = document.getElementById('hasTicket');
+            const ticketPriceInput = document.getElementById('ticketPrice');
+            if (hasTicketCheckbox.checked) {
+                if (!ticketPriceInput.value.trim() || isNaN(ticketPriceInput.value) || parseInt(ticketPriceInput.value) < 0) {
+                    ticketPriceInput.classList.add('is-invalid');
+                    ticketPriceInput.nextElementSibling.textContent = 'Vui lòng nhập giá vé hợp lệ';
+                    isValid = false;
+                }
             }
             
             if (!isValid) {
@@ -857,15 +657,7 @@
             }
         });
 
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
 
-        function isValidPhone(phone) {
-            const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
-            return phoneRegex.test(phone);
-        }
 
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

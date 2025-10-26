@@ -411,14 +411,17 @@
                                 <label for="cuisineType">Loại ẩm thực <span class="required">*</span></label>
                                 <select class="form-control" id="cuisineType" name="cuisineType" required>
                                     <option value="">Chọn loại ẩm thực</option>
-                                    <option value="Vietnamese" ${restaurant.cuisineType == 'Vietnamese' ? 'selected' : ''}>Việt Nam</option>
-                                    <option value="Chinese" ${restaurant.cuisineType == 'Chinese' ? 'selected' : ''}>Trung Hoa</option>
-                                    <option value="Japanese" ${restaurant.cuisineType == 'Japanese' ? 'selected' : ''}>Nhật Bản</option>
-                                    <option value="Korean" ${restaurant.cuisineType == 'Korean' ? 'selected' : ''}>Hàn Quốc</option>
-                                    <option value="Western" ${restaurant.cuisineType == 'Western' ? 'selected' : ''}>Âu Mỹ</option>
-                                    <option value="Seafood" ${restaurant.cuisineType == 'Seafood' ? 'selected' : ''}>Hải sản</option>
-                                    <option value="Vegetarian" ${restaurant.cuisineType == 'Vegetarian' ? 'selected' : ''}>Chay</option>
-                                    <option value="FastFood" ${restaurant.cuisineType == 'FastFood' ? 'selected' : ''}>Thức ăn nhanh</option>
+                                    <option value="Việt Nam" ${restaurant.cuisineType == 'Việt Nam' ? 'selected' : ''}>Việt Nam</option>
+                                    <option value="Thái Lan" ${restaurant.cuisineType == 'Thái Lan' ? 'selected' : ''}>Thái Lan</option>
+                                    <option value="Nhật Bản" ${restaurant.cuisineType == 'Nhật Bản' ? 'selected' : ''}>Nhật Bản</option>
+                                    <option value="Hàn Quốc" ${restaurant.cuisineType == 'Hàn Quốc' ? 'selected' : ''}>Hàn Quốc</option>
+                                    <option value="Trung Quốc" ${restaurant.cuisineType == 'Trung Quốc' ? 'selected' : ''}>Trung Quốc</option>
+                                    <option value="Ý" ${restaurant.cuisineType == 'Ý' ? 'selected' : ''}>Ý</option>
+                                    <option value="Pháp" ${restaurant.cuisineType == 'Pháp' ? 'selected' : ''}>Pháp</option>
+                                    <option value="Hải sản" ${restaurant.cuisineType == 'Hải sản' ? 'selected' : ''}>Hải sản</option>
+                                    <option value="Chay" ${restaurant.cuisineType == 'Chay' ? 'selected' : ''}>Chay</option>
+                                    <option value="Quốc tế" ${restaurant.cuisineType == 'Quốc tế' ? 'selected' : ''}>Quốc tế</option>
+                                    <option value="Khác" ${restaurant.cuisineType == 'Khác' ? 'selected' : ''}>Khác</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -441,15 +444,14 @@
                             </div>
                             
                             <div class="form-group">
-                                <label for="averagePrice">Giá trung bình (VNĐ/người)</label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="averagePrice" 
-                                       name="averagePrice" 
-                                       value="${restaurant.averagePrice}"
-                                       placeholder="Nhập giá trung bình"
-                                       min="0"
-                                       step="1000">
+                                <label for="priceRange">Mức giá <span class="required">*</span></label>
+                                <select class="form-control" id="priceRange" name="priceRange" required>
+                                    <option value="">Chọn mức giá</option>
+                                    <option value="Bình dân" ${restaurant.priceRange == 'Bình dân' ? 'selected' : ''}>Bình dân</option>
+                                    <option value="Trung bình" ${restaurant.priceRange == 'Trung bình' ? 'selected' : ''}>Trung bình</option>
+                                    <option value="Cao cấp" ${restaurant.priceRange == 'Cao cấp' ? 'selected' : ''}>Cao cấp</option>
+                                    <option value="Sang trọng" ${restaurant.priceRange == 'Sang trọng' ? 'selected' : ''}>Sang trọng</option>
+                                </select>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -507,13 +509,28 @@
                             </div>
                             
                             <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" 
+                                <label for="capacity">Sức chứa <span class="required">*</span></label>
+                                <input type="number" 
                                        class="form-control" 
-                                       id="email" 
-                                       name="email" 
-                                       value="${restaurant.email}"
-                                       placeholder="Nhập email liên hệ">
+                                       id="capacity" 
+                                       name="capacity" 
+                                       value="${restaurant.capacity}"
+                                       placeholder="Nhập sức chứa (số người)"
+                                       min="1"
+                                       required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="openingHours">Giờ mở cửa</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="openingHours" 
+                                       name="openingHours" 
+                                       value="${restaurant.openingHours}"
+                                       placeholder="Ví dụ: 08:00 - 22:00">
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -532,6 +549,16 @@
                                       name="description" 
                                       rows="5"
                                       placeholder="Nhập mô tả về nhà hàng, món ăn đặc trưng, không gian...">${restaurant.description}</textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specialties">Món đặc sản</label>
+                            <textarea class="form-control" 
+                                      id="specialties" 
+                                      name="specialties" 
+                                      rows="3"
+                                      placeholder="Nhập các món đặc sản của nhà hàng (ví dụ: Phở bò, Bún chả, Bánh mì...)">${restaurant.specialties}</textarea>
                             <div class="invalid-feedback"></div>
                         </div>
                     </div>
@@ -664,7 +691,7 @@
             });
             
             // Validate required fields
-            const requiredFields = ['restaurantName', 'cuisineType', 'islandId'];
+            const requiredFields = ['restaurantName', 'cuisineType', 'islandId', 'priceRange', 'capacity'];
             
             requiredFields.forEach(fieldName => {
                 const field = document.getElementById(fieldName);
@@ -675,19 +702,26 @@
                 }
             });
             
-            // Validate email format
-            const email = document.getElementById('email');
-            if (email.value && !isValidEmail(email.value)) {
-                email.classList.add('is-invalid');
-                email.nextElementSibling.textContent = 'Email không hợp lệ';
-                isValid = false;
+            // Validate capacity
+            const capacity = document.getElementById('capacity');
+            if (capacity.value) {
+                const capacityValue = parseInt(capacity.value);
+                if (capacityValue <= 0) {
+                    capacity.classList.add('is-invalid');
+                    capacity.nextElementSibling.textContent = 'Sức chứa phải lớn hơn 0';
+                    isValid = false;
+                } else if (capacityValue > 1000) {
+                    capacity.classList.add('is-invalid');
+                    capacity.nextElementSibling.textContent = 'Sức chứa không được vượt quá 1000 người';
+                    isValid = false;
+                }
             }
             
             // Validate phone number format
-            const phone = document.getElementById('phoneNumber');
-            if (phone.value && !isValidPhone(phone.value)) {
-                phone.classList.add('is-invalid');
-                phone.nextElementSibling.textContent = 'Số điện thoại không hợp lệ';
+            const phoneNumber = document.getElementById('phoneNumber');
+            if (phoneNumber.value && !isValidPhone(phoneNumber.value)) {
+                phoneNumber.classList.add('is-invalid');
+                phoneNumber.nextElementSibling.textContent = 'Số điện thoại không hợp lệ';
                 isValid = false;
             }
             
@@ -701,10 +735,7 @@
             }
         });
         
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
+
         
         function isValidPhone(phone) {
             const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
@@ -716,11 +747,14 @@
             $('.alert').fadeOut('slow');
         }, 5000);
 
-        // Format price input
-        document.getElementById('averagePrice').addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            if (value) {
-                this.value = parseInt(value);
+        // Price range validation
+        document.getElementById('priceRange').addEventListener('change', function() {
+            if (!this.value) {
+                this.classList.add('is-invalid');
+                this.nextElementSibling.textContent = 'Vui lòng chọn mức giá';
+            } else {
+                this.classList.remove('is-invalid');
+                this.nextElementSibling.textContent = '';
             }
         });
     </script>
