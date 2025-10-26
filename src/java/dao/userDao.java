@@ -19,9 +19,9 @@ import utils.DBContext;
  *
  * @author nqagh
  */
-public class UserDAO extends DBContext {
+public class userDao extends DBContext {
 
-    public static UserDAO INSTANCE = new UserDAO();
+    public static userDao INSTANCE = new userDao();
 
     public String status;
 
@@ -509,7 +509,7 @@ public class UserDAO extends DBContext {
     
     // ======= TEST DAO =======
 public static void main(String[] args) {
-    UserDAO dao = UserDAO.INSTANCE;
+    userDao dao = userDao.INSTANCE;
 
     // --- TEST 1: Add user mới ---
     System.out.println("=== TEST ADD USER ===");

@@ -1,21 +1,20 @@
 package controller.user;
 
-
-
-import dao.UserDAO;
+import dao.RoleDao;
+import dao.userDao;
 import model.User;
-
+import model.Role;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.util.List;     
+import java.util.List;
 import org.mindrot.jbcrypt.BCrypt;
 
 @WebServlet("/admin/user")
 public class UserManagerServlet extends HttpServlet {
 
-    private final UserDAO dao = userDao.INSTANCE;
+    private final userDao dao = userDao.INSTANCE;
     private final RoleDao roleDao = RoleDao.INSTANCE;
 
     @Override
@@ -241,7 +240,7 @@ public class UserManagerServlet extends HttpServlet {
             req.getRequestDispatcher("../views/user/editUser.jsp").forward(req, resp);
         }
     }
-
+//lấy số trang hiện tại
     private int getPage(HttpServletRequest req) {
         String pageParam = req.getParameter("page");
         return (pageParam != null) ? Integer.parseInt(pageParam) : 1;

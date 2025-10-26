@@ -3,20 +3,25 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.account;
+package controller.services;
 
+import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import model.Tour;
+import model.TourActivities;
+import model.TourItinerary;
 
 /**
  *
  * @author Admin
  */
-public class Hello extends HttpServlet {
+public class TourDetailController extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,10 +38,10 @@ public class Hello extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Hello</title>");  
+            out.println("<title>Servlet TourDetailController</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet Hello at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet TourDetailController at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -53,8 +58,31 @@ public class Hello extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
-        //hello
+         String tourIdRaw = request.getParameter("tourid");
+        try {
+            int tourId = Integer.parseInt(tourIdRaw);
+
+            // Lấy dữ liệu từ DAO
+            TourDao tourDao = new TourDao();
+            Tour tour = tourDao.getTourDetailById(tourId);
+            List<TourItinerary> itineraries = tourDao.getListTourItineriesById(tourId);
+            // Gửi dữ liệu sang JSP
+             if (tour != null)
+             {
+            request.setAttribute("tour", tour);
+            request.setAttribute("itineraries", itineraries);
+
+            // forward sang trang detail.jsp
+            request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
+             }
+             else {
+                response.sendRedirect("error.jsp");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.jsp");
+        }
     } 
 
     /** 
