@@ -469,7 +469,7 @@ BEGIN
     FROM inserted;
 END;
 GO
-
+select * from Bookings
 CREATE TABLE Bookings (
 		bookingId INT IDENTITY(1,1) PRIMARY KEY,
 		customerId INT NOT NULL,
@@ -479,13 +479,19 @@ CREATE TABLE Bookings (
 		childQuantity INT NOT NULL,
 		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
 		bookingDate DATETIME DEFAULT GETDATE(),
---		FOREIGN KEY (customerId) REFERENCES Users(userId),
+		FOREIGN KEY (customerId) REFERENCES Users(userId),
 );
 
 -- Bảng Payments
   
 
-
+  select * from HistoryBooking
+  select * from CustomerProfiles
+  select * from Notifications
+  
+  update Payments
+  set status ='FAILED'
+  WHERE paymentId=4
 CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
@@ -496,6 +502,33 @@ CREATE TABLE Payments (
 
 go
 
+-- triger ghi lại lịch sử booking 
+
+CREATE TRIGGER trg_Payments_StatusChange
+ON Payments
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO HistoryBooking (customerId, paymentId, note, tourStatus)
+    SELECT 
+        b.customerId,
+        i.paymentId,
+        CASE 
+            WHEN i.status = 'SUCCESS' THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thành công'
+            WHEN i.status = 'FAILED'  THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thất bại'
+            WHEN i.status = 'PENDING' THEN N'Gói "' + t.tourName + N'" của bạn đang chờ xử lý'
+        END AS note,
+        CASE 
+            WHEN i.status = 'SUCCESS' THEN 'COMPLETED'
+            ELSE 'INCOMPLETE'
+        END AS tourStatus
+    FROM inserted i
+    INNER JOIN Bookings b ON i.bookingId = b.bookingId
+    INNER JOIN Tours t ON b.tourId = t.tourId;
+END;
+GO
 
 
 CREATE TABLE HistoryBooking (

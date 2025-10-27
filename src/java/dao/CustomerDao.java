@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import model.CustomerProfile;
 import model.EmailCustomer;
+import model.HistoryBooking;
 import model.Notification;
 import model.PhoneCustomer;
 import utils.DBContext;
@@ -544,6 +545,67 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
 
     return unreadIds;
 }
-   
+
+      // Lấy danh sách lịch sử theo customerId
+    public List<HistoryBooking> getHistoryByCustomerId(int customerId) throws SQLException {
+    List<HistoryBooking> list = new ArrayList<>();
+    String sql = "SELECT * FROM HistoryBooking WHERE customerId = ?";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, customerId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                HistoryBooking h = new HistoryBooking(
+                    rs.getInt("historyId"),
+                    rs.getInt("customerId"),
+                    rs.getInt("paymentId"),
+                    rs.getString("note"),
+                    rs.getString("tourStatus")
+                );
+                list.add(h);
+            }
+        }
+
+    } catch (SQLException e) {
+         throw new SQLException("Lỗi khi lấy lịch sử booking theo customerId: " + customerId, e);
+    
+  
+    }
+
+    return list;
+}
+
+     public static void main(String[] args) {
+       // Tạo đối tượng DAO
+        try {
+     CustomerDao dao = new CustomerDao();
+
+        // Nhập customerId muốn test
+        int customerId = 2;
+
+        // Gọi phương thức
+        List<HistoryBooking> list = dao.getHistoryByCustomerId(customerId);
+
+        // In ra kết quả
+        if (list.isEmpty()) {
+            System.out.println("❌ Không có lịch sử đặt chỗ nào cho customerId = " + customerId);
+        } else {
+            System.out.println("✅ Danh sách lịch sử đặt chỗ của customerId = " + customerId + ":");
+            for (HistoryBooking h : list) {
+                System.out.println("-----------------------------------");
+                System.out.println("History ID: " + h.getHistoryId());
+                System.out.println("Customer ID: " + h.getCustomerId());
+                System.out.println("Payment ID: " + h.getPaymentId());
+                System.out.println("Note: " + h.getNote());
+                System.out.println("Tour Status: " + h.getTourStatus());
+            }
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+        }
+    
     }
 

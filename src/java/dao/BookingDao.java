@@ -12,8 +12,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import model.Booking;
+import model.HistoryBooking;
 import model.Payment;
 
 /**
@@ -78,32 +81,5 @@ public class BookingDao extends DBContext {
         }
     }
 
-    public static void main(String[] args) {
-        BookingDao bookingDao = new BookingDao();
-
-        // Tạo đối tượng Booking mẫu
-        Booking booking = new Booking();
-
-        // **Quan trọng:** customerId phải tồn tại trong bảng Users
-        booking.setCustomerId(5); // Giả sử userId 1 có trong Users
-        try {
-            // Chuyển đổi string thành java.util.Date
-            Date departureDate = new SimpleDateFormat("yyyy-MM-dd").parse("2025-10-25");
-            booking.setDepartureDate(departureDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        booking.setAdultQuantity(2);
-        booking.setChildQuantity(1);
-        booking.setStatus("PENDING");
-
-        try {
-            bookingDao.createBooking(booking);
-            System.out.println("Tạo booking thành công. Booking ID: " + booking.getBookingId());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Tạo booking thất bại: " + e.getMessage());
-        }
-    }
+   
 }

@@ -125,7 +125,7 @@
                     </div>
 
                     <!-- xử lý ảnh trước khi upload  -->
-                    <script>
+                    <script>    
                         // Preview ảnh và auto upload
                         function previewAvatar(event) {
                             const file = event.target.files[0];
@@ -266,8 +266,7 @@
                 </section>
             </div>
                   <!-- historyBooking content ----------------------------------------->       
-
-                  <div id="historyBookings" class=" historyBookings-container  main-section" style="display:none;"> 
+                  <div id="historyBookings" class="historyBookings-container main-section">
 
                       <!-- Banner -->
                       <div class="tab-header-historyBookings text-center mb-4 w-100">
@@ -280,13 +279,39 @@
                       <div class="text-center mb-4 w-auto">
                           <span class="badge bg-gradient" 
                                 style="background: linear-gradient(to right, #d97706, #b45309);
-                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+           font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
                               🔔 Danh sách thông báo Meland Booking
                           </span>
                       </div>
+                      <!-- Nút Reload đặt bên ngoài -->
+                      <div class="text-center mb-3">
+                          <a class="btn btn-primary btn-reload" href="${pageContext.request.contextPath}/HistoryBookingServlet" >Hiển thị lịch sử</a>
+                      </div>
+                      <c:if test="${empty historyList}">
+                          <p class="text-center text-muted mt-3">Không có lịch sử đặt chỗ nào.</p>
+                      </c:if>
+                      <!-- Content -->
+                      <div class="container mt-4">
+                          <c:forEach var="history" items="${historyList}">
+                              <div class="card mb-3 shadow-sm border-1 rounded-3 historyBookings-card" data-history-id="${history.historyId}">
+                                  <div class="card-body d-flex justify-content-between align-items-center">
+                                      <div>
+                                          <p class="fw-bold mb-1">${history.note}</p>
+                                          <small class="text-muted">
+                                              <span class="${history.tourStatus == 'COMPLETED' ? 'text-success' : 
+                                 (history.tourStatus == 'INCOMPLETE' ? 'text-danger' : 'text-warning')} fw-semibold">
+                                                  ${history.tourStatus}
+                                              </span>
+                                          </small>
+                                          <i class="bi bi-calendar2-check text-secondary fs-4"></i>
+                                      </div>
+                                      <button class="btn btn-danger btn-sm btn-hide">Xóa</button> 
+                                  </div>
+                              </div>
+                          </c:forEach>
+                      </div>
 
-
-                 </div>
+                  </div>
                   
                  <!-- Payments content ----------------------------------------->
                  
@@ -919,7 +944,7 @@
 // Hàm hiển thị section chính
 function showMainSection(evt, sectionId) {
     evt.preventDefault(); // Ngăn hành vi mặc định của thẻ <a>
-
+console.log("Showing section: " + sectionId);
     // Ẩn tất cả các section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
@@ -953,7 +978,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Ẩn tất cả section khi load
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-    const validSections = ['member-priority', 'historyBooking', 'transactions', 'notifications', 'favorites', 'account'];
+    const validSections = ['member-priority', 'historyBookings', 'transactions', 'notifications', 'favorites', 'account'];
 
     if (section && validSections.includes(section)) {
         const selected = document.getElementById(section);
@@ -976,20 +1001,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // an list thong ui sau khi xoa me 
 document.addEventListener("click", function(e) { 
-    if (e.target.closest(".btn-hide")) {
-        const card = e.target.closest(".notification-card");
-        card.remove();
+    const btnHide = e.target.closest(".btn-hide");
+    if (btnHide) {
+        // Kiểm tra và xóa cho Notification
+        const notificationCard = btnHide.closest(".notification-card");
+        if (notificationCard) {
+            notificationCard.remove();
+            checkEmptyList(".notification-card", "Không có thông báo nào.", "#notifications .container");
+        }
 
-        const list = document.querySelectorAll(".notification-card");
-        if (list.length === 0) {
-            const emptyMsg = document.createElement("p");
-            emptyMsg.textContent = "Không có thông báo nào.";
-            emptyMsg.classList.add("text-center", "text-muted", "mt-3");
-            document.querySelector("section").appendChild(emptyMsg);
+        // Kiểm tra và xóa cho HistoryBookings
+        const historyCard = btnHide.closest(".historyBookings-card");
+        if (historyCard) {
+            historyCard.remove();
+            checkEmptyList(".historyBookings-card", "Không có lịch sử đặt chỗ nào.", "#historyBookings .container");
         }
     }
 });
 
+// Hàm helper kiểm tra danh sách rỗng
+function checkEmptyList(cardSelector, emptyMessage, containerSelector) {
+    const list = document.querySelectorAll(cardSelector);
+    const container = document.querySelector(containerSelector);
+
+    // Xóa thông báo rỗng cũ nếu tồn tại
+    const existingEmptyMsg = container.querySelector(".text-center.text-muted.mt-3");
+    if (existingEmptyMsg) {
+        existingEmptyMsg.remove();
+    }
+
+    // Kiểm tra và thêm thông báo rỗng nếu danh sách trống
+    if (list.length === 0 && container) {
+        const emptyMsg = document.createElement("p");
+        emptyMsg.textContent = emptyMessage;
+        emptyMsg.classList.add("text-center", "text-muted", "mt-3");
+        container.appendChild(emptyMsg);
+    }
+}
 </script>
 
                     <%@ include file="/views/common/script.jsp" %>
