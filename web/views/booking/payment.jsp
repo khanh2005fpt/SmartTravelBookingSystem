@@ -32,23 +32,27 @@
                             <input type="hidden" name="departureDate" value="${booking.departureDate}" />
 
                             <div class="mb-3">
-                                <label class="form-label">Họ và tên</label>
-                                <input type="text" class="form-control" name="fullname" placeholder="Nhập họ và tên" required>
+                                <label>Họ và tên</label>
+                                <input type="text" class="form-control" name="fullname"
+                                       value="${sessionScope.user.fullName}">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" name="email" placeholder="Nhập email" required>
+                                <label>Email</label>
+                                <input type="email" class="form-control" name="email"
+                                       value="${sessionScope.user.email}">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Số điện thoại</label>
-                                <input type="text" class="form-control" name="phone" placeholder="Nhập số điện thoại" required pattern="^0\d{9,10}$" title="Số điện thoại phải bắt đầu bằng 0 và có 10-11 chữ số">
+                                <label>Số điện thoại</label>
+                                <input type="text" class="form-control" name="phone"
+                                       value="${sessionScope.user.phone}">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Địa chỉ</label>
-                                <input type="text" class="form-control" name="address" placeholder="Nhập địa chỉ" required>
+                                <label>Địa chỉ</label>
+                                <input type="text" class="form-control" name="address"
+                                       value="${sessionScope.profile_customer.address}">
                             </div>
 
                             <div class="mb-3">

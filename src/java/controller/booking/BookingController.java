@@ -130,7 +130,7 @@ public class BookingController extends HttpServlet {
 
             int customerId = user.getUserId();
             
-            System.out.println("Customer ID from session: " + customerId);
+          //  System.out.println("Customer ID from session: " + customerId);
 
 
             // Tính tổng tiền
@@ -149,7 +149,7 @@ public class BookingController extends HttpServlet {
             BookingDao bd = new BookingDao();
             int bookingId = bd.createBooking(booking); // bookingId được tạo ở DB
             booking.setBookingId(bookingId);           // đã set trong DAO
-            System.out.println(bookingId);
+         //   System.out.println(bookingId);
             // Lấy thông tin tour
             // Gửi dữ liệu sang trang thanh toán
             request.setAttribute("booking", booking);

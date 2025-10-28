@@ -6,6 +6,7 @@
 package com.vnpay.common;
 
 import dao.BookingDao;
+import dao.TourDao;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -43,9 +44,10 @@ public class ajaxServlet extends HttpServlet {
         String orderType = "other";
         String returnUrl = Config.vnp_ReturnUrl;
         String fullName = request.getParameter("fullname");
-//        String email = request.getParameter("email");
-//        String phone = request.getParameter("phone");
-//        String address = request.getParameter("address");
+        String email = request.getParameter("email");
+        String phone = request.getParameter("phone");
+        String address = request.getParameter("address");
+
         Date departureDate = Date.valueOf(request.getParameter("departureDate"));
         int adultQty = Integer.parseInt(request.getParameter("adultQuantity"));
         int childQty = Integer.parseInt(request.getParameter("childQuantity"));
@@ -58,10 +60,10 @@ public class ajaxServlet extends HttpServlet {
         }
 
         int customerId = user.getUserId();
-        
+
         String tourIdParam = request.getParameter("tourId");
         String customTourIdParam = request.getParameter("customTourId");
-        
+
         Integer tourId = null;
         Integer customTourId = null;
 
@@ -72,8 +74,7 @@ public class ajaxServlet extends HttpServlet {
         if (customTourIdParam != null && !customTourIdParam.trim().isEmpty()) {
             customTourId = Integer.parseInt(customTourIdParam);
         }
-        
-        
+        System.out.println(tourId);
         String totalBill = request.getParameter("totalBill"); // số tiền tổng tour
         long amountLong = (long) (Double.parseDouble(totalBill) * 100); //số tiền hiển thị trong lúc thanh toán
 
@@ -85,7 +86,7 @@ public class ajaxServlet extends HttpServlet {
         booking.setCustomerId(customerId);
         booking.setCustomTourId(customTourId);
         booking.setTourId(tourId);
-        booking.setTotalPrice(Double.parseDouble(totalBill) * 100);
+        booking.setTotalPrice(Double.parseDouble(totalBill));
 
         BookingDao bd = new BookingDao();
         int bookingId = 0;
