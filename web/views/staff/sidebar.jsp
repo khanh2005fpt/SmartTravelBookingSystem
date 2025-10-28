@@ -215,10 +215,10 @@
                     </a>
                 </div>
                 <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/restaurants" 
-                       class="nav-link <%= "restaurants".equals(currentPage) ? "active" : "" %>">
+                    <a href="${pageContext.request.contextPath}/staff/flights" 
+                       class="nav-link <%= "flights".equals(currentPage) ? "active" : "" %>">
                         <i class="fa fa-cutlery"></i>
-                        Quản lý Nhà hàng
+                        Quản lý vé máy bay
                     </a>
                 </div>
                 <div class="nav-child">
