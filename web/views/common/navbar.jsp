@@ -10,8 +10,7 @@
 <!-- lay thong tin customer_profile tu session  -->
   <%
                            CustomerProfile profile_customer = (CustomerProfile)session.getAttribute("profile_customer");
-                           
-                            
+                  
         %>
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">

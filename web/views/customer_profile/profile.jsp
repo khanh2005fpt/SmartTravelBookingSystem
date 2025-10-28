@@ -155,7 +155,7 @@
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
                     <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
-                    <a href="#" onclick="showMainSection(event, 'account')" class="active"><i class="bi bi-gear"></i> Tài khoản</a>
+                    <a href="#" onclick="showMainSection(event, 'account')"><i class="bi bi-gear"></i> Tài khoản</a>
                     <a  href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
 
                 </div>
@@ -941,20 +941,22 @@
                     <!-- =================== Js for sidebar menu =================== -->               
                <script>
                    
-// Hàm hiển thị section chính
+// =================== Hiển thị section chính ===================
 function showMainSection(evt, sectionId) {
-    evt.preventDefault(); // Ngăn hành vi mặc định của thẻ <a>
-console.log("Showing section: " + sectionId);
-    // Ẩn tất cả các section
+    evt.preventDefault(); // Ngăn reload page
+    console.log("Showing section: " + sectionId);
+
+    // Ẩn tất cả section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
     // Hiển thị section được chọn
     const selected = document.getElementById(sectionId);
     if (selected) selected.style.display = "block";
 
-    // Nếu section là 'account', hiển thị container tài khoản
+    // Nếu là account, hiển thị container account
     if (sectionId === 'account') {
-        document.querySelector('.account-container').style.display = "block";
+        const accountContainer = document.querySelector(".account-container");
+        if (accountContainer) accountContainer.style.display = "block";
     }
 
     // Cập nhật class active cho menu
@@ -962,62 +964,53 @@ console.log("Showing section: " + sectionId);
     evt.currentTarget.classList.add("active");
 }
 
-// Điều khiển tab con trong phần Tài khoản
+// =================== Điều khiển tab con trong Account ===================
 function showAccountTab(evt, tabId) {
+    // Ẩn tất cả tab-content
     document.querySelectorAll(".account-container .tab-content").forEach(c => c.classList.remove("active"));
     document.querySelectorAll(".tab-header-account button").forEach(b => b.classList.remove("active"));
-    document.getElementById(tabId).classList.add("active");
+
+    // Hiển thị tab được chọn
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) selectedTab.classList.add("active");
+
     evt.currentTarget.classList.add("active");
 }
 
-// =================== Khởi tạo section khi trang được tải ===================   
+// =================== Khởi tạo section khi trang được tải ===================
 document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const section = params.get("section"); 
-
-    // Ẩn tất cả section khi load
+    // Ẩn tất cả section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-    const validSections = ['member-priority', 'historyBookings', 'transactions', 'notifications', 'favorites', 'account'];
+  
 
-    if (section && validSections.includes(section)) {
-        const selected = document.getElementById(section);
-        if (selected) selected.style.display = "block";
-
-        if (section === 'account') {
-            document.querySelector(".account-container").style.display = "block";
-        }
-
-        // Cập nhật lớp active trong menu sidebar
-        document.querySelectorAll(".profile-menu a").forEach(link => {
-            const onclick = link.getAttribute("onclick");
-            if (onclick && onclick.includes(section)) {
-                link.classList.add("active");
-            }
+    // Cập nhật class active cho menu mặc định
+    const defaultMenuLink = Array.from(document.querySelectorAll(".profile-menu a"))
+        .find(a => {
+            const onclick = a.getAttribute("onclick");
+            return onclick && onclick.includes(defaultSectionId);
         });
-    }
+    if (defaultMenuLink) defaultMenuLink.classList.add("active");
 });
 
 
-// an list thong ui sau khi xoa me 
-document.addEventListener("click", function(e) { 
-    const btnHide = e.target.closest(".btn-hide");
-    if (btnHide) {
-        // Kiểm tra và xóa cho Notification
-        const notificationCard = btnHide.closest(".notification-card");
-        if (notificationCard) {
-            notificationCard.remove();
-            checkEmptyList(".notification-card", "Không có thông báo nào.", "#notifications .container");
-        }
+document.addEventListener("DOMContentLoaded", function () {
+    // Ẩn tất cả
+    document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-        // Kiểm tra và xóa cho HistoryBookings
-        const historyCard = btnHide.closest(".historyBookings-card");
-        if (historyCard) {
-            historyCard.remove();
-            checkEmptyList(".historyBookings-card", "Không có lịch sử đặt chỗ nào.", "#historyBookings .container");
-        }
-    }
+    // Lấy section từ URL query param
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') || 'member-priority'; // default nếu không có
+
+    const selectedSection = document.getElementById(section);
+    if (selectedSection) selectedSection.style.display = "block";
+
+    // Cập nhật active menu
+    const menuLink = Array.from(document.querySelectorAll(".profile-menu a"))
+        .find(a => a.getAttribute("onclick")?.includes(section));
+    if (menuLink) menuLink.classList.add("active");
 });
+
 
 // Hàm helper kiểm tra danh sách rỗng
 function checkEmptyList(cardSelector, emptyMessage, containerSelector) {

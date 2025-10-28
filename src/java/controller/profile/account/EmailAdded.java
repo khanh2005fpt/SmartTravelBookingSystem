@@ -124,8 +124,7 @@ public class EmailAdded extends HttpServlet {
         List<EmailCustomer> emailList = customerDao.getEmailsByUserId(userId);
       session.setAttribute("emailList", emailList);
        session.setAttribute("successEmail", "Thêm email thành công!");
-       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-   
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
 
         
     }
