@@ -16,7 +16,7 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
-
+select * from Airlines
 
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
@@ -91,6 +91,7 @@ BEGIN
 END;
 GO
 select * from CustomerContacts
+select * from CustomerProfiles
 delete from CustomerContacts
 DBCC CHECKIDENT ('CustomerContacts' , RESEED , 0)
 

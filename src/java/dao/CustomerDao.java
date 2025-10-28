@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import model.CustomerContacts;
 import model.CustomerProfile;
 import model.EmailCustomer;
 import model.HistoryBooking;
@@ -202,16 +203,7 @@ public boolean isPrimaryEmail(int emailId) {
     return false; // mặc định không phải email chính
 }
       //delete email
-    public boolean deleteEmail(int emailId) {
-        String sql = "DELETE FROM UserEmails WHERE emailId = ? AND isPrimary = 0";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, emailId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+   
 
   //check ton tai emai
     
@@ -626,18 +618,18 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
 }
     
     
-    public List<EmailCustomer> getEmailContactByUserId(int userId)throws SQLException {
-    List<EmailCustomer> list = new ArrayList<>();
+    public List<CustomerContacts> getEmailContactByUserId(int userId)throws SQLException {
+    List<CustomerContacts> list = new ArrayList<>();
     String sql = "SELECT * FROM CustomerContacts WHERE userId = ? AND contactType = 'EMAIL' AND isPrimary=0 ";
 
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
         stmt.setInt(1, userId);
         try (ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                EmailCustomer email = new EmailCustomer();
-                email.setEmailId(rs.getInt("contactId"));
+               CustomerContacts email = new CustomerContacts();
+                email.setContactId(rs.getInt("contactId"));
                 email.setUserId(rs.getInt("userId"));
-                email.setEmail(rs.getString("contactValue")); 
+                email.setContactValue(rs.getString("contactValue")); 
                 email.setIsPrimary(rs.getBoolean("isPrimary"));
                 list.add(email);
             }
@@ -664,6 +656,19 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
     }
     return false; // chưa tồn tại
 }
+    
+    
+     public boolean deleteEmailContact(int contactId) {
+        String sql = "DELETE FROM CustomerContacts WHERE contactId = ? AND isPrimary = 0";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, contactId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
      public static void main(String[] args) {
        // Tạo đối tượng DAO
         try {

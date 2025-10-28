@@ -15,7 +15,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
 import java.util.List;
+import model.CustomerContacts;
 import model.EmailCustomer;
 import model.User;
 
@@ -95,38 +97,33 @@ if (user == null) {
     response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
     return;
 }
+try{
+         Integer userId = user.getUserId();
+        String action = request.getParameter("action");
 
-Integer userId = user.getUserId();
-String action = request.getParameter("action");
-
-if (action == null) {
+        if (action == null) {
     response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
     return;
-}
+          }
 
 // Xử lý xóa email
         if (action.startsWith("delete-")) {
-            int emailId = Integer.parseInt(action.split("-")[1]);
+            int contactId = Integer.parseInt(action.split("-")[1]);
 
-            // Kiểm tra email có tồn tại cho user không
-            boolean existEmail = customerDao.checkEmailExistsByIdAndUser(emailId, userId);
-            if (!existEmail) {
-                session.setAttribute("errorEmail_Deleted", "Email này đã bị xóa!");
-            } else {
-                boolean deleted = customerDao.deleteEmail(emailId);
+                boolean deleted = customerDao.deleteEmailContact(contactId);
                 if (deleted) {
                     session.setAttribute("successEmail", "Đã xóa email thành công!");
                 } else {
                     session.setAttribute("errorEmail_Deleted", "Xóa email không thành công!");
                 }
-            }
+            
 
             // Cập nhật danh sách email mới
-            session.removeAttribute("emailList");
-            List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
+           
+            List<CustomerContacts> updatedList = customerDao.getEmailContactByUserId(userId);
             session.setAttribute("emailList", updatedList);
 
-            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
+             response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
             return;
         } // Xử lý đặt email chính
         else if (action.startsWith("makePrimary-")) {
@@ -146,6 +143,11 @@ if (action == null) {
             session.setAttribute("emailList", updatedList);
 
              response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        }
+         }catch(SQLException e){
+       e.printStackTrace();
+       session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa email. Vui lòng thử lại!");
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
         }
 
     }

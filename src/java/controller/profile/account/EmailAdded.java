@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.CustomerContacts;
 import model.EmailCustomer;
 import model.User;
 
@@ -70,7 +71,7 @@ public class EmailAdded extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+      response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
     } 
 
     /** 
@@ -124,15 +125,15 @@ public class EmailAdded extends HttpServlet {
           }
         // them email
         customerDao.addContact(userId, email);
-        List<EmailCustomer> emailList = customerDao.getEmailContactByUserId(userId);
+        List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(userId);
         session.setAttribute("emailList", emailList);
         session.setAttribute("successEmail", "Thêm email thành công!");
         response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
             
         }catch(SQLException e){
        e.printStackTrace();
-    session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi thêm email. Vui lòng thử lại!");
-     response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+       session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi thêm email. Vui lòng thử lại!");
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
         }
        
 

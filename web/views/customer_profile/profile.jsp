@@ -630,13 +630,13 @@
                                     <c:forEach var="email" items="${sessionScope.emailList}">
                                         <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                             <div>
-                                                📧 <span>${email.email}</span>
+                                                📧 <span>${email.contactValue}</span>
                                             </div>
                                             <div>
-                                                <button type="submit" name="action" value="makePrimary-${email.emailId}" class="btn btn-sm btn-outline-success me-2">
+                                                <button type="submit" name="action" value="makePrimary-${email.contactId}" class="btn btn-sm btn-outline-success me-2">
                                                     ✅
                                                 </button>
-                                                <button type="submit" name="action" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+                                                <button type="submit" name="action" value="delete-${email.contactId}" class="btn btn-sm btn-outline-danger">
                                                     🗑️
                                                 </button>
                                             </div>
