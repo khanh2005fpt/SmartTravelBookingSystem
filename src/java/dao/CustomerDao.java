@@ -251,6 +251,22 @@ public boolean isPrimaryEmail(int emailId) {
     }
     return false;
 }
+            
+            public boolean isContactExist(int userId, String contactValue) {
+    String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactValue = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        stmt.setString(2, contactValue);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // true nếu tồn tại
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false; // nếu lỗi hoặc không tồn tại
+}
     
        // update email thanh primary email va dong bo voi user
 public void setPrimaryEmai(int userId, int emailId) {
@@ -575,32 +591,98 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
 
     return list;
 }
+    
+    public boolean addContact(int userId, String contactValue) throws SQLException {
+        // Xác định contactType dựa vào value
+        String contactType = contactValue.contains("@") ? "EMAIL" : "PHONE";
 
+        String sql = "INSERT INTO CustomerContacts (userId, contactValue, contactType, isPrimary) " +
+                     "VALUES (?, ?, ?, 0)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, contactValue);
+            ps.setString(3, contactType);
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0; // true nếu insert thành công
+        }
+    }
+
+    
+    public int countEmailContactSecondary(int userId) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactType = 'EMAIL'";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+    
+    
+    public List<EmailCustomer> getEmailContactByUserId(int userId)throws SQLException {
+    List<EmailCustomer> list = new ArrayList<>();
+    String sql = "SELECT * FROM CustomerContacts WHERE userId = ? AND contactType = 'EMAIL' AND isPrimary=0 ";
+
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                EmailCustomer email = new EmailCustomer();
+                email.setEmailId(rs.getInt("contactId"));
+                email.setUserId(rs.getInt("userId"));
+                email.setEmail(rs.getString("contactValue")); 
+                email.setIsPrimary(rs.getBoolean("isPrimary"));
+                list.add(email);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+     
+    public boolean checkEmailContactExists(int userId, String email) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactValue = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        ps.setString(2, email);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0; // đã tồn tại
+            }
+        }
+    }
+    return false; // chưa tồn tại
+}
      public static void main(String[] args) {
        // Tạo đối tượng DAO
         try {
      CustomerDao dao = new CustomerDao();
 
         // Nhập customerId muốn test
-        int customerId = 2;
+          int userId = 2; // giả sử userId đã tồn tại
+            String contactValue1 = "huynqhe182510@fpt.edu.vn";
+            String contactValue2 = "0912345678";
 
         // Gọi phương thức
-        List<HistoryBooking> list = dao.getHistoryByCustomerId(customerId);
 
-        // In ra kết quả
-        if (list.isEmpty()) {
-            System.out.println("❌ Không có lịch sử đặt chỗ nào cho customerId = " + customerId);
-        } else {
-            System.out.println("✅ Danh sách lịch sử đặt chỗ của customerId = " + customerId + ":");
-            for (HistoryBooking h : list) {
-                System.out.println("-----------------------------------");
-                System.out.println("History ID: " + h.getHistoryId());
-                System.out.println("Customer ID: " + h.getCustomerId());
-                System.out.println("Payment ID: " + h.getPaymentId());
-                System.out.println("Note: " + h.getNote());
-                System.out.println("Tour Status: " + h.getTourStatus());
-            }
-        }
+
+           // Thêm email
+          int cnt = dao.countEmailContactSecondary(userId) ;
+            System.out.println("tổng số email là : "+ cnt);
+
+            // Thêm phone
+         
 
     } catch (Exception e) {
         e.printStackTrace();

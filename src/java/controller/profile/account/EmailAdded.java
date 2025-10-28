@@ -8,7 +8,7 @@ package controller.profile.account;
 import dao.CustomerDao;
 
 import dao.UserDao;
-
+import java.sql.SQLException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -102,29 +102,39 @@ public class EmailAdded extends HttpServlet {
          response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
-        // check mail ton tai
         
-        Boolean existAddedPhone = customerDao.checkEmailExists(userId, email);
+        try{
+            
+             // check mail ton tai
+        
+        Boolean existAddedPhone = customerDao.checkEmailContactExists(userId, email);
         
         if(existAddedPhone || email.equals(user.getEmail())){
-             session.setAttribute("errorEmail_Deleted", "Email này đã tồn tại!");
+           session.setAttribute("errorEmail_Deleted", "Email này đã tồn tại!");
             response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
         
         // check k them qua 2 mail
-        int totalEmails = customerDao.countSecondaryEmails(userId);
+        int totalEmails = customerDao.countEmailContactSecondary(userId);
           if(totalEmails>=2){
               session.setAttribute("errorEmail_Deleted", "Bạn chỉ được dùng tối đa 3 email!");
               response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
           }
         // them email
-        customerDao.addEmail(userId, email);
-        List<EmailCustomer> emailList = customerDao.getEmailsByUserId(userId);
-      session.setAttribute("emailList", emailList);
-       session.setAttribute("successEmail", "Thêm email thành công!");
-       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        customerDao.addContact(userId, email);
+        List<EmailCustomer> emailList = customerDao.getEmailContactByUserId(userId);
+        session.setAttribute("emailList", emailList);
+        session.setAttribute("successEmail", "Thêm email thành công!");
+        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+            
+        }catch(SQLException e){
+       e.printStackTrace();
+    session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi thêm email. Vui lòng thử lại!");
+     response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        }
+       
 
         
     }

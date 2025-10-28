@@ -90,23 +90,51 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
--- Bảng UserEmails
-CREATE TABLE UserEmails (
-    emailId INT IDENTITY(1,1) PRIMARY KEY,
+select * from CustomerContacts
+delete from CustomerContacts
+DBCC CHECKIDENT ('CustomerContacts' , RESEED , 0)
+
+CREATE TABLE CustomerContacts (
+    contactId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
-    email NVARCHAR(100) NOT NULL,
-    isPrimary BIT DEFAULT 0, -- Đánh dấu là email chính
+    contactValue NVARCHAR(100) NOT NULL,
+    contactType NVARCHAR(10) CHECK (contactType IN ('EMAIL', 'PHONE')) NOT NULL,
+    isPrimary BIT DEFAULT 0,
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 go
 
+-- trigger set emaail chinh
 
-CREATE TABLE UserPhones (
-    phoneId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    phoneNumber NVARCHAR(20) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
-);
+CREATE OR ALTER TRIGGER TR_ManagePrimaryEmail
+ON CustomerContacts
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF UPDATE(isPrimary)
+    BEGIN
+        -- 1️ Reset tất cả email về 0 cho userId tương ứng
+        UPDATE CustomerContacts
+        SET isPrimary = 0
+        WHERE userId IN (SELECT userId FROM inserted)
+          AND contactType = 'EMAIL';
+
+        -- 2️ Set isPrimary = 1 cho contactId vừa chọn
+        UPDATE CustomerContacts
+        SET isPrimary = 1
+        WHERE contactId IN (SELECT contactId FROM inserted WHERE isPrimary = 1 AND contactType = 'EMAIL');
+
+        -- 3️ Đồng bộ email chính sang bảng Users
+        UPDATE u
+        SET u.email = i.contactValue
+        FROM Users u
+        JOIN inserted i ON u.userId = i.userId
+        WHERE i.contactType = 'EMAIL' AND i.isPrimary = 1;
+    END
+END;
+GO
 
 
 
@@ -131,7 +159,6 @@ CREATE TABLE Islands (
     location NVARCHAR(500) NULL,
     FOREIGN KEY (countryId) REFERENCES Countries(countryId) ON DELETE CASCADE
 );
-
 
 go
 CREATE TABLE Tours (

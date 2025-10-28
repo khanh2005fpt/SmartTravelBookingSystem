@@ -1000,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Lấy section từ URL query param
     const params = new URLSearchParams(window.location.search);
-    const section = params.get('section') || 'member-priority'; // default nếu không có
+    const section = params.get('section') || 'account'; // default nếu không có
 
     const selectedSection = document.getElementById(section);
     if (selectedSection) selectedSection.style.display = "block";
