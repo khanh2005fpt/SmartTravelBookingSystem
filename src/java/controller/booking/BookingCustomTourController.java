@@ -145,7 +145,7 @@ public class BookingCustomTourController extends HttpServlet {
             // Lấy thông tin tour
             // Gửi dữ liệu sang trang thanh toán
             request.setAttribute("booking", booking);
-            request.setAttribute("tour", tour);
+            request.setAttribute("customtour", tour);
             request.setAttribute("details", details);
             request.getRequestDispatcher("/views/booking/payment.jsp").forward(request, response);
 

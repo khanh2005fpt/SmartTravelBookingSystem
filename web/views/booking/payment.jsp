@@ -23,7 +23,10 @@
                         <h4 class="mb-3 text-primary fw-bold">📝 Thông tin khách hàng</h4>
 
                         <form action="PaymentController" method="post">
-                            <input type="hidden" name="totalBill" value="${totalPrice}">
+                            <input type="hidden" name="tourId" value="${tour.tourId}" />
+                            <input type="hidden" name="customTourId" value="${customtour.customTourId}" />
+                            <input type="hidden" name="bookingId" value="${booking.bookingId}" />
+                            <input type="hidden" name="totalBill" value="${booking.totalPrice}">
                             <input type="hidden" name="adultQuantity" value="${booking.adultQuantity}" />
                             <input type="hidden" name="childQuantity" value="${booking.childQuantity}" />
                             <input type="hidden" name="departureDate" value="${booking.departureDate}" />
@@ -64,7 +67,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between mt-4">
-                               <a href="javascript:history.back()" class="btn btn-outline-secondary">Quay lại</a>
+                                <a href="javascript:history.back()" class="btn btn-outline-secondary">Quay lại</a>
                                 <button type="submit" class="btn btn-success">Thanh toán ngay</button>
                             </div>
                         </form>
@@ -84,8 +87,19 @@
                         <ul class="list-group mb-3">
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Tên tour</b></span>
-                                <span>${tour.tourName}</span>
+                                <c:choose>
+                                    <c:when test="${not empty tour}">
+                                        <span>${tour.tourName}</span>
+                                    </c:when>
+                                    <c:when test="${not empty customtour}">
+                                        <span>${customtour.tourName}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="text-danger">Không có dữ liệu tour</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </li>
+
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Ngày khởi hành</b></span>
                                 <span>
