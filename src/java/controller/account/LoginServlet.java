@@ -31,15 +31,13 @@ public class LoginServlet extends HttpServlet {
 
     private UserDao userDAO;
     public CustomerDao customerDao;
-   
 
     @Override
     public void init() throws ServletException {
         try {
-          userDAO = UserDao.INSTANCE;
-            customerDao = CustomerDao .INSTANCE;
-          
-            
+            userDAO = UserDao.INSTANCE;
+            customerDao = CustomerDao.INSTANCE;
+
             System.out.println("userDao initialized successfully in loginServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in loginServlet: " + e.getMessage());
@@ -107,24 +105,26 @@ public class LoginServlet extends HttpServlet {
             // user ton tai -> login
             session.setAttribute("user", existing);
             session.setAttribute("loginSuccess", "oke");
-            
-        // gui thong bang session den trang profile
+
+            // gui thong bang session den trang profile
             CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
             session.setAttribute("profile_customer", profile);
 
- 
-    
             List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
-            List<EmailCustomer> emailList =customerDao.getEmailsByUserId(existing.getUserId());
+            List<EmailCustomer> emailList = customerDao.getEmailsByUserId(existing.getUserId());
             List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(existing.getUserId());
-            
-          
+
             session.setAttribute("listNotification", listNotification);
             session.setAttribute("emailList_Current", emailList);
             session.setAttribute("phoneList_Current", phoneList);
- 
 
-            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+            String redirectURL = request.getParameter("redirect");
+            if (redirectURL != null && !redirectURL.trim().isEmpty()) {
+                redirectURL = java.net.URLDecoder.decode(redirectURL, "UTF-8");
+                response.sendRedirect(redirectURL);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+            }
             return;
         } else {
             // user chua co acc --> dky luon cho user
@@ -143,7 +143,13 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("userId", newUser.getUserId());
 
                 session.setAttribute("loginSuccess", "oke");
-                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                String redirectURL = request.getParameter("redirect");
+                if (redirectURL != null && !redirectURL.trim().isEmpty()) {
+                    redirectURL = java.net.URLDecoder.decode(redirectURL, "UTF-8");
+                    response.sendRedirect(redirectURL);
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                }
             } else {
                 session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
                 response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
@@ -170,7 +176,6 @@ public class LoginServlet extends HttpServlet {
         String passWord = request.getParameter("pass");
 
         HttpSession session = request.getSession();
-       
 
         // check null input
         if (userN.isEmpty() || userN == null || passWord.isEmpty() || passWord == null) {
@@ -178,8 +183,8 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
-        
-          User user =userDAO.loginSystem(userN, passWord);
+
+        User user = userDAO.loginSystem(userN, passWord);
         //check acc active and ton tai
         String error = null;
         if (user == null) {
@@ -194,17 +199,13 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        
         //login thanh cong
-     
         session.setAttribute("user", user);
-      
+
         // gui thong bang session den trang profile
-        
         CustomerProfile profile = customerDao.getProfileByUserId(user.getUserId());
-            session.setAttribute("profile_customer", profile);
-         
-        
+        session.setAttribute("profile_customer", profile);
+
         List<EmailCustomer> emailList = customerDao.getEmailsByUserId(user.getUserId());
         List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(user.getUserId());
         List<Notification> listNotification = customerDao.getNotificationByUser(user.getUserId());
@@ -212,11 +213,16 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("listNotification", listNotification);
         session.setAttribute("emailList_Current", emailList);
         session.setAttribute("phoneList_Current", phoneList);
-  
 
         session.setAttribute("userId", user.getUserId());
         session.setAttribute("loginSuccess", "oke");
-        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+        String redirectURL = request.getParameter("redirect");
+        if (redirectURL != null && !redirectURL.trim().isEmpty()) {
+            redirectURL = java.net.URLDecoder.decode(redirectURL, "UTF-8");
+            response.sendRedirect(redirectURL);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+        }
 
     }
 

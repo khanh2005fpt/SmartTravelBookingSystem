@@ -73,12 +73,25 @@ public class TourDetailController extends HttpServlet {
             request.setAttribute("itineraries", itineraries);
 
             // forward sang trang detail.jsp
+            String currentURL = request.getRequestURL().toString();
+            if (request.getQueryString() != null) {
+                currentURL += "?" + request.getQueryString();
+            }
+            request.setAttribute("currentURL", currentURL);
+
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Đã xảy ra lỗi trong quá trình tải dữ liệu. Vui lòng thử lại sau!");
+            String currentURL = request.getRequestURL().toString();
+            if (request.getQueryString() != null) {
+                currentURL += "?" + request.getQueryString();
+            }
+            request.setAttribute("currentURL", currentURL);
+
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
+
         }
     }
 

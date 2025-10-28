@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import model.Booking;
+import model.HistoryBooking;
 import model.Payment;
 import utils.DBContext;
 

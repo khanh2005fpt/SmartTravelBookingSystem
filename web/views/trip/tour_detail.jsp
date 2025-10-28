@@ -186,9 +186,19 @@
 
                             <c:otherwise>
                                 <div class="alert alert-warning">
-                                    Bạn cần <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
+                                    <%
+                                        String currentURL = (String) request.getAttribute("currentURL");
+                                        String encodedURL = java.net.URLEncoder.encode(currentURL, "UTF-8");
+                                    %>
+                                    Bạn cần 
+                                    <a href="<%= request.getContextPath() %>/views/account/login.jsp?redirect=<%= encodedURL %>" 
+                                       class="text-primary fw-bold">
+                                        đăng nhập
+                                    </a> 
+                                    để đặt tour.
                                 </div>
                             </c:otherwise>
+
                         </c:choose>
                     </div>
                 </div>

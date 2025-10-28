@@ -125,7 +125,7 @@
                     </div>
 
                     <!-- xử lý ảnh trước khi upload  -->
-                    <script>
+                    <script>    
                         // Preview ảnh và auto upload
                         function previewAvatar(event) {
                             const file = event.target.files[0];
@@ -151,11 +151,11 @@
 
                 <div class="profile-menu">
                     <a href="#" onclick="showMainSection(event, 'member-priority')"><i class="bi bi-award"></i> Membership Level</a>
-                    <a href="#" onclick="showMainSection(event, 'historyBooking')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'historyBookings')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ của tôi</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
                     <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
-                    <a href="#" onclick="showMainSection(event, 'account')" class="active"><i class="bi bi-gear"></i> Tài khoản</a>
+                    <a href="#" onclick="showMainSection(event, 'account')"><i class="bi bi-gear"></i> Tài khoản</a>
                     <a  href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
 
                 </div>
@@ -264,13 +264,79 @@
 
                     </div>
                 </section>
-
-
-
-
             </div>
-                    
-                    
+                  <!-- historyBooking content ----------------------------------------->       
+                  <div id="historyBookings" class="historyBookings-container main-section">
+
+                      <!-- Banner -->
+                      <div class="tab-header-historyBookings text-center mb-4 w-100">
+                          <img 
+                              src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                              alt="historyBookings Banner"
+                              class="img-fluid rounded-3 shadow-sm w-100">
+                      </div>
+                      <!-- Tiêu đề -->
+                      <div class="text-center mb-4 w-auto">
+                          <span class="badge bg-gradient" 
+                                style="background: linear-gradient(to right, #d97706, #b45309);
+           font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                              🔔 Danh sách thông báo Meland Booking
+                          </span>
+                      </div>
+                      <!-- Nút Reload đặt bên ngoài -->
+                      <div class="text-center mb-3">
+                          <a class="btn btn-primary btn-reload" href="${pageContext.request.contextPath}/HistoryBookingServlet" >Hiển thị lịch sử</a>
+                      </div>
+                      <c:if test="${empty historyList}">
+                          <p class="text-center text-muted mt-3">Không có lịch sử đặt chỗ nào.</p>
+                      </c:if>
+                      <!-- Content -->
+                      <div class="container mt-4">
+                          <c:forEach var="history" items="${historyList}">
+                              <div class="card mb-3 shadow-sm border-1 rounded-3 historyBookings-card" data-history-id="${history.historyId}">
+                                  <div class="card-body d-flex justify-content-between align-items-center">
+                                      <div>
+                                          <p class="fw-bold mb-1">${history.note}</p>
+                                          <small class="text-muted">
+                                              <span class="${history.tourStatus == 'COMPLETED' ? 'text-success' : 
+                                 (history.tourStatus == 'INCOMPLETE' ? 'text-danger' : 'text-warning')} fw-semibold">
+                                                  ${history.tourStatus}
+                                              </span>
+                                          </small>
+                                          <i class="bi bi-calendar2-check text-secondary fs-4"></i>
+                                      </div>
+                                      <button class="btn btn-danger btn-sm btn-hide">Xóa</button> 
+                                  </div>
+                              </div>
+                          </c:forEach>
+                      </div>
+
+                  </div>
+                  
+                 <!-- Payments content ----------------------------------------->
+                 
+                        <!--  content -->
+                        <div id="transactions" class=" transactions-container main-section" style="display:none;">
+                            <!-- Banner -->
+                            <div class="tab-header-transactions text-center mb-4 w-100">
+                                <img 
+                                    src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                                    alt="transactions Banner"
+                                    class="img-fluid rounded-3 shadow-sm w-100">
+                            </div>
+                            <!-- Tiêu đề -->
+                            <div class="text-center mb-4 w-auto">
+                                <span class="badge bg-gradient" 
+                                      style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                                    🔔 Danh sách thông báo Meland Booking
+                                </span>
+                            </div>
+
+
+                                  
+                              </div>
+             
       <!-- Notifications content ----------------------------------------->
       <div id="notifications" class="notifications-container main-section p-3">
 
@@ -396,17 +462,29 @@
               </c:forEach>
           </section>
       </div>
+          <!-- favorites content ----------------------------------------->
+                 <div id="favorites" class=" favorites-container main-section" style="display:none;">
+                 
+                       <!-- Banner -->
+          <div class="tab-header-favorites text-center mb-4 w-100">
+              <img 
+                  src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                  alt="favorites Banner"
+                  class="img-fluid rounded-3 shadow-sm w-100">
+          </div>
+               <!-- Tiêu đề -->
+          <div class="text-center mb-4 w-auto">
+              <span class="badge bg-gradient" 
+                    style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                         🔔 Danh sách thông báo Meland Booking
+              </span>
+          </div>
 
-           
-
-            <!-- booking content -->
-            <div id="historyBooking" class="main-section" style="display:none;"> Lịch sử Nội dung Đặt chỗ của tôi...</div>
-             
-            <!--  content -->
-            <div id="transactions" class="main-section" style="display:none;">Nội dung giao dịch của tôi...</div>
-             
-            
-                 <div id="favorites" class="main-section" style="display:none;">tour và dịch vụ yêu thích</div>
+                 
+                 
+                 
+                 </div>
             
             <!-- account and securit content --> 
             <div id="account" class="account-container main-section " >
@@ -863,20 +941,22 @@
                     <!-- =================== Js for sidebar menu =================== -->               
                <script>
                    
-// Hàm hiển thị section chính
+// =================== Hiển thị section chính ===================
 function showMainSection(evt, sectionId) {
-    evt.preventDefault(); // Ngăn hành vi mặc định của thẻ <a>
+    evt.preventDefault(); // Ngăn reload page
+    console.log("Showing section: " + sectionId);
 
-    // Ẩn tất cả các section
+    // Ẩn tất cả section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
     // Hiển thị section được chọn
     const selected = document.getElementById(sectionId);
     if (selected) selected.style.display = "block";
 
-    // Nếu section là 'account', hiển thị container tài khoản
+    // Nếu là account, hiển thị container account
     if (sectionId === 'account') {
-        document.querySelector('.account-container').style.display = "block";
+        const accountContainer = document.querySelector(".account-container");
+        if (accountContainer) accountContainer.style.display = "block";
     }
 
     // Cập nhật class active cho menu
@@ -884,59 +964,73 @@ function showMainSection(evt, sectionId) {
     evt.currentTarget.classList.add("active");
 }
 
-// Điều khiển tab con trong phần Tài khoản
+// =================== Điều khiển tab con trong Account ===================
 function showAccountTab(evt, tabId) {
+    // Ẩn tất cả tab-content
     document.querySelectorAll(".account-container .tab-content").forEach(c => c.classList.remove("active"));
     document.querySelectorAll(".tab-header-account button").forEach(b => b.classList.remove("active"));
-    document.getElementById(tabId).classList.add("active");
+
+    // Hiển thị tab được chọn
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) selectedTab.classList.add("active");
+
     evt.currentTarget.classList.add("active");
 }
 
-// =================== Khởi tạo section khi trang được tải ===================   
+// =================== Khởi tạo section khi trang được tải ===================
 document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const section = params.get("section"); 
-
-    // Ẩn tất cả section khi load
+    // Ẩn tất cả section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-    const validSections = ['member-priority', 'historyBooking', 'transactions', 'notifications', 'favorites', 'account'];
+  
 
-    if (section && validSections.includes(section)) {
-        const selected = document.getElementById(section);
-        if (selected) selected.style.display = "block";
-
-        if (section === 'account') {
-            document.querySelector(".account-container").style.display = "block";
-        }
-
-        // Cập nhật lớp active trong menu sidebar
-        document.querySelectorAll(".profile-menu a").forEach(link => {
-            const onclick = link.getAttribute("onclick");
-            if (onclick && onclick.includes(section)) {
-                link.classList.add("active");
-            }
+    // Cập nhật class active cho menu mặc định
+    const defaultMenuLink = Array.from(document.querySelectorAll(".profile-menu a"))
+        .find(a => {
+            const onclick = a.getAttribute("onclick");
+            return onclick && onclick.includes(defaultSectionId);
         });
-    }
+    if (defaultMenuLink) defaultMenuLink.classList.add("active");
 });
 
 
-// an list thong ui sau khi xoa me 
-document.addEventListener("click", function(e) { 
-    if (e.target.closest(".btn-hide")) {
-        const card = e.target.closest(".notification-card");
-        card.remove();
+document.addEventListener("DOMContentLoaded", function () {
+    // Ẩn tất cả
+    document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-        const list = document.querySelectorAll(".notification-card");
-        if (list.length === 0) {
-            const emptyMsg = document.createElement("p");
-            emptyMsg.textContent = "Không có thông báo nào.";
-            emptyMsg.classList.add("text-center", "text-muted", "mt-3");
-            document.querySelector("section").appendChild(emptyMsg);
-        }
-    }
+    // Lấy section từ URL query param
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') || 'account'; // default nếu không có
+
+    const selectedSection = document.getElementById(section);
+    if (selectedSection) selectedSection.style.display = "block";
+
+    // Cập nhật active menu
+    const menuLink = Array.from(document.querySelectorAll(".profile-menu a"))
+        .find(a => a.getAttribute("onclick")?.includes(section));
+    if (menuLink) menuLink.classList.add("active");
 });
 
+
+// Hàm helper kiểm tra danh sách rỗng
+function checkEmptyList(cardSelector, emptyMessage, containerSelector) {
+    const list = document.querySelectorAll(cardSelector);
+    const container = document.querySelector(containerSelector);
+
+    // Xóa thông báo rỗng cũ nếu tồn tại
+    const existingEmptyMsg = container.querySelector(".text-center.text-muted.mt-3");
+    if (existingEmptyMsg) {
+        existingEmptyMsg.remove();
+    }
+
+    // Kiểm tra và thêm thông báo rỗng nếu danh sách trống
+    if (list.length === 0 && container) {
+        const emptyMsg = document.createElement("p");
+        emptyMsg.textContent = emptyMessage;
+        emptyMsg.classList.add("text-center", "text-muted", "mt-3");
+        container.appendChild(emptyMsg);
+    }
+}
 </script>
 
                     <%@ include file="/views/common/script.jsp" %>

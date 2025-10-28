@@ -3,26 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/common/navbar.jsp</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/FlightSchedule.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/account/LoginServlet.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/home/FlightSearchController.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/account/GoogleLogin.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/home/IslandDetailController.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/account/login.jsp</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/trip/island_detail.jsp</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/services/CreateCustomTourController.java</file>
-
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/com/vnpay/common/VnpayReturn.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/com/vnpay/common/ajaxServlet.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/com/vnpay/common/Config.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/booking/BookingController.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/booking/payment_result.jsp</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/TourDao.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/BookingDao.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/model/Payment.java</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/booking/payment.jsp</file>
-            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SWP391_Group3_SE1957-KS/SWP391-SE1957KS-Group-3-Smart-Travel/web/views/trip/tour_detail.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/common/navbar.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/account/ResetService.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/ServiceDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/BookingDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/home/FlightSearchController.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/profile/history_bookings/HistoryBookingServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/home/css/style.css</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/customer_profile/profile.jsp</file>
         </group>
     </open-files>
 </project-private>

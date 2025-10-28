@@ -73,7 +73,7 @@ public class UploadAvatarServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
+        request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
     }
 
     @Override
@@ -126,7 +126,7 @@ request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(requ
                             Files.deleteIfExists(oldFile.toPath());
                         } catch (IOException ex) {
                             System.err.println("Không thể xóa avatar cũ: " + ex.getMessage());
-}
+                        }
                     }
 
                     // Ghi file mới

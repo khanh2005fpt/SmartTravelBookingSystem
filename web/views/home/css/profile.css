@@ -778,3 +778,58 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 #notifications section::-webkit-scrollbar-track {
     background-color: transparent;
 }
+
+
+/* ========================historyBookings Customer================================================= */ 
+
+.historyBookings-container{
+      flex: 1; 
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 20px 30px;
+      min-width: 300px;
+}
+.tab-header-historyBookings img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 300px;
+     width: 100%;
+    object-fit: cover;
+}
+
+/* ========================transactions Customer================================================= */ 
+
+.transactions-container{
+      flex: 1; 
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 20px 30px;
+      min-width: 300px;
+}
+.tab-header-transactions img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 300px;
+     width: 100%;
+    object-fit: cover;
+}
+
+/* ========================favorites Customer================================================= */ 
+
+.favorites-container{
+      flex: 1; 
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 20px 30px;
+      min-width: 300px;
+}
+.tab-header-favorites img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 300px;
+     width: 100%;
+    object-fit: cover;
+}

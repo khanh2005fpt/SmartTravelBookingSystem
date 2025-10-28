@@ -82,7 +82,7 @@
 
                         <!-- Form -->
                         <form action="${pageContext.request.contextPath}/login" method="POST">
-
+                             <input type="hidden" name="redirect" value="${param.redirect}">
                             <div class="mb-4">
                                 <label for="username" class="form-label">Tên đăng nhập</label>
                                 <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" >

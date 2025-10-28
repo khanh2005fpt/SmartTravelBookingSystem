@@ -90,23 +90,51 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
--- Bảng UserEmails
-CREATE TABLE UserEmails (
-    emailId INT IDENTITY(1,1) PRIMARY KEY,
+select * from CustomerContacts
+delete from CustomerContacts
+DBCC CHECKIDENT ('CustomerContacts' , RESEED , 0)
+
+CREATE TABLE CustomerContacts (
+    contactId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
-    email NVARCHAR(100) NOT NULL,
-    isPrimary BIT DEFAULT 0, -- Đánh dấu là email chính
+    contactValue NVARCHAR(100) NOT NULL,
+    contactType NVARCHAR(10) CHECK (contactType IN ('EMAIL', 'PHONE')) NOT NULL,
+    isPrimary BIT DEFAULT 0,
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 go
 
+-- trigger set emaail chinh
 
-CREATE TABLE UserPhones (
-    phoneId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    phoneNumber NVARCHAR(20) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
-);
+CREATE OR ALTER TRIGGER TR_ManagePrimaryEmail
+ON CustomerContacts
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF UPDATE(isPrimary)
+    BEGIN
+        -- 1️ Reset tất cả email về 0 cho userId tương ứng
+        UPDATE CustomerContacts
+        SET isPrimary = 0
+        WHERE userId IN (SELECT userId FROM inserted)
+          AND contactType = 'EMAIL';
+
+        -- 2️ Set isPrimary = 1 cho contactId vừa chọn
+        UPDATE CustomerContacts
+        SET isPrimary = 1
+        WHERE contactId IN (SELECT contactId FROM inserted WHERE isPrimary = 1 AND contactType = 'EMAIL');
+
+        -- 3️ Đồng bộ email chính sang bảng Users
+        UPDATE u
+        SET u.email = i.contactValue
+        FROM Users u
+        JOIN inserted i ON u.userId = i.userId
+        WHERE i.contactType = 'EMAIL' AND i.isPrimary = 1;
+    END
+END;
+GO
 
 
 
@@ -131,7 +159,6 @@ CREATE TABLE Islands (
     location NVARCHAR(500) NULL,
     FOREIGN KEY (countryId) REFERENCES Countries(countryId) ON DELETE CASCADE
 );
-
 
 go
 CREATE TABLE Tours (
@@ -469,7 +496,7 @@ BEGIN
     FROM inserted;
 END;
 GO
-
+select * from Bookings
 CREATE TABLE Bookings (
 		bookingId INT IDENTITY(1,1) PRIMARY KEY,
 		customerId INT NOT NULL,
@@ -479,13 +506,19 @@ CREATE TABLE Bookings (
 		childQuantity INT NOT NULL,
 		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
 		bookingDate DATETIME DEFAULT GETDATE(),
---		FOREIGN KEY (customerId) REFERENCES Users(userId),
+		FOREIGN KEY (customerId) REFERENCES Users(userId),
 );
 
 -- Bảng Payments
   
 
-
+  select * from HistoryBooking
+  select * from CustomerProfiles
+  select * from Notifications
+  
+  update Payments
+  set status ='FAILED'
+  WHERE paymentId=4
 CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
@@ -496,6 +529,33 @@ CREATE TABLE Payments (
 
 go
 
+-- triger ghi lại lịch sử booking 
+
+CREATE TRIGGER trg_Payments_StatusChange
+ON Payments
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO HistoryBooking (customerId, paymentId, note, tourStatus)
+    SELECT 
+        b.customerId,
+        i.paymentId,
+        CASE 
+            WHEN i.status = 'SUCCESS' THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thành công'
+            WHEN i.status = 'FAILED'  THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thất bại'
+            WHEN i.status = 'PENDING' THEN N'Gói "' + t.tourName + N'" của bạn đang chờ xử lý'
+        END AS note,
+        CASE 
+            WHEN i.status = 'SUCCESS' THEN 'COMPLETED'
+            ELSE 'INCOMPLETE'
+        END AS tourStatus
+    FROM inserted i
+    INNER JOIN Bookings b ON i.bookingId = b.bookingId
+    INNER JOIN Tours t ON b.tourId = t.tourId;
+END;
+GO
 
 
 CREATE TABLE HistoryBooking (
@@ -1132,6 +1192,24 @@ VALUES
 (10, N'Xe tay ga', N'Yamaha Aerox 155', 85000, 2, 10),
 (10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5),
 (10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
+INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
+OUTPUT INSERTED.customTourId
+VALUES (1, 'Test Tour', '2025-11-10', '2025-11-12', 5000000);
+
+
+CREATE TABLE Places (
+    placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
+    islandId INT NOT NULL,                   -- Mã đảo (liên kết đến bảng Islands)
+    placeName NVARCHAR(255) NOT NULL,        -- Tên địa điểm
+    location NVARCHAR(255),                  -- Địa chỉ / vị trí
+    description NVARCHAR(MAX),               -- Mô tả chi tiết
+    hasTicket BIT NOT NULL,                  -- Có vé hay không (true/false)
+    ticketPrice INT NULL,                    -- Giá vé (nếu có)
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+select * from Places
+
 
 CREATE TABLE Places (
     placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
@@ -1196,6 +1274,7 @@ VALUES
 (10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL),
 (10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL);
 
+select * from CustomTours
 /*
 delete from Flights
 DBCC CHECKIDENT ('Flights', RESEED, 0);
@@ -1397,8 +1476,9 @@ WHERE paymentId = 1;
 
 */
 
+select *from CustomTours
 
-
+DBCC CHECKIDENT ('CustomTours', RESEED, 0)
 
 
 -------------------------------------------------------------------------------------------------------

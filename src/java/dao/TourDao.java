@@ -444,22 +444,37 @@ public class TourDao extends DBContext {
     }
     
     public static void main(String[] args) {
-          try {
-   
 
-        // Tạo DAO
-       TourDao tDao = new  TourDao();
+        try {
+            // Tạo DAO (đảm bảo constructor của TourDao mở được connection)
+            TourDao tDao = new TourDao();
 
-        // Test service type "Chuyến bay" và flightId = 1 (thay ID có thật trong DB)
-        int flightId = 1;
-        String serviceType = "Chuyến bay";
+            // Khởi tạo một custom tour mẫu
+            CustomTour tour = new CustomTour(
+                "Du lịch Phú Quốc - 3N2Đ Test",
+                1,  // islandId có tồn tại trong DB
+                LocalDate.of(2025, 11, 10),
+                LocalDate.of(2025, 11, 12),
+                5000000 // tổng giá
+            );
 
-        int price = tDao.getServicePrice(serviceType, flightId);
+            // Gọi hàm tạo tour
+            int customTourId = tDao.createCustomTour(tour);
 
-        System.out.println("Giá chuyến bay ID " + flightId + " = " + price);
+            // Kiểm tra kết quả
+            if (customTourId > 0) {
+                System.out.println("✅ Tạo tour thành công! ID mới là: " + customTourId);
+            } else {
+                System.out.println("⚠️ Không tạo được tour hoặc không có ID trả về.");
+            }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("❌ Lỗi SQL khi tạo custom tour:");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("❌ Lỗi không xác định:");
+            e.printStackTrace();
+        }
     }
     }
-}
+
