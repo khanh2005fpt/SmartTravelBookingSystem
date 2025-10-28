@@ -114,6 +114,11 @@ public class BookingCustomTourController extends HttpServlet {
 
             // Lấy thông tin người dùng đăng nhập
             User user = (User) request.getSession().getAttribute("user");
+            if (user == null) {
+                request.setAttribute("errorMessage", "❌ Bạn cần đăng nhập trước khi đặt tour!");
+                request.getRequestDispatcher("/views/account/login.jsp").forward(request, response);
+                return;
+            }
 
             int customerId = user.getUserId();
 
@@ -123,20 +128,23 @@ public class BookingCustomTourController extends HttpServlet {
             // Tạo booking
             Booking booking = new Booking();
             booking.setCustomerId(customerId);
+            booking.setCustomTourId(customTourId);
             booking.setDepartureDate(departureDate);
 
             booking.setAdultQuantity(adultQty);
             booking.setChildQuantity(childQty);
             booking.setStatus("PENDING");
+            booking.setTotalPrice(totalPrice);
+            
 
             BookingDao bd = new BookingDao();
-            bd.createBooking(booking);
+            int bookingId = bd.createBooking(booking); // bookingId được tạo ở DB
+            booking.setBookingId(bookingId);
 
             // Lưu BookingDetails
             // Lấy thông tin tour
             // Gửi dữ liệu sang trang thanh toán
             request.setAttribute("booking", booking);
-            request.setAttribute("totalPrice", totalPrice);
             request.setAttribute("tour", tour);
             request.setAttribute("details", details);
             request.getRequestDispatcher("/views/booking/payment.jsp").forward(request, response);

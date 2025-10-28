@@ -64,7 +64,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="tours.jsp" class="btn btn-outline-secondary">Quay lại</a>
+                               <a href="javascript:history.back()" class="btn btn-outline-secondary">Quay lại</a>
                                 <button type="submit" class="btn btn-success">Thanh toán ngay</button>
                             </div>
                         </form>
@@ -112,7 +112,7 @@
                                 <span><b>Tổng tiền</b></span>
                                 <span class="fw-bold text-danger">
                                     <fmt:setLocale value="vi_VN" />
-                                    <fmt:formatNumber value="${totalPrice}" type="number" groupingUsed="true"/> VNĐ
+                                    <fmt:formatNumber value="${booking.totalPrice}" type="number" groupingUsed="true"/> VNĐ
                                 </span>
                             </li>
                         </ul>

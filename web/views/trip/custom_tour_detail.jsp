@@ -187,7 +187,7 @@
                     </c:when>
                     <c:otherwise>
                         <div class="alert alert-warning mb-0">
-                            Bạn cần <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="fw-bold">đăng nhập</a> để đặt tour.
+                            Bạn cần <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="fw-bold">đăng nhập</a> để đặt tour.
                         </div>
                     </c:otherwise>
                 </c:choose>

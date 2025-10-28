@@ -99,6 +99,18 @@ public class BookingController extends HttpServlet {
                 return;
             }
 
+            //Kiem tra ngay khoi hanh phai sau 3 ngay
+            long diffInMillis = departureDate.getTime() - today.getTime();
+            long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+
+            if (diffInDays < 3) {
+                request.setAttribute("errorMessage", "❌ Ngày khởi hành phải sau ít nhất 3 ngày kể từ hôm nay!");
+                request.setAttribute("tour", tour);
+                request.setAttribute("itineraries", itineraries);
+                request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
+                return;
+            }
+
             int totalPeople = adultQty + childQty;
             if (totalPeople > 50) {
                 request.setAttribute("errorMessage", "❌ Tổng số người không được vượt quá 50 người!");
@@ -112,30 +124,35 @@ public class BookingController extends HttpServlet {
             User user = (User) request.getSession().getAttribute("user");
             if (user == null) {
                 request.setAttribute("errorMessage", "❌ Bạn cần đăng nhập trước khi đặt tour!");
-                request.getRequestDispatcher("/views/home/login.jsp").forward(request, response);
+                request.getRequestDispatcher("/views/account/login.jsp").forward(request, response);
                 return;
             }
 
             int customerId = user.getUserId();
             
+            //System.out.println("Customer ID from session: " + customerId);
+
+
             // Tính tổng tiền
             double totalPrice = (adultQty * price) + (childQty * price * 0.3);
 
             // Tạo booking
             Booking booking = new Booking();
             booking.setCustomerId(customerId);
+            booking.setTourId(tourId);
             booking.setDepartureDate(departureDate);
             booking.setAdultQuantity(adultQty);
             booking.setChildQuantity(childQty);
             booking.setStatus("PENDING");
+            booking.setTotalPrice(totalPrice);
 
             BookingDao bd = new BookingDao();
-            bd.createBooking(booking);
+            int bookingId = bd.createBooking(booking); // bookingId được tạo ở DB
+            booking.setBookingId(bookingId);           // đã set trong DAO
 
             // Lấy thông tin tour
             // Gửi dữ liệu sang trang thanh toán
             request.setAttribute("booking", booking);
-            request.setAttribute("totalPrice", totalPrice);
             request.setAttribute("tour", tour);
 
             request.getRequestDispatcher("/views/booking/payment.jsp").forward(request, response);
