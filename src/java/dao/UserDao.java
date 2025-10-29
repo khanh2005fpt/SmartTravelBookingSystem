@@ -36,7 +36,7 @@ public class UserDao extends DBContext {
     }
 
     // dang ky  
-    public String Signup(String username, String password, String email, String fullName, String phone) {
+    public String Signup(String username, String password, String email, String fullName, String phone) throws SQLException{
         try {
 
             String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());

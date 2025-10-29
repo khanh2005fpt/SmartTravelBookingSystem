@@ -16,7 +16,7 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
-select * from Airlines
+select * from Users
 
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
@@ -26,6 +26,27 @@ GO
 
 INSERT INTO Roles (roleName)
 VALUES ('ADMIN'), ('BOOKING MANAGER'), ('CUSTOMER'), ('STAFF');
+
+-- khi đăng kí thì có luôn profile đấy của user
+GO
+CREATE TRIGGER trg_AfterInsertUser
+ON Users
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Chỉ CustomerProfiles roleId = 3 (Customer)
+    INSERT INTO CustomerProfiles (userId, fullName)
+    SELECT 
+        i.userId,
+        i.fullName
+    FROM inserted i
+    WHERE i.roleId = 3;
+END
+GO
+
+
 
 -- Bảng CustomerProfiles
 CREATE TABLE CustomerProfiles (
@@ -90,10 +111,13 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
+
+
 select * from CustomerContacts
-select * from CustomerProfiles
+/*
 delete from CustomerContacts
 DBCC CHECKIDENT ('CustomerContacts' , RESEED , 0)
+*/
 
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
@@ -107,35 +131,6 @@ go
 
 -- trigger set emaail chinh
 
-CREATE OR ALTER TRIGGER TR_ManagePrimaryEmail
-ON CustomerContacts
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF UPDATE(isPrimary)
-    BEGIN
-        -- 1️ Reset tất cả email về 0 cho userId tương ứng
-        UPDATE CustomerContacts
-        SET isPrimary = 0
-        WHERE userId IN (SELECT userId FROM inserted)
-          AND contactType = 'EMAIL';
-
-        -- 2️ Set isPrimary = 1 cho contactId vừa chọn
-        UPDATE CustomerContacts
-        SET isPrimary = 1
-        WHERE contactId IN (SELECT contactId FROM inserted WHERE isPrimary = 1 AND contactType = 'EMAIL');
-
-        -- 3️ Đồng bộ email chính sang bảng Users
-        UPDATE u
-        SET u.email = i.contactValue
-        FROM Users u
-        JOIN inserted i ON u.userId = i.userId
-        WHERE i.contactType = 'EMAIL' AND i.isPrimary = 1;
-    END
-END;
-GO
 
 
 
@@ -798,7 +793,14 @@ VALUES
 INSERT INTO Users (username, password, email, fullName, phone, roleId, status)
 VALUES 
 ('provider1', 'providerpass123!', 'provider@example.com', N'Staff', N'0987654321', 4, 'ACTIVE');
+/*
+ DELETE FROM Users
+WHERE userId = 6;
 
+select * from Users
+delete from Tokens
+DBCC CHECKIDENT ('Users', RESEED , 5);
+*/
 
 
 INSERT INTO Countries (countryName) VALUES

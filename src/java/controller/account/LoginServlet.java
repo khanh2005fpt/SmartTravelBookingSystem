@@ -16,11 +16,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.CustomerContacts;
 import model.CustomerProfile;
-import model.EmailCustomer;
 import model.GoogleAccount;
 import model.Notification;
-import model.PhoneCustomer;
+import java.sql.SQLException;
 
 /**
  *
@@ -103,20 +103,22 @@ public class LoginServlet extends HttpServlet {
 
         //check tk nay da dky chua
         User existing = userDAO.getUserByEmail(acc.getEmail());
+         try{
         if (existing != null) {
             // user ton tai -> login
             session.setAttribute("user", existing);
             session.setAttribute("loginSuccess", "oke");
+       
             
-        // gui thong bang session den trang profile
+           // gui thong bang session den trang profile
             CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
             session.setAttribute("profile_customer", profile);
 
  
     
             List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
-            List<EmailCustomer> emailList =customerDao.getEmailsByUserId(existing.getUserId());
-            List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(existing.getUserId());
+            List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(existing.getUserId());
+            List<CustomerContacts> phoneList =customerDao.getPhoneContactByUserId(existing.getUserId());
             
           
             session.setAttribute("listNotification", listNotification);
@@ -137,7 +139,7 @@ public class LoginServlet extends HttpServlet {
             if (result.startsWith("Success")) {
                 // sau khi add thi check user de login
                 User newUser = userDAO.getUserByEmail(acc.getEmail());
-                // List<PhoneCustomer> listPhone = phoneDAO.getPhoneCustomersByUserId(0);
+              
                 //login
                 session.setAttribute("user", newUser);
                 session.setAttribute("userId", newUser.getUserId());
@@ -150,6 +152,12 @@ public class LoginServlet extends HttpServlet {
 
             }
 
+        }
+        
+         } catch (SQLException e) {
+            e.printStackTrace();
+            session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi login or register bằng google. Vui lòng thử lại!");
+            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
         }
 
         //insertAccout , tao password ham random tu dong
@@ -178,8 +186,10 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
-        
-          User user =userDAO.loginSystem(userN, passWord);
+        try{
+            
+            
+              User user =userDAO.loginSystem(userN, passWord);
         //check acc active and ton tai
         String error = null;
         if (user == null) {
@@ -205,8 +215,8 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("profile_customer", profile);
          
         
-        List<EmailCustomer> emailList = customerDao.getEmailsByUserId(user.getUserId());
-        List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(user.getUserId());
+            List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(user.getUserId());
+             List<CustomerContacts> phoneList =customerDao.getPhoneContactByUserId(user.getUserId());
         List<Notification> listNotification = customerDao.getNotificationByUser(user.getUserId());
 
         session.setAttribute("listNotification", listNotification);
@@ -217,6 +227,16 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("userId", user.getUserId());
         session.setAttribute("loginSuccess", "oke");
         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+            
+            
+            
+        }catch (SQLException e) {
+            e.printStackTrace();
+            session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa or đặt lại email. Vui lòng thử lại!");
+            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        }
+        
+        
 
     }
 

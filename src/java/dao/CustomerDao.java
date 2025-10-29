@@ -9,14 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.List;
 import java.util.Objects;
 import model.CustomerContacts;
 import model.CustomerProfile;
-import model.EmailCustomer;
 import model.HistoryBooking;
 import model.Notification;
-import model.PhoneCustomer;
 import utils.DBContext;
 
 /**
@@ -124,315 +123,7 @@ public class CustomerDao extends DBContext {
     return false;
      }
 
-     //add email profile
-       public boolean addEmail(int userId , String email ){
-           try{
-               String sqlEmail = "INSERT INTO UserEmails (userId , email) VALUES(?,?)";
-               try(PreparedStatement ps = connection.prepareStatement(sqlEmail)){
-                    ps.setInt(1, userId);
-                    ps.setString(2, email);
-                    return ps.executeUpdate()>0;
-                   
-               }
-           }
-               
-           catch (SQLException e) {
-        e.printStackTrace();
-        System.out.println("Lỗi khi cập nhật thông tin: " + e.getMessage());
-        return false;
-        
-      }
-          
-       }
-       
-          // lay  userEmail (phu)
-       
-     public List<EmailCustomer> getEmailsByUserId(int userId) {
-    List<EmailCustomer> list = new ArrayList<>();
-    String sql = "SELECT * FROM UserEmails WHERE userId = ?";
-    
-    try ( PreparedStatement stmt = connection.prepareStatement(sql))
-         {
-        stmt.setInt(1, userId);
-        ResultSet rs = stmt.executeQuery();
-        
-        while (rs.next()) {
-            EmailCustomer email = new EmailCustomer();
-            email.setEmailId(rs.getInt("emailId"));
-            email.setUserId(rs.getInt("userId"));
-            email.setEmail(rs.getString("email"));
-            email.setIsPrimary(rs.getBoolean("isPrimary"));
-            list.add(email);
-        }
-        
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    
-    return list;
-}
-     
-      // Lấy email theo emailId 
-     public String getEmailById(int emailId)
-     { String sql = "SELECT email FROM UserEmails WHERE emailId = ?"; 
-     try ( PreparedStatement stmt = connection.prepareStatement(sql)) 
-     { 
-         stmt.setInt(1, emailId); 
-         ResultSet rs = stmt.executeQuery();
-         if (rs.next()) return rs.getString("email"); 
-     } catch (SQLException e) {
-         e.printStackTrace();
-     } return null; 
-     
-     }
-     
-      // check isPrimaryEmail
-     
-     
-public boolean isPrimaryEmail(int emailId) {
-    String sql = "SELECT isPrimary FROM UserEmails WHERE emailId = ?";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, emailId);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return rs.getBoolean("isPrimary"); 
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return false; // mặc định không phải email chính
-}
-      //delete email
-   
-
-  //check ton tai emai
-    
-        public  boolean checkEmailExists(int userId, String email) {
-            try{
-                String sql="SELECT COUNT(*) FROM UserEmails WHERE email = ? AND userId = ?";
-                try(PreparedStatement ps = connection.prepareStatement(sql)){
-                      ps.setString(1, email);
-            ps.setInt(2, userId);
-               ResultSet rs = ps.executeQuery();
-               while (rs.next()){
-                  int count = rs.getInt(1);
-                  return count>0;// da ton tai
-               }
-                }
-            }catch (SQLException e) {
-            e.printStackTrace();
-        }
-            return false;//chua ton tai
-        }   
-        
-         // check email deleted_exist
-        
-            public boolean checkEmailExistsByIdAndUser(int emailId, int userId) {
-    String sql = "SELECT COUNT(*) FROM UserEmails WHERE  emailId = ? AND userId = ?";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, emailId);
-        ps.setInt(2, userId);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                return count > 0;
-            }
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return false;
-}
-            
-            public boolean isContactExist(int userId, String contactValue) {
-    String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactValue = ?";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, userId);
-        stmt.setString(2, contactValue);
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1) > 0; // true nếu tồn tại
-            }
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return false; // nếu lỗi hoặc không tồn tại
-}
-    
-       // update email thanh primary email va dong bo voi user
-public void setPrimaryEmai(int userId, int emailId) {
-    try {
-      
-
-        String newEmail = getEmailById(emailId);
-        if (newEmail == null) return;
-
-        String sqlReset = "UPDATE UserEmails SET isPrimary=0 WHERE userId=? AND isPrimary=1";
-        String sqlSetNew = "UPDATE UserEmails SET isPrimary=1 WHERE emailId=?";
-        String sqlUpdateUser = "UPDATE Users SET email=? WHERE userId=?";
-
-        connection.setAutoCommit(false);
-
-        try (PreparedStatement ps1 = connection.prepareStatement(sqlReset)) {
-            ps1.setInt(1, userId);
-            ps1.executeUpdate();
-        }
-
-        try (PreparedStatement ps2 = connection.prepareStatement(sqlSetNew)) {
-            ps2.setInt(1, emailId);
-            ps2.executeUpdate();
-        }
-
-        try (PreparedStatement ps3 = connection.prepareStatement(sqlUpdateUser)) {
-            ps3.setString(1, newEmail);
-            ps3.setInt(2, userId);
-            ps3.executeUpdate();
-        }
-
-        connection.commit();
-
-    } catch (SQLException e) {
-        try { connection.rollback(); } catch (SQLException ignored) {}
-        e.printStackTrace();
-    } finally {
-        try { connection.setAutoCommit(true); } catch (SQLException ignored) {}
-    }
-}
-
-    //limit them emai va so email dc dung
-        
-   public int countSecondaryEmails(int userId) {
-    String sql = "SELECT COUNT(*) FROM UserEmails WHERE userId = ? AND isPrimary = 0";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, userId);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1);
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return 0;
-}
-   
-   // them so dien thoai 
-    
-    public boolean addPhone(int userId , String phoneNumber){
-        try{
-            String sqlPhone ="INSERT INTO UserPhones (userId , phoneNumber) VALUES (?,?)";
-            try(PreparedStatement ps = connection.prepareStatement(sqlPhone)){
-                ps.setInt(1, userId);
-                ps.setString(2, phoneNumber);
-                
-                return ps.executeUpdate()>0;
-            }
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-    
-     // lay list phone of customer
-      public List<PhoneCustomer> getPhoneCustomersByUserId(int userId) {
-    List<PhoneCustomer> list = new ArrayList<>();
-    String sql = "SELECT phoneId, userId, phoneNumber FROM UserPhones WHERE userId = ?";
-    
-    try ( PreparedStatement stmt = connection.prepareStatement(sql))
-         {
-        stmt.setInt(1, userId);
-        ResultSet rs = stmt.executeQuery();
-        
-        while (rs.next()) {
-           PhoneCustomer phone = new PhoneCustomer();
-          phone.setPhoneId(rs.getInt("phoneId"));
-          phone.setUserId(rs.getInt("userId"));
-          phone.setPhone(rs.getString("phoneNumber"));
-          list.add(phone);
-        }
-        
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    
-    return list;
-}
-      
-       //check ton tai phone
-    
-        public  boolean checkPhonelExists(int userId, String phone) {
-            try{
-                String sql="SELECT COUNT(*) FROM UserPhones WHERE phoneNumber = ? AND userId = ?";
-                try(PreparedStatement ps = connection.prepareStatement(sql)){
-                      ps.setString(1, phone);
-            ps.setInt(2, userId);
-               ResultSet rs = ps.executeQuery();
-               while (rs.next()){
-                  int count = rs.getInt(1);
-                  return count>0;// da ton tai
-               }
-                }
-            }catch (SQLException e) {
-            e.printStackTrace();
-        }
-            return false;//chua ton tai
-        }   
-
-        
-     // check phone deleted_exist
-        
-            public boolean checkPhoneExistsByIdAndUser(int phoneId, int userId) {
-    String sql = "SELECT COUNT(*) FROM UserPhones WHERE phoneId = ? AND userId = ?";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, phoneId);
-        ps.setInt(2, userId);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                return count > 0;
-            }
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return false;
-}
-
-            
-            // xoa so dt
-    public boolean deletePhone(int phoneId) {
-        String sql = "DELETE FROM UserPhones WHERE phoneId = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, phoneId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-      //limit them sdt va so sdt dc dung
-        
-        public int countPhonesByUserId(int userId) {
-    int count = 0;
-    String sql = "SELECT COUNT(*) FROM UserPhones WHERE userId = ?";
-    
-    try ( PreparedStatement stmt = connection.prepareStatement(sql) ) {
-        stmt.setInt(1, userId);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            count = rs.getInt(1);
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    
-    return count;
-}
-        
-        
+ 
    // ======= Cập nhật avatar =======
     public boolean updateProfilePicture(int userId, String avatarUrl) {
         String sql = "UPDATE CustomerProfiles SET profilePicture = ? WHERE userId = ?";
@@ -458,7 +149,8 @@ public void setPrimaryEmai(int userId, int emailId) {
                 profile.setProfileId(rs.getInt("profileId"));
                 profile.setUserId(rs.getInt("userId"));
                 profile.setFullName(rs.getString("fullName"));
-                profile.setDateOfBirth(rs.getDate("dateOfBirth").toLocalDate());
+                Date dob = rs.getDate("dateOfBirth");
+                profile.setDateOfBirth(dob != null ? dob.toLocalDate() : null);
                 profile.setGender(profile.getGender());
                 profile.setAddress(rs.getString("address"));
                 profile.setProfilePicture(rs.getString("profilePicture"));
@@ -534,7 +226,7 @@ public void setPrimaryEmai(int userId, int emailId) {
     }
     
          // Trả về danh sách notificationId chưa đọc
-public List<Integer> getUnreadNotificationIds(int userId)  {
+    public List<Integer> getUnreadNotificationIds(int userId)  {
     List<Integer> unreadIds = new ArrayList<>();
 
     String sql = "SELECT notificationId FROM Notifications WHERE userId = ? AND isRead=0 AND isDeleted=0";
@@ -583,10 +275,18 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
 
     return list;
 }
-    
+     // them contact cho profile
     public boolean addContact(int userId, String contactValue) throws SQLException {
         // Xác định contactType dựa vào value
-        String contactType = contactValue.contains("@") ? "EMAIL" : "PHONE";
+       String contactType;
+    if (contactValue.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+        contactType = "EMAIL";
+    } else if (contactValue.matches("^0\\d{9,10}$")) {
+        contactType = "PHONE";
+    } else {
+        throw new IllegalArgumentException("Contact không hợp lệ: " + contactValue);
+    }
+
 
         String sql = "INSERT INTO CustomerContacts (userId, contactValue, contactType, isPrimary) " +
                      "VALUES (?, ?, ?, 0)";
@@ -601,7 +301,7 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
         }
     }
 
-    
+     // count so luong email dc them 
     public int countEmailContactSecondary(int userId) throws SQLException {
     String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactType = 'EMAIL'";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -617,7 +317,7 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
     return 0;
 }
     
-    
+     // lay ra list email theo user
     public List<CustomerContacts> getEmailContactByUserId(int userId)throws SQLException {
     List<CustomerContacts> list = new ArrayList<>();
     String sql = "SELECT * FROM CustomerContacts WHERE userId = ? AND contactType = 'EMAIL' AND isPrimary=0 ";
@@ -640,25 +340,26 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
 
     return list;
 }
-     
-    public boolean checkEmailContactExists(int userId, String email) throws SQLException {
+      // check ton tai contact
+   public boolean isContactExist(int userId, String contactValue) throws SQLException{
     String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactValue = ?";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, userId);
-        ps.setString(2, email);
-
-        try (ResultSet rs = ps.executeQuery()) {
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        stmt.setString(2, contactValue);
+        try (ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
-                int count = rs.getInt(1);
-                return count > 0; // đã tồn tại
+                return rs.getInt(1) > 0; // true nếu tồn tại
             }
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
-    return false; // chưa tồn tại
+    return false; 
 }
+
     
     
-     public boolean deleteEmailContact(int contactId) {
+     public boolean deleteContact(int contactId) throws SQLException{
         String sql = "DELETE FROM CustomerContacts WHERE contactId = ? AND isPrimary = 0";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, contactId);
@@ -668,6 +369,85 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
             return false;
         }
     }
+     
+        // Đặt email chính cho contactId , và đồng bộ sang bảng Users.
+     
+      public void setPrimaryEmailContact(int contactId) throws SQLException {
+        String sql = "UPDATE CustomerContacts SET isPrimary = 1 WHERE contactId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            connection.setAutoCommit(false); // Bắt đầu transaction
+
+            ps.setInt(1, contactId);
+      
+            int rowsAffected = ps.executeUpdate();
+            connection.commit(); // Commit transaction
+        } catch (SQLException ex) {
+            connection.rollback(); // Rollback nếu có lỗi
+            throw ex;
+        } finally {
+            connection.setAutoCommit(true);
+        }
+    }
+      
+      
+      //   // Lấy email theo contactId 
+     public String getEmailContactById(int contactId)
+     {
+         String sql = "SELECT contactValue FROM CustomerContacts WHERE contactId = ?"; 
+     try ( PreparedStatement stmt = connection.prepareStatement(sql)) 
+     { 
+         stmt.setInt(1, contactId); 
+         ResultSet rs = stmt.executeQuery();
+         if (rs.next()) return rs.getString("contactValue"); 
+     } catch (SQLException e) {
+         e.printStackTrace();
+     } return null; 
+     
+     }
+     
+     
+        // count so luong phone dc them 
+    public int countPhoneContactSecondary(int userId) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactType = 'PHONE'";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+    
+      // lay ra list email theo user
+    public List<CustomerContacts> getPhoneContactByUserId(int userId)throws SQLException {
+    List<CustomerContacts> list = new ArrayList<>();
+    String sql = "SELECT * FROM CustomerContacts WHERE userId = ? AND contactType = 'PHONE' AND isPrimary=0 ";
+
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+               CustomerContacts email = new CustomerContacts();
+                email.setContactId(rs.getInt("contactId"));
+                email.setUserId(rs.getInt("userId"));
+                email.setContactValue(rs.getString("contactValue")); 
+                email.setIsPrimary(rs.getBoolean("isPrimary"));
+                list.add(email);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+     
     
      public static void main(String[] args) {
        // Tạo đối tượng DAO
@@ -675,16 +455,16 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
      CustomerDao dao = new CustomerDao();
 
         // Nhập customerId muốn test
-          int userId = 2; // giả sử userId đã tồn tại
-            String contactValue1 = "huynqhe182510@fpt.edu.vn";
-            String contactValue2 = "0912345678";
+          int contactId = 1; // giả sử userId đã tồn tại
+         
 
         // Gọi phương thức
 
 
-           // Thêm email
-          int cnt = dao.countEmailContactSecondary(userId) ;
-            System.out.println("tổng số email là : "+ cnt);
+       dao.setPrimaryEmailContact(contactId);
+
+            System.out.println("🎯 Đã gọi setPrimaryEmail(" + contactId + ").");
+            System.out.println("➡️ Hãy kiểm tra bảng CustomerContacts và Users để xem kết quả trigger đồng bộ.");
 
             // Thêm phone
          

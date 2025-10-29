@@ -15,8 +15,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
 import java.util.List;
-import model.PhoneCustomer;
+import model.CustomerContacts;
 import model.User;
 
 /**
@@ -88,26 +89,40 @@ public class SecondaryCurrentPhone extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
        }
+       
+       try{
+           
+           
         Integer userId = user.getUserId();
-       String action = request.getParameter("action_current");
+       String action = request.getParameter("action");
        if(action==null){
-            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+             response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
           return;
        }
        
        if(action.startsWith("delete-")){
            
-             int phoneId = Integer.parseInt(action.split("-")[1]);
-           customerDao.deletePhone(phoneId);
-           session.setAttribute("successPhone", "Đã xóa số điện thoại thành công!");
-            session.removeAttribute("phoneList_Current");
+             int contactId = Integer.parseInt(action.split("-")[1]);
+             //check phone co thuoc ve user hien tai k
+           
+              customerDao.deleteContact(contactId);
+            session.setAttribute("successPhone", "Đã xóa số điện thoại thành công!");
+         
             //sau khi xoa update moi nhat
-           List<PhoneCustomer> updateList = customerDao.getPhoneCustomersByUserId(userId);
-           session.setAttribute("phoneList_Current", updateList);
-            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+               List<CustomerContacts> updatePhoneList =customerDao.getPhoneContactByUserId(userId);
+           session.setAttribute("phoneList_Current", updatePhoneList);
+          response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
            
            
        }
+           
+               
+    }catch(SQLException e){
+       e.printStackTrace();
+       session.setAttribute("errorPhone_Deleted", "Có lỗi xảy ra khi thêm số điện thoại. Vui lòng thử lại!");
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        }
+       
     }
 
     /** 

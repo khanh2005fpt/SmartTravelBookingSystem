@@ -658,10 +658,10 @@
                                 <c:forEach var="email" items="${sessionScope.emailList_Current}">
                                     <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                         <div>
-                                            📧 <span>${email.email}</span>
+                                            📧 <span>${email.contactValue}</span>
                                         </div>
                                         <div>
-                                            <button type="submit" name="action_current" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+                                            <button type="submit" name="action_current" value="delete-${email.contactId}" class="btn btn-sm btn-outline-danger">
                                                 🗑️
                                             </button>
                                         </div>
@@ -729,10 +729,10 @@
                                     <c:forEach var="phone" items="${sessionScope.phoneList}">
                                         <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                             <div>
-                                                📱 <span>${phone.phone}</span>
+                                                📱 <span>${phone.contactValue}</span>
                                             </div>
                                             <div>
-                                                <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                                                <button type="submit" name="action" value="delete-${phone.contactId}" class="btn btn-sm btn-outline-danger">
                                                     🗑️
                                                 </button>
                                             </div>
@@ -754,10 +754,10 @@
                                 <c:forEach var="phone" items="${sessionScope.phoneList_Current}">
                                     <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                         <div>
-                                            📱 <span>${phone.phone}</span>
+                                            📱 <span>${phone.contactValue}</span>
                                         </div>
                                         <div>
-                                            <button type="submit" name="action_current" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                                            <button type="submit" name="action_current" value="delete-${phone.contactId}" class="btn btn-sm btn-outline-danger">
                                                 🗑️
                                             </button>
                                         </div>
@@ -785,7 +785,7 @@
                                     </button>
                                 </div>
 
-                                <!-- Body -->
+                                <!-- Body -->S
                                 <div class="modal-body">
                                     <!-- Thông báo lỗi -->
                                     <% String errorEmail = (String) session.getAttribute("errorEmail"); %>
