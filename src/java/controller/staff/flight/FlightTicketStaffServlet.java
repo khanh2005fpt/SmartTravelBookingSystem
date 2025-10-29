@@ -26,7 +26,7 @@ import model.User;
  *
  * @author nqagh
  */
-@WebServlet(name="FlightTicketStaffServlet", urlPatterns={"/staff/flights/tickets"})
+@WebServlet(name="FlightTicketStaffServlet", urlPatterns={"/staff/flight/tickets"})
 public class FlightTicketStaffServlet extends HttpServlet {
    
    private ServiceDao serviceDao;
@@ -123,6 +123,7 @@ if(session != null){
            // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
         if (!isStaffAuthorized(session, request, response)) {
+            
         return;
     }
         
@@ -620,15 +621,31 @@ private boolean isStaffAuthorized(HttpSession session, HttpServletRequest reques
         return false;
     }
 
-    String role = user.getRole();
-    if (!"staff".equals(role) && !"admin".equals(role)) {
-        session.setAttribute("errorMess", "Bạn không có quyền để truy cập !");
-        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
-        return false;
-    }
+    // Map roleId -> roleName
+ String role;
+        switch (user.getRoleId()) {
+            case 1:
+                role = "ADMIN";
+                break;
+            case 2:
+                role = "BOOKING MANAGER";
+                break;
+            case 3:
+                role = "CUSTOMER";
+                break;
+            default:
+                role = "STAFF";
+                break;
+        }
 
-    return true;
-}
+        if (!"STAFF".equals(role) && !"ADMIN".equals(role)) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return false;
+        }
+
+        return true;
+    }
     /**
      * Handle errors
      */

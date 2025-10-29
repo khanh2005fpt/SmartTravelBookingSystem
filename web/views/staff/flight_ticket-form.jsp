@@ -343,9 +343,9 @@
         <div class="page-header">
             <h1>
                 <i class="fa fa-utensils"></i> 
-                ${empty restaurant ? 'Thêm Nhà hàng Mới' : 'Chỉnh sửa Nhà hàng'}
+                ${empty restaurant ? 'Thêm thông tin vé máy bay' : 'Chỉnh sửa thông tin vé máy bay '}
             </h1>
-            <p>${empty restaurant ? 'Tạo nhà hàng mới trong hệ thống' : 'Cập nhật thông tin nhà hàng'}</p>
+            <p>${empty restaurant ? 'Thêm những vé máy bay mới trong hệ thống' : 'Cập nhật thông tin vé máy bay'}</p>
         </div>
 
         <!-- Success/Error Messages -->
@@ -372,19 +372,19 @@
             <div class="form-header">
                 <h3 class="form-title">
                     <i class="fa fa-edit"></i> 
-                    ${empty restaurant ? 'Thông tin nhà hàng mới' : 'Chỉnh sửa thông tin nhà hàng'}
+                    ${empty restaurant ? 'Thông tin vé máy bay mới' : 'Chỉnh sửa thông tin vé máy bay'}
                 </h3>
             </div>
 
-            <form action="${pageContext.request.contextPath}/staff/restaurants" 
+            <form action="${pageContext.request.contextPath}/staff/flights/tickets" 
                   method="post" 
                   enctype="multipart/form-data" 
-                  id="restaurantForm" 
+                  id="flight_ticketForm" 
                   novalidate>
                 
                 <input type="hidden" name="action" value="${empty restaurant ? 'create' : 'update'}">
                 <c:if test="${not empty restaurant}">
-                    <input type="hidden" name="id" value="${restaurant.restaurantId}">
+                    <input type="hidden" name="id" value="${flight.flightId}">
                 </c:if>
 
                 <div class="form-content">
@@ -396,78 +396,54 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="restaurantName">Tên nhà hàng <span class="required">*</span></label>
+                                <label for="restaurantName">Mã chuyến bay <span class="required">*</span></label>
                                 <input type="text" 
                                        class="form-control" 
-                                       id="restaurantName" 
-                                       name="restaurantName" 
-                                       value="${restaurant.restaurantName}"
-                                       placeholder="Nhập tên nhà hàng"
+                                       id=" flightNumber" 
+                                       name=" flightNumber" 
+                                       value="${flight. flightNumber}"
+                                       placeholder="Nhập mã chuyến bay"
                                        required>
                                 <div class="invalid-feedback"></div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="cuisineType">Loại ẩm thực <span class="required">*</span></label>
-                                <select class="form-control" id="cuisineType" name="cuisineType" required>
-                                    <option value="">Chọn loại ẩm thực</option>
-                                    <option value="Việt Nam" ${restaurant.cuisineType == 'Việt Nam' ? 'selected' : ''}>Việt Nam</option>
-                                    <option value="Thái Lan" ${restaurant.cuisineType == 'Thái Lan' ? 'selected' : ''}>Thái Lan</option>
-                                    <option value="Nhật Bản" ${restaurant.cuisineType == 'Nhật Bản' ? 'selected' : ''}>Nhật Bản</option>
-                                    <option value="Hàn Quốc" ${restaurant.cuisineType == 'Hàn Quốc' ? 'selected' : ''}>Hàn Quốc</option>
-                                    <option value="Trung Quốc" ${restaurant.cuisineType == 'Trung Quốc' ? 'selected' : ''}>Trung Quốc</option>
-                                    <option value="Ý" ${restaurant.cuisineType == 'Ý' ? 'selected' : ''}>Ý</option>
-                                    <option value="Pháp" ${restaurant.cuisineType == 'Pháp' ? 'selected' : ''}>Pháp</option>
-                                    <option value="Hải sản" ${restaurant.cuisineType == 'Hải sản' ? 'selected' : ''}>Hải sản</option>
-                                    <option value="Chay" ${restaurant.cuisineType == 'Chay' ? 'selected' : ''}>Chay</option>
-                                    <option value="Quốc tế" ${restaurant.cuisineType == 'Quốc tế' ? 'selected' : ''}>Quốc tế</option>
-                                    <option value="Khác" ${restaurant.cuisineType == 'Khác' ? 'selected' : ''}>Khác</option>
-                                </select>
+                                <label for="airlineName" >Hãng hàng không <span class="required">*</span></label>
+               <select class="form-control" id="airlineName" name="airlineName">
+                <option value="">- Chọn hãng --</option>
+                  
+                
+                <option value="Vietnam Airlines" ${flight.airlineName == 'Vietnam Airlines' ? 'selected' : ''}>Vietnam Airlines</option>
+                <option value="VietJet Air" ${flight.airlineName == 'VietJet Air' ? 'selected' : ''}>VietJet Air</option>
+                <option value="Bamboo Airways" ${flight.airlineName == 'Bamboo Airways' ? 'selected' : ''}>Bamboo Airways</option>
+                <option value="Thai Airways" ${flight.airlineName == 'Thai Airways' ? 'selected' : ''}>Thai Airways</option>
+                <option value="Singapore Airlines" ${flight.airlineName == 'Singapore Airlines' ? 'selected' : ''}>Singapore Airlines</option>
+                <option value="Malaysia Airlines" ${flight.airlineName == 'Malaysia Airlines' ? 'selected' : ''}>Malaysia Airlines</option>
+                <option value="Garuda Indonesia" ${flight.airlineName == 'Garuda Indonesia' ? 'selected' : ''}>Garuda Indonesia</option>
+                
+            </select>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="rating">Đánh giá</label>
-                                <div class="rating-input">
-                                    <div class="rating-stars" id="ratingStars">
-                                        <i class="fa fa-star rating-star" data-rating="1"></i>
-                                        <i class="fa fa-star rating-star" data-rating="2"></i>
-                                        <i class="fa fa-star rating-star" data-rating="3"></i>
-                                        <i class="fa fa-star rating-star" data-rating="4"></i>
-                                        <i class="fa fa-star rating-star" data-rating="5"></i>
-                                    </div>
-                                    <span class="rating-value" id="ratingValue">0</span>
-                                    <input type="hidden" id="rating" name="rating" value="${restaurant.rating}">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="priceRange">Mức giá <span class="required">*</span></label>
-                                <select class="form-control" id="priceRange" name="priceRange" required>
-                                    <option value="">Chọn mức giá</option>
-                                    <option value="Bình dân" ${restaurant.priceRange == 'Bình dân' ? 'selected' : ''}>Bình dân</option>
-                                    <option value="Trung bình" ${restaurant.priceRange == 'Trung bình' ? 'selected' : ''}>Trung bình</option>
-                                    <option value="Cao cấp" ${restaurant.priceRange == 'Cao cấp' ? 'selected' : ''}>Cao cấp</option>
-                                    <option value="Sang trọng" ${restaurant.priceRange == 'Sang trọng' ? 'selected' : ''}>Sang trọng</option>
+                                   <label for="priceRange">Nơi khởi hành<span class="required">*</span></label>
+                              <select class="form-control" id=" departure" name="departure" required>
+                                    <option value="">-- Chọn nơi khởi hành --</option>
+                             
+                                    <option value="Ha Noi" ${flight.departure == 'Ha Noi' ? 'selected' : ''}>Ha Noi</option>
+                                    <option value="TP Ho Chi Minh" ${flight.departure== 'TP Ho Chi Minh' ? 'selected' : ''}>TP Ho Chi Minh</option> 
+                                  
+                                  
                                 </select>
-                                <div class="invalid-feedback"></div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Location Information Section -->
-                    <div class="form-section">
-                        <h4 class="section-title">
-                            <i class="fa fa-map-marker-alt"></i> Thông tin vị trí
-                        </h4>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="islandId">Đảo <span class="required">*</span></label>
+                                    
+                                    
+                                    <div class="form-group">
+                                <label for="islandId">Điểm đến du lịch <span class="required">*</span></label>
                                 <select class="form-control" id="islandId" name="islandId" required>
-                                    <option value="">Chọn đảo</option>
+                                    <option value="">- Chọn đảo --</option>
                                     <c:forEach var="island" items="${islands}">
                                         <option value="${island.islandId}" ${restaurant.islandId == island.islandId ? 'selected' : ''}>
                                             ${island.islandName}
@@ -476,100 +452,77 @@
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="address">Địa chỉ</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="address" 
-                                       name="address" 
-                                       value="${restaurant.address}"
-                                       placeholder="Nhập địa chỉ nhà hàng">
-                                <div class="invalid-feedback"></div>
-                            </div>
+                          
                         </div>
                     </div>
 
-                    <!-- Contact Information Section -->
+                    <!-- Location Information Section -->
                     <div class="form-section">
                         <h4 class="section-title">
-                            <i class="fa fa-phone"></i> Thông tin liên hệ
+                            <i class="fa fa-map-marker-alt"></i> Thông tin chi tiết 
                         </h4>
                         
                         <div class="form-row">
+                             
                             <div class="form-group">
-                                <label for="phoneNumber">Số điện thoại</label>
-                                <input type="tel" 
-                                       class="form-control" 
-                                       id="phoneNumber" 
-                                       name="phoneNumber" 
-                                       value="${restaurant.phoneNumber}"
-                                       placeholder="Nhập số điện thoại">
+                                <label for="priceRange">Mức giá <span class="required">*</span></label>
+                                <select class="form-control" id="priceRange" name="priceRange" required>
+                                    <option value="">-- Chọn mức giá --</option>
+                                    <option value="">Tất cả mức giá</option>
+                <option value="0-1000000" ${param.priceRange == '0-1000000' ? 'selected' : ''}>Dưới 1.000.000₫</option>
+                <option value="1000000-3000000" ${param.priceRange == '1000000-3000000' ? 'selected' : ''}>1.000.000₫ - 3.000.000₫</option>
+                <option value="3000000-5000000" ${param.priceRange == '3000000-5000000' ? 'selected' : ''}>3.000.000₫ - 5.000.000₫</option>
+                <option value="5000000+" ${param.priceRange == '5000000+' ? 'selected' : ''}>Trên 5.000.000₫</option>
+                                </select>
                                 <div class="invalid-feedback"></div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="capacity">Sức chứa <span class="required">*</span></label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="capacity" 
-                                       name="capacity" 
-                                       value="${restaurant.capacity}"
-                                       placeholder="Nhập sức chứa (số người)"
-                                       min="1"
-                                       required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="openingHours">Giờ mở cửa</label>
+                                <label for="ticketAvailable">Số vé còn lại</label>
                                 <input type="text" 
                                        class="form-control" 
-                                       id="openingHours" 
-                                       name="openingHours" 
-                                       value="${restaurant.openingHours}"
-                                       placeholder="Ví dụ: 08:00 - 22:00">
+                                       id="ticketAvailable" 
+                                       name="ticketAvailable" 
+                                       value="${flight.ticketAvailable}"
+                                       placeholder="Nhập số vé">
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
+                            <div class="form-row">  
+                                    <div class="form-group">
+                                            <label for="flightType">Loại chuyến bay</label>
+                                <select class="form-control" id="flightType" name="flightType" required>
+                                    <option value="">-- Chọn loại chuyến bay --</option>
+                                    <option value="Một chiều" ${param.flightType == 'Một chiều' ? 'selected' : ''}>Một chiều</option>
+                                    <option value="Khứ hồi" ${param.flightType == 'Khứ hồi' ? 'selected' : ''}>Khứ hồi</option>
+                                </select>
+                               </div>
+                                 <div class="form-group">
+                                     <label for="flightClass">Hạng ghế</label>
+                                     <select class="form-control" id="flightClass" name="flightClass" required>
+                                         <option value="">-- Chọn hạng ghế --</option>
+                                         <option value="Phổ thông" ${param.flightClass == 'Phổ thông' ? 'selected' : ''}>Phổ thông</option>
+                                         <option value="Thương gia" ${param.flightClass == 'Thương gia' ? 'selected' : ''}>Thương gia</option>
+                                         <option value="Hạng nhất" ${param.flightClass == 'Hạng nhất' ? 'selected' : ''}>Hạng nhất</option>
+                                     </select>
+                                 </div>
+
+                                
+                                
+                                  </div>
+                                       
                     </div>
 
-                    <!-- Description Section -->
-                    <div class="form-section">
-                        <h4 class="section-title">
-                            <i class="fa fa-align-left"></i> Mô tả nhà hàng
-                        </h4>
-                        
-                        <div class="form-group">
-                            <label for="description">Mô tả chi tiết</label>
-                            <textarea class="form-control" 
-                                      id="description" 
-                                      name="description" 
-                                      rows="5"
-                                      placeholder="Nhập mô tả về nhà hàng, món ăn đặc trưng, không gian...">${restaurant.description}</textarea>
-                            <div class="invalid-feedback"></div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specialties">Món đặc sản</label>
-                            <textarea class="form-control" 
-                                      id="specialties" 
-                                      name="specialties" 
-                                      rows="3"
-                                      placeholder="Nhập các món đặc sản của nhà hàng (ví dụ: Phở bò, Bún chả, Bánh mì...)">${restaurant.specialties}</textarea>
-                            <div class="invalid-feedback"></div>
-                        </div>
-                    </div>
+              
 
                     <!-- Image Upload Section -->
                     <div class="form-section">
                         <h4 class="section-title">
-                            <i class="fa fa-image"></i> Hình ảnh nhà hàng
+                            <i class="fa fa-image"></i> Hình ảnh đảo và logo hãng bay
                         </h4>
-                        
-                        <div class="image-upload-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                 <div class="image-upload-section">
                             <c:choose>
                                 <c:when test="${not empty restaurant.restaurantImageUrl}">
                                     <img src="${pageContext.request.contextPath}/${restaurant.restaurantImageUrl}" 
@@ -580,7 +533,45 @@
                                 <c:otherwise>
                                     <div class="upload-placeholder" id="uploadPlaceholder">
                                         <i class="fa fa-cloud-upload-alt"></i>
-                                        <p>Chọn hình ảnh nhà hàng</p>
+                                        <p>Chọn hình ảnh logo hãng bay</p>
+                                        <small>Định dạng: JPG, PNG, GIF (Tối đa 5MB)</small>
+                                    </div>
+                                    <img src="#" alt="Preview" class="image-preview" id="imagePreview" style="display: none;">
+                                </c:otherwise>
+                            </c:choose>
+                            
+                            <div class="file-input-wrapper">
+                                <input type="file" 
+                                       class="file-input" 
+                                       id="restaurantImage" 
+                                       name="restaurantImage" 
+                                       accept="image/*"
+                                       onchange="previewImage(this)">
+                                <button type="button" class="file-input-button">
+                                    <i class="fa fa-upload"></i> Chọn ảnh 
+                                </button>
+                            </div>
+                            
+                            <c:if test="${not empty restaurant.restaurantImageUrl}">
+                                <input type="hidden" name="currentImageUrl" value="${restaurant.restaurantImageUrl}">
+                            </c:if>
+                        </div> 
+                                
+                            </div>
+                            
+                             <div class="form-group">
+                                 <div class="image-upload-section">
+                            <c:choose>
+                                <c:when test="${not empty restaurant.restaurantImageUrl}">
+                                    <img src="${pageContext.request.contextPath}/${restaurant.restaurantImageUrl}" 
+                                         alt="Restaurant Image" 
+                                         class="image-preview" 
+                                         id="imagePreview">
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="upload-placeholder" id="uploadPlaceholder">
+                                        <i class="fa fa-cloud-upload-alt"></i>
+                                        <p>Chọn hình ảnh đảo du lịch</p>
                                         <small>Định dạng: JPG, PNG, GIF (Tối đa 5MB)</small>
                                     </div>
                                     <img src="#" alt="Preview" class="image-preview" id="imagePreview" style="display: none;">
@@ -602,18 +593,24 @@
                             <c:if test="${not empty restaurant.restaurantImageUrl}">
                                 <input type="hidden" name="currentImageUrl" value="${restaurant.restaurantImageUrl}">
                             </c:if>
+                        </div> 
+                                
+                            </div>
+
                         </div>
+                        
+                       
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <a href="${pageContext.request.contextPath}/staff/restaurants?action=list" class="btn-action btn-secondary">
+                    <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=list" class="btn-action btn-secondary">
                         <i class="fa fa-times"></i> Hủy
                     </a>
                     <button type="submit" class="btn-action btn-primary">
                         <i class="fa fa-save"></i> 
-                        ${empty restaurant ? 'Tạo nhà hàng' : 'Cập nhật'}
+                        ${empty restaurant ? 'Tạo thông tin vé máy bay' : 'Cập nhật'}
                     </button>
                 </div>
             </form>

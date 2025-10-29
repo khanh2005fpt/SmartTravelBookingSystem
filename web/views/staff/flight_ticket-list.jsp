@@ -122,114 +122,7 @@
             text-decoration: none;
         }
         
-        .restaurants-container {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .restaurants-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 20px 25px;
-            border-bottom: 1px solid #dee2e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .restaurants-title {
-            font-size: 1.25em;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-        }
-        
-        .restaurants-count {
-            background: #667eea;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-        
-        .table-responsive {
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        
-        .restaurants-table {
-            width: 100%;
-            margin: 0;
-        }
-        
-        .restaurants-table th {
-            background: #f8f9fa;
-            color: #333;
-            font-weight: 600;
-            padding: 15px;
-            border: none;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .restaurants-table td {
-            padding: 15px;
-            border-bottom: 1px solid #f1f3f4;
-            vertical-align: middle;
-        }
-        
-        .restaurants-table tbody tr {
-            transition: all 0.3s ease;
-        }
-        
-        .restaurants-table tbody tr:hover {
-            background-color: #f8f9fa;
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .restaurant-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-        }
-        
-        .restaurant-name {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .restaurant-cuisine {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        .restaurant-rating {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .rating-stars {
-            color: #ffc107;
-        }
-        
-        .rating-value {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .restaurant-price {
-            font-weight: 700;
-            color: #28a745;
-            font-size: 1.1em;
-        }
+      
         
         .action-buttons {
             display: flex;
@@ -399,7 +292,7 @@
 
         <!-- Search and Filter Controls -->
      <div class="controls-section">
-    <form action="${pageContext.request.contextPath}/staff/restaurants" method="get" class="search-filters">
+    <form action="${pageContext.request.contextPath}/staff/flight/tickets" method="get" class="search-filters">
         <input type="hidden" name="action" value="list">
         
         <div class="filter-group">
@@ -414,17 +307,15 @@
         
         <div class="filter-group">
             <label for="airlineName">Hãng bay</label>
-            <select class="form-control" id="airlineName" name="airlineName">
-                <option value="">Tất cả các hãng</option>
-                <option value="Vietnam Airlines" ${param.airlineName == 'Vietnam Airlines' ? 'selected' : ''}>Vietnam Airlines</option>
-                <option value="VietJet Air" ${param.airlineName == 'VietJet Air' ? 'selected' : ''}>VietJet Air</option>
-                <option value="Bamboo Airways" ${param.airlineName == 'Bamboo Airways' ? 'selected' : ''}>Bamboo Airways</option>
-                <option value="Thai Airways" ${param.airlineName == 'Thai Airways' ? 'selected' : ''}>Thai Airways</option>
-                <option value="Singapore Airlines" ${param.airlineName == 'Singapore Airlines' ? 'selected' : ''}>Singapore Airlines</option>
-                <option value="Malaysia Airlines" ${param.airlineName == 'Malaysia Airlines' ? 'selected' : ''}>Malaysia Airlines</option>
-                <option value="Garuda Indonesia" ${param.airlineName == 'Garuda Indonesia' ? 'selected' : ''}>Garuda Indonesia</option>
-                <option value="Khác" ${param.airlineName == 'Khác' ? 'selected' : ''}>Khác</option>
-            </select>
+            <select class="form-control" id="airlineId" name="airlineId">
+    <option value="">Tất cả các hãng</option>
+    <c:forEach var="airline" items="${airlines}">
+        <option value="${airline.airlineId}"
+            ${param.airlineId == airline.airlineId ? 'selected' : ''}>
+            ${airline.airlineName}
+        </option>
+    </c:forEach>
+</select>
         </div>
         
         <div class="filter-group">
@@ -455,7 +346,7 @@
                     <span class="flights-count">
                         ${not empty flights? flights.size() : 0} vé máy bay
                     </span>
-                    <a href="${pageContext.request.contextPath}/staff/flights?action=create" class="btn-add">
+                    <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=create" class="btn-add">
                         <i class="fa fa-plus"></i> Thêm vé máy bay
                     </a>
                 
@@ -477,14 +368,14 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa nhà hàng "<span id="restaurantNameToDelete"></span>"?</p>
+                    <p>Bạn có chắc chắn muốn xóa vé máy bay "<span id="flightNameToDelete"></span>"?</p>
                     <p class="text-danger"><small>Hành động này không thể hoàn tác.</small></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                     <form id="deleteForm" method="post" style="display: inline;">
                         <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="id" id="restaurantIdToDelete">
+                        <input type="hidden" name="id" id="flightIdToDelete">
                         <button type="submit" class="btn btn-danger">Xóa</button>
                     </form>
                 </div>
@@ -494,9 +385,9 @@
 
     <script>
         function confirmDelete(restaurantId, restaurantName) {
-            document.getElementById('restaurantIdToDelete').value = restaurantId;
-            document.getElementById('restaurantNameToDelete').textContent = restaurantName;
-            document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/restaurants';
+            document.getElementById('flightIdToDelete').value = restaurantId;
+            document.getElementById('flightToDelete').textContent = restaurantName;
+            document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight';
             $('#deleteModal').modal('show');
         }
 

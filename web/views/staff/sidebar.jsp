@@ -1,12 +1,7 @@
-<%-- 
-    Document   : sidebar
-    Created on : Staff Sidebar Component
-    Author     : System
-    Description: Modular sidebar component for staff pages navigation
---%>
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.User" %>
+ 
 
 <%
     User staffUser = (User) session.getAttribute("user");
@@ -226,17 +221,18 @@
             </div>
             <div class="nav-children" id="flightsChildren">
                 <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/flights/tickets" 
+                    <a href="${pageContext.request.contextPath}/staff/flight/tickets" 
                        class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-ticket-alt"></i>
-                        Quản lý Vé máy bay
+                        <i class="bi bi-ticket-detailed"></i> Vé máy bay
+
+                        
                     </a>
                 </div>
                 <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/flights/schedules" 
+                    <a href="${pageContext.request.contextPath}/staff/flight/schedules" 
                        class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-calendar-alt"></i>
-                        Quản lý Lịch trình chuyến bay
+                        <i class="bi bi-calendar-check"> </i> Lịch trình chuyến bay
+                       
                     </a>
                 </div>
             </div>
