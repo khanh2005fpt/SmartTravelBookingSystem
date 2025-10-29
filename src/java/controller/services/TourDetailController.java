@@ -78,7 +78,7 @@ public class TourDetailController extends HttpServlet {
                 currentURL += "?" + request.getQueryString();
             }
             request.setAttribute("currentURL", currentURL);
-
+            request.setAttribute("tourId", tourIdRaw);
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -88,6 +88,7 @@ public class TourDetailController extends HttpServlet {
             if (request.getQueryString() != null) {
                 currentURL += "?" + request.getQueryString();
             }
+            request.setAttribute("tourId", tourIdRaw);
             request.setAttribute("currentURL", currentURL);
 
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
@@ -106,7 +107,7 @@ public class TourDetailController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

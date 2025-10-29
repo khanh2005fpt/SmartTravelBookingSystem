@@ -186,18 +186,15 @@
 
                             <c:otherwise>
                                 <div class="alert alert-warning">
-                                    <%
-                                        String currentURL = (String) request.getAttribute("currentURL");
-                                        String encodedURL = java.net.URLEncoder.encode(currentURL, "UTF-8");
-                                    %>
                                     Bạn cần 
-                                    <a href="<%= request.getContextPath() %>/views/account/login.jsp?redirect=<%= encodedURL %>" 
-                                       class="text-primary fw-bold">
-                                        đăng nhập
-                                    </a> 
-                                    để đặt tour.
+                                    <c:url var="loginURL" value="/views/account/login.jsp">
+                                        <c:param name="redirect" value="${pageContext.request.contextPath}/TourDetailController?tourid=${tourId}" />
+                                    </c:url>
+                                    <a href="${loginURL}" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
                                 </div>
                             </c:otherwise>
+
+
 
                         </c:choose>
                     </div>

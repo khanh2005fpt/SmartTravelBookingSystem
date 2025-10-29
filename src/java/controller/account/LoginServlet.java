@@ -85,6 +85,7 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+        
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
         if (error != null) {

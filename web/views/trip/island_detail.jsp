@@ -108,21 +108,20 @@
                                                 </p>
                                                 <div class="mt-auto">
                                                     <div class="d-flex justify-content-between mt-3">
-                                                            <p class="mb-2" style="margin-left: 2px;">
+                                                        <p class="mb-2" style="margin-left: 2px;">
 
-                                                                <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
-                                                            </p>
-                                                           <p class="text-primary fw-bold fs-5 mb-2 text-end">
-                                                        Giá tour: 
-                                                        <fmt:setLocale value="vi_VN" />
+                                                            <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                        </p>
+                                                        <p class="text-primary fw-bold fs-5 mb-2 text-end">
+                                                            Giá tour: 
+                                                            <fmt:setLocale value="vi_VN" />
 
-                                                        <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
-                                                    </p>
-                                                        </div>
-                                                    <a href="TourDetailController?tourid=${tour.tourId}" 
-                                                       class="btn btn-primary w-100 rounded-pill">
-                                                        Xem chi tiết
-                                                    </a>
+                                                            <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
+                                                        </p>
+                                                    </div>
+                                                    <form action="TourDetailController" method="post" class="search-property-1">
+                                                        <button type="submit" class="btn btn-primary w-100 rounded-pill" name="tourid" value="${tour.tourId}">Xem chi tiết</button>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -132,10 +131,6 @@
                         </c:choose>
                     </div>
                 </section>
-
-
-
-
 
                 <!-- Tour riêng le Section -->
                 <form action="CreateCustomTourController" method="post" id="customTourForm">
@@ -213,7 +208,7 @@
                                     </a>
                                     <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=khuhoi"
                                        class="btn btn-outline-primary rounded-pill px-4 py-3 " id="roundTripLink">
-                                        <i class="bi bi-arrow-repeat me-1"></i> <strong>Khứ hồi</strong>
+                                        <i class="bi bi-arrow-repeat me-1"></i> Khứ hồi</strong>
                                     </a>
                                 </div>
                             </div>
@@ -273,17 +268,17 @@
                                                             <span class="badge bg-primary text-white px-2 py-1 fs-6">${f.flightClass}</span>
                                                         </p>
                                                     </div>
-                                                        <div class="d-flex justify-content-between mt-3">
-                                                            <p class="mb-2" style="margin-left: 2px;">
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <p class="mb-2" style="margin-left: 2px;">
 
-                                                                <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
-                                                            </p>
-                                                            <p class="fw-bold text-danger fs-5 text-end">
-                                                                <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
-                                                            </p>
-                                                        </div>
+                                                            <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                        </p>
+                                                        <p class="fw-bold text-danger fs-5 text-end">
+                                                            <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
+                                                        </p>
+                                                    </div>
 
-                                                 
+
 
                                                     <div class="mt-0 d-flex gap-2">
                                                         <!-- NÚT CHỌN -->
@@ -366,20 +361,20 @@
                                                         <span class="text-muted">(${hotel.rating})</span>
                                                     </p>
                                                     <div class="mt-auto">
-                                                        
+
                                                         <div class="d-flex justify-content-between mt-3">
                                                             <p class="mb-2" style="margin-left: 2px;">
 
                                                                 <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
                                                             </p>
-                                                          <p class="text-danger fw-bold fs-5 mb-2 text-end">
-                                                            <fmt:setLocale value="vi_VN" />
-                                                            <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/> VND
-                                                            <span class="text-muted fs-6">/đêm</span>
-                                                        </p>
+                                                            <p class="text-danger fw-bold fs-5 mb-2 text-end">
+                                                                <fmt:setLocale value="vi_VN" />
+                                                                <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/> VND
+                                                                <span class="text-muted fs-6">/đêm</span>
+                                                            </p>
                                                         </div>
 
-                                                       
+
                                                         <div class="mt-auto d-flex gap-2">
                                                             <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-hotel-btn">
                                                                 <i class="bi bi-check-circle"></i> Chọn
@@ -458,7 +453,7 @@
 
                                             </div>
 
-                                          
+
                                             <button type="button" 
                                                     class="mt-2 btn btn-primary flex-fill rounded-pill w-100 fw-semibold select-btn">
                                                 <i class="bi bi-check2-circle"></i> Chọn
@@ -474,7 +469,7 @@
                         <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
                     </section>
                     <!-- Places Section -->
-                     <section class="mb-5">
+                    <section class="mb-5">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">
                             📍 Các địa điểm nổi bật tại đảo
                         </h2>
@@ -514,31 +509,31 @@
                                                         ${p.description}
                                                     </p>
                                                     <div class="d-flex justify-content-between mt-3">
-                                                            <p class="mb-2" style="margin-left: 2px;">
+                                                        <p class="mb-2" style="margin-left: 2px;">
 
-                                                                <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
-                                                            </p>
-                                                            <div class="text-end">
-                                                        <c:choose>
-                                                            <c:when test="${p.hasTicket}">
-                                                                <span class="badge bg-success-subtle text-success fs-6 py-2 px-3">
-                                                                    Có vé: 
-                                                                    <fmt:formatNumber value="${p.ticketPrice}" type="number" groupingUsed="true"/> VNĐ
-                                                                </span>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <span class="badge bg-secondary-subtle text-secondary fs-6 py-2 px-3">
-                                                                    Miễn phí tham quan
-                                                                </span>
-                                                            </c:otherwise>
+                                                            <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                        </p>
+                                                        <div class="text-end">
+                                                            <c:choose>
+                                                                <c:when test="${p.hasTicket}">
+                                                                    <span class="badge bg-success-subtle text-success fs-6 py-2 px-3">
+                                                                        Có vé: 
+                                                                        <fmt:formatNumber value="${p.ticketPrice}" type="number" groupingUsed="true"/> VNĐ
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="badge bg-secondary-subtle text-secondary fs-6 py-2 px-3">
+                                                                        Miễn phí tham quan
+                                                                    </span>
+                                                                </c:otherwise>
 
-                                                        </c:choose>
-                                                    </div>
+                                                            </c:choose>
                                                         </div>
+                                                    </div>
 
 
                                                     <!-- Vé -->
-                                                    
+
 
 
                                                     <!-- Nút chọn -->
@@ -1282,23 +1277,23 @@
         </script>
 
         <script >
-            
-            
-            document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".heart").forEach(heart => {
-        heart.addEventListener("click", () => {
-            heart.classList.toggle("full");
-            heart.classList.toggle("bi-heart");       // bi-heart: trống
-            heart.classList.toggle("bi-heart-fill");  // bi-heart-fill: đầy
 
-            const flightId = heart.dataset.flightId;
-            const liked = heart.classList.contains("full");
-            
-            // TODO: Gửi lên server nếu muốn lưu trạng thái like
-            console.log("Flight ID:", flightId, "Liked:", liked);
-        });
-    });
-});
+
+            document.addEventListener("DOMContentLoaded", () => {
+                document.querySelectorAll(".heart").forEach(heart => {
+                    heart.addEventListener("click", () => {
+                        heart.classList.toggle("full");
+                        heart.classList.toggle("bi-heart");       // bi-heart: trống
+                        heart.classList.toggle("bi-heart-fill");  // bi-heart-fill: đầy
+
+                        const flightId = heart.dataset.flightId;
+                        const liked = heart.classList.contains("full");
+
+                        // TODO: Gửi lên server nếu muốn lưu trạng thái like
+                        console.log("Flight ID:", flightId, "Liked:", liked);
+                    });
+                });
+            });
 
         </script>
 

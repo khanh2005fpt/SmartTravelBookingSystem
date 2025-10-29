@@ -270,7 +270,10 @@
 
                                             <!-- Đẩy footer xuống cuối card -->
                                             <div class="mt-auto pt-2">
-                                                <a href="${pageContext.request.contextPath}/IslandDetailController?detailId=${island.islandId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                                <form action="IslandDetailController" method="post" class="search-property-1">
+                                                    <button type="submit" class="btn btn-primary btn-sm" name="detailId" value="${island.islandId}">Xem chi tiết</button>
+                                                </form>
+
                                             </div>
                                         </div>
                                     </div>
