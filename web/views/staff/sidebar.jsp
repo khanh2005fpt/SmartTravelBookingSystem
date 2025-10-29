@@ -184,7 +184,7 @@
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="sidebar-nav">
+<nav class="sidebar-nav">
         <div class="nav-item">
             <a href="${pageContext.request.contextPath}/staff/tours" 
                class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
@@ -199,7 +199,7 @@
                 Quản lý Dịch vụ
                 <i class="fa fa-chevron-right expand-icon"></i>
             </div>
-            <div class="nav-children expanded" id="servicesChildren">
+            <div class="nav-children" id="servicesChildren">
                 <div class="nav-child">
                     <a href="${pageContext.request.contextPath}/staff/hotels" 
                        class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
@@ -207,28 +207,48 @@
                         Quản lý Khách sạn
                     </a>
                 </div>
-                <div class="nav-child">
+                <div class="nav-child ">
                     <a href="${pageContext.request.contextPath}/staff/vehicles" 
                        class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
                         <i class="fa fa-car"></i>
                         Quản lý Phương tiện
                     </a>
                 </div>
+            </div>
+        </div>
+
+        <!-- Dropdown Quản lý Chuyến bay -->
+        <div class="nav-item">
+            <div class="nav-link nav-parent expanded" id="flightsParent">
+                <i class="fa fa-plane"></i>
+                Quản lý Chuyến bay
+                <i class="fa fa-chevron-right expand-icon"></i>
+            </div>
+            <div class="nav-children" id="flightsChildren">
                 <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/flights" 
-                       class="nav-link <%= "flights".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-cutlery"></i>
-                        Quản lý vé máy bay
+                    <a href="${pageContext.request.contextPath}/staff/flights/tickets" 
+                       class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-ticket-alt"></i>
+                        Quản lý Vé máy bay
                     </a>
                 </div>
-                <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/places" 
-                       class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-map-pin"></i>
-                        Quản lý Địa điểm
+                <div class="nav-child ">
+                    <a href="${pageContext.request.contextPath}/staff/flights/schedules" 
+                       class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-calendar-alt"></i>
+                        Quản lý Lịch trình chuyến bay
                     </a>
                 </div>
             </div>
+        </div>
+
+      
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/staff/places" 
+               class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
+                <i class="fa fa-map-pin"></i>
+                Quản lý Địa điểm
+            </a>
         </div>
 
         <div class="nav-item">
@@ -248,13 +268,14 @@
         </div>
     </nav>
 
+
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-        <form action="${pageContext.request.contextPath}/logout" method="post" style="margin: 0;">
+        <a href="<%= request.getContextPath() %>/logout" method="post" style="margin:0 ;">
             <button type="submit" class="logout-btn">
                 <i class="fa fa-sign-out"></i> Đăng xuất
             </button>
-        </form>
+        </a>
     </div>
 </div>
 
@@ -284,16 +305,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle expandable navigation
+    // Handle expandable navigation for Services
     const servicesParent = document.getElementById('servicesParent');
     const servicesChildren = document.getElementById('servicesChildren');
     
     if (servicesParent && servicesChildren) {
-        servicesParent.addEventListener('click', function() {
-            // Toggle expanded class
+        servicesParent.addEventListener('click', function(e) {
             servicesParent.classList.toggle('expanded');
             servicesChildren.classList.toggle('expanded');
         });
     }
+
+    // Handle expandable navigation for Flights
+    const flightsParent = document.getElementById('flightsParent');
+    const flightsChildren = document.getElementById('flightsChildren');
+
+    if (flightsParent && flightsChildren) {
+        flightsParent.addEventListener('click', function(e) {
+            e.stopPropagation(); // tránh nổi bọt, không đóng Services dropdown
+            flightsParent.classList.toggle('expanded');
+            flightsChildren.classList.toggle('expanded');
+        });
+    }
+
+    // Ngăn việc click vào nav-child con đóng dropdown cấp cha
+    const navChildLinks = document.querySelectorAll('.nav-child > .nav-link');
+    navChildLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.stopPropagation(); // click vào link con không ảnh hưởng dropdown cha
+        });
+    });
 });
 </script>
+
+
+
+

@@ -1,12 +1,5 @@
-<%-- 
-    Document   : restaurant-list
-    Created on : Staff Restaurant List Page
-    Author     : System
-    Description: List and manage restaurants
---%>
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="model.Restaurant" %>
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -16,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Nhà hàng - Meland Travel</title>
+    <title>Quản lý chuyến bay - MelandBooking Travel</title>
     
     <!-- Include common CSS -->
     <jsp:include page="../common/css.jsp" />
@@ -380,9 +373,9 @@
 
     <div class="main-content">
         <!-- Page Header -->
-        <div class="page-header">
-            <h1><i class="fa fa-utensils"></i> Quản lý vé máy bay</h1>
-            <p>Quản lý  dịch vụ vé máy bay và lịch trình chuyến bay</p>
+        <div class="page-header ">
+            <h1><i class="fa fa-utensils  text-left"></i> Quản lý chuyến bay MelanBooking</h1>
+            <p>Quản lý lịch trình chuyến bay </p>
         </div>
 
         <!-- Success/Error Messages -->
@@ -416,7 +409,7 @@
                    id="search" 
                    name="search" 
                    value="${param.search}"
-                   placeholder="Chuyến bay, loại vé, điểm đến...">
+                   placeholder="Sân bay, Transit,...">
         </div>
         
         <div class="filter-group">
@@ -434,16 +427,37 @@
             </select>
         </div>
         
-        <div class="filter-group">
-            <label for="priceRange">Khoảng giá vé</label>
-            <select class="form-control" id="priceRange" name="priceRange">
-                <option value="">Tất cả mức giá</option>
-                <option value="0-1000000" ${param.priceRange == '0-1000000' ? 'selected' : ''}>Dưới 1.000.000₫</option>
-                <option value="1000000-3000000" ${param.priceRange == '1000000-3000000' ? 'selected' : ''}>1.000.000₫ - 3.000.000₫</option>
-                <option value="3000000-5000000" ${param.priceRange == '3000000-5000000' ? 'selected' : ''}>3.000.000₫ - 5.000.000₫</option>
-                <option value="5000000+" ${param.priceRange == '5000000+' ? 'selected' : ''}>Trên 5.000.000₫</option>
-            </select>
-        </div>
+       <div class="filter-group">
+    <label for="departureTimeRange">Khung giờ khởi hành</label>
+    <select class="form-control" id="departureTimeRange" name="departureTimeRange">
+        <option value="">Tất cả khung giờ</option>
+        <option value="00:00-01:00" ${param.departureTimeRange == '00:00-01:00' ? 'selected' : ''}>00:00 - 01:00</option>
+        <option value="01:00-02:00" ${param.departureTimeRange == '01:00-02:00' ? 'selected' : ''}>01:00 - 02:00</option>
+        <option value="02:00-03:00" ${param.departureTimeRange == '02:00-03:00' ? 'selected' : ''}>02:00 - 03:00</option>
+        <option value="03:00-04:00" ${param.departureTimeRange == '03:00-04:00' ? 'selected' : ''}>03:00 - 04:00</option>
+        <option value="04:00-05:00" ${param.departureTimeRange == '04:00-05:00' ? 'selected' : ''}>04:00 - 05:00</option>
+        <option value="05:00-06:00" ${param.departureTimeRange == '05:00-06:00' ? 'selected' : ''}>05:00 - 06:00</option>
+        <option value="06:00-07:00" ${param.departureTimeRange == '06:00-07:00' ? 'selected' : ''}>06:00 - 07:00</option>
+        <option value="07:00-08:00" ${param.departureTimeRange == '07:00-08:00' ? 'selected' : ''}>07:00 - 08:00</option>
+        <option value="08:00-09:00" ${param.departureTimeRange == '08:00-09:00' ? 'selected' : ''}>08:00 - 09:00</option>
+        <option value="09:00-10:00" ${param.departureTimeRange == '09:00-10:00' ? 'selected' : ''}>09:00 - 10:00</option>
+        <option value="10:00-11:00" ${param.departureTimeRange == '10:00-11:00' ? 'selected' : ''}>10:00 - 11:00</option>
+        <option value="11:00-12:00" ${param.departureTimeRange == '11:00-12:00' ? 'selected' : ''}>11:00 - 12:00</option>
+        <option value="12:00-13:00" ${param.departureTimeRange == '12:00-13:00' ? 'selected' : ''}>12:00 - 13:00</option>
+        <option value="13:00-14:00" ${param.departureTimeRange == '13:00-14:00' ? 'selected' : ''}>13:00 - 14:00</option>
+        <option value="14:00-15:00" ${param.departureTimeRange == '14:00-15:00' ? 'selected' : ''}>14:00 - 15:00</option>
+        <option value="15:00-16:00" ${param.departureTimeRange == '15:00-16:00' ? 'selected' : ''}>15:00 - 16:00</option>
+        <option value="16:00-17:00" ${param.departureTimeRange == '16:00-17:00' ? 'selected' : ''}>16:00 - 17:00</option>
+        <option value="17:00-18:00" ${param.departureTimeRange == '17:00-18:00' ? 'selected' : ''}>17:00 - 18:00</option>
+        <option value="18:00-19:00" ${param.departureTimeRange == '18:00-19:00' ? 'selected' : ''}>18:00 - 19:00</option>
+        <option value="19:00-20:00" ${param.departureTimeRange == '19:00-20:00' ? 'selected' : ''}>19:00 - 20:00</option>
+        <option value="20:00-21:00" ${param.departureTimeRange == '20:00-21:00' ? 'selected' : ''}>20:00 - 21:00</option>
+        <option value="21:00-22:00" ${param.departureTimeRange == '21:00-22:00' ? 'selected' : ''}>21:00 - 22:00</option>
+        <option value="22:00-23:00" ${param.departureTimeRange == '22:00-23:00' ? 'selected' : ''}>22:00 - 23:00</option>
+        <option value="23:00-24:00" ${param.departureTimeRange == '23:00-24:00' ? 'selected' : ''}>23:00 - 24:00</option>
+    </select>
+</div>
+
         
         <button type="submit" class="btn-search">
             <i class="fa fa-search"></i> Tìm kiếm
@@ -456,120 +470,17 @@
         <div class="flights-container">
             <div class="flights-header">
                 <h3 class="flights-title">
-                    <i class="fa fa-list"></i> Danh sách dịch vụ vé máy bay
+                    <i class="fa fa-list"></i> Danh sách những lịch trình chuyến bay
                 </h3>
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <span class="flights-count">
-                        ${not empty flights? flights.size() : 0} vé máy bay
+                        ${not empty flights? flights.size() : 0} lịch trình chuyến bay
                     </span>
                     <a href="${pageContext.request.contextPath}/staff/flights?action=create" class="btn-add">
-                        <i class="fa fa-plus"></i> Thêm vé máy bay
+                        <i class="fa fa-plus"></i> Thêm lịch trình chuyến bay
                     </a>
-                </div>
-            </div>
+                
 
-            <c:choose>
-                  <c:when test="${not empty flights}">
-                                    <c:forEach var="schedule" items="${flights}">
-                                        <c:set var="f" value="${schedule.flight}" /> 
-
-                                        <div class="col-lg-4 col-md-6 mb-4 flight-item">
-                                            <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
-                                                 data-flightId="${f.flightId}">
-
-                                                <!-- Ảnh + Logo -->
-                                                <div class="position-relative flight-card">
-                                                    <img src="${pageContext.request.contextPath}/${f.destinationImageUrl}"
-                                                         alt="${f.flightNumber}"
-                                                         class="card-img-top"
-                                                         style="height:220px; object-fit:cover; border-radius:10px;">
-                                                    <div class="airline-logo-wrapper">
-                                                        <img src="${pageContext.request.contextPath}/${f.airline.logoUrl}"
-                                                             alt="${f.airline.airlineName}"
-                                                             class="airline-logo">
-                                                    </div>
-                                                </div>
-
-                                                <div class="card-body d-flex flex-column">
-                                                    <div class="mb-1" style="text-align:left;">
-                                                        <h5 class="card-title fw-bold mb-1">
-                                                            <c:choose>
-                                                                <c:when test="${flightType == 'khuhoi'}">
-                                                                    ${f.departure} ⇌${f.destination}
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    ${f.departure} → ${f.destination}
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </h5>
-                                                        <p class="mb-1 ticket_available" style="margin-left: 2px;">
-                                                            <strong>Số lượng vé:</strong>
-                                                            <span class="text-success">${f.ticketAvailable}</span>
-                                                        </p>
-                                                        <p class="card-text">
-                                                            <span class="badge bg-primary text-white px-2 py-1 fs-6">${f.flightClass}</span>
-                                                        </p>
-                                                    </div>
-                                                        <div class="d-flex justify-content-between mt-3">
-                                                            <p class="mb-2" style="margin-left: 2px;">
-
-                                                                <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
-                                                            </p>
-                                                            <p class="fw-bold text-danger fs-5 text-end">
-                                                                <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
-                                                            </p>
-                                                        </div>
-
-                                                 
-
-                                                    <div class="mt-0 d-flex gap-2">
-                                                        <!-- NÚT CHỌN -->
-                                                        <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn"
-                                                                data-flight-id="${f.flightId}">
-                                                            Xóa
-                                                        </button>
-
-                                                        <!-- NÚT XEM CHI TIẾT 
-                                                          <button type="button" class="btn btn-success flex-fill rounded-pill w-100"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#flightDetailModal"
-                                                                data-flightnumber="${f.flightNumber}"
-                                                                data-flightimage="${pageContext.request.contextPath}/${f.destinationImageUrl}"
-                                                                data-departureairport="${schedule.departureAirport}"
-                                                                data-arrivalairport="${schedule.arrivalAirport}"
-                                                                data-departuretime="${f.departureTime != null ? f.departureTime : ''}"
-                                                                data-arrivaltime="${f.arrivalTime != null ? f.arrivalTime : ''}"
-                                                                data-transitairport="${schedule.transitAirport}"
-                                                                data-transitduration="${schedule.transitDuration}"
-                                                                data-returndeparturetime="${f.returnDepartureTime != null ? f.returnDepartureTime : ''}"
-                                                                data-returnarrivaltime="${f.returnArrivalTime != null ? f.returnArrivalTime : ''}"
-                                                                data-planemodel="${schedule.planeModel}"
-                                                                data-capacity="${schedule.seatCapacity}"
-                                                                data-cabinbaggage="${schedule.cabinBaggage}" 
-                                                                data-seatpitch="${schedule.seatPitch}"
-                                                                data-notes="${schedule.notes}">
-                                                            Xem chi tiết
-                                                        </button>
-                                                        
-                                                        -->
-                                                      
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:forEach>
-                                </c:when>
-                <c:otherwise>
-                    <div class="empty-state">
-                        <i class="fa fa-utensils"></i>
-                        <h3>Chưa có vé máy bay nào</h3>
-                        <p>Hiện tại chưa có vé máy bay nào trong hệ thống.</p>
-                        <a href="${pageContext.request.contextPath}/staff/flights?action=create" class="btn-add">
-                            <i class="fa fa-plus"></i> Thêm vé máy bay đầu tiên
-                        </a>
-                    </div>
-                </c:otherwise>
-            </c:choose>
         </div>
     </div>
 

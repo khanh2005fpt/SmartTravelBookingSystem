@@ -2,34 +2,34 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.staff;
+
+package controller.staff.flight;
 
 import dao.ServiceDao;
-import model.Flight;
-import model.Airlines;
-import model.Island;
-import model.User;
 import java.io.IOException;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.List;
+import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import model.Airlines;
+import model.Flight;
+import model.Island;
+import model.User;
 
 /**
- * Servlet for managing flight operations for staff members
- * Handles flight CRUD operations, list display, search functionality
- * 
- * @author Admin
+ *
+ * @author nqagh
  */
-@WebServlet(name = "FlightStaffServlet", urlPatterns = {"/staff/flights"})
-public class FlightStaffServlet extends HttpServlet {
-    
-    private ServiceDao serviceDao;
+@WebServlet(name="FlightScheduleStaffServlet", urlPatterns={"/staff/flights/schedules"})
+public class FlightScheduleStaffServlet extends HttpServlet {
+   
+      private ServiceDao serviceDao;
     
     @Override
     public void init() throws ServletException {
@@ -42,20 +42,94 @@ public class FlightStaffServlet extends HttpServlet {
             throw new ServletException("Failed to initialize ServiceDao", e);
         }
     }
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet FlightScheduleStaffServlet</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet FlightScheduleStaffServlet at " + request.getContextPath () + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    } 
 
-    /**
-     * Handles GET requests for flight operations
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
+    throws ServletException, IOException {
         // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
-        if (!isStaffAuthorized(session)) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
+        
+  // Kiểm tra quyền staff/admin; hàm sẽ tự redirect nếu chưa login hoặc role không hợp lệ
+    if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
+if(session != null){
+    System.out.println("Session ID: " + session.getId());
+    System.out.println("Creation time: " + new java.util.Date(session.getCreationTime()));
+    System.out.println("Last accessed: " + new java.util.Date(session.getLastAccessedTime()));
+    System.out.println("Max inactive interval: " + session.getMaxInactiveInterval() + " seconds");
+} else {
+    System.out.println("No session found");
+}
+        
+        String action = request.getParameter("action");
+        if (action == null) action = "list";
+        
+        try {
+            switch (action) {
+                case "list":
+                    handleFlightList(request, response);
+                    break;
+                case "view":
+                    handleFlightDetail(request, response);
+                    break;
+                case "create":
+                    handleCreateForm(request, response);
+                    break;
+                case "edit":
+                    handleEditForm(request, response);
+                    break;
+                case "search":
+                    handleFlightSearch(request, response);
+                    break;
+                default:
+                    handleFlightList(request, response);
+                    break;
+            }
+        } catch (Exception e) {
+            handleError(request, response, "Error processing flight request: " + e.getMessage(), e);
         }
+    } 
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+          // Check if user is logged in and has staff role
+        HttpSession session = request.getSession(false);
+        if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         
         String action = request.getParameter("action");
         if (action == null) action = "list";
@@ -86,45 +160,8 @@ public class FlightStaffServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Handles POST requests for flight operations
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        HttpSession session = request.getSession(false);
-        if (!isStaffAuthorized(session)) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
-        
-        String action = request.getParameter("action");
-        
-        try {
-            switch (action) {
-                case "create":
-                    handleCreateFlight(request, response);
-                    break;
-                case "update":
-                    handleUpdateFlight(request, response);
-                    break;
-                case "delete":
-                    handleDeleteFlight(request, response);
-                    break;
-                case "updateAvailability":
-                    handleUpdateAvailability(request, response);
-                    break;
-                default:
-                    response.sendRedirect(request.getContextPath() + "/staff/flights");
-                    break;
-            }
-        } catch (Exception e) {
-            handleError(request, response, "Error processing flight operation: " + e.getMessage(), e);
-        }
-    }
-
-    /**
+   
+     /**
      * Display list of all flights
      */
     private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
@@ -133,7 +170,7 @@ public class FlightStaffServlet extends HttpServlet {
             List<Flight> flights = serviceDao.getAllFlights();
             request.setAttribute("flights", flights);
             request.setAttribute("pageTitle", "Flight Management");
-            request.getRequestDispatcher("/views/staff/flight-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/staff/flight_schedule-list.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading flight list: " + e.getMessage(), e);
         }
@@ -186,7 +223,7 @@ public class FlightStaffServlet extends HttpServlet {
             request.setAttribute("airlines", airlines);
             request.setAttribute("islands", islands);
             request.setAttribute("pageTitle", "Create New Flight");
-            request.getRequestDispatcher("/views/staff/flight-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading create form: " + e.getMessage(), e);
         }
@@ -575,16 +612,29 @@ public class FlightStaffServlet extends HttpServlet {
     /**
      * Check if user is authorized staff member
      */
-    private boolean isStaffAuthorized(HttpSession session) {
-        if (session == null) return false;
-        
-        User user = (User) session.getAttribute("user");
-        if (user == null) return false;
-        
-        String role = user.getRole();
-        return "staff".equals(role) || "admin".equals(role);
+
+private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    if (session == null) {
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
     }
 
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    String role = user.getRole();
+    if (!"staff".equals(role) && !"admin".equals(role)) {
+        session.setAttribute("errorMess", "Bạn không có quyền để truy cập !");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return false;
+    }
+
+    return true;
+}
     /**
      * Handle errors
      */
@@ -599,9 +649,9 @@ public class FlightStaffServlet extends HttpServlet {
         request.setAttribute("pageTitle", "Error");
         request.getRequestDispatcher("/views/common/error.jsp").forward(request, response);
     }
-
     @Override
     public String getServletInfo() {
-        return "FlightStaffServlet - Handles flight management operations for staff";
-    }
+        return "Short description";
+    }// </editor-fold>
+
 }
