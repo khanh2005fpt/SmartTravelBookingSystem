@@ -232,7 +232,7 @@ if(session != null){
            
             request.setAttribute("airlineNames", airlines);
             request.setAttribute("islands", islands);
-           
+            
             request.setAttribute("pageTitle", "Create New Flight");
             request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
         } catch (Exception e) {
