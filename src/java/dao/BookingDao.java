@@ -95,8 +95,36 @@ public class BookingDao extends DBContext {
             throw new SQLException("Lỗi khi cập nhật trạng thái bookingId = " + bookingId, e);
         }
     }
+    
+    public void createHistoryBooking(HistoryBooking hb) throws SQLException {
+        String sql = "INSERT INTO HistoryBooking (paymentId, accountUserId, customerName, " +
+                     "customerEmail, customerPhone, tourStatus, createdAt) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-    // ✅ Test thử
+            ps.setInt(1, hb.getPaymentId());
+            
+            if (hb.getAccountUserId() != null) {
+                ps.setInt(2, hb.getAccountUserId());
+            } else {
+                ps.setNull(2, java.sql.Types.INTEGER);
+            }
+
+            ps.setString(3, hb.getCustomerName());
+            ps.setString(4, hb.getCustomerEmail());
+            ps.setString(5, hb.getCustomerPhone());
+            ps.setString(6, hb.getTourStatus());
+            ps.setTimestamp(7, hb.getCreatedAt());
+            
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi thêm lịch sử paymentId = " + hb.getPaymentId(), e);
+        }
+    }
+    
+    //  Test thử
     public static void main(String[] args) {
         BookingDao bookingDao = new BookingDao();
 

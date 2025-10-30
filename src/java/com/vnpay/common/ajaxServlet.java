@@ -46,12 +46,14 @@ public class ajaxServlet extends HttpServlet {
         String fullName = request.getParameter("fullname");
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
-        String address = request.getParameter("address");
 
         Date departureDate = Date.valueOf(request.getParameter("departureDate"));
         int adultQty = Integer.parseInt(request.getParameter("adultQuantity"));
         int childQty = Integer.parseInt(request.getParameter("childQuantity"));
         HttpSession session = request.getSession();
+        session.setAttribute("fullname", request.getParameter("fullname"));
+        session.setAttribute("email", request.getParameter("email"));
+        session.setAttribute("phone", request.getParameter("phone"));
         User user = (User) session.getAttribute("user");
 
         if (user == null) {

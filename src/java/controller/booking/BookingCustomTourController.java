@@ -147,6 +147,7 @@ public class BookingCustomTourController extends HttpServlet {
             request.setAttribute("booking", booking);
             request.setAttribute("customtour", tour);
             request.setAttribute("details", details);
+            request.setAttribute("customTourId", customTourId);
             request.getRequestDispatcher("/views/booking/payment.jsp").forward(request, response);
 
         } catch (Exception e) {

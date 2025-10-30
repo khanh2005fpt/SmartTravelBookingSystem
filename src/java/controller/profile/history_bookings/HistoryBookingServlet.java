@@ -80,9 +80,9 @@ public class HistoryBookingServlet extends HttpServlet {
             Integer userId = user.getUserId();
 
             // Lấy danh sách lịch sử booking từ DB
-          List<HistoryBooking> historyList = customerDao.getHistoryByCustomerId(userId);
+//          List<HistoryBooking> historyList = customerDao.getHistoryByCustomerId(userId);
           
-          session.setAttribute("historyList", historyList);
+//          session.setAttribute("historyList", historyList);
           response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=historyBookings#");
 
         } catch (Exception e) {

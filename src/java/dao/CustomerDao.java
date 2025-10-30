@@ -563,34 +563,34 @@ public List<Integer> getUnreadNotificationIds(int userId)  {
 }
 
       // Lấy danh sách lịch sử theo customerId
-    public List<HistoryBooking> getHistoryByCustomerId(int customerId) throws SQLException {
-    List<HistoryBooking> list = new ArrayList<>();
-    String sql = "SELECT * FROM HistoryBooking WHERE customerId = ?";
-
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, customerId);
-
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                HistoryBooking h = new HistoryBooking(
-                    rs.getInt("historyId"),
-                    rs.getInt("customerId"),
-                    rs.getInt("paymentId"),
-                    rs.getString("note"),
-                    rs.getString("tourStatus")
-                );
-                list.add(h);
-            }
-        }
-
-    } catch (SQLException e) {
-         throw new SQLException("Lỗi khi lấy lịch sử booking theo customerId: " + customerId, e);
-    
-  
-    }
-
-    return list;
-}
+//    public List<HistoryBooking> getHistoryByCustomerId(int customerId) throws SQLException {
+//    List<HistoryBooking> list = new ArrayList<>();
+//    String sql = "SELECT * FROM HistoryBooking WHERE customerId = ?";
+//
+//    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+//        ps.setInt(1, customerId);
+//
+//        try (ResultSet rs = ps.executeQuery()) {
+//            while (rs.next()) {
+//                HistoryBooking h = new HistoryBooking(
+//                    rs.getInt("historyId"),
+//                    rs.getInt("customerId"),
+//                    rs.getInt("paymentId"),
+//                    rs.getString("note"),
+//                    rs.getString("tourStatus")
+//                );
+//                list.add(h);
+//            }
+//        }
+//
+//    } catch (SQLException e) {
+//         throw new SQLException("Lỗi khi lấy lịch sử booking theo customerId: " + customerId, e);
+//    
+//  
+//    }
+//
+//    return list;
+//}
     
     public boolean addContact(int userId, String contactValue) throws SQLException {
         // Xác định contactType dựa vào value

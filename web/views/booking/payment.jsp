@@ -50,12 +50,6 @@
                             </div>
 
                             <div class="mb-3">
-                                <label>Địa chỉ</label>
-                                <input type="text" class="form-control" name="address"
-                                       value="${sessionScope.profile_customer.address}">
-                            </div>
-
-                            <div class="mb-3">
                                 <label class="form-label">Phương thức thanh toán</label>
                                 <div class="list-group">
                                     <label class="list-group-item d-flex align-items-center">

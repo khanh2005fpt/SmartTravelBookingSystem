@@ -498,27 +498,24 @@ END;
 GO
 select * from Bookings
 CREATE TABLE Bookings (
-		bookingId INT IDENTITY(1,1) PRIMARY KEY,
-		customerId INT NOT NULL,
-		departureDate DATE NOT NULL,
-		endDate DATE    ,
-		adultQuantity INT NOT NULL,
-		childQuantity INT NOT NULL,
-		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
-		bookingDate DATETIME DEFAULT GETDATE(),
-		FOREIGN KEY (customerId) REFERENCES Users(userId),
+    bookingId INT IDENTITY(1,1) PRIMARY KEY,
+    customerId INT NOT NULL,
+    customTourId INT NULL,
+    tourId INT NULL,
+    departureDate DATE NOT NULL,
+    endDate DATE,
+    adultQuantity INT NOT NULL,
+    childQuantity INT NOT NULL,
+    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
+    bookingDate DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (customerId) REFERENCES Users(userId),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
 );
+
 
 -- Bảng Payments
   
-
-  select * from HistoryBooking
-  select * from CustomerProfiles
-  select * from Notifications
-  
-  update Payments
-  set status ='FAILED'
-  WHERE paymentId=4
 CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
@@ -527,7 +524,23 @@ CREATE TABLE Payments (
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 
-go
+CREATE TABLE HistoryBooking (
+    historyId INT IDENTITY(1,1) PRIMARY KEY,
+    paymentId INT NOT NULL,
+    accountUserId INT NULL,
+    customerName NVARCHAR(100) NOT NULL,
+    customerEmail NVARCHAR(100) NOT NULL,
+    customerPhone NVARCHAR(20) NOT NULL,
+    createdAt DATETIME DEFAULT GETDATE(),
+    tourStatus NVARCHAR(20) CHECK (tourStatus IN ('COMPLETED', 'INCOMPLETE')) DEFAULT 'INCOMPLETE',
+    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE,
+    -- Cho phép null nếu user bị xóa
+    FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
+);
+
+
+GO
+
 
 -- triger ghi lại lịch sử booking 
 
@@ -558,18 +571,9 @@ END;
 GO
 
 
-CREATE TABLE HistoryBooking (
-    historyId INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
-    customerId INT NOT NULL,                                
-    paymentId INT NOT NULL,                                   
-    note NVARCHAR(255) NULL,                                  -- Ghi chú
-    tourStatus NVARCHAR(20) NOT NULL CHECK (
-        tourStatus IN ('COMPLETED', 'INCOMPLETE')
-    ) DEFAULT 'INCOMPLETE', 
---    FOREIGN KEY (customerId) REFERENCES CustomerProfiles(userId) ON DELETE CASCADE,
-    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE
-);
-GO
+
+
+
 
 
 

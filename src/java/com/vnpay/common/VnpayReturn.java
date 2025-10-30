@@ -11,11 +11,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import model.HistoryBooking;
 import model.Payment;
 
 /**
@@ -39,7 +41,10 @@ public class VnpayReturn extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
-
+        HttpSession session = request.getSession();
+        String fullname = (String) session.getAttribute("fullname");
+        String email = (String) session.getAttribute("email");
+        String phone = (String) session.getAttribute("phone");
         Map<String, String> fields = new HashMap<>();
         for (String key : request.getParameterMap().keySet()) {
             String value = request.getParameter(key);
@@ -80,9 +85,24 @@ public class VnpayReturn extends HttpServlet {
                 payment.setAmount(amount);
 
                 payment.setStatus(isSuccess ? "Success" : "Failed");
-                bookingDao.createPayment(payment);
+                int paymentId = bookingDao.createPayment(payment);
+
                 if (isSuccess) {
                     bookingDao.updateStatus(bookingId, "COMPLETED");
+                    HistoryBooking hb = new HistoryBooking();
+                    hb.setPaymentId(paymentId);
+
+                    // Nếu có người đăng nhập thì lấy userId từ session
+                    Integer userId = (Integer) request.getSession().getAttribute("userId");
+                    hb.setAccountUserId(userId);
+
+                    // Thông tin khách hàng (nếu có trong form)
+                    hb.setCustomerName(fullname);
+                    hb.setCustomerEmail(email);
+                    hb.setCustomerPhone(phone);
+                    hb.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+
+                    bookingDao.createHistoryBooking(hb);
                 }
                 request.setAttribute("payment", payment);
                 request.setAttribute("result", isSuccess ? "Success" : "Failed");

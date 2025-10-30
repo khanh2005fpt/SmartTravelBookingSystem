@@ -160,7 +160,7 @@
                             <input type="hidden" name="customTourId" value="${tour.customTourId}">
                             <input type="hidden" name="price" value="${tour.totalPrice}">
                             <input type="hidden" name="startDate" value="${tour.startDate}">
-
+                            
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
                                     <label class="form-label">Người lớn</label>
@@ -187,8 +187,11 @@
                     </c:when>
                     <c:otherwise>
                         <div class="alert alert-warning mb-0">
-                            Bạn cần <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="fw-bold">đăng nhập</a> để đặt tour.
-                        </div>
+                            Bạn cần 
+                            <c:url var="loginURL" value="/views/account/login.jsp">
+                                <c:param name="redirect" value="${pageContext.request.contextPath}/CreateCustomTourController?customtourid=${customTourId}" />
+                            </c:url>
+                            <a href="${loginURL}" class="text-primary fw-bold">đăng nhập</a> để đặt tour.</div>
                     </c:otherwise>
                 </c:choose>
             </div>
