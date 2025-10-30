@@ -16,8 +16,12 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
+update Airlines 
+set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
+where airlineId=7
 
-
+select * from Flights
+select * from Airlines
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL

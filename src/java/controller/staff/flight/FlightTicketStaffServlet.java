@@ -144,7 +144,7 @@ if(session != null){
                     handleFlightDetail(request, response);
                     break;
                 case "create":
-                   handleCreateForm(request, response);
+                   handleCreateFlight(request, response);
                     break;
                 case "edit":
                     handleEditForm(request, response);
@@ -226,11 +226,13 @@ if(session != null){
             throws ServletException, IOException {
         try {
             // Load airlines and islands for dropdowns
-            List<Airlines> airlines = serviceDao.getAllAirlines();
+             List<Airlines> airlines = serviceDao.getAllAirlineNames();
+           
             List<Island> islands = serviceDao.getAllIslands();
-            
-            request.setAttribute("airlines", airlines);
+           
+            request.setAttribute("airlineNames", airlines);
             request.setAttribute("islands", islands);
+           
             request.setAttribute("pageTitle", "Create New Flight");
             request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
         } catch (Exception e) {
@@ -295,14 +297,14 @@ if(session != null){
                 airlineId = Integer.parseInt(airlineIdStr);
             } catch (NumberFormatException e) {
                 
-                request.setAttribute("warning", "Hãng bay không hợp lệ, bỏ qua filter.");
+                request.setAttribute("errorMessage", "Hãng bay không hợp lệ, bỏ qua filter.");
                 request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
             }
         }
 
         // Kiểm tra priceRange hợp lệ, null hoặc rỗng cũng được
         if (priceRange != null && !priceRange.isEmpty() && !priceRange.matches("\\d+-\\d+|\\d+\\+")) {
-            request.setAttribute("warning", "Khoảng giá không hợp lệ, bỏ qua filter.");
+            request.setAttribute("errorMessage", "Khoảng giá không hợp lệ, bỏ qua filter.");
             priceRange = null;
         }
 
@@ -532,6 +534,8 @@ if(session != null){
 
     /**
      * Validate flight input
+     * 
+     * 
      */
     private boolean validateFlightInput(HttpServletRequest request) {
         boolean isValid = true;
@@ -613,6 +617,10 @@ if(session != null){
             isValid = false;
         }
         
+        
+         // validate flight schedule 
+      /*  
+   
         // Validate time formats if provided
         String departureTime = request.getParameter("departureTime");
         if (departureTime != null && !departureTime.trim().isEmpty()) {
@@ -633,7 +641,7 @@ if(session != null){
                 isValid = false;
             }
         }
-        
+        */
         return isValid;
     }
 

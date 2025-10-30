@@ -335,7 +335,7 @@
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
-        <jsp:param name="page" value="restaurants" />
+        <jsp:param name="page" value="flights_tickets" />
     </jsp:include>
 
     <div class="main-content">
@@ -343,9 +343,9 @@
         <div class="page-header">
             <h1>
                 <i class="fa fa-utensils"></i> 
-                ${empty restaurant ? 'Thêm thông tin vé máy bay' : 'Chỉnh sửa thông tin vé máy bay '}
+                ${empty empty flight ? 'Thêm thông tin vé máy bay' : 'Chỉnh sửa thông tin vé máy bay '}
             </h1>
-            <p>${empty restaurant ? 'Thêm những vé máy bay mới trong hệ thống' : 'Cập nhật thông tin vé máy bay'}</p>
+            <p>${empty empty flight ? 'Thêm những vé máy bay mới trong hệ thống' : 'Cập nhật thông tin vé máy bay'}</p>
         </div>
 
         <!-- Success/Error Messages -->
@@ -367,23 +367,23 @@
             </div>
         </c:if>
 
-        <!-- Restaurant Form -->
+        <!-- Flight Form -->
         <div class="form-container">
             <div class="form-header">
                 <h3 class="form-title">
                     <i class="fa fa-edit"></i> 
-                    ${empty restaurant ? 'Thông tin vé máy bay mới' : 'Chỉnh sửa thông tin vé máy bay'}
+                    ${empty flight ? 'Thông tin vé máy bay mới' : 'Chỉnh sửa thông tin vé máy bay'}
                 </h3>
             </div>
 
-            <form action="${pageContext.request.contextPath}/staff/flights/tickets" 
+            <form action="${pageContext.request.contextPath}/staff/flight/tickets" 
                   method="post" 
                   enctype="multipart/form-data" 
                   id="flight_ticketForm" 
                   novalidate>
                 
-                <input type="hidden" name="action" value="${empty restaurant ? 'create' : 'update'}">
-                <c:if test="${not empty restaurant}">
+                <input type="hidden" name="action" value="${empty flight ? 'create' : 'update'}">
+                <c:if test="${not empty flight}">
                     <input type="hidden" name="id" value="${flight.flightId}">
                 </c:if>
 
@@ -398,59 +398,72 @@
                             <div class="form-group">
                                 <label for="restaurantName">Mã chuyến bay <span class="required">*</span></label>
                                 <input type="text" 
-                                       class="form-control" 
-                                       id=" flightNumber" 
-                                       name=" flightNumber" 
-                                       value="${flight. flightNumber}"
+                                       class="form-control ${not empty errors.flightNumber ? 'is-invalid' : ''}" 
+                                       id="flightNumber" 
+                                       name="flightNumber" 
+                                       value="${flight != null ? flight.flightNumber :param.flightNumber}"
                                        placeholder="Nhập mã chuyến bay"
+                                       maxlength="6"
                                        required>
-                                <div class="invalid-feedback"></div>
+                                 <c:if test="${not empty errors.flightNumber}">
+                                    <div class="invalid-feedback">${errors.flightNumber}</div>
+                                </c:if>
+                                <div class="form-text">Tối đa 6 ký tự</div>
+                           
                             </div>
+                                       
+                                     
                             
                             <div class="form-group">
                                 <label for="airlineName" >Hãng hàng không <span class="required">*</span></label>
-               <select class="form-control" id="airlineName" name="airlineName">
-                <option value="">- Chọn hãng --</option>
-                  
-                
-                <option value="Vietnam Airlines" ${flight.airlineName == 'Vietnam Airlines' ? 'selected' : ''}>Vietnam Airlines</option>
-                <option value="VietJet Air" ${flight.airlineName == 'VietJet Air' ? 'selected' : ''}>VietJet Air</option>
-                <option value="Bamboo Airways" ${flight.airlineName == 'Bamboo Airways' ? 'selected' : ''}>Bamboo Airways</option>
-                <option value="Thai Airways" ${flight.airlineName == 'Thai Airways' ? 'selected' : ''}>Thai Airways</option>
-                <option value="Singapore Airlines" ${flight.airlineName == 'Singapore Airlines' ? 'selected' : ''}>Singapore Airlines</option>
-                <option value="Malaysia Airlines" ${flight.airlineName == 'Malaysia Airlines' ? 'selected' : ''}>Malaysia Airlines</option>
-                <option value="Garuda Indonesia" ${flight.airlineName == 'Garuda Indonesia' ? 'selected' : ''}>Garuda Indonesia</option>
-                
-            </select>
-                                <div class="invalid-feedback"></div>
+                                
+                                 <select class="form-control ${not empty errors.airlineId ? 'is-invalid' : ''}" 
+                                        id="airlineId" 
+                                        name="airlineId" 
+                                        required>
+                                    <option value="">Chọn hãng bay...</option>
+                                    <c:forEach var="airline" items="${airlineNames}">
+                                        <option value="${airline.airlineId}" 
+                                                ${(flight!= null && flight.airlineId == airline.airlineId) || param.airlineId == airline.airlineId ? 'selected' : ''}>
+                                            ${airline.airlineName}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                                 <c:if test="${not empty errors.airlineId}">
+                                    <div class="invalid-feedback">${errors.airlineId}</div>
+                                </c:if>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                    <label for="priceRange">Nơi khởi hành<span class="required">*</span></label>
-                              <select class="form-control" id=" departure" name="departure" required>
-                                    <option value="">-- Chọn nơi khởi hành --</option>
+                              <select class="form-control  ${not empty errors.departure ? 'is-invalid' : ''}"  " id="departure" name="departure" required>
+                                    <option value="">Chọn nơi khởi hành ...</option>
                              
-                                    <option value="Ha Noi" ${flight.departure == 'Ha Noi' ? 'selected' : ''}>Ha Noi</option>
-                                    <option value="TP Ho Chi Minh" ${flight.departure== 'TP Ho Chi Minh' ? 'selected' : ''}>TP Ho Chi Minh</option> 
-                                  
-                                  
+                                    <option value="Ha Noi" ${(flight.departure!=null && flight.departure == 'Ha Noi') || param.departure == 'Ha Noi'? 'selected' : ''}>Ha Noi</option>
+                                    <option value="TP Ho Chi Minh" ${(flight.departure!=null && flight.departure == 'TP Ho Chi Minh') || param.departure == 'TP Ho Chi Minh'? 'selected' : ''}>TP Ho Chi Minh</option> 
+
                                 </select>
+                                 <c:if test="${not empty errors.departure}">
+                                    <div class="invalid-feedback">${errors.departure}</div>
+                                </c:if>
+                                        <div class="form-text">Khởi hành tại 2 thành phố lớn Việt Nam</div>
                             </div>
-                                    
-                                    
+   
                                     <div class="form-group">
                                 <label for="islandId">Điểm đến du lịch <span class="required">*</span></label>
                                 <select class="form-control" id="islandId" name="islandId" required>
-                                    <option value="">- Chọn đảo --</option>
+                                    <option value="">Chọn đảo...</option>
                                     <c:forEach var="island" items="${islands}">
                                         <option value="${island.islandId}" ${restaurant.islandId == island.islandId ? 'selected' : ''}>
                                             ${island.islandName}
                                         </option>
                                     </c:forEach>
                                 </select>
-                                <div class="invalid-feedback"></div>
+                                <c:if test="${not empty errors.islandId}">
+                                    <div class="invalid-feedback">${errors.islandId}</div>
+                                </c:if>
                             </div>
                           
                         </div>
@@ -621,42 +634,58 @@
     <jsp:include page="../common/script.jsp" />
 
     <script>
-        // Rating functionality
-        const ratingStars = document.querySelectorAll('.rating-star');
-        const ratingValue = document.getElementById('ratingValue');
-        const ratingInput = document.getElementById('rating');
-        
-        // Initialize rating
-        let currentRating = ${not empty restaurant.rating ? restaurant.rating : 0};
-        updateRatingDisplay(currentRating);
-        
-        ratingStars.forEach(star => {
-            star.addEventListener('click', function() {
-                currentRating = parseInt(this.dataset.rating);
-                updateRatingDisplay(currentRating);
-                ratingInput.value = currentRating;
-            });
-            
-            star.addEventListener('mouseover', function() {
-                const hoverRating = parseInt(this.dataset.rating);
-                updateRatingDisplay(hoverRating);
-            });
-        });
-        
-        document.getElementById('ratingStars').addEventListener('mouseleave', function() {
-            updateRatingDisplay(currentRating);
-        });
-        
-        function updateRatingDisplay(rating) {
-            ratingStars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
+           // Form validation
+           
+           $(document).ready(function()){
+               $(#flight_ticketForm).on('submit' , function (e)){
+                   let isValid = true;
+                  // Clear previous validation states 
+                  $('.form-control').remove('is-invalid');
+                  $('.invalid-feedback').remove();
+                  
+                  // validate flightNumber
+                  const flightNumber = $('#flightNumber').val().trim();
+                  const regex = /^[A-Z]{2}\d{1,4}$/; // 2 chữ cái hoa + 1-4 chữ số
+                  if(!flightNumber){
+                      showFieldError('#flightNumber' , 'Mã chuyến bay là bắt buộc');
+                      isValid=false;
+                  }else if (!regex.test(flightNumber)) {  // dùng test để check
+                       showFieldError('#flightNumber', 'Mã chuyến bay không hợp lệ (ví dụ: VN1234)');
+                       isValid = false;
+               }
+                //validate airlineName
+                   const airlineId = $('#airlineId').val();
+                   if(!airlineId){
+                       showFieldError('#airlineId' ,'Xin vui lòng chọn hãng hàng không');
+                       isValid=false;
+                   }
+                   
+                 // validate departure
+                 
+                 const departure = $('#departure').val();
+                  if(!departure){
+                      showFieldError('#airlineId' ,'Xin vui lòng chọn nơi khởi hành');
+                       isValid=false; 
+                  }
+                  
+                   // Validate island
+                const islandId = $('#islandId').val();
+                if (!islandId) {
+                    showFieldError('#islandId', 'Vui lòng chọn điểm đến du lịch');
+                    isValid = false;
                 }
-            });
-            ratingValue.textContent = rating;
+           }
+       }
+       
+        function showFieldError(fieldSelector, message) {
+            const field = $(fieldSelector);
+            field.addClass('is-invalid');
+            field.after('<div class="invalid-feedback">' + message + '</div>');
         }
+        
+        
+        
+     
 
         // Image preview functionality
         function previewImage(input) {
@@ -678,66 +707,11 @@
             }
         }
 
-        // Form validation
-        document.getElementById('restaurantForm').addEventListener('submit', function(e) {
-            let isValid = true;
-            
-            // Clear previous validation
-            document.querySelectorAll('.form-control').forEach(input => {
-                input.classList.remove('is-invalid');
-            });
-            
+      
             // Validate required fields
-            const requiredFields = ['restaurantName', 'cuisineType', 'islandId', 'priceRange', 'capacity'];
-            
-            requiredFields.forEach(fieldName => {
-                const field = document.getElementById(fieldName);
-                if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
-                    field.nextElementSibling.textContent = 'Trường này là bắt buộc';
-                    isValid = false;
-                }
-            });
-            
-            // Validate capacity
-            const capacity = document.getElementById('capacity');
-            if (capacity.value) {
-                const capacityValue = parseInt(capacity.value);
-                if (capacityValue <= 0) {
-                    capacity.classList.add('is-invalid');
-                    capacity.nextElementSibling.textContent = 'Sức chứa phải lớn hơn 0';
-                    isValid = false;
-                } else if (capacityValue > 1000) {
-                    capacity.classList.add('is-invalid');
-                    capacity.nextElementSibling.textContent = 'Sức chứa không được vượt quá 1000 người';
-                    isValid = false;
-                }
-            }
-            
-            // Validate phone number format
-            const phoneNumber = document.getElementById('phoneNumber');
-            if (phoneNumber.value && !isValidPhone(phoneNumber.value)) {
-                phoneNumber.classList.add('is-invalid');
-                phoneNumber.nextElementSibling.textContent = 'Số điện thoại không hợp lệ';
-                isValid = false;
-            }
-            
-            if (!isValid) {
-                e.preventDefault();
-                // Scroll to first error
-                const firstError = document.querySelector('.is-invalid');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        });
-        
-
-        
-        function isValidPhone(phone) {
-            const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
-            return phoneRegex.test(phone);
-        }
+            const requiredFields = ['flightNumber', 'airlineName', 'departure', 'islandId', 'priceRange' , 'ticketAvailable','flightType','flightClass'];
+             
+           
 
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {
