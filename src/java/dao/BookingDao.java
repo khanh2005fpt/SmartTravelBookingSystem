@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import model.Bill;
 
 import model.Booking;
 import model.HistoryBooking;
@@ -19,7 +20,7 @@ public class BookingDao extends DBContext {
      */
     public int createBooking(Booking booking) throws SQLException {
         String sql = "INSERT INTO Bookings (customerId, tourId, customTourId, departureDate, endDate, adultQuantity, childQuantity, status, totalPrice) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, booking.getCustomerId());
@@ -95,16 +96,16 @@ public class BookingDao extends DBContext {
             throw new SQLException("Lỗi khi cập nhật trạng thái bookingId = " + bookingId, e);
         }
     }
-    
+
     public void createHistoryBooking(HistoryBooking hb) throws SQLException {
-        String sql = "INSERT INTO HistoryBooking (paymentId, accountUserId, customerName, " +
-                     "customerEmail, customerPhone, tourStatus, createdAt) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO HistoryBooking (paymentId, accountUserId, customerName, "
+                + "customerEmail, customerPhone, tourStatus, createdAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setInt(1, hb.getPaymentId());
-            
+
             if (hb.getAccountUserId() != null) {
                 ps.setInt(2, hb.getAccountUserId());
             } else {
@@ -116,41 +117,85 @@ public class BookingDao extends DBContext {
             ps.setString(5, hb.getCustomerPhone());
             ps.setString(6, hb.getTourStatus());
             ps.setTimestamp(7, hb.getCreatedAt());
-            
+
             ps.executeUpdate();
 
         } catch (SQLException e) {
             throw new SQLException("Lỗi khi thêm lịch sử paymentId = " + hb.getPaymentId(), e);
         }
     }
-    
+
+    public Bill getBillByHistoryBooking(int paymentId) throws SQLException {
+        String sql = "SELECT [hb].[paymentId], [hb].[customerName], [hb].[customerPhone], [hb].[createdAt], "
+                + "[t].[tourName], [p].[amount], [p].[status] AS paymentStatus "
+                + "FROM [HistoryBooking] hb "
+                + "JOIN [Payments] p ON [hb].[paymentId] = [p].[paymentId] "
+                + "JOIN [Bookings] b ON [p].[bookingId] = [b].[bookingId] "
+                + "LEFT JOIN [Tours] t ON [b].[tourId] = [t].[tourId] "
+                + "WHERE [hb].[paymentId] = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, paymentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Bill bill = new Bill();
+                    bill.setPaymentId(rs.getInt("paymentId"));
+                    bill.setFullname(rs.getString("customerName"));
+                    bill.setPhone(rs.getString("customerPhone"));
+                    bill.setCreatedAt(rs.getTimestamp("createdAt"));
+                    bill.setTourName(rs.getString("tourName"));
+                    bill.setAmount(rs.getLong("amount"));
+                    bill.setStatus(rs.getString("paymentStatus"));
+                    return bill;
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy thông tin bill paymentId = " + paymentId, e);
+        }
+        return null;
+    }
+
     //  Test thử
     public static void main(String[] args) {
-        BookingDao bookingDao = new BookingDao();
-
-        Booking booking = new Booking();
-        booking.setCustomerId(5);   // userId tồn tại
-        booking.setTourId(2);       // ví dụ: tour có sẵn
-        // booking.setCustomTourId(1); // nếu là tour tùy chỉnh thì gán cái này thay vì tourId
-
+//        BookingDao bookingDao = new BookingDao();
+//
+//        Booking booking = new Booking();
+//        booking.setCustomerId(5);   // userId tồn tại
+//        booking.setTourId(2);       // ví dụ: tour có sẵn
+//        // booking.setCustomTourId(1); // nếu là tour tùy chỉnh thì gán cái này thay vì tourId
+//
+//        try {
+//            Date departureDate = new SimpleDateFormat("yyyy-MM-dd").parse("2025-11-05");
+//            booking.setDepartureDate(departureDate);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//
+//        booking.setAdultQuantity(2);
+//        booking.setChildQuantity(1);
+//        booking.setTotalPrice(2500000);
+//        booking.setStatus("PENDING");
+//
+//        try {
+//            int id = bookingDao.createBooking(booking);
+//            System.out.println("✅ Tạo booking thành công. Booking ID: " + id);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            System.out.println("❌ Tạo booking thất bại: " + e.getMessage());
+//        }
         try {
-            Date departureDate = new SimpleDateFormat("yyyy-MM-dd").parse("2025-11-05");
-            booking.setDepartureDate(departureDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+            BookingDao bd = new BookingDao();
+            Bill b = bd.getBillByHistoryBooking(29);
 
-        booking.setAdultQuantity(2);
-        booking.setChildQuantity(1);
-        booking.setTotalPrice(2500000);
-        booking.setStatus("PENDING");
+            if (b != null) {
+                System.out.println("=== HÓA ĐƠN ===");
+                System.out.println(b.toString());
+            } else {
+                System.out.println("Không tìm thấy bill với paymentId = 29");
+            }
 
-        try {
-            int id = bookingDao.createBooking(booking);
-            System.out.println("✅ Tạo booking thành công. Booking ID: " + id);
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("❌ Tạo booking thất bại: " + e.getMessage());
         }
     }
 }

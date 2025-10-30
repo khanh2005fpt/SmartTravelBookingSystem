@@ -405,7 +405,6 @@ CREATE TABLE CustomTours (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
-
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 VALUES
 (1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', '2025-11-10', '2025-11-11', 3590000),
@@ -538,6 +537,28 @@ CREATE TABLE HistoryBooking (
     FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
 );
 
+SELECT 
+    hb.historyId,
+    hb.customerName AS fullname,
+    hb.customerPhone AS phone,
+    hb.createdAt,
+    t.tourName,
+    p.amount,
+    p.status AS paymentStatus
+FROM HistoryBooking hb
+JOIN Payments p ON hb.paymentId = p.paymentId
+JOIN Bookings b ON p.bookingId = b.bookingId
+LEFT JOIN Tours t ON b.tourId = t.tourId
+LEFT JOIN Users u ON hb.accountUserId = u.userId
+WHERE hb.historyId = 1;  -- hoặc lọc theo userId nếu muốn
+
+SELECT hb.paymentId, hb.customerName, hb.customerPhone, hb.createdAt, t.tourName, p.amount, p.status AS paymentStatus
+                  FROM HistoryBooking hb
+                  JOIN Payments p ON hb.paymentId = p.paymentId
+                  JOIN Bookings b ON p.bookingId = b.bookingId
+                  LEFT JOIN Tours t ON b.tourId = t.tourId
+                  WHERE hb.paymentId = 29
+select * from HistoryBooking
 
 GO
 

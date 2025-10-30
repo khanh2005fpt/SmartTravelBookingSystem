@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import model.Bill;
 import model.HistoryBooking;
 import model.Payment;
 
@@ -86,7 +87,8 @@ public class VnpayReturn extends HttpServlet {
 
                 payment.setStatus(isSuccess ? "Success" : "Failed");
                 int paymentId = bookingDao.createPayment(payment);
-
+                
+                Bill bill = null;
                 if (isSuccess) {
                     bookingDao.updateStatus(bookingId, "COMPLETED");
                     HistoryBooking hb = new HistoryBooking();
@@ -103,7 +105,10 @@ public class VnpayReturn extends HttpServlet {
                     hb.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
                     bookingDao.createHistoryBooking(hb);
+                    bill = bookingDao.getBillByHistoryBooking(paymentId);
                 }
+
+                request.setAttribute("bill", bill);
                 request.setAttribute("payment", payment);
                 request.setAttribute("result", isSuccess ? "Success" : "Failed");
                 request.getRequestDispatcher("views/booking/payment_result.jsp").forward(request, response);
