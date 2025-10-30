@@ -6,6 +6,7 @@
 package controller.staff.flight;
 
 import dao.ServiceDao;
+import jakarta.mail.Session;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -30,7 +31,7 @@ import model.User;
 public class FlightTicketStaffServlet extends HttpServlet {
    
    private ServiceDao serviceDao;
-    
+ 
     @Override
     public void init() throws ServletException {
         try {
@@ -68,6 +69,10 @@ public class FlightTicketStaffServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
+    
+    // khai bao class flightService
+  
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
@@ -93,26 +98,26 @@ if(session != null){
         try {
             switch (action) {
                 case "list":
-                    handleFlightList(request, response);
+                   handleFlightList(request, response);
                     break;
                 case "view":
-                    handleFlightDetail(request, response);
+                   handleFlightDetail(request, response);
                     break;
                 case "create":
                     handleCreateForm(request, response);
                     break;
                 case "edit":
-                    handleEditForm(request, response);
+                   handleEditForm(request, response);
                     break;
                 case "search":
-                    handleFlightSearch(request, response);
+                   handleFlightSearch(request, response);
                     break;
                 default:
-                    handleFlightList(request, response);
+                   handleFlightList(request, response);
                     break;
             }
         } catch (Exception e) {
-            handleError(request, response, "Error processing flight request: " + e.getMessage(), e);
+           handleError(request, response, "Error processing flight request: " + e.getMessage(), e);
         }
     } 
 
@@ -133,13 +138,13 @@ if(session != null){
         try {
             switch (action) {
                 case "list":
-                    handleFlightList(request, response);
+                   handleFlightList(request, response);
                     break;
                 case "view":
                     handleFlightDetail(request, response);
                     break;
                 case "create":
-                    handleCreateForm(request, response);
+                   handleCreateForm(request, response);
                     break;
                 case "edit":
                     handleEditForm(request, response);
@@ -148,7 +153,7 @@ if(session != null){
                     handleFlightSearch(request, response);
                     break;
                 default:
-                    handleFlightList(request, response);
+                   handleFlightList(request, response);
                     break;
             }
         } catch (Exception e) {
@@ -156,13 +161,22 @@ if(session != null){
         }
     }
 
-     /**
+       /**
+     * Layer flights service
+     */
+    
+
+         /**
      * Display list of all flights
      */
     private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+           HttpSession session = request.getSession();
         try {
             List<Flight> flights = serviceDao.getAllFlights();
+            List<Airlines> airlines = serviceDao.getAllAirlineNames();
+            session.setAttribute("airlineNames", airlines); 
+   
             request.setAttribute("flights", flights);
             request.setAttribute("pageTitle", "Flight Management");
             request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
@@ -267,36 +281,55 @@ if(session != null){
     /**
      * Handle flight search
      */
-    private void handleFlightSearch(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            String keyword = request.getParameter("keyword");
-            String islandIdStr = request.getParameter("islandId");
-            List<Flight> flights;
-            
-            if (islandIdStr != null && !islandIdStr.trim().isEmpty()) {
-                int islandId = Integer.parseInt(islandIdStr);
-                flights = serviceDao.getFlightsByIslandId(islandId);
-                request.setAttribute("searchIslandId", islandId);
-            } else {
-                flights = serviceDao.getAllFlights();
+  public void handleFlightSearch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    try {
+        // Lấy tham số từ form
+        String keyword = request.getParameter("search");
+        String airlineIdStr = request.getParameter("airlineId");
+        String priceRange = request.getParameter("priceRange");
+
+        // Chuyển airlineId sang Integer nếu hợp lệ, null nếu rỗng
+        Integer airlineId = null;
+        if (airlineIdStr != null && !airlineIdStr.isEmpty()) {
+            try {
+                airlineId = Integer.parseInt(airlineIdStr);
+            } catch (NumberFormatException e) {
+                
+                request.setAttribute("warning", "Hãng bay không hợp lệ, bỏ qua filter.");
+                request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
             }
-            
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                request.setAttribute("searchKeyword", keyword.trim());
-            }
-            
-            request.setAttribute("flights", flights);
-            request.setAttribute("pageTitle", "Flight Search Results");
-            request.getRequestDispatcher("/views/staff/flight-list.jsp").forward(request, response);
-            
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Invalid island ID format");
-            handleFlightList(request, response);
-        } catch (Exception e) {
-            handleError(request, response, "Error searching flights: " + e.getMessage(), e);
         }
+
+        // Kiểm tra priceRange hợp lệ, null hoặc rỗng cũng được
+        if (priceRange != null && !priceRange.isEmpty() && !priceRange.matches("\\d+-\\d+|\\d+\\+")) {
+            request.setAttribute("warning", "Khoảng giá không hợp lệ, bỏ qua filter.");
+            priceRange = null;
+        }
+
+        // Gọi DAO / service để tìm chuyến bay theo filter
+        List<Flight> flights = serviceDao.searchFlightTickets(keyword, airlineId, priceRange);
+
+        // Truyền dữ liệu sang JSP
+        request.setAttribute("flights", flights);
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("airlineId", airlineIdStr);
+        request.setAttribute("priceRange", priceRange);
+    
+        // Forward sang JSP danh sách chuyến bay
+        request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
+
+    } catch (Exception e) {
+      
+        e.printStackTrace();
+        // Forward sang trang error
+        request.setAttribute("message", "Lỗi khi tìm chuyến bay: " + e.getMessage());
+        request.setAttribute("exception", e);
+        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
     }
+}
+        
+        
+    
 
     /**
      * Handle create flight
@@ -658,8 +691,10 @@ private boolean isStaffAuthorized(HttpSession session, HttpServletRequest reques
         
         request.setAttribute("errorMessage", message);
         request.setAttribute("pageTitle", "Error");
-        request.getRequestDispatcher("/views/common/error.jsp").forward(request, response);
+        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
     }
+
+    
 
     @Override
     public String getServletInfo() {

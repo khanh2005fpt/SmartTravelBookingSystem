@@ -592,30 +592,6 @@ public class ServiceDao extends DBContext{
     }
    
    
-
-    public static void main(String[] args) {
-          ServiceDao dao = new   ServiceDao();
-
-        
-        int islandId = 1;
-      try{
-           List<FlightSchedule> flights = dao.getFlightSchedules(islandId, "Một chiều");
-           
-            System.out.println("=== DANH SÁCH CHUYẾN BAY ĐẾN ISLAND ID " + islandId + " ===");
-        for (FlightSchedule f : flights) {
-            System.out.println(f);
-        }
-
-        if (flights.isEmpty()) {
-            System.out.println("⚠️ Không có chuyến bay nào đến đảo này!");
-        }
-           
-           
-      }catch(Exception e){
-          System.out.println(e);
-      }
-    }
-
     // ==================== FLIGHT CRUD OPERATIONS ====================
 
     // CREATE - Them chuyen bay moi
@@ -986,7 +962,34 @@ public class ServiceDao extends DBContext{
         return list;
     }
 
-    // Tim kiem hang hang khong theo ten hoac ma IATA
+    // lây thong tin hang bay 
+    public List<Airlines> getAllAirlineNames() {
+        List<Airlines> list = new ArrayList<>();
+        String sql = """
+        SELECT MIN(airlineId) AS airlineId, airlineName
+        FROM Airlines
+        GROUP BY airlineName
+        ORDER BY airlineName
+    """;
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                list.add(airline);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    
+   /* 
+
+    //Tim kiem hang hang khong theo ten hoac ma IATA
     public List<Airlines> searchAirlines(String keyword) {
         List<Airlines> list = new ArrayList<>();
         String sql = "SELECT * FROM Airlines WHERE airlineName LIKE ? OR iataCode LIKE ? " +
@@ -1014,6 +1017,129 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
+    */
+    
+    public List<Flight> searchFlightTickets(String keyword, Integer airlineId, String priceRange) throws SQLException {
+    List<Flight> flights = new ArrayList<>();
+
+    StringBuilder sql = new StringBuilder(
+        "SELECT f.*, a.airlineId, a.airlineName, a.logoUrl " +
+        "FROM Flights f " +
+        "JOIN Airlines a ON f.airlineId = a.airlineId " +
+        "WHERE 1=1"
+    );
+
+    List<Object> params = new ArrayList<>();
+
+    //  1. Tìm kiếm theo keyword (departure / destination / flightNumber)
+if (keyword != null && !keyword.trim().isEmpty()) {
+    sql.append(" AND ("
+        + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+        + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+        + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+        + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+        + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
+        + ")");
+
+    String kw = "%" + keyword.trim() + "%";
+    // Thêm 5 lần vì có 5 cột cần tìm
+    params.add(kw);
+    params.add(kw);
+    params.add(kw);
+    params.add(kw);
+    params.add(kw);
+}
+
+
+    //  2. Lọc theo hãng bay
+    if (airlineId != null) {
+        sql.append(" AND f.airlineId = ?");
+        params.add(airlineId);
+    }
+
+    //  3. Lọc theo khoảng giá
+    if (priceRange != null && !priceRange.isEmpty()) {
+        if (priceRange.equals("5000000+")) {
+            sql.append(" AND f.basePrice > 5000000");
+        } else {
+            String[] range = priceRange.split("-");
+            sql.append(" AND f.basePrice BETWEEN ? AND ?");
+            //Gom giá trị thật vào params
+            params.add(Integer.parseInt(range[0]));
+            params.add(Integer.parseInt(range[1]));
+        }
+    }
+
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            // gán giá trị thật vào ?
+            ps.setObject(i +1, params.get(i));
+        }
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                //  Gắn hãng bay
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+
+                //  Gắn chuyến bay
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setAirline(airline);
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+                flight.setBasePrice(rs.getInt("basePrice"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                flights.add(flight);
+            }
+        }
+    }
+
+    return flights;
+}
+    
+     public static void main(String[] args) { 
+            ServiceDao dao = new  ServiceDao();
+        String keyword = "ha";           // test search theo keyword (vd: Hà Nội)
+        Integer airlineId = null;        // lọc tất cả hãng
+        String priceRange = null;  // lọc khoảng giá
+
+        try {
+            // ⚡️ Gọi hàm DAO
+            List<Flight> flights = dao.searchFlightTickets(keyword, airlineId, priceRange);
+
+            // 📋 In ra console để kiểm tra
+            if (flights.isEmpty()) {
+                System.out.println("❌ Không tìm thấy chuyến bay nào phù hợp!");
+            } else {
+                System.out.println("✅ Danh sách chuyến bay tìm thấy:");
+                for (Flight f : flights) {
+                    System.out.println("-------------------------------------------");
+                    System.out.println("✈️ Flight ID: " + f.getFlightId());
+                    System.out.println("📛 Tên chuyến bay: " + f.getFlightNumber());
+                    System.out.println("🛫 Điểm đi: " + f.getDeparture());
+                    System.out.println("🛬 Điểm đến: " + f.getDestination());
+                    System.out.println("💰 Giá vé: " + f.getBasePrice());
+                      System.out.println("💰 HẠNG VÉ: " + f.getFlightClass());
+                        System.out.println("💰 LOẠI vé: " + f.getFlightType());
+                        System.out.println("Anh : "+f.getDestinationImageUrl());
+                    System.out.println("🏢 Hãng bay: " + (f.getAirline() != null ? f.getAirline().getAirlineName() : "N/A"));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
 
     // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
 
@@ -1942,6 +2068,8 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
+    
+    
 }
     
 
