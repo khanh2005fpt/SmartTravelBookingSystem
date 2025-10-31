@@ -491,6 +491,7 @@
     <jsp:include page="../common/script.jsp" />
 
     <script>
+
         $(document).ready(function() {
             // Star rating functionality
             $('.star-rating label').on('click', function() {

@@ -226,13 +226,15 @@ if(session != null){
             throws ServletException, IOException {
         try {
             // Load airlines and islands for dropdowns
-             List<Airlines> airlines = serviceDao.getAllAirlineNames();
-           
+             List<Airlines> airlineNames = serviceDao.getAllAirlineNames();
+            List<Airlines> airlines = serviceDao.getAllAirlines();
             List<Island> islands = serviceDao.getAllIslands();
-           
-            request.setAttribute("airlineNames", airlines);
+           for(Airlines a : airlineNames){
+               System.out.println("name of airline:"+a.getAirlineName());
+           }
+            request.setAttribute("airlineNames", airlineNames);
             request.setAttribute("islands", islands);
-            
+            request.setAttribute("airlines", airlines);
             request.setAttribute("pageTitle", "Create New Flight");
             request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
         } catch (Exception e) {

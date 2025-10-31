@@ -864,7 +864,6 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, airline.getAirlineName());
             ps.setString(2, airline.getIataCode());
-            ps.setInt(3, airline.getCountryId());
             ps.setString(4, airline.getHotline());
             ps.setString(5, airline.getLogoUrl());
 
@@ -889,7 +888,6 @@ public class ServiceDao extends DBContext{
                 airline.setAirlineId(rs.getInt("airlineId"));
                 airline.setAirlineName(rs.getString("airlineName"));
                 airline.setIataCode(rs.getString("iataCode"));
-                airline.setCountryId(rs.getInt("countryId"));
                 airline.setHotline(rs.getString("hotline"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
 
@@ -909,7 +907,6 @@ public class ServiceDao extends DBContext{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, airline.getAirlineName());
             ps.setString(2, airline.getIataCode());
-            ps.setInt(3, airline.getCountryId());
             ps.setString(4, airline.getHotline());
             ps.setString(5, airline.getLogoUrl());
             ps.setInt(6, airline.getAirlineId());
@@ -938,7 +935,7 @@ public class ServiceDao extends DBContext{
     }
 
     // Lay tat ca hang hang khong
-    public List<Airlines> getAllAirlines() {
+    public List<Airlines> getAllAirlines() throws SQLException{
         List<Airlines> list = new ArrayList<>();
         String sql = "SELECT * FROM Airlines ORDER BY airlineName";
         try {
@@ -950,7 +947,6 @@ public class ServiceDao extends DBContext{
                 airline.setAirlineId(rs.getInt("airlineId"));
                 airline.setAirlineName(rs.getString("airlineName"));
                 airline.setIataCode(rs.getString("iataCode"));
-                airline.setCountryId(rs.getInt("countryId"));
                 airline.setHotline(rs.getString("hotline"));
                 airline.setLogoUrl(rs.getString("logoUrl"));
 
@@ -963,7 +959,7 @@ public class ServiceDao extends DBContext{
     }
 
     // lây thong tin hang bay 
-    public List<Airlines> getAllAirlineNames() {
+    public List<Airlines> getAllAirlineNames() throws SQLException{
         List<Airlines> list = new ArrayList<>();
         String sql = """
         SELECT MIN(airlineId) AS airlineId, airlineName
@@ -1113,26 +1109,17 @@ if (keyword != null && !keyword.trim().isEmpty()) {
 
         try {
             // ⚡️ Gọi hàm DAO
-            List<Flight> flights = dao.searchFlightTickets(keyword, airlineId, priceRange);
-
-            // 📋 In ra console để kiểm tra
-            if (flights.isEmpty()) {
-                System.out.println("❌ Không tìm thấy chuyến bay nào phù hợp!");
-            } else {
-                System.out.println("✅ Danh sách chuyến bay tìm thấy:");
-                for (Flight f : flights) {
-                    System.out.println("-------------------------------------------");
-                    System.out.println("✈️ Flight ID: " + f.getFlightId());
-                    System.out.println("📛 Tên chuyến bay: " + f.getFlightNumber());
-                    System.out.println("🛫 Điểm đi: " + f.getDeparture());
-                    System.out.println("🛬 Điểm đến: " + f.getDestination());
-                    System.out.println("💰 Giá vé: " + f.getBasePrice());
-                      System.out.println("💰 HẠNG VÉ: " + f.getFlightClass());
-                        System.out.println("💰 LOẠI vé: " + f.getFlightType());
-                        System.out.println("Anh : "+f.getDestinationImageUrl());
-                    System.out.println("🏢 Hãng bay: " + (f.getAirline() != null ? f.getAirline().getAirlineName() : "N/A"));
+            List<Airlines> airline = dao.getAllAirlines();
+            
+            if(airline.isEmpty()){
+                  System.out.println("❌ Không tìm thấy mã code bay nào phù hợp!");
+            }else{
+                for(Airlines a : airline){
+                    System.out.println("itaCode :"+a.getIataCode());
                 }
             }
+            
+        
 
         } catch (SQLException e) {
             e.printStackTrace();
