@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -226,13 +227,8 @@ if(session != null){
             throws ServletException, IOException {
         try {
             // Load airlines and islands for dropdowns
-             List<Airlines> airlineNames = serviceDao.getAllAirlineNames();
             List<Airlines> airlines = serviceDao.getAllAirlines();
             List<Island> islands = serviceDao.getAllIslands();
-           for(Airlines a : airlineNames){
-               System.out.println("name of airline:"+a.getAirlineName());
-           }
-            request.setAttribute("airlineNames", airlineNames);
             request.setAttribute("islands", islands);
             request.setAttribute("airlines", airlines);
             request.setAttribute("pageTitle", "Create New Flight");
@@ -341,7 +337,7 @@ if(session != null){
     private void handleCreateFlight(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Validate input
+            // Validate input (nếu !false thì xử lý bên trong)
             if (!validateFlightInput(request)) {
                 List<Airlines> airlines = serviceDao.getAllAirlines();
                 List<Island> islands = serviceDao.getAllIslands();
@@ -540,111 +536,115 @@ if(session != null){
      * 
      */
     private boolean validateFlightInput(HttpServletRequest request) {
-        boolean isValid = true;
-        
-        String flightNumber = request.getParameter("flightNumber");
-        if (flightNumber == null || flightNumber.trim().isEmpty()) {
-            request.setAttribute("errorFlightNumber", "Flight number is required");
+       boolean isValid = true;
+
+    String flightNumber = request.getParameter("flightNumber");
+    if (flightNumber == null || flightNumber.trim().isEmpty()) {
+        request.setAttribute("errorFlightNumber", "Flight number is required");
+        isValid = false;
+    }
+
+    String airlineIdStr = request.getParameter("airlineId");
+    if (airlineIdStr == null || airlineIdStr.trim().isEmpty()) {
+        request.setAttribute("errorAirlineId", "Airline is required");
+        isValid = false;
+    } else {
+        try {
+            Integer.parseInt(airlineIdStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorAirlineId", "Invalid airline selection");
             isValid = false;
         }
-        
-        String airlineIdStr = request.getParameter("airlineId");
-        if (airlineIdStr == null || airlineIdStr.trim().isEmpty()) {
-            request.setAttribute("errorAirlineId", "Airline is required");
+    }
+
+    String departure = request.getParameter("departure");
+    if (departure == null || departure.trim().isEmpty()) {
+        request.setAttribute("errorDeparture", "Departure location is required");
+        isValid = false;
+    }
+
+    String destinationIslandIdStr = request.getParameter("destinationIslandId");
+    if (destinationIslandIdStr == null || destinationIslandIdStr.trim().isEmpty()) {
+        request.setAttribute("errorDestinationIslandId", "Destination island is required");
+        isValid = false;
+    } else {
+        try {
+            Integer.parseInt(destinationIslandIdStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorDestinationIslandId", "Invalid destination island selection");
+            isValid = false;
+        }
+    }
+
+    String basePriceStr = request.getParameter("basePrice");
+    if (basePriceStr == null || basePriceStr.trim().isEmpty()) {
+        request.setAttribute("errorBasePrice", "Base price is required");
+        isValid = false;
+    } else {
+        try {
+            int basePrice = Integer.parseInt(basePriceStr);
+            if (basePrice <= 0) {
+                request.setAttribute("errorBasePrice", "Base price must be greater than 0");
+                isValid = false;
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorBasePrice", "Invalid base price format");
+            isValid = false;
+        }
+    }
+
+    String ticketAvailableStr = request.getParameter("ticketAvailable");
+    if (ticketAvailableStr == null || ticketAvailableStr.trim().isEmpty()) {
+        request.setAttribute("errorTicketAvailable", "Ticket availability is required");
+        isValid = false;
+    } else {
+        try {
+            int ticketAvailable = Integer.parseInt(ticketAvailableStr);
+            if (ticketAvailable < 0) {
+                request.setAttribute("errorTicketAvailable", "Ticket availability cannot be negative");
+                isValid = false;
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorTicketAvailable", "Invalid ticket availability format");
+            isValid = false;
+        }
+    }
+
+    String flightType = request.getParameter("flightType");
+    if (flightType == null || flightType.trim().isEmpty()) {
+        request.setAttribute("errorFlightType", "Flight type is required");
+        isValid = false;
+    }
+
+    String flightClass = request.getParameter("flightClass");
+    if (flightClass == null || flightClass.trim().isEmpty()) {
+        request.setAttribute("errorFlightClass", "Flight class is required");
+        isValid = false;
+    }
+    
+    // ----- Validate ảnh đảo du lịch -----
+       Part imagePart = null;
+        try {
+            imagePart = request.getPart("flightImageFile");
+        } catch (Exception e) {
+            request.setAttribute("errorFlightImage", "Error reading uploaded file");
+            isValid = false;
+        }
+
+        if (imagePart == null || imagePart.getSize() == 0) {
+            request.setAttribute("errorFlightImage", "Flight image is required");
             isValid = false;
         } else {
-            try {
-                Integer.parseInt(airlineIdStr);
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorAirlineId", "Invalid airline selection");
+            // Kiểm tra loại file
+            String contentType = imagePart.getContentType();
+            if (!contentType.startsWith("image/")) {
+                request.setAttribute("errorFlightImage", "Invalid file type. Please upload an image.");
                 isValid = false;
             }
         }
-        
-        String departure = request.getParameter("departure");
-        if (departure == null || departure.trim().isEmpty()) {
-            request.setAttribute("errorDeparture", "Departure location is required");
-            isValid = false;
-        }
-        
-        String destination = request.getParameter("destination");
-        if (destination == null || destination.trim().isEmpty()) {
-            request.setAttribute("errorDestination", "Destination is required");
-            isValid = false;
-        }
-        
-        String basePriceStr = request.getParameter("basePrice");
-        if (basePriceStr == null || basePriceStr.trim().isEmpty()) {
-            request.setAttribute("errorBasePrice", "Base price is required");
-            isValid = false;
-        } else {
-            try {
-                int basePrice = Integer.parseInt(basePriceStr);
-                if (basePrice <= 0) {
-                    request.setAttribute("errorBasePrice", "Base price must be greater than 0");
-                    isValid = false;
-                }
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorBasePrice", "Invalid base price format");
-                isValid = false;
-            }
-        }
-        
-        String ticketAvailableStr = request.getParameter("ticketAvailable");
-        if (ticketAvailableStr == null || ticketAvailableStr.trim().isEmpty()) {
-            request.setAttribute("errorTicketAvailable", "Ticket availability is required");
-            isValid = false;
-        } else {
-            try {
-                int ticketAvailable = Integer.parseInt(ticketAvailableStr);
-                if (ticketAvailable < 0) {
-                    request.setAttribute("errorTicketAvailable", "Ticket availability cannot be negative");
-                    isValid = false;
-                }
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorTicketAvailable", "Invalid ticket availability format");
-                isValid = false;
-            }
-        }
-        
-        String flightType = request.getParameter("flightType");
-        if (flightType == null || flightType.trim().isEmpty()) {
-            request.setAttribute("errorFlightType", "Flight type is required");
-            isValid = false;
-        }
-        
-        String flightClass = request.getParameter("flightClass");
-        if (flightClass == null || flightClass.trim().isEmpty()) {
-            request.setAttribute("errorFlightClass", "Flight class is required");
-            isValid = false;
-        }
-        
-        
-         // validate flight schedule 
-      /*  
-   
-        // Validate time formats if provided
-        String departureTime = request.getParameter("departureTime");
-        if (departureTime != null && !departureTime.trim().isEmpty()) {
-            try {
-                LocalTime.parse(departureTime);
-            } catch (DateTimeParseException e) {
-                request.setAttribute("errorDepartureTime", "Invalid departure time format (HH:MM)");
-                isValid = false;
-            }
-        }
-        
-        String arrivalTime = request.getParameter("arrivalTime");
-        if (arrivalTime != null && !arrivalTime.trim().isEmpty()) {
-            try {
-                LocalTime.parse(arrivalTime);
-            } catch (DateTimeParseException e) {
-                request.setAttribute("errorArrivalTime", "Invalid arrival time format (HH:MM)");
-                isValid = false;
-            }
-        }
-        */
-        return isValid;
+
+
+    return isValid;
     }
 
     /**

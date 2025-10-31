@@ -95,23 +95,6 @@ BEGIN
 END;
 GO
 -- Bảng UserEmails
-CREATE TABLE UserEmails (
-    emailId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    email NVARCHAR(100) NOT NULL,
-    isPrimary BIT DEFAULT 0, -- Đánh dấu là email chính
-    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
-);
-go
-
-
-CREATE TABLE UserPhones (
-    phoneId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    phoneNumber NVARCHAR(20) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
-);
-
 
 
 CREATE TABLE Countries (
@@ -183,28 +166,7 @@ CREATE TABLE Hotels (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
--- Bảng Restaurants
-CREATE TABLE Restaurants (
-    restaurantId INT IDENTITY(1,1) PRIMARY KEY,
-    islandId INT NOT NULL,
-    restaurantName NVARCHAR(100) NOT NULL,
-    address NVARCHAR(255),
-    description NVARCHAR(MAX),
-    cuisineType NVARCHAR(50) NOT NULL
-        CHECK (cuisineType IN (N'Việt Nam', N'Thái Lan', N'Nhật Bản', N'Hàn Quốc', N'Trung Quốc', N'Ý', N'Pháp', N'Hải sản', N'Chay', N'Quốc tế', N'Khác')),
-    priceRange NVARCHAR(20) NOT NULL
-        CHECK (priceRange IN (N'Bình dân', N'Trung bình', N'Cao cấp', N'Sang trọng')),
-    rating DECIMAL(3,1) CHECK (rating >= 0 AND rating <= 5),
-    openTime TIME,
-    closeTime TIME,
-    openingHours NVARCHAR(100), -- giờ mở cửa dạng text (ví dụ: "08:00 - 22:00")
-    capacity INT CHECK (capacity > 0),
-    phoneNumber NVARCHAR(20),
-    restaurantImageUrl VARCHAR(255), -- đường dẫn ảnh nhà hàng
-    specialties NVARCHAR(MAX), -- món đặc sản của nhà hàng
-    isActive BIT DEFAULT 1, -- 1: hoạt động, 0: tạm đóng
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-);
+
 
 -- bảng Arlines : các hãng bay
 CREATE TABLE Airlines (
