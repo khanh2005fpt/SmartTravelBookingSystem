@@ -414,7 +414,7 @@
                                 </div>
 
                                 <!-- input ẩn để lưu iataCode -->
-                                <input type="hidden" id="flightNumber" name="iataCode" />
+                                <input type="hidden" id="flightNumber" name="flightNumber"/>
 
 
                                 <div class="form-group">
@@ -497,7 +497,7 @@
                                                    value="${flight != null ? flight.basePrice : param.basePrice}"
                                                    placeholder="0"
                                                    min="0"
-                                                   step="1000"
+                                                   step="1000000"
                                                    required>
                                         </div>
                                         <!-- hien thi loi khi validate o ben server -->  

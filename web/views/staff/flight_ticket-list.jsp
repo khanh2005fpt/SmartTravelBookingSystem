@@ -515,5 +515,43 @@
                 });
             });
         </script>
+        
+        <!-- Modal thông báo tạo chuyến bay thành công -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- căn giữa theo chiều dọc -->
+    <div class="modal-content text-center shadow-lg border-0"> <!-- căn giữa nội dung -->
+      <div class="modal-header bg-success text-white justify-content-center">
+        <h5 class="modal-title fw-bold" id="successModalLabel">🎉 Tạo vé máy bay thành công!</h5>
+      </div>
+      <div class="modal-body fs-5">
+        ✈️ Vé máy bay mới của bạn đã được tạo thành công trong hệ thống!<br>
+        <strong>ID chuyến bay:</strong> ${param.flightId}
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-success px-4" id="btnOk" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script kiểm tra nếu có ?success=created thì bật modal -->
+<c:if test="${param.success == 'created'}">
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const modal = new bootstrap.Modal(document.getElementById('successModal'));
+      modal.show();
+      
+      // Khi nhấn nút OK thì đóng modal
+    document.getElementById("btnOk").addEventListener("click", function() {
+      modal.hide();
+    });
+      
+    });
+  </script>
+</c:if>
+        
+        
+        
+        
     </body>
 </html>

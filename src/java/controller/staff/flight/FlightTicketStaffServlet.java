@@ -10,12 +10,20 @@ import jakarta.mail.Session;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -29,6 +37,12 @@ import model.User;
  * @author nqagh
  */
 @WebServlet(name="FlightTicketStaffServlet", urlPatterns={"/staff/flight/tickets"})
+
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 1,  // 1MB: temporary storage in memory before writing to file
+    maxFileSize = 1024 * 1024 * 10,       // 10MB: maximum file size
+    maxRequestSize = 1024 * 1024 * 50     // 50MB: total request size
+)
 public class FlightTicketStaffServlet extends HttpServlet {
    
    private ServiceDao serviceDao;
@@ -101,9 +115,7 @@ if(session != null){
                 case "list":
                    handleFlightList(request, response);
                     break;
-                case "view":
-                   handleFlightDetail(request, response);
-                    break;
+              
                 case "create":
                     handleCreateForm(request, response);
                     break;
@@ -141,9 +153,7 @@ if(session != null){
                 case "list":
                    handleFlightList(request, response);
                     break;
-                case "view":
-                    handleFlightDetail(request, response);
-                    break;
+           
                 case "create":
                    handleCreateFlight(request, response);
                     break;
@@ -189,37 +199,7 @@ if(session != null){
     /**
      * Display flight details
      */
-    private void handleFlightDetail(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            String flightIdStr = request.getParameter("id");
-            if (flightIdStr == null || flightIdStr.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "Flight ID is required");
-                handleFlightList(request, response);
-                return;
-            }
-            
-            int flightId = Integer.parseInt(flightIdStr);
-            Flight flight = serviceDao.getFlightById(flightId);
-            
-            if (flight == null) {
-                request.setAttribute("errorMessage", "Flight not found");
-                handleFlightList(request, response);
-                return;
-            }
-            
-            request.setAttribute("flight", flight);
-            request.setAttribute("pageTitle", "Flight Details - " + flight.getFlightNumber());
-            request.getRequestDispatcher("/views/staff/flight-detail.jsp").forward(request, response);
-            
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Invalid flight ID format");
-            handleFlightList(request, response);
-        } catch (Exception e) {
-            handleError(request, response, "Error loading flight details: " + e.getMessage(), e);
-        }
-    }
-
+  
     /**
      * Display create flight form
      */
@@ -344,18 +324,31 @@ if(session != null){
                 request.setAttribute("airlines", airlines);
                 request.setAttribute("islands", islands);
                 request.setAttribute("pageTitle", "Create New Flight");
-                request.getRequestDispatcher("/views/staff/flight-form.jsp").forward(request, response);
+                request.setAttribute("errorMessage", "Failed to create flight. Please try again.");
+                request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
                 return;
             }
-            
+
             // Create flight object
-            Flight flight = createFlightFromRequest(request);
-            
+            Flight flight = createFlightFromRequest(request);// catch exeptions
+
+            // check ton tai chuyen bay
+            if (serviceDao.isFlightExist(flight)) {
+                request.setAttribute("error", "vé máy bay này đã tồn tại trong hệ thống!");
+                request.setAttribute("action", "create");
+                List<Airlines> airlines = serviceDao.getAllAirlines();
+                List<Island> islands = serviceDao.getAllIslands();
+                request.setAttribute("airlines", airlines);
+                request.setAttribute("islands", islands);
+                request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
+                return;
+            }
             // Save flight
-            boolean success = serviceDao.createFlight(flight);
-            
-            if (success) {
-                response.sendRedirect(request.getContextPath() + "/staff/flights?success=created");
+            int newFlightId = serviceDao.createFlight(flight);
+
+            if (newFlightId > 0) {
+
+                response.sendRedirect(request.getContextPath() + "/staff/flight/tickets?action=list&success=created&flightId=" + newFlightId);
             } else {
                 request.setAttribute("errorMessage", "Failed to create flight. Please try again.");
                 List<Airlines> airlines = serviceDao.getAllAirlines();
@@ -363,13 +356,160 @@ if(session != null){
                 request.setAttribute("airlines", airlines);
                 request.setAttribute("islands", islands);
                 request.setAttribute("pageTitle", "Create New Flight");
-                request.getRequestDispatcher("/views/staff/flight-form.jsp").forward(request, response);
+                request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
             }
-            
+
         } catch (Exception e) {
             handleError(request, response, "Error creating flight: " + e.getMessage(), e);
         }
     }
+    /**
+     * Create flight object from request parameters
+     */
+    private Flight createFlightFromRequest(HttpServletRequest request) throws IOException, ServletException, SQLException {
+        Flight flight = new Flight();
+
+        flight.setFlightNumber(request.getParameter("flightNumber"));
+        flight.setDeparture(request.getParameter("departure"));
+
+        // Set destination island
+        String destinationIslandIdStr = request.getParameter("destinationIslandId");
+        if (destinationIslandIdStr != null && !destinationIslandIdStr.trim().isEmpty()) {
+            int islandId = Integer.parseInt(destinationIslandIdStr);
+            Island island = serviceDao.getIslandById(islandId);
+            flight.setDestinationIsland(island);
+            flight.setDestination(island.getIslandName());
+        }
+
+        flight.setBasePrice(Integer.parseInt(request.getParameter("basePrice")));
+        flight.setTicketAvailable(Integer.parseInt(request.getParameter("ticketAvailable")));
+        flight.setFlightType(request.getParameter("flightType"));
+        flight.setFlightClass(request.getParameter("flightClass"));
+
+        // Set airline
+        Airlines airline = new Airlines();
+        airline.setAirlineId(Integer.parseInt(request.getParameter("airlineId")));
+        flight.setAirline(airline);
+
+        // Handle file upload
+        Part filePart = request.getPart("flightImageFile");
+        if (filePart != null && filePart.getSize() > 0) {
+            String originalName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
+            String ext = originalName.substring(originalName.lastIndexOf("."));
+            String uniqueName = "flight_" + System.currentTimeMillis() + ext;
+
+            String uploadDir = getServletContext().getRealPath("") + File.separator + "UploadData" + File.separator + "Flights";
+            File uploadPath = new File(uploadDir);
+            if (!uploadPath.exists()) {
+                uploadPath.mkdirs();
+            }
+
+            Path filePath = Paths.get(uploadDir, uniqueName);
+            try (InputStream input = filePart.getInputStream()) {
+                Files.copy(input, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            flight.setDestinationImageUrl("UploadData/Flights/" + uniqueName);
+        }
+
+        return flight;
+    }
+    
+      /**
+     * Validate flight input
+     * 
+     * 
+     */
+    private boolean validateFlightInput(HttpServletRequest request) {
+       boolean isValid = true;
+
+    String flightNumber = request.getParameter("flightNumber");
+    if (flightNumber == null || flightNumber.trim().isEmpty()) {
+        request.setAttribute("errorFlightNumber", "Flight number is required");
+        isValid = false;
+    }
+
+    String airlineIdStr = request.getParameter("airlineId");
+    if (airlineIdStr == null || airlineIdStr.trim().isEmpty()) {
+        request.setAttribute("errorAirlineId", "Airline is required");
+        isValid = false;
+    } else {
+        try {
+            Integer.parseInt(airlineIdStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorAirlineId", "Invalid airline selection");
+            isValid = false;
+        }
+    }
+
+    String departure = request.getParameter("departure");
+    if (departure == null || departure.trim().isEmpty()) {
+        request.setAttribute("errorDeparture", "Departure location is required");
+        isValid = false;
+    }
+
+    String destinationIslandIdStr = request.getParameter("destinationIslandId");
+    if (destinationIslandIdStr == null || destinationIslandIdStr.trim().isEmpty()) {
+        request.setAttribute("errorDestinationIslandId", "Destination island is required");
+        isValid = false;
+    } else {
+        try {
+            Integer.parseInt(destinationIslandIdStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorDestinationIslandId", "Invalid destination island selection");
+            isValid = false;
+        }
+    }
+
+    String basePriceStr = request.getParameter("basePrice");
+    if (basePriceStr == null || basePriceStr.trim().isEmpty()) {
+        request.setAttribute("errorBasePrice", "Base price is required");
+        isValid = false;
+    } else {
+        try {
+            int basePrice = Integer.parseInt(basePriceStr);
+            if (basePrice <= 0) {
+                request.setAttribute("errorBasePrice", "Base price must be greater than 0");
+                isValid = false;
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorBasePrice", "Invalid base price format");
+            isValid = false;
+        }
+    }
+
+    String ticketAvailableStr = request.getParameter("ticketAvailable");
+    if (ticketAvailableStr == null || ticketAvailableStr.trim().isEmpty()) {
+        request.setAttribute("errorTicketAvailable", "Ticket availability is required");
+        isValid = false;
+    } else {
+        try {
+            int ticketAvailable = Integer.parseInt(ticketAvailableStr);
+            if (ticketAvailable < 0) {
+                request.setAttribute("errorTicketAvailable", "Ticket availability cannot be negative");
+                isValid = false;
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorTicketAvailable", "Invalid ticket availability format");
+            isValid = false;
+        }
+    }
+
+    String flightType = request.getParameter("flightType");
+    if (flightType == null || flightType.trim().isEmpty()) {
+        request.setAttribute("errorFlightType", "Flight type is required");
+        isValid = false;
+    }
+
+    String flightClass = request.getParameter("flightClass");
+    if (flightClass == null || flightClass.trim().isEmpty()) {
+        request.setAttribute("errorFlightClass", "Flight class is required");
+        isValid = false;
+    }
+   
+    return isValid;
+    }
+
 
     /**
      * Handle update flight
@@ -478,175 +618,7 @@ if(session != null){
         }
     }
 
-    /**
-     * Create flight object from request parameters
-     */
-    private Flight createFlightFromRequest(HttpServletRequest request) {
-        Flight flight = new Flight();
-        
-        flight.setFlightNumber(request.getParameter("flightNumber"));
-        flight.setDeparture(request.getParameter("departure"));
-        flight.setDestination(request.getParameter("destination"));
-        flight.setBasePrice(Integer.parseInt(request.getParameter("basePrice")));
-        flight.setTicketAvailable(Integer.parseInt(request.getParameter("ticketAvailable")));
-        flight.setFlightType(request.getParameter("flightType"));
-        flight.setFlightClass(request.getParameter("flightClass"));
-        flight.setDestinationImageUrl(request.getParameter("destinationImageUrl"));
-        
-        // Set airline
-        Airlines airline = new Airlines();
-        airline.setAirlineId(Integer.parseInt(request.getParameter("airlineId")));
-        flight.setAirline(airline);
-        
-        // Set destination island if provided
-        String destinationIslandIdStr = request.getParameter("destinationIslandId");
-        if (destinationIslandIdStr != null && !destinationIslandIdStr.trim().isEmpty()) {
-            Island island = new Island();
-            island.setIslandId(Integer.parseInt(destinationIslandIdStr));
-            flight.setDestinationIsland(island);
-        }
-        
-        // Set times if provided
-        String departureTime = request.getParameter("departureTime");
-        if (departureTime != null && !departureTime.trim().isEmpty()) {
-            flight.setDepartureTime(LocalTime.parse(departureTime));
-        }
-        
-        String arrivalTime = request.getParameter("arrivalTime");
-        if (arrivalTime != null && !arrivalTime.trim().isEmpty()) {
-            flight.setArrivalTime(LocalTime.parse(arrivalTime));
-        }
-        
-        String returnDepartureTime = request.getParameter("returnDepartureTime");
-        if (returnDepartureTime != null && !returnDepartureTime.trim().isEmpty()) {
-            flight.setReturnDepartureTime(LocalTime.parse(returnDepartureTime));
-        }
-        
-        String returnArrivalTime = request.getParameter("returnArrivalTime");
-        if (returnArrivalTime != null && !returnArrivalTime.trim().isEmpty()) {
-            flight.setReturnArrivalTime(LocalTime.parse(returnArrivalTime));
-        }
-        
-        return flight;
-    }
-
-    /**
-     * Validate flight input
-     * 
-     * 
-     */
-    private boolean validateFlightInput(HttpServletRequest request) {
-       boolean isValid = true;
-
-    String flightNumber = request.getParameter("flightNumber");
-    if (flightNumber == null || flightNumber.trim().isEmpty()) {
-        request.setAttribute("errorFlightNumber", "Flight number is required");
-        isValid = false;
-    }
-
-    String airlineIdStr = request.getParameter("airlineId");
-    if (airlineIdStr == null || airlineIdStr.trim().isEmpty()) {
-        request.setAttribute("errorAirlineId", "Airline is required");
-        isValid = false;
-    } else {
-        try {
-            Integer.parseInt(airlineIdStr);
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorAirlineId", "Invalid airline selection");
-            isValid = false;
-        }
-    }
-
-    String departure = request.getParameter("departure");
-    if (departure == null || departure.trim().isEmpty()) {
-        request.setAttribute("errorDeparture", "Departure location is required");
-        isValid = false;
-    }
-
-    String destinationIslandIdStr = request.getParameter("destinationIslandId");
-    if (destinationIslandIdStr == null || destinationIslandIdStr.trim().isEmpty()) {
-        request.setAttribute("errorDestinationIslandId", "Destination island is required");
-        isValid = false;
-    } else {
-        try {
-            Integer.parseInt(destinationIslandIdStr);
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorDestinationIslandId", "Invalid destination island selection");
-            isValid = false;
-        }
-    }
-
-    String basePriceStr = request.getParameter("basePrice");
-    if (basePriceStr == null || basePriceStr.trim().isEmpty()) {
-        request.setAttribute("errorBasePrice", "Base price is required");
-        isValid = false;
-    } else {
-        try {
-            int basePrice = Integer.parseInt(basePriceStr);
-            if (basePrice <= 0) {
-                request.setAttribute("errorBasePrice", "Base price must be greater than 0");
-                isValid = false;
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorBasePrice", "Invalid base price format");
-            isValid = false;
-        }
-    }
-
-    String ticketAvailableStr = request.getParameter("ticketAvailable");
-    if (ticketAvailableStr == null || ticketAvailableStr.trim().isEmpty()) {
-        request.setAttribute("errorTicketAvailable", "Ticket availability is required");
-        isValid = false;
-    } else {
-        try {
-            int ticketAvailable = Integer.parseInt(ticketAvailableStr);
-            if (ticketAvailable < 0) {
-                request.setAttribute("errorTicketAvailable", "Ticket availability cannot be negative");
-                isValid = false;
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorTicketAvailable", "Invalid ticket availability format");
-            isValid = false;
-        }
-    }
-
-    String flightType = request.getParameter("flightType");
-    if (flightType == null || flightType.trim().isEmpty()) {
-        request.setAttribute("errorFlightType", "Flight type is required");
-        isValid = false;
-    }
-
-    String flightClass = request.getParameter("flightClass");
-    if (flightClass == null || flightClass.trim().isEmpty()) {
-        request.setAttribute("errorFlightClass", "Flight class is required");
-        isValid = false;
-    }
-    
-    // ----- Validate ảnh đảo du lịch -----
-       Part imagePart = null;
-        try {
-            imagePart = request.getPart("flightImageFile");
-        } catch (Exception e) {
-            request.setAttribute("errorFlightImage", "Error reading uploaded file");
-            isValid = false;
-        }
-
-        if (imagePart == null || imagePart.getSize() == 0) {
-            request.setAttribute("errorFlightImage", "Flight image is required");
-            isValid = false;
-        } else {
-            // Kiểm tra loại file
-            String contentType = imagePart.getContentType();
-            if (!contentType.startsWith("image/")) {
-                request.setAttribute("errorFlightImage", "Invalid file type. Please upload an image.");
-                isValid = false;
-            }
-        }
-
-
-    return isValid;
-    }
-
+   
     /**
      * Check if user is authorized staff member
      */
