@@ -94,6 +94,20 @@ public class CreateCustomTourController extends HttpServlet {
             String selectedPlaces = request.getParameter("selectedPlaceId");
             String startDateStr = request.getParameter("startDate");
             String endDateStr = request.getParameter("endDate");
+            String flightTypeRaw = request.getParameter("flightType");
+            
+            String flightType;
+            switch (flightTypeRaw.toLowerCase()) {
+                case "motchieu":
+                    flightType = "Một chiều";
+                    break;
+                case "khuhoi":
+                    flightType = "Khứ hồi";
+                    break;
+                default:
+                    response.sendRedirect(request.getContextPath() + "/IslandDetailController");
+                    return;
+            }
             int id = Integer.parseInt(islandIdStr);
 
             // Kiểm tra các tham số bắt buộc
@@ -104,12 +118,12 @@ public class CreateCustomTourController extends HttpServlet {
             // Bat buoc muon tao tour phai chon khach san va chuyen bay
             if (hotelIdStr == null || hotelIdStr.isEmpty()) {
                 request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
             if (flightIdStr == null || flightIdStr.isEmpty()) {
                 request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
 
@@ -142,19 +156,19 @@ public class CreateCustomTourController extends HttpServlet {
             LocalDate today = LocalDate.now();
             if (startDate.isBefore(today)) {
                 request.getSession().setAttribute("errorMessage", "Ngày bắt đầu không thể trước ngày hiện tại.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
 
             if (startDate.isBefore(today.plusDays(3))) {
                 request.getSession().setAttribute("errorMessage", "Ngày bắt đầu phải sau ít nhất 3 ngày kể từ hôm nay.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
 
             if (endDate.isBefore(startDate)) {
                 request.getSession().setAttribute("errorMessage", "Ngày kết thúc không thể trước ngày bắt đầu.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
 
@@ -162,7 +176,7 @@ public class CreateCustomTourController extends HttpServlet {
 
             if (numberOfDays > 7) {
                 request.getSession().setAttribute("errorMessage", "Người dùng không được đặt thời gian quá 7 ngày.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
             // Lấy giá dịch vụ

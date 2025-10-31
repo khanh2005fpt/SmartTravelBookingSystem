@@ -142,7 +142,7 @@
                     </c:if>
 
                     <input type="hidden" name="islandId" value="${island.islandId}">
-
+                    <input type="hidden" name="flightType" value="${flightType}">
                     <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
                     <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
                         🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
