@@ -376,11 +376,10 @@
                       id="flight_ticketForm" 
                       novalidate>
                     <input type="hidden" name="action" value="${empty flight ? 'create' : 'update'}">
-
-
-                    <c:if test="${not empty errorsflight}">
-                        <input type="hidden" name="id" value="${errors.flightId}">
-                    </c:if>
+                  
+                      <c:if test="${flight != null}">
+                      <input type="hidden" name="id" value="${flight.flightId}">
+                       </c:if>
 
                     <div class="form-content">
                         <!-- Basic Information Section -->
@@ -398,9 +397,13 @@
                                             required>
                                         <option value="">Chọn Mã chuyến bay ...</option>
                                         <c:forEach var="airline" items="${airlines}">
-                                            <option value="${airline.airlineId}" data-iata="${airline.iataCode}">
-                                                ${airline.iataCode} - ${airline.airlineName}
-                                            </option>
+                                            <option value="${airline.airlineId}"
+                                                    data-iata="${airline.iataCode}"
+                                                    ${ (flight != null && flight.airline.airlineId == airline.airlineId)
+                                                       || param.airlineId == airline.airlineId ? 'selected' : '' }>
+                                                        ${airline.iataCode} - ${airline.airlineName}
+                                                    </option>
+
                                         </c:forEach>
                                     </select>
                                     <!-- hien thi loi khi validate o ben server -->      
@@ -423,8 +426,8 @@
                                         <option value="">Chọn đảo...</option>
                                         <c:forEach var="island" items="${islands}">
                                             <option value="${island.islandId}"
-                                                    ${ (not empty flight and flight.destinationIslandId == island.islandId)
-                                                       or (param.destinationIslandId == island.islandId)
+                                                    ${ (flight!=null && flight.destinationIsland.islandId == island.islandId)
+                                                       || param.destinationIslandId == island.islandId
                                                        ? 'selected' : '' }>
                                                         ${island.islandName}
                                                     </option>
@@ -460,7 +463,7 @@
                                                class="form-control" 
                                                id="ticketAvailable" 
                                                name="ticketAvailable" 
-                                               value="${flight.ticketAvailable}"
+                                               value="${flight !=null ? flight.ticketAvailable:param.ticketAvailable}"
                                                placeholder="Nhập số lượng vé">
 
                                         <!-- hien thi loi khi validate o ben server -->  
@@ -514,28 +517,29 @@
                                         <label for="flightType">Loại chuyến bay</label>
                                         <select class="form-control" id="flightType" name="flightType" required>
                                             <option value="">-- Chọn loại chuyến bay --</option>
-                                            <option value="Một chiều" ${param.flightType == 'Một chiều' ? 'selected' : ''}>Một chiều</option>
-                                            <option value="Khứ hồi" ${param.flightType == 'Khứ hồi' ? 'selected' : ''}>Khứ hồi</option>
+                                            <option value="Một chiều" ${(flight!=null && flight.flightType=='Một chiều')|| param.flightType == 'Một chiều' ? 'selected' : ''}>Một chiều</option>
+                                            <option value="Khứ hồi" ${ (flight!=null && flight.flightType=='Khứ hồi') ||param.flightType == 'Khứ hồi' ? 'selected' : ''}>Khứ hồi</option>
                                         </select>
 
-                                        <!-- hien thi loi khi validate o ben server -->  
+                                        <!-- hien thi loi khi validate o ben server -->   
                                         <c:if test="${not empty errorFlightType}">
                                             <div class="invalid-feedback">${errorFlightType}</div>
                                         </c:if>
-
+                                            
                                     </div>
 
 
 
                                     <div class="form-group">
                                         <label for="flightClass">Hạng ghế</label>
-                                        <select class="form-control" id="flightClass" name="flightClass" required>
+                                        <select class="form-control ${not empty errors.flightClass? 'is-invalid' : ''}"  id="flightClass" name="flightClass" required>
                                             <option value="">-- Chọn hạng ghế vé--</option>
-                                            <option value="Phổ thông" ${param.flightClass == 'Phổ thông' ? 'selected' : ''}>Phổ thông</option>
-                                            <option value="Thương gia" ${param.flightClass == 'Thương gia' ? 'selected' : ''}>Thương gia</option>
-                                            <option value="Hạng nhất" ${param.flightClass == 'Hạng nhất' ? 'selected' : ''}>Hạng nhất</option>
+                                            <option value="Phổ thông" ${(flight!=null && flight.flightClass=='Phổ thông')|| param.flightClass == 'Phổ thông' ? 'selected' : ''}>Phổ thông</option>
+                                            <option value="Thương gia" ${(flight!=null && flight.flightClass=='Thương gia')|| param.flightClass == 'Thương gia' ? 'selected' : ''}>Thương gia</option>
+                                            <option value="Hạng nhất" ${ (flight!=null && flight.flightClass=='Hạng nhất')|| param.flightClass == 'Hạng nhất' ? 'selected' : ''}>Hạng nhất</option>
                                         </select>
 
+                                        
                                         <!-- hien thi loi khi validate o ben server -->  
                                         <c:if test="${not empty errorFlightClass}">
                                             <div class="invalid-feedback">${errorFlightClass}</div>

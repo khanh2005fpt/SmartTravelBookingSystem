@@ -224,7 +224,7 @@ if(session != null){
     private void handleEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String flightIdStr = request.getParameter("id");
+            String flightIdStr = request.getParameter("flightId");
             if (flightIdStr == null || flightIdStr.trim().isEmpty()) {
                 request.setAttribute("errorMessage", "Flight ID is required");
                 handleFlightList(request, response);
@@ -247,9 +247,10 @@ if(session != null){
             request.setAttribute("flight", flight);
             request.setAttribute("airlines", airlines);
             request.setAttribute("islands", islands);
+            request.setAttribute("action", "edit");
             request.setAttribute("pageTitle", "Edit Flight - " + flight.getFlightNumber());
-            request.getRequestDispatcher("/views/staff/flight-form.jsp").forward(request, response);
-            
+            request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
+            return;
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Invalid flight ID format");
             handleFlightList(request, response);

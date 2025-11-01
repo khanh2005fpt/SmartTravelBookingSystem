@@ -408,7 +408,7 @@
 
                                                     <div>
                                                       
-                                                        <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=edit&id=${flight.flightId}" 
+                                                        <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=edit&flightId=${flight.flightId}" 
                                                            class="btn-action btn-edit bg-success text-white ">
                                                             <i class="fa fa-edit"></i> Sửa
                                                         </a>
