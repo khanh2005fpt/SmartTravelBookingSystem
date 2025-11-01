@@ -21,41 +21,41 @@ import utils.DBContext;
 import java.sql.Time;
 import model.FlightSchedule;
 
-
 /**
  *
  * @author Admin
  */
-public class ServiceDao extends DBContext{
-  public static final ServiceDao INSTANCE = new ServiceDao();
-    
+public class ServiceDao extends DBContext {
+
+    public static final ServiceDao INSTANCE = new ServiceDao();
+
     //Lay danh sach phuong tien theo dao
-    public List<IslandVehicle> getListVehicleById(int id) throws SQLException{
+    public List<IslandVehicle> getListVehicleById(int id) throws SQLException {
         List<IslandVehicle> list = new ArrayList<>();
         String sql = "select * from IslandVehicles a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
-            ps.setInt(1, id); 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { // lấy nhiều phương tiện
-                 IslandVehicle v = new IslandVehicle(
-                    rs.getInt("vehicleId"),
-                    rs.getInt("islandId"),
-                    rs.getString("vehicleType"),
-                    rs.getString("modelName"),
-                    rs.getDouble("pricePerDay"),
-                    rs.getInt("capacity"),
-                    rs.getInt("availability")
+                IslandVehicle v = new IslandVehicle(
+                        rs.getInt("vehicleId"),
+                        rs.getInt("islandId"),
+                        rs.getString("vehicleType"),
+                        rs.getString("modelName"),
+                        rs.getDouble("pricePerDay"),
+                        rs.getInt("capacity"),
+                        rs.getInt("availability")
                 );
                 list.add(v);
             }
         } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy danh sách phương tiện cho đảo có islandId = " + id, e);
         }
-        return list; 
+        return list;
     }
-    
+
     //Lay tat ca khach san
-      public List<Hotel> getHotels() throws SQLException{
+    public List<Hotel> getHotels() throws SQLException {
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId";
         try {
@@ -79,13 +79,13 @@ public class ServiceDao extends DBContext{
         }
         return list;
     }
-    
-      //lay danh sach khach san theo dao
-     public List<Hotel> getListHotelsById(int id) throws SQLException{
+
+    //lay danh sach khach san theo dao
+    public List<Hotel> getListHotelsById(int id) throws SQLException {
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
-            ps.setInt(1, id); 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { // lấy nhiều khách sạn
                 Hotel h = new Hotel();
@@ -103,12 +103,11 @@ public class ServiceDao extends DBContext{
         } catch (SQLException e) {
             throw new SQLException("Lỗi khi lấy danh sách khách sạn cho đảo có islandId = " + id, e);
         }
-        return list; 
+        return list;
     }
-     
-     
-     //Tim kiem danh sach khach san theo quoc gia va loai phong
-    public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) throws SQLException{
+
+    //Tim kiem danh sach khach san theo quoc gia va loai phong
+    public List<Hotel> searchHotels(String country, String roomType, String minPrice, String maxPrice) throws SQLException {
         List<Hotel> list = new ArrayList<>();
         String sql = "select * from hotels a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where 1=1";
 
@@ -128,7 +127,7 @@ public class ServiceDao extends DBContext{
             sql += " and a.pricePerNight <= ?";
         }
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             int idx = 1;
 
             if (country != null && !country.isEmpty()) {
@@ -164,12 +163,11 @@ public class ServiceDao extends DBContext{
         return list;
     }
 
-
     //Tinh tong so khach san
-    public int getTotalIslands() throws SQLException{
+    public int getTotalIslands() throws SQLException {
         int total = 0;
         String sql = "select count(*) from Hotels";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 total = rs.getInt(1);
@@ -179,23 +177,23 @@ public class ServiceDao extends DBContext{
         }
         return total;
     }
-    
+
     //Lay danh sach dia diem noi tieng theo dao
-     public List<Place> getListPlaceById(int id) throws SQLException{
+    public List<Place> getListPlaceById(int id) throws SQLException {
         List<Place> list = new ArrayList<>();
         String sql = "select * from places a join islands b on a.islandId = b.islandId join Countries c on b.countryId = c.countryId where b.islandId = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { // lấy nhiều địa điểm
-                 Place place = new Place(
-                    rs.getInt("placeId"),
-                    rs.getInt("islandId"),
-                    rs.getString("placeName"),
-                    rs.getString("location"),
-                    rs.getString("description"),
-                    rs.getBoolean("hasTicket"),
-                    rs.getInt("ticketPrice")
+                Place place = new Place(
+                        rs.getInt("placeId"),
+                        rs.getInt("islandId"),
+                        rs.getString("placeName"),
+                        rs.getString("location"),
+                        rs.getString("description"),
+                        rs.getBoolean("hasTicket"),
+                        rs.getInt("ticketPrice")
                 );
                 list.add(place);
             }
@@ -217,7 +215,6 @@ public class ServiceDao extends DBContext{
 //
 //    }
     // ==================== HOTEL CRUD OPERATIONS ====================
-
     // CREATE - Them khach san moi
     public boolean createHotel(Hotel hotel) {
         String sql = "INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl, area) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -242,10 +239,10 @@ public class ServiceDao extends DBContext{
 
     // READ - Lay khach san theo ID
     public Hotel getHotelById(int hotelId) {
-        String sql = "SELECT h.*, i.islandName, c.countryName FROM Hotels h " +
-                    "JOIN Islands i ON h.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE h.hotelId = ?";
+        String sql = "SELECT h.*, i.islandName, c.countryName FROM Hotels h "
+                + "JOIN Islands i ON h.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE h.hotelId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, hotelId);
@@ -324,67 +321,119 @@ public class ServiceDao extends DBContext{
     }
 
     // la danh sach ve may bay dua theo diem den
-   public List<Flight> getFlightsByIslandId(int islandId) {
-    List<Flight> list = new ArrayList<>();
-    String sql = "SELECT * FROM Flights WHERE destinationIslandId = ?";
-    
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, islandId);
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Flight flight = new Flight();
+    public List<Flight> getFlightsByIslandId(int islandId) {
+        List<Flight> list = new ArrayList<>();
+        String sql = "SELECT * FROM Flights WHERE destinationIslandId = ?";
 
-               
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setDeparture(rs.getString("departure"));
-                flight.setDestination(rs.getString("destination"));
-                flight.setBasePrice(rs.getInt("basePrice"));
-                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
-                flight.setFlightType(rs.getString("flightType"));
-                flight.setFlightClass(rs.getString("flightClass"));
-                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, islandId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Flight flight = new Flight();
 
-                // Gán Airline 
-                Airlines airline = new Airlines();
-                airline.setAirlineId(rs.getInt("airlineId"));
-                flight.setAirline(airline);
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setDeparture(rs.getString("departure"));
+                    flight.setDestination(rs.getString("destination"));
+                    flight.setBasePrice(rs.getInt("basePrice"));
+                    flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                    flight.setFlightType(rs.getString("flightType"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
 
-                // Gán Island 
-               Island island = new Island();
-               island.setIslandId(rs.getInt("destinationIslandId"));
-               flight.setDestinationIsland(island);
+                    // Gán Airline 
+                    Airlines airline = new Airlines();
+                    airline.setAirlineId(rs.getInt("airlineId"));
+                    flight.setAirline(airline);
 
+                    // Gán Island 
+                    Island island = new Island();
+                    island.setIslandId(rs.getInt("destinationIslandId"));
+                    flight.setDestinationIsland(island);
 
-                list.add(flight);
+                    list.add(flight);
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return list;
+        return list;
     }
 
- // la danh sach ve may bay dua theo diem den  logo , maCode
-   public List<FlightSchedule> getFlightSchedules(int islandId, String flightType) throws Exception {
-    List<FlightSchedule> list = new ArrayList<>();
-    
-    String sql = """
+    // ==================== FLIGHT CRUD OPERATIONS ====================
+    // la danh sach ve may bay dua theo diem dien va flight type
+    public List<Flight> getFlightTickets(int islandId, String flightType) throws SQLException {
+        List<Flight> list = new ArrayList<>();
+
+        String sql = """
+    SELECT 
+        f.flightId,
+        f.flightNumber,
+        f.departure,
+        f.destinationIslandId,   
+        f.destination,
+        f.basePrice,
+        f.ticketAvailable,
+        f.flightClass,
+        f.destinationImageUrl,
+        
+        -- Airline
+        a.airlineId,
+        a.airlineName,
+        a.iataCode,
+        a.logoUrl
+    FROM Flights f
+    JOIN Airlines a ON f.airlineId = a.airlineId
+    WHERE f.destinationIslandId = ? AND f.flightType = ?
+    ORDER BY f.basePrice ASC
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, islandId);
+            ps.setString(2, flightType);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // === Tạo Airline ===
+                    Airlines airline = new Airlines();
+                    airline.setAirlineId(rs.getInt("airlineId"));
+                    airline.setAirlineName(rs.getString("airlineName"));
+                    airline.setIataCode(rs.getString("iataCode"));
+                    airline.setLogoUrl(rs.getString("logoUrl"));
+
+                    // === Tạo Flight ===
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setDeparture(rs.getString("departure"));
+                    flight.setDestination(rs.getString("destination"));
+                    flight.setBasePrice(rs.getInt("basePrice"));
+                    flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+                    flight.setAirline(airline);
+
+                    // === Tạo Island ===
+                    Island island = new Island();
+                    island.setIslandId(rs.getInt("destinationIslandId"));
+                    flight.setDestinationIsland(island);
+
+                    list.add(flight);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return list;
+    }
+
+    // lay list flight ticket
+    public List<Flight> getAllFlightTickets() throws SQLException {
+        List<Flight> list = new ArrayList<>();
+
+        String sql = """
         SELECT 
-            fs.scheduleId,
-            fs.planeModel,
-            fs.departureAirport,
-            fs.arrivalAirport,
-            fs.departureTime,
-            fs.arrivalTime,
-            fs.returnDepartureTime,
-            fs.returnArrivalTime,
-            fs.transitAirport,
-            fs.transitDuration,
-            fs.notes,
-                 
-            
-            -- Flight
             f.flightId,
             f.flightNumber,
             f.departure,
@@ -395,262 +444,122 @@ public class ServiceDao extends DBContext{
             f.flightClass,
             f.destinationImageUrl,
             
-            
             -- Airline
             a.airlineId,
             a.airlineName,
             a.iataCode,
             a.logoUrl
-        FROM FlightSchedules fs
-        JOIN Flights f ON fs.flightId = f.flightId
+        FROM Flights f
         JOIN Airlines a ON f.airlineId = a.airlineId
-        WHERE f.destinationIslandId = ? AND f.flightType = ?
         ORDER BY f.basePrice ASC
         """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, islandId);
-        ps.setString(2, flightType);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // === Tạo Airline ===
+                    Airlines airline = new Airlines();
+                    airline.setAirlineId(rs.getInt("airlineId"));
+                    airline.setAirlineName(rs.getString("airlineName"));
+                    airline.setIataCode(rs.getString("iataCode"));
+                    airline.setLogoUrl(rs.getString("logoUrl"));
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                // === Tạo Airline ===
-                Airlines airline = new Airlines();
-                airline.setAirlineId(rs.getInt("airlineId"));
-                airline.setAirlineName(rs.getString("airlineName"));
-                airline.setIataCode(rs.getString("iataCode"));
-                airline.setLogoUrl(rs.getString("logoUrl"));
+                    // === Tạo Flight ===
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setDeparture(rs.getString("departure"));
+                    flight.setDestination(rs.getString("destination"));
+                    flight.setBasePrice(rs.getInt("basePrice"));
+                    flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+                    flight.setAirline(airline);
 
-                // === Tạo Flight ===
-                Flight flight = new Flight();
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setDeparture(rs.getString("departure"));
-                flight.setDestination(rs.getString("destination"));
-                flight.setBasePrice(rs.getInt("basePrice"));
-                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
-                flight.setFlightClass(rs.getString("flightClass"));
-                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
-                flight.setAirline(airline);
-                
-                // === Tạo Island ===
-                Island island = new Island();
-                island.setIslandId(rs.getInt("destinationIslandId"));
-                flight.setDestinationIsland(island);
-              
-                // === Tạo FlightSchedule ===
-                FlightSchedule schedule = new FlightSchedule();
-                schedule.setScheduleId(rs.getInt("scheduleId"));
-                schedule.setFlight(flight);
-                schedule.setPlaneModel(rs.getString("planeModel"));
-                
-                 // Thời gian
-                Time dep = rs.getTime("departureTime");
-                schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
-                Time arr = rs.getTime("arrivalTime");
-                schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
-                // Xử lý giá trị null cho chiều về
-                Time retDep = rs.getTime("returnDepartureTime");
-                schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
-                Time retArr = rs.getTime("returnArrivalTime");
-                schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
-                
-                // --- Xác định sức chứa theo loại máy bay ---
-                String model = rs.getString("planeModel");
-                int capacity = 0;
+                    // === Tạo Island ===
+                    Island island = new Island();
+                    island.setIslandId(rs.getInt("destinationIslandId"));
+                    flight.setDestinationIsland(island);
 
-                if (model != null) {
-                    switch (model.trim()) {
-                        case "Airbus A320":
-                            capacity = 180;
-                            break;
-                        case "Airbus A321":
-                            capacity = 200;
-                            break;
-                        case "Airbus A321neo":
-                            capacity = 206;
-                            break;
-                        case "Airbus A319":
-                            capacity = 144;
-                            break;
-                        case "Boeing 737 MAX 8":
-                            capacity = 178;
-                            break;
-                        case "Boeing 737 MAX 9":
-                            capacity = 193;
-                            break;
-                        case "Boeing 737-800":
-                            capacity = 189;
-                            break;
-                        case "ATR 72-600":
-                            capacity = 70;
-                            break;
-                        default:
-                            capacity = 150; // fallback 
-                            break;
-                    }
+                    list.add(flight);
                 }
-                schedule.setSeatCapacity(capacity);
-                
-                
-                // === Hành lý và khoảng cách ghế ===
-                String baggage = "7 kg";
-                String pitch = "Không rõ";
-                String flightClass = rs.getString("flightClass");
-                String airlineName = rs.getString("airlineName");
-
-                if (airlineName != null && !airlineName.isBlank()) {
-                    String flightClassName = (flightClass != null) ? flightClass.trim() : "";
-
-                    if (airlineName.contains("Vietnam Airlines")) {
-                        switch (flightClassName) {
-                            case "Thương gia":
-                                baggage = "12 kg";
-                                break;
-                            case "Phổ thông":
-                                baggage = "7 kg";
-                                break;
-                            default:
-                                baggage = "7 kg";
-                        }
-                    } else if (airlineName.contains("Bamboo Airways")) {
-                        switch (flightClassName) {
-                            case "Thương gia":
-                                baggage = "14 kg";
-                                break;
-                            case "Phổ thông":
-                                baggage = "7 kg";
-                                break;
-                            default:
-                                baggage = "7 kg";
-                        }
-                    } else if (airlineName.contains("VietJet Air") || airlineName.contains("Vietjet")) {
-                        switch (flightClassName) {
-                            case "Thương gia":
-                                baggage = "10 kg"; // SkyBoss+
-                                break;
-                            case "Phổ thông":
-                                baggage = "7 kg";
-                                break;
-                            default:
-                                baggage = "7 kg";
-                        }
-                    }
-                }
-
-                if (model != null) {
-                    switch (model.trim()) {
-                        case "Airbus A320":
-                        case "Airbus A319":
-                            pitch = "30 inch (tiêu chuẩn)";
-                            break;
-                        case "Airbus A321":
-                        case "Airbus A321neo":
-                            pitch = "32 inch (rộng hơn trung bình)";
-                            break;
-                        case "Boeing 737 MAX 8":
-                        case "Boeing 737-800":
-                            pitch = "30 inch (tiêu chuẩn)";
-                            break;
-                        case "Boeing 737 MAX 9":
-                            pitch = "31 inch (hơi rộng)";
-                            break;
-                        case "ATR 72-600":
-                            pitch = "29 inch (ngắn hơn tiêu chuẩn)";
-                            break;
-                    }
-                }
-
-                schedule.setCabinBaggage(baggage);
-                schedule.setSeatPitch(pitch);
-
-                schedule.setDepartureAirport(rs.getString("departureAirport"));
-                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                schedule.setTransitAirport(rs.getString("transitAirport"));
-                schedule.setTransitDuration(rs.getString("transitDuration"));
-                schedule.setNotes(rs.getString("notes"));
-
-                list.add(schedule);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        throw e;
+
+        return list;
     }
-    return list;
-    }
-   
-   
-    // ==================== FLIGHT CRUD OPERATIONS ====================
 
     // CREATE - Them chuyen bay moi
-   public int createFlight(Flight flight) throws SQLException {
-    String sql = "INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, " +
-                 "basePrice, ticketAvailable, flightType, flightClass, destinationImageUrl) " +
-                 "OUTPUT INSERTED.flightId VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public int createFlight(Flight flight) throws SQLException {
+        String sql = "INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, "
+                + "basePrice, ticketAvailable, flightType, flightClass, destinationImageUrl) "
+                + "OUTPUT INSERTED.flightId VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, flight.getFlightNumber());
-        ps.setInt(2, flight.getAirline().getAirlineId());
-        ps.setString(3, flight.getDeparture());
-        ps.setString(4, flight.getDestination());
-        
-        // Nếu island null thì setNull
-        if (flight.getDestinationIsland() != null) {
-            ps.setInt(5, flight.getDestinationIsland().getIslandId());
-        } else {
-            ps.setNull(5, java.sql.Types.INTEGER);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, flight.getFlightNumber());
+            ps.setInt(2, flight.getAirline().getAirlineId());
+            ps.setString(3, flight.getDeparture());
+            ps.setString(4, flight.getDestination());
+
+            // Nếu island null thì setNull
+            if (flight.getDestinationIsland() != null) {
+                ps.setInt(5, flight.getDestinationIsland().getIslandId());
+            } else {
+                ps.setNull(5, java.sql.Types.INTEGER);
+            }
+
+            ps.setInt(6, flight.getBasePrice());
+            ps.setInt(7, flight.getTicketAvailable());
+            ps.setString(8, flight.getFlightType());
+            ps.setString(9, flight.getFlightClass());
+            ps.setString(10, flight.getDestinationImageUrl());
+
+            // Thực thi và lấy ID chuyến bay mới tạo
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Creating flight failed: " + e.getMessage());
         }
+        return 0; // Nếu thất bại
+    }
 
-        ps.setInt(6, flight.getBasePrice());
-        ps.setInt(7, flight.getTicketAvailable());
-        ps.setString(8, flight.getFlightType());
-        ps.setString(9, flight.getFlightClass());
-        ps.setString(10, flight.getDestinationImageUrl());
+    // check ton tai ve may bay
+    public boolean isFlightExist(Flight flight) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Flights WHERE "
+                + "airlineId = ? AND departure = ? AND destination = ? AND "
+                + "destinationIslandId = ? AND basePrice = ? AND flightType = ? AND flightClass = ?";
 
-        // Thực thi và lấy ID chuyến bay mới tạo
-        try (ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, flight.getAirline().getAirlineId());
+            ps.setString(2, flight.getDeparture());
+            ps.setString(3, flight.getDestination());
+            ps.setInt(4, flight.getDestinationIsland().getIslandId());
+            ps.setInt(5, flight.getBasePrice());
+            ps.setString(6, flight.getFlightType());
+            ps.setString(7, flight.getFlightClass());
+
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1); 
+                return rs.getInt(1) > 0; // true nếu có bản ghi trùng
             }
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        throw new SQLException("Creating flight failed: " + e.getMessage());
+        return false;
     }
-    return 0; // Nếu thất bại
-}
-
-   // check ton tai ve may bay
-   public boolean isFlightExist(Flight flight) throws SQLException {
-    String sql = "SELECT COUNT(*) FROM Flights WHERE " +
-                 "airlineId = ? AND departure = ? AND destination = ? AND " +
-                 "destinationIslandId = ? AND basePrice = ? AND flightType = ? AND flightClass = ?";
-    
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, flight.getAirline().getAirlineId());
-        ps.setString(2, flight.getDeparture());
-        ps.setString(3, flight.getDestination());
-        ps.setInt(4, flight.getDestinationIsland().getIslandId());
-        ps.setInt(5, flight.getBasePrice());
-        ps.setString(6, flight.getFlightType());
-        ps.setString(7, flight.getFlightClass());
-        
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1) > 0; // true nếu có bản ghi trùng
-        }
-    }
-    return false;
-   }
 
     // READ - Lay chuyen bay theo ID
     public Flight getFlightById(int flightId) {
-        String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, i.islandName " +
-                    "FROM Flights f " +
-                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
-                    "LEFT JOIN Islands i ON f.destinationIslandId = i.islandId " +
-                    "WHERE f.flightId = ?";
+        String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, i.islandName "
+                + "FROM Flights f "
+                + "JOIN Airlines a ON f.airlineId = a.airlineId "
+                + "LEFT JOIN Islands i ON f.destinationIslandId = i.islandId "
+                + "WHERE f.flightId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, flightId);
@@ -693,13 +602,15 @@ public class ServiceDao extends DBContext{
     }
 
     // UPDATE - Cap nhat thong tin chuyen bay
-    public boolean updateFlight(Flight flight) {
-        String sql = "UPDATE Flights SET flightNumber = ?, airlineId = ?, departure = ?, destination = ?, " +
-                    "destinationIslandId = ?, basePrice = ?, ticketAvailable = ?, flightType = ?, " +
-                    " flightClass = ?, destinationImageUrl = ? WHERE flightId = ? ";
-                  
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+    public int updateFlight(Flight flight) throws SQLException {
+        String sql = "UPDATE Flights "
+                + "SET flightNumber = ?, airlineId = ?, departure = ?, destination = ?, "
+                + "destinationIslandId = ?, basePrice = ?, ticketAvailable = ?, "
+                + "flightType = ?, flightClass = ?, destinationImageUrl = ? "
+                + "OUTPUT INSERTED.flightId "
+                + "WHERE flightId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, flight.getFlightNumber());
             ps.setInt(2, flight.getAirline().getAirlineId());
             ps.setString(3, flight.getDeparture());
@@ -718,27 +629,33 @@ public class ServiceDao extends DBContext{
             ps.setString(10, flight.getDestinationImageUrl());
             ps.setInt(11, flight.getFlightId());
 
-            int result = ps.executeUpdate();
-            return result > 0;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // trả về flightId vừa update
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            throw new SQLException("Updating flight failed: " + e.getMessage());
         }
+
+        return 0; // nếu không có dòng nào được update
     }
 
     // DELETE - Xoa chuyen bay
-    public boolean deleteFlight(int flightId) {
+    public int deleteFlight(int flightId) throws SQLException {
         String sql = "DELETE FROM Flights WHERE flightId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, flightId);
-
-            int result = ps.executeUpdate();
-            return result > 0;
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                return flightId; //  Trả về ID chuyến bay vừa xóa
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            throw new SQLException("Deleting flight failed: " + e.getMessage());
         }
+        return 0; // ❌ Không có dòng nào bị xóa
     }
 
     // Cap nhat so ve con lai
@@ -760,11 +677,11 @@ public class ServiceDao extends DBContext{
     // Lay tat ca chuyen bay
     public List<Flight> getAllFlights() {
         List<Flight> list = new ArrayList<>();
-        String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, i.islandName " +
-                    "FROM Flights f " +
-                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
-                    "LEFT JOIN Islands i ON f.destinationIslandId = i.islandId " +
-                    "ORDER BY f.flightId";
+        String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, i.islandName "
+                + "FROM Flights f "
+                + "JOIN Airlines a ON f.airlineId = a.airlineId "
+                + "LEFT JOIN Islands i ON f.destinationIslandId = i.islandId "
+                + "ORDER BY f.flightId";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -806,7 +723,6 @@ public class ServiceDao extends DBContext{
     }
 
     // ==================== AIRLINES CRUD OPERATIONS ====================
-
     // CREATE - Them hang hang khong moi
     public boolean createAirline(Airlines airline) {
         String sql = "INSERT INTO Airlines (airlineName, iataCode, countryId, hotline, logoUrl) VALUES (?, ?, ?, ?, ?)";
@@ -851,8 +767,8 @@ public class ServiceDao extends DBContext{
 
     // UPDATE - Cap nhat thong tin hang hang khong
     public boolean updateAirline(Airlines airline) {
-        String sql = "UPDATE Airlines SET airlineName = ?, iataCode = ?, countryId = ?, hotline = ?, logoUrl = ? " +
-                    "WHERE airlineId = ?";
+        String sql = "UPDATE Airlines SET airlineName = ?, iataCode = ?, countryId = ?, hotline = ?, logoUrl = ? "
+                + "WHERE airlineId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, airline.getAirlineName());
@@ -885,7 +801,7 @@ public class ServiceDao extends DBContext{
     }
 
     // Lay tat ca hang hang khong
-    public List<Airlines> getAllAirlines() throws SQLException{
+    public List<Airlines> getAllAirlines() throws SQLException {
         List<Airlines> list = new ArrayList<>();
         String sql = "SELECT * FROM Airlines ORDER BY airlineName";
         try {
@@ -909,7 +825,7 @@ public class ServiceDao extends DBContext{
     }
 
     // lây thong tin hang bay 
-    public List<Airlines> getAllAirlineNames() throws SQLException{
+    public List<Airlines> getAllAirlineNames() throws SQLException {
         List<Airlines> list = new ArrayList<>();
         String sql = """
         SELECT MIN(airlineId) AS airlineId, airlineName
@@ -932,158 +848,127 @@ public class ServiceDao extends DBContext{
         return list;
     }
 
-    
-   /* 
-
-    //Tim kiem hang hang khong theo ten hoac ma IATA
-    public List<Airlines> searchAirlines(String keyword) {
-        List<Airlines> list = new ArrayList<>();
-        String sql = "SELECT * FROM Airlines WHERE airlineName LIKE ? OR iataCode LIKE ? " +
-                    "ORDER BY airlineName";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            String searchPattern = "%" + keyword + "%";
-            ps.setString(1, searchPattern);
-            ps.setString(2, searchPattern);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                Airlines airline = new Airlines();
-                airline.setAirlineId(rs.getInt("airlineId"));
-                airline.setAirlineName(rs.getString("airlineName"));
-                airline.setIataCode(rs.getString("iataCode"));
-                airline.setCountryId(rs.getInt("countryId"));
-                airline.setHotline(rs.getString("hotline"));
-                airline.setLogoUrl(rs.getString("logoUrl"));
-
-                list.add(airline);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-    */
-    
     public List<Flight> searchFlightTickets(String keyword, Integer airlineId, String priceRange) throws SQLException {
-    List<Flight> flights = new ArrayList<>();
+        List<Flight> flights = new ArrayList<>();
 
-    StringBuilder sql = new StringBuilder(
-        "SELECT f.*, a.airlineId, a.airlineName, a.logoUrl " +
-        "FROM Flights f " +
-        "JOIN Airlines a ON f.airlineId = a.airlineId " +
-        "WHERE 1=1"
-    );
+        StringBuilder sql = new StringBuilder(
+                "SELECT f.*, a.airlineId, a.airlineName, a.logoUrl "
+                + "FROM Flights f "
+                + "JOIN Airlines a ON f.airlineId = a.airlineId "
+                + "WHERE 1=1"
+        );
 
-    List<Object> params = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
 
-    //  1. Tìm kiếm theo keyword (departure / destination / flightNumber)
-if (keyword != null && !keyword.trim().isEmpty()) {
-    sql.append(" AND ("
-        + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-        + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-        + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-        + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-        + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
-        + ")");
+        //  1. Tìm kiếm theo keyword (departure / destination / flightNumber)
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND ("
+                    + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
+                    + ")");
 
-    String kw = "%" + keyword.trim() + "%";
-    // Thêm 5 lần vì có 5 cột cần tìm
-    params.add(kw);
-    params.add(kw);
-    params.add(kw);
-    params.add(kw);
-    params.add(kw);
-}
-
-
-    //  2. Lọc theo hãng bay
-    if (airlineId != null) {
-        sql.append(" AND f.airlineId = ?");
-        params.add(airlineId);
-    }
-
-    //  3. Lọc theo khoảng giá
-    if (priceRange != null && !priceRange.isEmpty()) {
-        if (priceRange.equals("5000000+") ||priceRange.equals("over5000000") ) {
-            sql.append(" AND f.basePrice > 5000000");
-        } else {
-            String[] range = priceRange.split("-");
-            sql.append(" AND f.basePrice BETWEEN ? AND ?");
-            //Gom giá trị thật vào params
-            params.add(Integer.parseInt(range[0]));
-            params.add(Integer.parseInt(range[1]));
-        }
-    }
-
-    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) {
-            // gán giá trị thật vào ?
-            ps.setObject(i +1, params.get(i));
+            String kw = "%" + keyword.trim() + "%";
+            // Thêm 5 lần vì có 5 cột cần tìm
+            params.add(kw);
+            params.add(kw);
+            params.add(kw);
+            params.add(kw);
+            params.add(kw);
         }
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                //  Gắn hãng bay
-                Airlines airline = new Airlines();
-                airline.setAirlineId(rs.getInt("airlineId"));
-                airline.setAirlineName(rs.getString("airlineName"));
-                airline.setLogoUrl(rs.getString("logoUrl"));
+        //  2. Lọc theo hãng bay
+        if (airlineId != null) {
+            sql.append(" AND f.airlineId = ?");
+            params.add(airlineId);
+        }
 
-                //  Gắn chuyến bay
-                Flight flight = new Flight();
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setAirline(airline);
-                flight.setDeparture(rs.getString("departure"));
-                flight.setDestination(rs.getString("destination"));
-                flight.setBasePrice(rs.getInt("basePrice"));
-                flight.setFlightType(rs.getString("flightType"));
-                flight.setFlightClass(rs.getString("flightClass"));
-                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
-                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
-
-                flights.add(flight);
+        //  3. Lọc theo khoảng giá
+        if (priceRange != null && !priceRange.isEmpty()) {
+            if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
+                sql.append(" AND f.basePrice > 5000000");
+            } else {
+                String[] range = priceRange.split("-");
+                sql.append(" AND f.basePrice BETWEEN ? AND ?");
+                //Gom giá trị thật vào params
+                params.add(Integer.parseInt(range[0]));
+                params.add(Integer.parseInt(range[1]));
             }
         }
-    }
 
-    return flights;
-}
-    
-     public static void main(String[] args) { 
-            ServiceDao dao = new  ServiceDao();
-        String keyword = "ha";           // test search theo keyword (vd: Hà Nội)
-        Integer airlineId = null;        // lọc tất cả hãng
-        String priceRange = null;  // lọc khoảng giá
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                // gán giá trị thật vào ?
+                ps.setObject(i + 1, params.get(i));
+            }
 
-        try {
-            // ⚡️ Gọi hàm DAO
-            List<Airlines> airline = dao.getAllAirlines();
-            
-            if(airline.isEmpty()){
-                  System.out.println("❌ Không tìm thấy mã code bay nào phù hợp!");
-            }else{
-                for(Airlines a : airline){
-                    System.out.println("itaCode :"+a.getIataCode());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    //  Gắn hãng bay
+                    Airlines airline = new Airlines();
+                    airline.setAirlineId(rs.getInt("airlineId"));
+                    airline.setAirlineName(rs.getString("airlineName"));
+                    airline.setLogoUrl(rs.getString("logoUrl"));
+
+                    //  Gắn chuyến bay
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setAirline(airline);
+                    flight.setDeparture(rs.getString("departure"));
+                    flight.setDestination(rs.getString("destination"));
+                    flight.setBasePrice(rs.getInt("basePrice"));
+                    flight.setFlightType(rs.getString("flightType"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                    flights.add(flight);
                 }
             }
-            
-        
+        }
 
-        } catch (SQLException e) {
+        return flights;
+    }
+
+    public static void main(String[] args) {
+        ServiceDao dao = new ServiceDao();
+        try {
+         
+              // Gọi hàm không tham số
+            List<FlightSchedule> schedules = dao.getFlightSchedules();
+
+            // In kết quả
+            for (FlightSchedule s : schedules) {
+                Flight f = s.getFlight();
+                System.out.println("Schedule ID: " + s.getScheduleId());
+                System.out.println("Flight Number: " + f.getFlightNumber());
+                System.out.println("Flight Class: " + f.getFlightClass());
+                 System.out.println("Flight Type: " + f.getFlightType());
+                System.out.println("From: " + s.getDepartureAirport() + " -> To: " + s.getArrivalAirport());
+                System.out.println("Departure Time: " + s.getDepartureTime() + " | Arrival Time: " + s.getArrivalTime());
+                System.out.println("Return Departure: " + s.getReturnDepartureTime() + " | Return Arrival: " + s.getReturnArrivalTime());
+                System.out.println("Plane Model: " + s.getPlaneModel() + " | Seat Capacity: " + s.getSeatCapacity());
+                System.out.println("Cabin Baggage: " + s.getCabinBaggage() + " | Seat Pitch: " + s.getSeatPitch());
+                System.out.println("Transit Airport: " + s.getTransitAirport() + " | Transit Duration: " + s.getTransitDuration());
+                System.out.println("Notes: " + s.getNotes());
+                System.out.println("Destination Image: " + f.getDestinationImageUrl());
+                System.out.println("----------------------------------------");
+            }
+            
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    
 
     // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
-
     // CREATE - Them phuong tien moi
     public boolean createIslandVehicle(IslandVehicle vehicle) {
-        String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicle.getIslandId());
@@ -1103,9 +988,9 @@ if (keyword != null && !keyword.trim().isEmpty()) {
 
     // READ - Lay phuong tien theo ID
     public IslandVehicle getIslandVehicleById(int vehicleId) {
-        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv " +
-                    "JOIN Islands i ON iv.islandId = i.islandId " +
-                    "WHERE iv.vehicleId = ?";
+        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv "
+                + "JOIN Islands i ON iv.islandId = i.islandId "
+                + "WHERE iv.vehicleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicleId);
@@ -1120,10 +1005,10 @@ if (keyword != null && !keyword.trim().isEmpty()) {
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
-                
+
                 // Set island name from JOIN
                 vehicle.setIslandName(rs.getString("islandName"));
-                
+
                 // Set default values for properties not in database
                 vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
                 vehicle.setBrand(""); // Default empty brand
@@ -1143,8 +1028,8 @@ if (keyword != null && !keyword.trim().isEmpty()) {
 
     // UPDATE - Cap nhat thong tin phuong tien
     public boolean updateIslandVehicle(IslandVehicle vehicle) {
-        String sql = "UPDATE IslandVehicles SET islandId = ?, vehicleType = ?, modelName = ?, " +
-                    "pricePerDay = ?, capacity = ?, availability = ? WHERE vehicleId = ?";
+        String sql = "UPDATE IslandVehicles SET islandId = ?, vehicleType = ?, modelName = ?, "
+                + "pricePerDay = ?, capacity = ?, availability = ? WHERE vehicleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicle.getIslandId());
@@ -1197,9 +1082,9 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     // Lay tat ca phuong tien
     public List<IslandVehicle> getAllIslandVehicles() {
         List<IslandVehicle> list = new ArrayList<>();
-        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv " +
-                    "JOIN Islands i ON iv.islandId = i.islandId " +
-                    "ORDER BY iv.vehicleId";
+        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv "
+                + "JOIN Islands i ON iv.islandId = i.islandId "
+                + "ORDER BY iv.vehicleId";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -1213,10 +1098,10 @@ if (keyword != null && !keyword.trim().isEmpty()) {
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
-                
+
                 // Set island name from JOIN
                 vehicle.setIslandName(rs.getString("islandName"));
-                
+
                 // Set default values for properties not in database
                 vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
                 vehicle.setBrand(""); // Default empty brand
@@ -1237,10 +1122,10 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     // Tim kiem phuong tien theo loai hoac model
     public List<IslandVehicle> searchIslandVehicles(String keyword) {
         List<IslandVehicle> list = new ArrayList<>();
-        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv " +
-                    "JOIN Islands i ON iv.islandId = i.islandId " +
-                    "WHERE iv.vehicleType LIKE ? OR iv.modelName LIKE ? " +
-                    "ORDER BY iv.vehicleId";
+        String sql = "SELECT iv.*, i.islandName FROM IslandVehicles iv "
+                + "JOIN Islands i ON iv.islandId = i.islandId "
+                + "WHERE iv.vehicleType LIKE ? OR iv.modelName LIKE ? "
+                + "ORDER BY iv.vehicleId";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             String searchPattern = "%" + keyword + "%";
@@ -1257,10 +1142,10 @@ if (keyword != null && !keyword.trim().isEmpty()) {
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
-                
+
                 // Set island name from JOIN
                 vehicle.setIslandName(rs.getString("islandName"));
-                
+
                 // Set default values for properties not in database
                 vehicle.setVehicleName(rs.getString("modelName")); // Use modelName as vehicleName
                 vehicle.setBrand(""); // Default empty brand
@@ -1279,12 +1164,11 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     }
 
     // ==================== FLIGHT SCHEDULE CRUD OPERATIONS ====================
-
     // CREATE - Them lich bay moi
     public boolean createFlightSchedule(FlightSchedule schedule) {
-        String sql = "INSERT INTO FlightSchedules (flightId, planeModel, departureAirport, arrivalAirport, " +
-                    "transitAirport, transitDuration, seatCapacity, cabinBaggage, seatPitch, notes) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO FlightSchedules (flightId, planeModel, departureAirport, arrivalAirport, "
+                + "transitAirport, transitDuration, seatCapacity, cabinBaggage, seatPitch, notes) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, schedule.getFlight().getFlightId());
@@ -1308,11 +1192,11 @@ if (keyword != null && !keyword.trim().isEmpty()) {
 
     // READ - Lay lich bay theo ID
     public FlightSchedule getFlightScheduleById(int scheduleId) {
-        String sql = "SELECT fs.*, f.flightNumber, f.departure, f.destination, a.airlineName, a.iataCode, a.logoUrl " +
-                    "FROM FlightSchedules fs " +
-                    "JOIN Flights f ON fs.flightId = f.flightId " +
-                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
-                    "WHERE fs.scheduleId = ?";
+        String sql = "SELECT fs.*, f.flightNumber, f.departure, f.destination, a.airlineName, a.iataCode, a.logoUrl "
+                + "FROM FlightSchedules fs "
+                + "JOIN Flights f ON fs.flightId = f.flightId "
+                + "JOIN Airlines a ON f.airlineId = a.airlineId "
+                + "WHERE fs.scheduleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, scheduleId);
@@ -1356,9 +1240,9 @@ if (keyword != null && !keyword.trim().isEmpty()) {
 
     // UPDATE - Cap nhat thong tin lich bay
     public boolean updateFlightSchedule(FlightSchedule schedule) {
-        String sql = "UPDATE FlightSchedules SET flightId = ?, planeModel = ?, departureAirport = ?, " +
-                    "arrivalAirport = ?, transitAirport = ?, transitDuration = ?, seatCapacity = ?, " +
-                    "cabinBaggage = ?, seatPitch = ?, notes = ? WHERE scheduleId = ?";
+        String sql = "UPDATE FlightSchedules SET flightId = ?, planeModel = ?, departureAirport = ?, "
+                + "arrivalAirport = ?, transitAirport = ?, transitDuration = ?, seatCapacity = ?, "
+                + "cabinBaggage = ?, seatPitch = ?, notes = ? WHERE scheduleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, schedule.getFlight().getFlightId());
@@ -1382,7 +1266,7 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     }
 
     // DELETE - Xoa lich bay
-    public boolean deleteFlightSchedule(int scheduleId) {
+    public boolean deleteFlightSchedule(int scheduleId) throws SQLException {
         String sql = "DELETE FROM FlightSchedules WHERE scheduleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -1397,58 +1281,147 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     }
 
     // Lay tat ca lich bay
-    public List<FlightSchedule> getAllFlightSchedules() {
+    public List<FlightSchedule> getFlightSchedules() throws Exception {
         List<FlightSchedule> list = new ArrayList<>();
-        String sql = "SELECT fs.*, f.flightNumber, f.departure, f.destination, a.airlineName, a.iataCode, a.logoUrl " +
-                    "FROM FlightSchedules fs " +
-                    "JOIN Flights f ON fs.flightId = f.flightId " +
-                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
-                    "ORDER BY fs.scheduleId";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                FlightSchedule schedule = new FlightSchedule();
-                schedule.setScheduleId(rs.getInt("scheduleId"));
-                schedule.setPlaneModel(rs.getString("planeModel"));
-                schedule.setDepartureAirport(rs.getString("departureAirport"));
-                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                schedule.setTransitAirport(rs.getString("transitAirport"));
-                schedule.setTransitDuration(rs.getString("transitDuration"));
-                schedule.setSeatCapacity(rs.getInt("seatCapacity"));
-                schedule.setCabinBaggage(rs.getString("cabinBaggage"));
-                schedule.setSeatPitch(rs.getString("seatPitch"));
-                schedule.setNotes(rs.getString("notes"));
+        String sql = """
+        SELECT 
+            fs.scheduleId,
+            fs.planeModel,
+            fs.departureAirport,
+            fs.arrivalAirport,
+            fs.departureTime,
+            fs.arrivalTime,
+            fs.returnDepartureTime,
+            fs.returnArrivalTime,
+            fs.transitAirport,
+            fs.transitDuration,
+            fs.notes,
+            
+            -- Flight
+            f.flightId,
+            f.flightNumber,
+            f.flightType,       
+            f.flightClass,
+            f.destinationImageUrl
+        FROM FlightSchedules fs
+        JOIN Flights f ON fs.flightId = f.flightId
+        ORDER BY fs.scheduleId
+        """;
 
-                // Set flight information
-                Flight flight = new Flight();
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setDeparture(rs.getString("departure"));
-                flight.setDestination(rs.getString("destination"));
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // === Tạo Flight ===
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setFlightType(rs.getString("flightType"));
+                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
 
-                Airlines airline = new Airlines();
-                airline.setAirlineName(rs.getString("airlineName"));
-                airline.setIataCode(rs.getString("iataCode"));
-                airline.setLogoUrl(rs.getString("logoUrl"));
-                flight.setAirline(airline);
+                    // === Tạo FlightSchedule ===
+                    FlightSchedule schedule = new FlightSchedule();
+                    schedule.setScheduleId(rs.getInt("scheduleId"));
+                    schedule.setFlight(flight);
+                    schedule.setPlaneModel(rs.getString("planeModel"));
 
-                schedule.setFlight(flight);
-                list.add(schedule);
+                    // Thời gian
+                    Time dep = rs.getTime("departureTime");
+                    schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+                    Time arr = rs.getTime("arrivalTime");
+                    schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+                    Time retDep = rs.getTime("returnDepartureTime");
+                    schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+                    Time retArr = rs.getTime("returnArrivalTime");
+                    schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
+
+                    // --- Xác định sức chứa theo loại máy bay ---
+                    String model = rs.getString("planeModel");
+                    int capacity = 0;
+                    if (model != null) {
+                        switch (model.trim()) {
+                            case "Airbus A320":
+                                capacity = 180;
+                                break;
+                            case "Airbus A321":
+                                capacity = 200;
+                                break;
+                            case "Airbus A321neo":
+                                capacity = 206;
+                                break;
+                            case "Airbus A319":
+                                capacity = 144;
+                                break;
+                            case "Boeing 737 MAX 8":
+                                capacity = 178;
+                                break;
+                            case "Boeing 737 MAX 9":
+                                capacity = 193;
+                                break;
+                            case "Boeing 737-800":
+                                capacity = 189;
+                                break;
+                            case "ATR 72-600":
+                                capacity = 70;
+                                break;
+                            default:
+                                capacity = 150;
+                                break;
+                        }
+                    }
+                    schedule.setSeatCapacity(capacity);
+
+                    // === Hành lý và khoảng cách ghế ===
+                    String baggage = "7 kg";
+                    String pitch = "Không rõ";
+                    String flightClass = rs.getString("flightClass");
+                    if (model != null) {
+                        switch (model.trim()) {
+                            case "Airbus A320":
+                            case "Airbus A319":
+                                pitch = "30 inch (tiêu chuẩn)";
+                                break;
+                            case "Airbus A321":
+                            case "Airbus A321neo":
+                                pitch = "32 inch (rộng hơn trung bình)";
+                                break;
+                            case "Boeing 737 MAX 8":
+                            case "Boeing 737-800":
+                                pitch = "30 inch (tiêu chuẩn)";
+                                break;
+                            case "Boeing 737 MAX 9":
+                                pitch = "31 inch (hơi rộng)";
+                                break;
+                            case "ATR 72-600":
+                                pitch = "29 inch (ngắn hơn tiêu chuẩn)";
+                                break;
+                        }
+                    }
+                    schedule.setCabinBaggage(baggage);
+                    schedule.setSeatPitch(pitch);
+
+                    schedule.setDepartureAirport(rs.getString("departureAirport"));
+                    schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                    schedule.setTransitAirport(rs.getString("transitAirport"));
+                    schedule.setTransitDuration(rs.getString("transitDuration"));
+                    schedule.setNotes(rs.getString("notes"));
+
+                    list.add(schedule);
+                }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
         return list;
     }
 
     // ==================== ISLAND CRUD OPERATIONS ====================
-
     // CREATE - Them dao moi
     public boolean createIsland(Island island, int countryId) {
-        String sql = "INSERT INTO Islands (islandName, countryId, shortDescription, longDescription, " +
-                    "bestSeason, activities, imageUrl, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Islands (islandName, countryId, shortDescription, longDescription, "
+                + "bestSeason, activities, imageUrl, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, island.getIslandName());
@@ -1469,11 +1442,11 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     }
 
     // READ - Lay dao theo ID
-    public Island getIslandById(int islandId ) throws SQLException{
-        String sql = "SELECT i.*, c.countryName " +
-                    "FROM Islands i " +
-                    "LEFT JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE i.islandId = ?";
+    public Island getIslandById(int islandId) throws SQLException {
+        String sql = "SELECT i.*, c.countryName "
+                + "FROM Islands i "
+                + "LEFT JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE i.islandId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, islandId);
@@ -1501,9 +1474,9 @@ if (keyword != null && !keyword.trim().isEmpty()) {
 
     // UPDATE - Cap nhat thong tin dao
     public boolean updateIsland(Island island, int countryId) {
-        String sql = "UPDATE Islands SET islandName = ?, countryId = ?, shortDescription = ?, " +
-                    "longDescription = ?, bestSeason = ?, activities = ?, imageUrl = ?, location = ? " +
-                    "WHERE islandId = ?";
+        String sql = "UPDATE Islands SET islandName = ?, countryId = ?, shortDescription = ?, "
+                + "longDescription = ?, bestSeason = ?, activities = ?, imageUrl = ?, location = ? "
+                + "WHERE islandId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, island.getIslandName());
@@ -1542,10 +1515,10 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     // Lay tat ca dao
     public List<Island> getAllIslands() {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT i.*, c.countryName " +
-                    "FROM Islands i " +
-                    "LEFT JOIN Countries c ON i.countryId = c.countryId " +
-                    "ORDER BY i.islandName";
+        String sql = "SELECT i.*, c.countryName "
+                + "FROM Islands i "
+                + "LEFT JOIN Countries c ON i.countryId = c.countryId "
+                + "ORDER BY i.islandName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -1573,11 +1546,11 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     // Tim kiem dao theo ten
     public List<Island> searchIslandsByName(String searchTerm) {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT i.*, c.countryName " +
-                    "FROM Islands i " +
-                    "LEFT JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE i.islandName LIKE ? OR c.countryName LIKE ? " +
-                    "ORDER BY i.islandName";
+        String sql = "SELECT i.*, c.countryName "
+                + "FROM Islands i "
+                + "LEFT JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE i.islandName LIKE ? OR c.countryName LIKE ? "
+                + "ORDER BY i.islandName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             String searchPattern = "%" + searchTerm + "%";
@@ -1606,15 +1579,14 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     }
 
     // ==================== RESTAURANT CRUD OPERATIONS ====================
-    
     // Lay tat ca nha hang
     public List<model.Restaurant> getRestaurants() {
         List<model.Restaurant> list = new ArrayList<>();
-        String sql = "SELECT r.*, i.islandName, c.countryName " +
-                    "FROM Restaurants r " +
-                    "JOIN Islands i ON r.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "ORDER BY r.restaurantName";
+        String sql = "SELECT r.*, i.islandName, c.countryName "
+                + "FROM Restaurants r "
+                + "JOIN Islands i ON r.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "ORDER BY r.restaurantName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -1645,11 +1617,11 @@ if (keyword != null && !keyword.trim().isEmpty()) {
 
     // Lay nha hang theo ID
     public model.Restaurant getRestaurantById(int restaurantId) {
-        String sql = "SELECT r.*, i.islandName, c.countryName " +
-                    "FROM Restaurants r " +
-                    "JOIN Islands i ON r.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE r.restaurantId = ?";
+        String sql = "SELECT r.*, i.islandName, c.countryName "
+                + "FROM Restaurants r "
+                + "JOIN Islands i ON r.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE r.restaurantId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, restaurantId);
@@ -1750,12 +1722,12 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     // Tim kiem nha hang theo ten
     public List<model.Restaurant> searchRestaurants(String searchTerm) {
         List<model.Restaurant> list = new ArrayList<>();
-        String sql = "SELECT r.*, i.islandName, c.countryName " +
-                    "FROM Restaurants r " +
-                    "JOIN Islands i ON r.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE r.restaurantName LIKE ? OR r.cuisineType LIKE ? OR r.address LIKE ? " +
-                    "ORDER BY r.restaurantName";
+        String sql = "SELECT r.*, i.islandName, c.countryName "
+                + "FROM Restaurants r "
+                + "JOIN Islands i ON r.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE r.restaurantName LIKE ? OR r.cuisineType LIKE ? OR r.address LIKE ? "
+                + "ORDER BY r.restaurantName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             String searchPattern = "%" + searchTerm + "%";
@@ -1792,12 +1764,12 @@ if (keyword != null && !keyword.trim().isEmpty()) {
     // Lay danh sach nha hang theo dao
     public List<model.Restaurant> getRestaurantsByIslandId(int islandId) {
         List<model.Restaurant> list = new ArrayList<>();
-        String sql = "SELECT r.*, i.islandName, c.countryName " +
-                    "FROM Restaurants r " +
-                    "JOIN Islands i ON r.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE r.islandId = ? " +
-                    "ORDER BY r.restaurantName";
+        String sql = "SELECT r.*, i.islandName, c.countryName "
+                + "FROM Restaurants r "
+                + "JOIN Islands i ON r.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE r.islandId = ? "
+                + "ORDER BY r.restaurantName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, islandId);
@@ -1827,17 +1799,16 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return list;
     }
-    
+
     // ==================== PLACE CRUD OPERATIONS ====================
-    
     // Lay tat ca dia diem
     public List<Place> getPlaces() {
         List<Place> list = new ArrayList<>();
-        String sql = "SELECT p.*, i.islandName, c.countryName " +
-                    "FROM Places p " +
-                    "JOIN Islands i ON p.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "ORDER BY p.placeName";
+        String sql = "SELECT p.*, i.islandName, c.countryName "
+                + "FROM Places p "
+                + "JOIN Islands i ON p.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "ORDER BY p.placeName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -1858,14 +1829,14 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return list;
     }
-    
+
     // Lay dia diem theo ID
     public Place getPlaceById(int placeId) {
-        String sql = "SELECT p.*, i.islandName, c.countryName " +
-                    "FROM Places p " +
-                    "JOIN Islands i ON p.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE p.placeId = ?";
+        String sql = "SELECT p.*, i.islandName, c.countryName "
+                + "FROM Places p "
+                + "JOIN Islands i ON p.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE p.placeId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, placeId);
@@ -1887,11 +1858,11 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return null;
     }
-    
+
     // Them dia diem moi
     public boolean addPlace(Place place) {
-        String sql = "INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, place.getIslandId());
@@ -1906,11 +1877,11 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return false;
     }
-    
+
     // Cap nhat dia diem
     public boolean updatePlace(Place place) {
-        String sql = "UPDATE Places SET islandId = ?, placeName = ?, location = ?, " +
-                    "description = ?, hasTicket = ?, ticketPrice = ? WHERE placeId = ?";
+        String sql = "UPDATE Places SET islandId = ?, placeName = ?, location = ?, "
+                + "description = ?, hasTicket = ?, ticketPrice = ? WHERE placeId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, place.getIslandId());
@@ -1926,7 +1897,7 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return false;
     }
-    
+
     // Xoa dia diem
     public boolean deletePlace(int placeId) {
         String sql = "DELETE FROM Places WHERE placeId = ?";
@@ -1939,16 +1910,16 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return false;
     }
-    
+
     // Tim kiem dia diem theo ten
     public List<Place> searchPlaces(String searchTerm) {
         List<Place> list = new ArrayList<>();
-        String sql = "SELECT p.*, i.islandName, c.countryName " +
-                    "FROM Places p " +
-                    "JOIN Islands i ON p.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ? " +
-                    "ORDER BY p.placeName";
+        String sql = "SELECT p.*, i.islandName, c.countryName "
+                + "FROM Places p "
+                + "JOIN Islands i ON p.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ? "
+                + "ORDER BY p.placeName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             String searchPattern = "%" + searchTerm + "%";
@@ -1974,16 +1945,16 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return list;
     }
-    
+
     // Lay danh sach dia diem theo dao
     public List<Place> getPlacesByIslandId(int islandId) {
         List<Place> list = new ArrayList<>();
-        String sql = "SELECT p.*, i.islandName, c.countryName " +
-                    "FROM Places p " +
-                    "JOIN Islands i ON p.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE p.islandId = ? " +
-                    "ORDER BY p.placeName";
+        String sql = "SELECT p.*, i.islandName, c.countryName "
+                + "FROM Places p "
+                + "JOIN Islands i ON p.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE p.islandId = ? "
+                + "ORDER BY p.placeName";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, islandId);
@@ -2005,8 +1976,5 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return list;
     }
-    
-    
-}
-    
 
+}

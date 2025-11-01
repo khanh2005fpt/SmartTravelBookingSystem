@@ -145,23 +145,27 @@ if(session != null){
         return;
     }
         
-        String action = request.getParameter("action");
-        if (action == null) action = "list";
+          String action = request.getParameter("action");
         
+    
+            if (action == null) {
+                response.sendRedirect(request.getContextPath() + "/staff/flight/tickets");
+                return;
+            }
         try {
             switch (action) {
-                case "list":
-                   handleFlightList(request, response);
+                case "create":
+                    handleCreateFlight(request, response);
                     break;
            
-                case "create":
-                   handleCreateFlight(request, response);
+                case "update":
+                    handleUpdateFlight(request, response);
                     break;
-                case "edit":
-                    handleEditForm(request, response);
+                case "delete":
+                    handleDeleteFlight(request, response);
                     break;
-                case "search":
-                    handleFlightSearch(request, response);
+                case "updateAvailability":
+                    handleUpdateAvailability(request, response);
                     break;
                 default:
                    handleFlightList(request, response);
@@ -325,7 +329,7 @@ if(session != null){
                 request.setAttribute("airlines", airlines);
                 request.setAttribute("islands", islands);
                 request.setAttribute("pageTitle", "Create New Flight");
-                request.setAttribute("errorMessage", "Failed to create flight. Please try again.");
+                request.setAttribute(   "errorMessage", "Failed to create flight. Please try again.");
                 request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
                 return;
             }
@@ -425,6 +429,8 @@ if(session != null){
        boolean isValid = true;
 
     String flightNumber = request.getParameter("flightNumber");
+    System.out.println("FlightNumber nhận được: " + request.getParameter("flightNumber"));
+
     if (flightNumber == null || flightNumber.trim().isEmpty()) {
         request.setAttribute("errorFlightNumber", "Flight number is required");
         isValid = false;
@@ -515,9 +521,11 @@ if(session != null){
     /**
      * Handle update flight
      */
+    
     private void handleUpdateFlight(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+              
             // Validate input
             if (!validateFlightInput(request)) {
                 String flightIdStr = request.getParameter("flightId");
@@ -530,7 +538,7 @@ if(session != null){
                 request.setAttribute("airlines", airlines);
                 request.setAttribute("islands", islands);
                 request.setAttribute("pageTitle", "Edit Flight");
-                request.getRequestDispatcher("/views/staff/flight-form.jsp").forward(request, response);
+                request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
                 return;
             }
             
@@ -539,10 +547,11 @@ if(session != null){
             flight.setFlightId(Integer.parseInt(request.getParameter("flightId")));
             
             // Update flight
-            boolean success = serviceDao.updateFlight(flight);
-            
-            if (success) {
-                response.sendRedirect(request.getContextPath() + "/staff/flights?success=updated");
+           int updateFlightId = serviceDao.updateFlight(flight);
+
+            if (updateFlightId > 0) {
+
+                response.sendRedirect(request.getContextPath() + "/staff/flight/tickets?action=list&success=updated&flightId=" + updateFlightId);
             } else {
                 request.setAttribute("errorMessage", "Failed to update flight. Please try again.");
                 request.setAttribute("flight", flight);
@@ -551,7 +560,7 @@ if(session != null){
                 request.setAttribute("airlines", airlines);
                 request.setAttribute("islands", islands);
                 request.setAttribute("pageTitle", "Edit Flight");
-                request.getRequestDispatcher("/views/staff/flight-form.jsp").forward(request, response);
+                request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
             }
             
         } catch (Exception e) {
@@ -572,10 +581,13 @@ if(session != null){
             }
             
             int flightId = Integer.parseInt(flightIdStr);
-            boolean success = serviceDao.deleteFlight(flightId);
-            
-            if (success) {
-                response.sendRedirect(request.getContextPath() + "/staff/flights?success=deleted");
+   
+             // Delete flight
+           int deleteFlightId = serviceDao.deleteFlight(flightId);
+
+            if (deleteFlightId > 0) {
+
+                response.sendRedirect(request.getContextPath() + "/staff/flight/tickets?action=list&success=deleted&flightId=" + deleteFlightId);
             } else {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?error=delete_failed");
             }
@@ -665,19 +677,30 @@ private boolean isStaffAuthorized(HttpSession session, HttpServletRequest reques
     /**
      * Handle errors
      */
-    private void handleError(HttpServletRequest request, HttpServletResponse response,
-                           String message, Exception e) throws ServletException, IOException {
-        System.err.println("FlightStaffServlet Error: " + message);
-        if (e != null) {
-            e.printStackTrace();
-        }
-        
-        request.setAttribute("errorMessage", message);
-        request.setAttribute("pageTitle", "Error");
-        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
+
+
+   private void handleError(HttpServletRequest request, HttpServletResponse response,
+                         String message, Exception e) throws ServletException, IOException {
+    System.err.println("FlightStaffServlet Error: " + message);
+    if (e != null) e.printStackTrace();
+
+    int statusCode = 500;
+    if (message.toLowerCase().contains("not found")) {
+        statusCode = 404;
+    } else if (message.toLowerCase().contains("unauthorized")) {
+        statusCode = 401;
     }
 
-    
+    response.setStatus(statusCode);
+    request.setAttribute("statusCode", statusCode);
+    request.setAttribute("errorMessage", message);
+    request.setAttribute("exception", e);
+    request.setAttribute("pageTitle", "Error");
+
+    request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
+    }
+   
+
 
     @Override
     public String getServletInfo() {
