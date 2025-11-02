@@ -149,7 +149,5 @@ public enum MembershipLevel {
     GOLD,
     PLATINUM
 }
-
-
-      
+   
 }

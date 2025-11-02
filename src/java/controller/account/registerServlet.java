@@ -11,7 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dao.userDao;
+import dao.UserDao;
 import jakarta.servlet.http.HttpSession;
 
 /**
@@ -19,14 +19,14 @@ import jakarta.servlet.http.HttpSession;
  * @author nqagh
  */
 @WebServlet(name = "registerServlet", urlPatterns = {"/register"})
-public class registerServlet extends HttpServlet {
+public class RegisterServlet extends HttpServlet {
 
-    private userDao userDAO;
+    private UserDao userDAO;
 
     @Override
     public void init() throws ServletException {
         try {
-            userDAO = userDao.INSTANCE;
+            userDAO = UserDao.INSTANCE;
             System.out.println("userDao initialized successfully in RegisterServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in RegisterServlet: " + e.getMessage());

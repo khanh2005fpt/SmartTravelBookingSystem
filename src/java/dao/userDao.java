@@ -10,8 +10,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
+import java.sql.CallableStatement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import model.Token;
 import utils.DBContext;
 
@@ -19,9 +25,9 @@ import utils.DBContext;
  *
  * @author nqagh
  */
-public class userDao extends DBContext {
+public class UserDao extends DBContext {
 
-    public static userDao INSTANCE = new userDao();
+    public static UserDao INSTANCE = new UserDao();
 
     public String status;
 
@@ -82,7 +88,7 @@ public class userDao extends DBContext {
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setStatus(rs.getString("status"));
-
+                user.setRoleId(rs.getInt("roleId"));
                 String storedPassword = user.getPassword();
 
                 // So sánh password plain text 
@@ -289,6 +295,7 @@ public class userDao extends DBContext {
         }
 
     }
+    // update status
 
     public void updateStatus(Token tokenForget) {
         try {
@@ -307,6 +314,7 @@ public class userDao extends DBContext {
 
     }
 
+    // generate random password
     public String generateRandomPassword(int lenght) {
         final String CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
         SecureRandom random = new SecureRandom();
@@ -319,6 +327,7 @@ public class userDao extends DBContext {
         return sb.toString();
     }
 
+    // Auto dky cho user
     public String AutoSignupByGoogle(String username, String password, String email, String fullName, String phone) {
         try {
 
@@ -349,7 +358,172 @@ public class userDao extends DBContext {
         }
     }
 
-    public List<User> getAllUsers(int page, int pageSize) {
+    public String getFormatDate(LocalDateTime myDateObj) {
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = myDateObj.format(myFormatObj);
+        return formattedDate;
+    }
+
+    // luu token moi
+    public boolean insertToken(Token tokenForget) {
+
+        try {
+            String sqlToken = "INSERT INTO Tokens (UserId, TokenValue, ExpiryDate, IsUsed , OtpCode , AttemptCount) VALUES (?, ?, ?, ? , ? , ?)";
+            try (PreparedStatement ps = connection.prepareStatement(sqlToken)) {
+                ps.setInt(1, tokenForget.getUserId());
+                ps.setString(2, tokenForget.getTokenValue());
+                ps.setTimestamp(3, Timestamp.valueOf(tokenForget.getExpiryDate()));
+                ps.setBoolean(4, tokenForget.isIsUsed());
+                ps.setString(5, tokenForget.getOtpCode());
+                ps.setInt(6, tokenForget.getAttemptCount());
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            String errorMessage = "Lỗi khi luu token: " + e.getMessage();
+        }
+        return false;
+    }
+
+    // check validToken
+    public Token checkValidToken(String tokenValue) {
+        Token token = getTokenByValue(tokenValue);
+
+        if (token == null) {
+            return null;
+        }
+        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return null;
+        }
+        if (token.isIsUsed()) {
+            return null;
+        }
+
+        return token; // token hợp lệ
+    }
+
+    // danh dau token da su dung
+    public void markTokenAsUsed(String tokenValue) {
+
+        try {
+            String sqlMark = "UPDATE Tokens SET IsUsed = 1 WHERE TokenValue=?";
+            try (PreparedStatement ps = connection.prepareStatement(sqlMark)) {
+                ps.setString(1, tokenValue);
+                ps.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            String errorMessage = "Lỗi khi danh dau token: " + e.getMessage();
+        }
+    }
+
+    // xoa token het han 
+    public void deleteExpiredTokens() {
+
+        try {
+            String sql = "DELETE FROM Tokens WHERE ExpiryDate < GetDate() OR IsUsed=1";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String errorMessage = "Lỗi khi xoa token: " + e.getMessage();
+        }
+
+    }
+
+    // get token 
+    public Token getTokenByValue(String tokenValue) {
+        try {
+            String sql = "SELECT * FROM Tokens WHERE TokenValue =? ";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, tokenValue);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    return new Token(
+                            rs.getInt("TokenId"),
+                            rs.getInt("UserId"),
+                            rs.getString("TokenValue"),
+                            rs.getTimestamp("ExpiryDate").toLocalDateTime(),
+                            rs.getBoolean("IsUsed"),
+                            rs.getString("OtpCode"),
+                            rs.getInt("AttemptCount")
+                    );
+
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+
+    // update otpcode va attempt cout
+    public void updateOtpAndAttempt(int tokenId, String OtpCode, int AttemptCount) {
+        try {
+            String sqlOtp = "UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
+            try (PreparedStatement ps = connection.prepareStatement(sqlOtp)) {
+                ps.setString(1, OtpCode);
+
+                ps.setInt(2, AttemptCount);
+                ps.setInt(3, tokenId);
+
+                ps.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println(e);
+        }
+    }
+
+    // Thống kê người dùng theo trạng thái (ACTIVE, LOCKED, INACTIVE, v.v.)
+    public Map<String, Integer> getUserCountByStatus() {
+        Map<String, Integer> map = new HashMap<>();
+        String sql = "SELECT status, COUNT(*) AS total FROM Users GROUP BY status";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String status = rs.getString("status");
+                int total = rs.getInt("total");
+                map.put(status, total);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public int getTotalUsers2() {
+        return getCount("SELECT COUNT(*) FROM Users");
+    }
+
+    public int getActiveUsers() {
+        return getCount("SELECT COUNT(*) FROM Users WHERE status = 'ACTIVE'");
+    }
+
+    public int getLockedUsers() {
+        return getCount("SELECT COUNT(*) FROM Users WHERE status = 'LOCKED'");
+    }
+
+    private int getCount(String sql) {
+        int count = 0;
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            rs.close();
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
+        public List<User> getAllUsers(int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
                 + "FROM Users "
@@ -377,8 +551,8 @@ public class userDao extends DBContext {
         }
         return list;
     }
-
-    public int getTotalUsers() {
+        
+            public int getTotalUsers() {
         String sql = "SELECT COUNT(*) FROM Users";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
@@ -389,8 +563,9 @@ public class userDao extends DBContext {
         }
         return 0;
     }
-
-    public List<User> searchUsers(String keyword, int page, int pageSize) {
+            
+            
+               public List<User> searchUsers(String keyword, int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
                 + "FROM Users "
@@ -420,7 +595,8 @@ public class userDao extends DBContext {
         }
         return list;
     }
-
+               
+               
     public List<User> getUsersByStatus(String status, int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
@@ -457,7 +633,8 @@ public class userDao extends DBContext {
         }
         return list;
     }
-
+    
+    
     public boolean updateUserStatus(int userId, String status) {
         String sql = "UPDATE Users SET status = ? WHERE userId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -469,88 +646,5 @@ public class userDao extends DBContext {
         }
         return false;
     }
-
-    public boolean addUser(User user) {
-        String sql = "INSERT INTO Users (username, password, email, fullName, phone, roleId, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            String passwordHash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-
-            ps.setString(1, user.getUsername());
-            ps.setString(2, passwordHash);
-            ps.setString(3, user.getEmail());
-            ps.setString(4, user.getFullName());
-            ps.setString(5, user.getPhone());
-            ps.setInt(6, user.getRoleId());
-            ps.setString(7, user.getStatus() != null ? user.getStatus() : "ACTIVE");
-
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean updateUserInfo(User user) {
-        String sql = "UPDATE Users SET fullName=?, email=?, phone=?, roleId=?, status=? WHERE userId=?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, user.getFullName());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPhone());
-            ps.setInt(4, user.getRoleId());
-            ps.setString(5, user.getStatus());
-            ps.setInt(6, user.getUserId());
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-    // ======= TEST DAO =======
-public static void main(String[] args) {
-    userDao dao = userDao.INSTANCE;
-
-    // --- TEST 1: Add user mới ---
-    System.out.println("=== TEST ADD USER ===");
-    User newUser = new User();
-    newUser.setUsername("testuser01");
-    newUser.setPassword("123456");  // bạn có thể hash BCrypt ở servlet, test thì để plain text
-    newUser.setEmail("testuser01@example.com");
-    newUser.setFullName("Người Dùng Thử");
-    newUser.setPhone("0909999999");
-    newUser.setRoleId(3); // 3 = customer
-    newUser.setStatus("ACTIVE");
-
-    boolean added = dao.addUser(newUser);
-    System.out.println("Kết quả thêm: " + (added ? "✅ Thành công" : "❌ Thất bại"));
-
-    // --- TEST 2: Lấy danh sách user (phân trang 1) ---
-    System.out.println("\n=== TEST GET ALL USERS ===");
-    List<User> list = dao.getAllUsers(1, 10);
-    for (User u : list) {
-        System.out.println(u);
-    }
-
-    // --- TEST 3: Update thông tin user ---
-    System.out.println("\n=== TEST UPDATE USER INFO ===");
-    // Giả sử bạn sửa userId = 1
-    User existing = dao.getUserById(1);
-    if (existing != null) {
-        existing.setFullName("Cập Nhật Tên Mới");
-        existing.setPhone("0912345678");
-        existing.setStatus("ACTIVE");
-        boolean updated = dao.updateUserInfo(existing);
-        System.out.println("Cập nhật userId=1: " + (updated ? "✅ OK" : "❌ FAIL"));
-    } else {
-        System.out.println("Không tìm thấy userId=1 để cập nhật");
-    }
-
-    // --- TEST 4: Khóa / mở khóa tài khoản ---
-    System.out.println("\n=== TEST UPDATE STATUS ===");
-    dao.updateUserStatus(1, "LOCKED");
-    System.out.println("Đã khóa userId=1");
-}
-
 
 }

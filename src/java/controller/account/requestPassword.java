@@ -5,8 +5,8 @@
 
 package controller.account;
 
-import dao.tokenDao;
-import dao.userDao;
+
+import dao.UserDao;
 import model.Token;
 import model.User;
 import java.io.IOException;
@@ -25,15 +25,15 @@ import jakarta.servlet.http.HttpSession;
  * @author nqagh
  */
 @WebServlet(name="requestPassword", urlPatterns={"/requestPassword"})
-public class requestPassword extends HttpServlet {
-    private userDao UserDao ;
-     tokenDao TokenDao;
+public class RequestPassword extends HttpServlet {
+    public UserDao userDAO ;
+    
     
     @Override
      public void init() throws ServletException {
         try {
-            UserDao = userDao.INSTANCE;
-               TokenDao = tokenDao.getInstance();
+           userDAO = UserDao.INSTANCE;
+               
             System.out.println("userDao initialized successfully in requestPasswordServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in requestPassword: " + e.getMessage());
@@ -99,7 +99,7 @@ public class requestPassword extends HttpServlet {
            response.sendRedirect(request.getContextPath()+ "/views/account/login.jsp"); 
            return;
           }
-       User user = UserDao.getUserByEmail(email);
+       User user = userDAO.getUserByEmail(email);
    
        if(user==null){
            session.setAttribute("errorEmail", "Email không tồn tại!");
@@ -109,19 +109,19 @@ public class requestPassword extends HttpServlet {
        
        // Tao otp +token
        
-       resetService service = new resetService();
+       ResetService service = new ResetService();
        String otp = service.generateOtp();
        String token = service.generateToken();
          
        // link reset co token
        session.setAttribute("otpSession", otp);
-String linkReset = "http://localhost:9090/SWP391_Group3_SE1957-KS/resetPassword?token=" + token;
+String linkReset = "http://localhost:9090/SmartBookingTravelSystem/ResetPassword?token=" + token;
 
 
         boolean isSent = service.sendEmail(email, linkReset, user.getFullName(), otp);
          if(isSent){
             Token tokenForget = new Token(user.getUserId(), token, service.expireDateTime(), false ,otp, 0);
-            boolean isInserted = TokenDao.insertToken(tokenForget);
+            boolean isInserted = userDAO.insertToken(tokenForget);
             
             if(isInserted){
                  session.setAttribute("successMessage", "Mã OTP đã gửi đến Email của bạn!");

@@ -5,16 +5,19 @@
 
 package controller.services;
 
-import dao.HotelDao;
 import dao.IslandDao;
+import dao.ServiceDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Country;
 import model.Hotel;
 
@@ -96,9 +99,19 @@ public class HotelsController extends HttpServlet {
             }
         }
         IslandDao id = new IslandDao();
-        List<Country> countries = id.getAllCountries();
-        HotelDao dao = new HotelDao();
-        List<Hotel> hotels = dao.searchHotels(country, roomType, minPriceStr, maxPriceStr);
+        List<Country> countries = null;
+        try {
+            countries = id.getAllCountries();
+        } catch (SQLException ex) {
+            Logger.getLogger(HotelsController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ServiceDao dao = new ServiceDao();
+        List<Hotel> hotels = null;
+        try {
+            hotels = dao.searchHotels(country, roomType, minPriceStr, maxPriceStr);
+        } catch (SQLException ex) {
+            Logger.getLogger(HotelsController.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         // Phân trang
         int totalHotels = hotels.size();
