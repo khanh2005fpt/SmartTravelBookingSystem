@@ -413,7 +413,6 @@ public class TourStaffServlet extends HttpServlet {
             
             // Parse services by type (format: "type_id")
             List<String> hotelIds = new ArrayList<>();
-            List<String> restaurantIds = new ArrayList<>();
             List<String> placeIds = new ArrayList<>();
             List<String> vehicleIds = new ArrayList<>();
             
@@ -421,8 +420,6 @@ public class TourStaffServlet extends HttpServlet {
                 for (String service : selectedServices) {
                     if (service.startsWith("hotel_")) {
                         hotelIds.add(service.substring(6)); // Remove "hotel_" prefix
-                    } else if (service.startsWith("restaurant_")) {
-                        restaurantIds.add(service.substring(11)); // Remove "restaurant_" prefix
                     } else if (service.startsWith("place_")) {
                         placeIds.add(service.substring(6)); // Remove "place_" prefix
                     } else if (service.startsWith("vehicle_")) {
@@ -433,12 +430,11 @@ public class TourStaffServlet extends HttpServlet {
             
             // Convert lists to arrays
             String[] selectedHotels = hotelIds.toArray(new String[0]);
-            String[] selectedRestaurants = restaurantIds.toArray(new String[0]);
             String[] selectedPlaces = placeIds.toArray(new String[0]);
             String[] selectedVehicles = vehicleIds.toArray(new String[0]);
             
             // Update tour with services using the new method
-            boolean success = tourDao.updateTourWithServices(tour, selectedHotels, selectedRestaurants, selectedPlaces, selectedVehicles);
+            boolean success = tourDao.updateTourWithServices(tour, selectedHotels, null, selectedPlaces, selectedVehicles);
 
             if (success) {
                 request.setAttribute("success", "Cập nhật tour thành công");
@@ -716,13 +712,11 @@ public class TourStaffServlet extends HttpServlet {
                 if (newTourId > 0) {
                     // Process selected services
                     String[] selectedHotels = request.getParameterValues("selectedHotels");
-                    String[] selectedRestaurants = request.getParameterValues("selectedRestaurants");
                     String[] selectedPlaces = request.getParameterValues("selectedPlaces");
                     String[] selectedVehicles = request.getParameterValues("selectedVehicles");
                     
                     // Add selected services to tour
                     addSelectedServicesToTour(newTourId, selectedHotels, "Hotel");
-                    addSelectedServicesToTour(newTourId, selectedRestaurants, "Restaurant");
                     addSelectedServicesToTour(newTourId, selectedPlaces, "Place");
                     addSelectedServicesToTour(newTourId, selectedVehicles, "Vehicle");
                     
@@ -822,7 +816,6 @@ public class TourStaffServlet extends HttpServlet {
                     
                     // Parse services by type (format: "type_id")
                     List<String> hotelIds = new ArrayList<>();
-                    List<String> restaurantIds = new ArrayList<>();
                     List<String> placeIds = new ArrayList<>();
                     List<String> vehicleIds = new ArrayList<>();
                     
@@ -830,8 +823,6 @@ public class TourStaffServlet extends HttpServlet {
                         for (String service : selectedServices) {
                             if (service.startsWith("hotel_")) {
                                 hotelIds.add(service.substring(6)); // Remove "hotel_" prefix
-                            } else if (service.startsWith("restaurant_")) {
-                                restaurantIds.add(service.substring(11)); // Remove "restaurant_" prefix
                             } else if (service.startsWith("place_")) {
                                 placeIds.add(service.substring(6)); // Remove "place_" prefix
                             } else if (service.startsWith("vehicle_")) {
@@ -842,12 +833,11 @@ public class TourStaffServlet extends HttpServlet {
                     
                     // Convert lists to arrays
                     String[] selectedHotels = hotelIds.toArray(new String[0]);
-                    String[] selectedRestaurants = restaurantIds.toArray(new String[0]);
                     String[] selectedPlaces = placeIds.toArray(new String[0]);
                     String[] selectedVehicles = vehicleIds.toArray(new String[0]);
                     
                     // Update tour with services using the new method in TourDao
-                    boolean updated = tourDao.updateTourWithServices(tour, selectedHotels, selectedRestaurants, selectedPlaces, selectedVehicles);
+                    boolean updated = tourDao.updateTourWithServices(tour, selectedHotels, null, selectedPlaces, selectedVehicles);
                     
                     if (updated) {
                         request.setAttribute("success", "Cập nhật tour thành công");
@@ -1054,22 +1044,6 @@ public class TourStaffServlet extends HttpServlet {
                     json.append("\"price\": ").append(service.getServicePrice());
                     json.append("}");
                     firstHotel = false;
-                }
-            }
-            
-            json.append("], \"restaurants\": [");
-            
-            boolean firstRestaurant = true;
-            for (TourService service : services) {
-                if ("Restaurant".equals(service.getServiceType())) {
-                    if (!firstRestaurant) json.append(",");
-                    json.append("{");
-                    json.append("\"id\": ").append(service.getServiceId()).append(",");
-                    json.append("\"name\": \"").append(escapeJson(service.getServiceName())).append("\",");
-                    json.append("\"address\": \"").append(escapeJson(service.getAddress() != null ? service.getAddress() : "")).append("\",");
-                    json.append("\"price\": ").append(service.getServicePrice());
-                    json.append("}");
-                    firstRestaurant = false;
                 }
             }
             

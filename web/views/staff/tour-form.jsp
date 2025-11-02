@@ -529,40 +529,7 @@
                             </div>
                         </div>
 
-                        <!-- Restaurants -->
-                        <div class="col-md-6 mb-4">
-                            <div class="service-category">
-                                <h5><i class="fa fa-cutlery text-warning"></i> Nhà hàng</h5>
-                                <div class="service-list" id="restaurantList">
-                                    <c:choose>
-                                        <c:when test="${not empty availableRestaurants}">
-                                            <c:forEach var="restaurant" items="${availableRestaurants}">
-                                                <div class="service-item">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" 
-                                                               type="checkbox" 
-                                                               name="selectedServices" 
-                                                               value="restaurant_${restaurant.restaurantId}"
-                                                               id="restaurant_${restaurant.restaurantId}"
-                                                               ${selectedServices != null && selectedServices.contains('restaurant_'.concat(restaurant.restaurantId.toString())) ? 'checked' : ''}>
-                                                        <label class="form-check-label" for="restaurant_${restaurant.restaurantId}">
-                                                            <strong>${restaurant.restaurantName}</strong>
-                                                            <br><small class="text-muted">${restaurant.address}</small>
-                                                            <br><span class="badge badge-warning">${restaurant.cuisine}</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </c:forEach>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="no-services">
-                                                <i class="fa fa-info-circle"></i> Chưa có nhà hàng nào. Vui lòng chọn đảo trước.
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                            </div>
-                        </div>
+
 
                         <!-- Places -->
                         <div class="col-md-6 mb-4">
@@ -892,22 +859,7 @@
                 `;
             }, 'khách sạn');
             
-            // Update restaurants
-            updateServiceList('restaurantList', data.restaurants, 'restaurant', function(restaurant) {
-                return `
-                    <div class="service-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="selectedServices" 
-                                   value="restaurant_\${restaurant.id}" id="restaurant_\${restaurant.id}">
-                            <label class="form-check-label" for="restaurant_\${restaurant.id}">
-                                <strong>\${restaurant.name}</strong>
-                                <br><small class="text-muted">\${restaurant.address ? restaurant.address : ''}</small>
-                                <br><span class="badge badge-warning">\${restaurant.cuisine ? restaurant.cuisine : ''}</span>
-                            </label>
-                        </div>
-                    </div>
-                `;
-            }, 'nhà hàng');
+
             
             // Update places
             updateServiceList('placeList', data.places, 'place', function(place) {
