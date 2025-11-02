@@ -355,7 +355,7 @@
 
 
 
-            <!-- flight List -->
+            <!-- flight List ---------------------------------------------->
             <div class="flight-scroll-container row">
                 <c:choose>
                     <c:when test="${not empty flights}">
@@ -464,94 +464,84 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Xác nhận xóa</h5>
+                        <h5 class="modal-title">⚠️ Xác nhận xóa chuyến bay</h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <span>&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Bạn có chắc chắn muốn xóa vé máy bay "<span id="flightNameToDelete"></span>"?</p>
+                        <p>Bạn có chắc chắn muốn xóa chuyến bay mã số : "<strong id="flightNumberToDelete"></strong>" ?</p>
                         <p class="text-danger"><small>Hành động này không thể hoàn tác.</small></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                         <form id="deleteForm" method="post" style="display: inline;">
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" id="flightIdToDelete">
+                            <input type="hidden" name="flightId" id="flightlIdToDelete">
                             <button type="submit" class="btn btn-danger">Xóa</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+   <script>
+        function confirmDelete(flightlId, flightNumber) {
+            document.getElementById('flightlIdToDelete').value =flightlId;
+            document.getElementById('flightNumberToDelete').textContent = flightNumber;
+            document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/tickets';
+            $('#deleteModal').modal('show');
+        }
 
-        <script>
-            function confirmDelete(restaurantId, restaurantName) {
-                document.getElementById('flightIdToDelete').value = restaurantId;
-                document.getElementById('flightToDelete').textContent = restaurantName;
-                document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight';
-                $('#deleteModal').modal('show');
-            }
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+        
+        
+        <!-- Modal thông báo action khi thành công -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content text-center shadow-lg border-0 rounded-4 overflow-hidden">
 
-            // Auto-hide alerts after 5 seconds
-            setTimeout(function () {
-                $('.alert').fadeOut('slow');
-            }, 5000);
+                    <!-- Header xanh lá -->
+                    <div class="modal-header bg-success text-white justify-content-center py-3">
+                        <h5 class="modal-title fw-bold text-uppercase text-white letter-spacing-1" id="successModalLabel">
+                            🎉 Thao tác thành công!
+                        </h5>
+                    </div>
 
-            // Enhanced search functionality
-            $(document).ready(function () {
-                // Auto-submit search form on select change
-                $('#cuisineType, #islandId').on('change', function () {
-                    $(this).closest('form').submit();
+                    <!-- Nội dung -->
+                    <div class="modal-body fs-5 text-secondary py-4">
+                        ✈️ Vé máy bay của bạn đã được <strong class="text-success fw-bold">${param.success}</strong> thành công!<br>
+                        <strong class="text-dark">ID chuyến bay:</strong> ${param.flightId}
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer justify-content-center border-0 pb-4">
+                        <button type="button" class="btn btn-success px-4 fw-semibold" id="btnOk" data-bs-dismiss="modal">
+                            <i class="fa fa-check-circle me-2"></i> OK
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Script bật modal -->
+        <c:if test="${param.success == 'created' || param.success == 'updated' || param.success == 'deleted'}">
+            <script>
+              document.addEventListener("DOMContentLoaded", function() {
+                const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+                modal.show();
+                document.getElementById("btnOk").addEventListener("click", function() {
+                  modal.hide();
                 });
+              });
+            </script>
+        </c:if>
 
-                // Search input with debounce
-                let searchTimeout;
-                $('#search').on('input', function () {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(function () {
-                        // Auto-submit after 1 second of no typing
-                    }, 1000);
-                });
-            });
-        </script>
-        
-        <!-- Modal thông báo tạo chuyến bay thành công -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered"> <!-- căn giữa theo chiều dọc -->
-    <div class="modal-content text-center shadow-lg border-0"> <!-- căn giữa nội dung -->
-      <div class="modal-header bg-success text-white justify-content-center">
-        <h5 class="modal-title fw-bold" id="successModalLabel">🎉 Tạo vé máy bay thành công!</h5>
-      </div>
-      <div class="modal-body fs-5">
-        ✈️ Vé máy bay mới của bạn đã được tạo thành công trong hệ thống!<br>
-        <strong>ID chuyến bay:</strong> ${param.flightId}
-      </div>
-      <div class="modal-footer justify-content-center">
-        <button type="button" class="btn btn-success px-4" id="btnOk" data-bs-dismiss="modal">OK</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Script kiểm tra nếu có ?success=created thì bật modal -->
-<c:if test="${param.success == 'created'}">
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const modal = new bootstrap.Modal(document.getElementById('successModal'));
-      modal.show();
-      
-      // Khi nhấn nút OK thì đóng modal
-    document.getElementById("btnOk").addEventListener("click", function() {
-      modal.hide();
-    });
-      
-    });
-  </script>
-</c:if>
-        
-        
-        
         
     </body>
 </html>
