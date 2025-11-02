@@ -110,7 +110,7 @@ if(session != null){
                     handleEditForm(request, response);
                     break;
                 case "search":
-                    handleFlightSearch(request, response);
+                   handleFlightScheduleSearch(request, response);
                     break;
                 default:
                     handleFlightscheduleList(request, response);
@@ -172,6 +172,9 @@ if(session != null){
             throws ServletException, IOException {
         try {
             List<FlightSchedule> flightSchedules = serviceDao.getFlightSchedules();
+            for(FlightSchedule fs : flightSchedules){
+                System.out.println("so luong:"+fs.getSeatCapacity());
+            }
             request.setAttribute("flightSchedules", flightSchedules);
             request.setAttribute("pageTitle", "FlightSchedules Management");
             request.getRequestDispatcher("/views/staff/flight_schedule-list.jsp").forward(request, response);
@@ -213,7 +216,7 @@ if(session != null){
             request.setAttribute("islands", islands);
             request.setAttribute("airlines", airlines);
             request.setAttribute("pageTitle", "Create New Flight");
-            request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/staff/flight_schedule-form.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading create form: " + e.getMessage(), e);
         }
@@ -250,7 +253,7 @@ if(session != null){
             request.setAttribute("islands", islands);
             request.setAttribute("action", "edit");
             request.setAttribute("pageTitle", "Edit Flight - " + flight.getFlightNumber());
-            request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/staff/flight_schedule-form.jsp").forward(request, response);
             return;
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Invalid flight ID format");
@@ -263,54 +266,54 @@ if(session != null){
     /**
      * Handle flight search
      */
-  public void handleFlightSearch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+ public void handleFlightScheduleSearch(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
     try {
-        // Lấy tham số từ form
-        String keyword = request.getParameter("search");
-        String airlineIdStr = request.getParameter("airlineId");
-        String priceRange = request.getParameter("priceRange");
+        
+        String keyword = request.getParameter("search"); 
+        String flightTypeRaw = request.getParameter("flightType"); // dropdown loại chuyến bay
+        String departureTimeRange = request.getParameter("departureTimeRange"); // dropdown khung giờ khởi hành
+        System.out.println("Time"+departureTimeRange);
 
-        // Chuyển airlineId sang Integer nếu hợp lệ, null nếu rỗng
-        Integer airlineId = null;
-        if (airlineIdStr != null && !airlineIdStr.isEmpty()) {
-            try {
-                airlineId = Integer.parseInt(airlineIdStr);
-            } catch (NumberFormatException e) {
-                
-                request.setAttribute("errorMessage", "Hãng bay không hợp lệ, bỏ qua filter.");
-                request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
-            }
+     // Xử lý loại chuyến bay
+        String flightType = null;
+        if ("Một chiều".equals(flightTypeRaw)) {
+            flightType = "Một chiều";
+        } else if ("Khứ hồi".equals(flightTypeRaw)) {
+            flightType = "Khứ hồi";
         }
 
-        // Kiểm tra priceRange hợp lệ, null hoặc rỗng cũng được
-        if (priceRange != null && !priceRange.isEmpty() && !priceRange.matches("\\d+-\\d+|\\d+\\+")) {
-            request.setAttribute("errorMessage", "Khoảng giá không hợp lệ, bỏ qua filter.");
-            priceRange = null;
-        }
+   if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
+    // Giải mã nếu còn dạng URL encoded
+    departureTimeRange = java.net.URLDecoder.decode(departureTimeRange, java.nio.charset.StandardCharsets.UTF_8);
+    departureTimeRange = departureTimeRange.trim();
 
-        // Gọi DAO / service để tìm chuyến bay theo filter
-        List<Flight> flights = serviceDao.searchFlightTickets(keyword, airlineId, priceRange);
-
-        // Truyền dữ liệu sang JSP
-        request.setAttribute("flights", flights);
-        request.setAttribute("keyword", keyword);
-        request.setAttribute("airlineId", airlineIdStr);
-        request.setAttribute("priceRange", priceRange);
+    // Cho phép khoảng trắng linh hoạt
+    if (!departureTimeRange.matches("\\s*\\d{1,2}:\\d{2}\\s*-\\s*\\d{1,2}:\\d{2}\\s*")) {
+        request.setAttribute("errorMessage", "Định dạng khung giờ không hợp lệ, bỏ qua filter.");
+        departureTimeRange = null;
+    }
+}
     
-        // Forward sang JSP danh sách chuyến bay
-        request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
+   
+        List<FlightSchedule> flightSchedules = serviceDao.searchFlightSchedules(keyword,  flightType, departureTimeRange);
+
+       
+        request.setAttribute("flightSchedules", flightSchedules);
+        request.setAttribute("keyword", keyword);
+       request.setAttribute("flightType", flightTypeRaw != null ? flightTypeRaw : "");
+        request.setAttribute("departureTimeRange", departureTimeRange);
+
+    
+        request.getRequestDispatcher("/views/staff/flight_schedule-list.jsp").forward(request, response);
 
     } catch (Exception e) {
-      
         e.printStackTrace();
-        // Forward sang trang error
-        request.setAttribute("message", "Lỗi khi tìm chuyến bay: " + e.getMessage());
+        request.setAttribute("message", "Lỗi khi tìm lịch bay: " + e.getMessage());
         request.setAttribute("exception", e);
         request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
     }
 }
-        
-        
     
 
     /**

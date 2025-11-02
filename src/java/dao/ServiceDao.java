@@ -847,8 +847,12 @@ public class ServiceDao extends DBContext {
         }
         return list;
     }
+    
+  
+    
+    // search and filter flightTicket in list
 
-    public List<Flight> searchFlightTickets(String keyword, Integer airlineId, String priceRange) throws SQLException {
+     public List<Flight> searchFlightTickets(String keyword, Integer airlineId, String priceRange) throws SQLException {
         List<Flight> flights = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
@@ -932,32 +936,193 @@ public class ServiceDao extends DBContext {
 
         return flights;
     }
+     
+    // search and filter flightSchedules in list
+  
+    public List<FlightSchedule> searchFlightSchedules(String keyword, String flightType , String departureTimeRange) throws SQLException {
+    List<FlightSchedule> flights = new ArrayList<>();
 
+    StringBuilder sql = new StringBuilder(
+        "SELECT fs.*, f.flightNumber, f.flightType, f.flightClass " +
+        "FROM FlightSchedules fs " +
+        "JOIN Flights f ON fs.flightId = f.flightId " +
+        "WHERE 1=1 "
+    );
+
+    List<Object> params = new ArrayList<>();
+
+    // Tìm kiếm theo keyword (departureAirport / arrivalAirport / flightNumber / transitAirport / flightClass)
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        sql.append("AND (")
+           .append("fs.departureAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+           .append("fs.arrivalAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+           .append("f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+           .append("fs.transitAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+           .append("f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? ")
+           .append(")");
+        String kw = "%" + keyword.trim() + "%";
+        for (int i = 0; i < 5; i++) params.add(kw);
+    }
+
+    
+   //Lọc theo loại chuyến bay (Một chiều / Khứ hồi)
+    if (flightType != null && !flightType.trim().isEmpty()) {
+        sql.append("AND f.flightType = ? ");
+        params.add(flightType.trim());
+    }
+
+// lọc theo giờ khởi hành (cả lượt đi và lượt về)
+if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
+    String[] timeRangeParts = departureTimeRange.split("-");
+    if (timeRangeParts.length == 2) {
+        String startTime = timeRangeParts[0].trim();
+        String endTime = timeRangeParts[1].trim();
+        sql.append("AND (fs.departureTime BETWEEN ? AND ? OR fs.returnDepartureTime BETWEEN ? AND ?) ");
+        params.add(startTime);
+        params.add(endTime);
+        params.add(startTime);
+        params.add(endTime);
+    }
+}
+ 
+
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+
+                // === Gắn Flight ===
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setFlightType(rs.getString("flightType"));
+
+                // === Gắn FlightSchedule ===
+                FlightSchedule schedule = new FlightSchedule();
+                schedule.setScheduleId(rs.getInt("scheduleId"));
+                schedule.setFlight(flight);
+                schedule.setPlaneModel(rs.getString("planeModel"));
+                schedule.setDepartureAirport(rs.getString("departureAirport"));
+                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                schedule.setTransitAirport(rs.getString("transitAirport"));
+                schedule.setTransitDuration(rs.getString("transitDuration"));
+                schedule.setNotes(rs.getString("notes"));
+
+                // Giờ bay (chuyển sang LocalTime
+                Time dep = rs.getTime("departureTime");
+                schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+                Time arr = rs.getTime("arrivalTime");
+                schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+                Time retDep = rs.getTime("returnDepartureTime");
+                schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+                Time retArr = rs.getTime("returnArrivalTime");
+                schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
+                  
+                 // --- Xác định sức chứa theo loại máy bay ---
+                    String model = rs.getString("planeModel");
+                    int capacity = 0;
+                    if (model != null) {
+                        switch (model.trim()) {
+                            case "Airbus A320":
+                                capacity = 180;
+                                break;
+                            case "Airbus A321":
+                                capacity = 200;
+                                break;
+                            case "Airbus A321neo":
+                                capacity = 206;
+                                break;
+                            case "Airbus A319":
+                                capacity = 144;
+                                break;
+                            case "Boeing 737 MAX 8":
+                                capacity = 178;
+                                break;
+                            case "Boeing 737 MAX 9":
+                                capacity = 193;
+                                break;
+                            case "Boeing 737-800":
+                                capacity = 189;
+                                break;
+                            case "ATR 72-600":
+                                capacity = 70;
+                                break;
+                            default:
+                                capacity = 150;
+                                break;
+                        }
+                    }
+                    schedule.setSeatCapacity(capacity);
+
+                    // --- Hành lý xách tay theo hạng ghế ---
+                    String flightClass = rs.getString("flightClass");
+                    String baggage = "7 kg";
+                    if (flightClass != null) {
+                        switch (flightClass.trim()) {
+                            case "Phổ thông":
+                                baggage = "7 kg";
+                                break;
+                            case "Thương gia":
+                                baggage = "10 kg";
+                                break;
+                            case "Hạng nhất":
+                                baggage = "15 kg";
+                                break;
+                            default:
+                                baggage = "7 kg";
+                                break;
+                        }
+                    }
+                        schedule.setCabinBaggage(baggage);
+                flights.add(schedule);
+            }
+        }
+    }
+
+    return flights;
+}
+    
     public static void main(String[] args) {
         ServiceDao dao = new ServiceDao();
         try {
          
-              // Gọi hàm không tham số
-            List<FlightSchedule> schedules = dao.getFlightSchedules();
-
-            // In kết quả
-            for (FlightSchedule s : schedules) {
-                Flight f = s.getFlight();
-                System.out.println("Schedule ID: " + s.getScheduleId());
-                System.out.println("Flight Number: " + f.getFlightNumber());
-                System.out.println("Flight Class: " + f.getFlightClass());
-                 System.out.println("Flight Type: " + f.getFlightType());
-                System.out.println("From: " + s.getDepartureAirport() + " -> To: " + s.getArrivalAirport());
-                System.out.println("Departure Time: " + s.getDepartureTime() + " | Arrival Time: " + s.getArrivalTime());
-                System.out.println("Return Departure: " + s.getReturnDepartureTime() + " | Return Arrival: " + s.getReturnArrivalTime());
-                System.out.println("Plane Model: " + s.getPlaneModel() + " | Seat Capacity: " + s.getSeatCapacity());
-                System.out.println("Cabin Baggage: " + s.getCabinBaggage() + " | Seat Pitch: " + s.getSeatPitch());
-                System.out.println("Transit Airport: " + s.getTransitAirport() + " | Transit Duration: " + s.getTransitDuration());
-                System.out.println("Notes: " + s.getNotes());
-                System.out.println("Destination Image: " + f.getDestinationImageUrl());
-                System.out.println("----------------------------------------");
+         
+                // === 1️⃣ Trường hợp test không lọc gì (hiển thị tất cả) ===
+            List<FlightSchedule> all = dao.searchFlightSchedules("", null, "");
+            System.out.println("🔹 Tổng số chuyến bay: " + all.size());
+            for (FlightSchedule fs : all) {
+                System.out.println(
+                    fs.getFlight().getFlightNumber() + " | " +
+                    fs.getDepartureAirport() + " -> " +
+                    fs.getArrivalAirport() + " | " +
+                    fs.getDepartureTime() + " - " + fs.getArrivalTime()
+                );
             }
-            
+
+            // === 2️⃣ Test tìm theo keyword ===
+            System.out.println("\n=== Tìm theo từ khóa 'thuong' ===");
+            List<FlightSchedule> keywordList = dao.searchFlightSchedules("thuong", null, "");
+            for (FlightSchedule fs : keywordList) {
+                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getFlight().getFlightType()+"|" +fs.getFlight().getFlightClass());
+            }
+
+            // === 3️⃣ Test lọc theo flightId ===
+            System.out.println("\n=== Tìm chuyến bay có flightType ===");
+            List<FlightSchedule> flightIdList = dao.searchFlightSchedules("", "Một Chiều", "");
+            for (FlightSchedule fs : flightIdList) {
+                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getFlight().getFlightType());
+            }
+
+            // === 4️⃣ Test lọc theo khoảng thời gian khởi hành ===
+            System.out.println("\n=== Tìm chuyến bay từ 08:00 đến 12:00 ===");
+            List<FlightSchedule> timeList = dao.searchFlightSchedules("", null, "00:00-01:00");
+            for (FlightSchedule fs : timeList) {
+                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getDepartureTime());
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1372,10 +1537,29 @@ public class ServiceDao extends DBContext {
                     }
                     schedule.setSeatCapacity(capacity);
 
-                    // === Hành lý và khoảng cách ghế ===
-                    String baggage = "7 kg";
-                    String pitch = "Không rõ";
+                    // --- Hành lý xách tay theo hạng ghế ---
                     String flightClass = rs.getString("flightClass");
+                    String baggage = "7 kg";
+                    if (flightClass != null) {
+                        switch (flightClass.trim()) {
+                            case "Phổ thông":
+                                baggage = "7 kg";
+                                break;
+                            case "Thương gia":
+                                baggage = "10 kg";
+                                break;
+                            case "Hạng nhất":
+                                baggage = "15 kg";
+                                break;
+                            default:
+                                baggage = "7 kg";
+                                break;
+                        }
+                    }
+
+                    // === Hành lý và khoảng cách ghế ===
+                    String pitch = "Không rõ";
+
                     if (model != null) {
                         switch (model.trim()) {
                             case "Airbus A320":
@@ -1398,6 +1582,7 @@ public class ServiceDao extends DBContext {
                                 break;
                         }
                     }
+
                     schedule.setCabinBaggage(baggage);
                     schedule.setSeatPitch(pitch);
 

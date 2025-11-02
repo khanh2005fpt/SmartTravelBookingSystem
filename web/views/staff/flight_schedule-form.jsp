@@ -10,7 +10,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${empty flight ? 'Thêm' : 'Chỉnh sửa'} Vé máy bay - Meland Travel</title>
+        <title>${empty flightSchedules? 'Thêm' : 'Chỉnh sửa'} Vé máy bay - Meland Travel</title>
 
         <!-- Include common CSS -->
         <jsp:include page="../common/css.jsp" />
@@ -328,7 +328,7 @@
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="sidebar.jsp">
-            <jsp:param name="page" value="flights_tickets" />
+            <jsp:param name="page" value="flights_schedules "/>
         </jsp:include>
 
         <div class="main-content">
@@ -336,9 +336,9 @@
             <div class="page-header">
                 <h1>
                     <i class="fa fa-utensils"></i> 
-                    ${empty  flight ? 'Thêm thông tin vé máy bay' : 'Chỉnh sửa thông tin vé máy bay '}
+                    ${empty  flightSchedules ? 'Thêm thông tin lịch trình chuyến bay' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
                 </h1>
-                <p>${empty flight ? 'Thêm những vé máy bay mới trong hệ thống' : 'Cập nhật thông tin vé máy bay'}</p>
+                <p>${empty flightSchedules ? 'Thêm những lịch trình chuyến bay trong hệ thống' : 'Cập nhật thông tin lịch trình chuyến bay'}</p>
             </div>
 
             <!-- Success/Error Messages -->
@@ -365,19 +365,19 @@
                 <div class="form-header">
                     <h3 class="form-title">
                         <i class="fa fa-edit"></i> 
-                        ${empty flight ? 'Thông tin vé máy bay mới' : 'Chỉnh sửa thông tin vé máy bay'}
+                        ${empty flightSchedules ? 'Thông tin lịch trình chuyến bay mới' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
                     </h3>
                 </div>
 
-                <form action="${pageContext.request.contextPath}/staff/flight/tickets" 
+                <form action="${pageContext.request.contextPath}/staff/flight/schedules" 
                       method="post" 
                       enctype="multipart/form-data" 
-                      id="flight_ticketForm" 
+                      id="flight_scheduleForm" 
                       novalidate>
-                    <input type="hidden" name="action" value="${empty flight ? 'create' : 'update'}">
+                    <input type="hidden" name="action" value="${empty flightSchedules ? 'create' : 'update'}">
 
-                    <c:if test="${flight != null}">
-                        <input type="hidden" name="flightId" value="${flight.flightId}">
+                    <c:if test="${flightSchedules!= null}">
+                        <input type="hidden" name="scheduleId" value="${flightSchedules.scheduleId}">
                     </c:if>
 
                     <div class="form-content">

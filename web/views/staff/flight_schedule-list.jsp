@@ -341,6 +341,7 @@
                 border-radius: 12px;
                 padding-bottom: 10px;
                 height: 100%;
+
             }
 
             .flight-card:hover {
@@ -369,6 +370,7 @@
             .text-flight {
                 color: #1976d2 !important;
             }
+
 
 
 
@@ -449,12 +451,12 @@
                                id="search" 
                                name="search" 
                                value="${param.search}"
-                               placeholder="Sân bay khởi hành và đến, Transit,...">
+                               placeholder="Sân bay khởi hành và đến , Transit....">
                     </div>
 
                     <div class="filter-group">
                         <label for="flightType">Loại chuyến bay</label>
-                        <select class="form-control" id="flightType" name="flightType" required>
+                        <select class="form-control" id="flightType" name="flightType" >
                             <option value="">--Chọn loại chuyến bay --</option>
                             <option value="Một chiều" ${(flightflightSchedules!=null && flightflightSchedules.flight.flightType=='Một chiều')|| param.flightType == 'Một chiều' ? 'selected' : ''}>Một chiều</option>
                             <option value="Khứ hồi" ${(flightflightSchedules!=null && flightflightSchedules.flight.flightType =='Khứ hồi') || param.flightType == 'Khứ hồi' ? 'selected' : ''}>Khứ hồi</option>
@@ -466,17 +468,40 @@
                         <select class="form-control" id="departureTimeRange" name="departureTimeRange">
                             <option value="">-- Tất cả khung giờ --</option>
 
-                            <c:forEach var="i" begin="0" end="23">
-                                <c:set var="startHour" value="${i lt 10 ? '0' + i : i}" />
-                                <c:set var="endHour" value="${(i + 1) lt 10 ? '0' + (i + 1) : (i + 1)}" />
-                                <c:set var="timeRange" value="${startHour}:00-${endHour}:00" />
+                            <option value="00:00-03:00" ${param.departureTimeRange == '00:00-03:00' ? 'selected' : ''}>
+                                00:00 - 03:00 
+                            </option>
 
-                                <option value="${timeRange}"
-                                        ${param.departureTimeRange == timeRange ? 'selected' : ''}>
-                                    ${startHour}:00 - ${endHour}:00
-                                </option>
-                            </c:forEach>
+                            <option value="03:00-06:00" ${param.departureTimeRange == '03:00-06:00' ? 'selected' : ''}>
+                                03:00 - 06:00 
+                            </option>
+
+                            <option value="06:00-09:00" ${param.departureTimeRange == '06:00-09:00' ? 'selected' : ''}>
+                                06:00 - 09:00 
+                            </option>
+
+                            <option value="09:00-12:00" ${param.departureTimeRange == '09:00-12:00' ? 'selected' : ''}>
+                                09:00 - 12:00 
+                            </option>
+
+                            <option value="12:00-15:00" ${param.departureTimeRange == '12:00-15:00' ? 'selected' : ''}>
+                                12:00 - 15:00 
+                            </option>
+
+                            <option value="15:00-18:00" ${param.departureTimeRange == '15:00-18:00' ? 'selected' : ''}>
+                                15:00 - 18:00 
+                            </option>
+
+                            <option value="18:00-21:00" ${param.departureTimeRange == '18:00-21:00' ? 'selected' : ''}>
+                                18:00 - 21:00 
+                            </option>
+
+                            <option value="21:00-23:59" ${param.departureTimeRange == '21:00-23:59' ? 'selected' : ''}>
+                                21:00 - 23:59 
+                            </option>
                         </select>
+
+
                     </div>
 
 
@@ -485,7 +510,7 @@
                     </button>
                     <!-- Thông tin + nút thêm vé -->
                     <div class="d-flex align-items-center ms-auto gap-3" style="margin-top: 25px; margin-right: 10px;">
-                        <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=create" class="btn btn-add btn-success btn-sm d-flex align-items-center"
+                        <a href="${pageContext.request.contextPath}/staff/flight/schedules?action=create" class="btn btn-add btn-success btn-sm d-flex align-items-center"
                            style="height: 50px;">
                             <i class="fa fa-plus me-2"></i> Thêm lịch trình cho chuyến bay
                         </a>
@@ -496,107 +521,140 @@
 
 
             <!-- flightSchedules List ------------------------------------->
+
             <div class="row g-3 flight-list-row">
-                <c:forEach var="s" items="${flightSchedules}">
-                    <div class="col-lg-3 col-md-4 col-sm-6">
-                        <div class="card shadow-sm border-0 rounded-3 flight-card h-100">
-                            <div class="card-body p-3 ">
-                                <div class="card-header d-flex flex-column align-items-center"
-                                     style="background: linear-gradient(135deg, #2196f3, #1976d2);
-                                     color: #ffffff;
-                                     border: none;
-                                     border-radius: 10px;
-                                     padding: 16px 16px;">
-                                    <h6 class="fw-bold mb-1" style="font-size: 18px;">
-                                        ${s.flight.flightNumber} - ${s.planeModel}
-                                    </h6>
-                                    <p class="small mb-0" style="opacity: 0.8;">
-                                        ${s.departureAirport} → ${s.arrivalAirport}
-                                    </p>
-                                </div>
-
-
-                                <!-- Giờ khởi hành -->
-                                <div class="row text-center border-top border-bottom py-2 my-2">
-                                    <div class="col-5">
-                                        <h6 class="fw-bold mb-0" style="color: #1976d2;">${s.departureTime}</h6>
-                                        <small>${s.departureAirport}</small>
-                                    </div>
-                                    <div class="col-2 d-flex align-items-center justify-content-center">
-                                        <i class="fa fa-plane" style="color: #1976d2;"></i>
-                                    </div>
-                                    <div class="col-5">
-                                        <h6 class="fw-bold mb-0" style="color: #1976d2;">${s.arrivalTime}</h6>
-                                        <small>${s.arrivalAirport}</small>
-                                    </div>
-                                </div>
-
-
-                                <!-- Chiều về -->
-                                <c:if test="${not empty s.returnDepartureTime}">
-                                    <div class="row text-center border-top border-bottom py-2 my-2 bg-light rounded-3">
-                                        <div class="col-5">
-                                            <h6 class="text-secondary fw-bold mb-0">${s.returnDepartureTime}</h6>
-                                            <small>${s.arrivalAirport}</small>
+                <c:choose>
+                    <c:when test="${not empty flightSchedules}">
+                        <c:forEach var="s" items="${flightSchedules}">
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="card shadow-sm border-0 rounded-3 flight-card h-100">
+                                    <div class="card-body p-3 ">
+                                        <div class="card-header d-flex flex-column align-items-center"
+                                             style="background: linear-gradient(135deg, #2196f3, #1976d2);
+                                             color: #ffffff;
+                                             border: none;
+                                             border-radius: 10px;
+                                             padding: 16px 16px;">
+                                            <h6 class="fw-bold mb-1" style="font-size: 18px;">
+                                                ${s.flight.flightNumber} - ${s.planeModel}
+                                            </h6>
+                                            <p class="small mb-0" style="opacity: 0.8;">
+                                                ${s.departureAirport} → ${s.arrivalAirport}
+                                            </p>
                                         </div>
-                                        <div class="col-2 d-flex align-items-center justify-content-center">
-                                            <i class="fa fa-plane text-secondary" style="transform: rotate(180deg);"></i>
+
+
+                                        <!-- Giờ khởi hành -->
+                                        <div class="row text-center border-top border-bottom py-2 my-2">
+                                            <div class="col-5">
+                                                <h6 class="fw-bold mb-0" style="color: #1976d2;">${s.departureTime}</h6>
+                                                <small>${s.departureAirport}</small>
+                                            </div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">
+                                                <i class="fa fa-plane" style="color: #1976d2;"></i>
+                                            </div>
+                                            <div class="col-5">
+                                                <h6 class="fw-bold mb-0" style="color: #1976d2;">${s.arrivalTime}</h6>
+                                                <small>${s.arrivalAirport}</small>
+                                            </div>
                                         </div>
-                                        <div class="col-5">
-                                            <h6 class="text-secondary fw-bold mb-0">${s.returnArrivalTime}</h6>
-                                            <small>${s.departureAirport}</small>
+
+
+                                        <!-- Chiều về -->
+                                        <c:if test="${not empty s.returnDepartureTime}">
+                                            <div class="row text-center border-top border-bottom py-2 my-2 bg-light rounded-3">
+                                                <div class="col-5">
+                                                    <h6 class="text-secondary fw-bold mb-0">${s.returnDepartureTime}</h6>
+                                                    <small>${s.arrivalAirport}</small>
+                                                </div>
+                                                <div class="col-2 d-flex align-items-center justify-content-center">
+                                                    <i class="fa fa-plane text-secondary" style="transform: rotate(180deg);"></i>
+                                                </div>
+                                                <div class="col-5">
+                                                    <h6 class="text-secondary fw-bold mb-0">${s.returnArrivalTime}</h6>
+                                                    <small>${s.departureAirport}</small>
+                                                </div>
+                                            </div>
+                                        </c:if>
+
+                                        <!-- Transit -->
+                                        <c:if test="${not empty s.transitAirport}">
+                                            <p class="small mb-2">
+                                                <i class="bi bi-clock-history me-1" style="color: #1976d2; font-size: 1.1rem;"></i>
+                                                Trung chuyển tại: <strong>${s.transitAirport}</strong> - <strong>(${s.transitDuration})</strong>
+                                            </p>
+                                        </c:if>
+
+                                        <!-- Notes -->
+                                        <c:if test="${not empty s.cabinBaggage}">
+                                            <p class="small fst-italic mb-3">
+                                                <i class="bi bi-suitcase me-1" style="color: #1976d2; font-size: 1.05rem;"></i>
+                                                Hành lý xách tay cho phép : <strong>${s.cabinBaggage} </strong> - <strong>${s.flight.flightClass}</strong>
+                                            </p>
+                                        </c:if>
+
+                                        <c:if test="${not empty s.seatCapacity}">
+                                            <p class="small fst-italic mb-3">
+                                                <i class="bi bi-person-lines-fill me-1" style="color: #1976d2; font-size: 1.05rem;"></i>
+                                                Sức chứa : <strong>${s.seatCapacity} ghế </strong> 
+                                            </p>
+                                        </c:if>
+
+                                        <!-- Notes -->
+                                        <c:if test="${not empty s.notes}">
+                                            <p class="small fst-italic mb-3">
+                                                <i class="bi bi-chat-left-text me-1" style="color: #1976d2; font-size: 1.05rem;"></i>
+                                                ${s.notes}
+                                            </p>
+                                        </c:if>
+                                        <!-- Vạch ngăn cách trước nút -->
+                                        <hr class="my-3" style="border-top: 1px solid #ddd;">
+                                        <div class="d-flex justify-content-end mt-4 " style="gap: 12px;">
+                                            <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=edit&id=${s.scheduleId}"
+                                               class="btn btn-outline-primary rounded-3 px-3 py-1">
+                                                <i class="fa fa-edit me-1"></i> Sửa
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=delete&id=${s.scheduleId}"
+                                               class="btn btn-outline-danger rounded-3 px-3 py-1">
+                                                <i class="fa fa-trash me-1"></i> Xóa
+                                            </a>
                                         </div>
+
+
+
+
                                     </div>
-                                </c:if>
-
-                                <!-- Transit -->
-                                <c:if test="${not empty s.transitAirport}">
-                                    <p class="small mb-2">
-                                        <i class="bi bi-clock-history me-1" style="color: #1976d2; font-size: 1.1rem;"></i>
-                                        Trung chuyển tại: <strong>${s.transitAirport}</strong> - <strong>(${s.transitDuration})</strong>
-                                    </p>
-                                </c:if>
-                                    
-                                    <!-- Notes -->
-                                <c:if test="${not empty s.cabinBaggage}">
-                                    <p class="small fst-italic mb-3">
-                                       <i class="bi bi-suitcase me-1" style="color: #1976d2; font-size: 1.05rem;"></i>
-                                       Hành lý xách tay cho phép : <strong>${s.cabinBaggage} </strong> 
-                                    </p>
-                                </c:if>
-                                    
-                                    <c:if test="${not empty s.seatCapacity}">
-                                    <p class="small fst-italic mb-3">
-                                       <i class="bi bi-person-lines-fill me-1" style="color: #1976d2; font-size: 1.05rem;"></i>
-                                      Sức chứa : <strong>${s.seatCapacity} ghế </strong> 
-                                    </p>
-                                </c:if>
-
-                                <!-- Notes -->
-                                <c:if test="${not empty s.notes}">
-                                    <p class="small fst-italic mb-3">
-                                        <i class="bi bi-chat-left-text me-1" style="color: #1976d2; font-size: 1.05rem;"></i>
-                                        ${s.notes}
-                                    </p>
-                                </c:if>
-
-                                <div class="d-flex justify-content-end mt-3" style="gap: 15px;">
-                                    <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=edit&id=${s.scheduleId}"
-                                       class="btn btn-sm btn-outline-primary rounded-3 px-2">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=delete&id=${s.scheduleId}"
-                                       class="btn btn-sm btn-outline-danger rounded-3 px-2">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
                                 </div>
-
-
-
                             </div>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+
+
+                        <div class="empty-state d-flex flex-column align-content-center align-items-center">
+                            <i class="fa fa-map-marker"></i>
+                            <h3>Không có lịch trình máy bay nào</h3>
+                            <p class="text-muted">
+                                <c:choose>
+                                    <c:when test="${not empty param.search}">
+                                        Không tìm thấy lịch trình nào với từ khóa "${param.search}"
+                                    </c:when>
+                                    <c:otherwise>
+                                        Chưa có lịch trình máy bay nào được thêm . Hãy tạo thêm lịch trình đầu tiên!
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
+                            <a href="${pageContext.request.contextPath}/staff/flight/schedules?action=create"
+                               class="btn btn-add btn-success mt-3">
+                                <i class="fa fa-plus"></i> Thêm lịch trình máy bay mới
+                            </a>
                         </div>
-                    </div>
-                </c:forEach>
+
+                    </c:otherwise> 
+
+                </c:choose>
+
+
             </div>
 
 
