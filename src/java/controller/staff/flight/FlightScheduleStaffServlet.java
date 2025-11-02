@@ -324,9 +324,9 @@ if(session != null){
             Flight flight = createFlightFromRequest(request);
             
             // Save flight
-            boolean success = serviceDao.createFlight(flight);
+            int flightId = serviceDao.createFlight(flight);
             
-            if (success) {
+            if (flightId > 0) {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?success=created");
             } else {
                 request.setAttribute("errorMessage", "Failed to create flight. Please try again.");
@@ -478,26 +478,7 @@ if(session != null){
             flight.setDestinationIsland(island);
         }
         
-        // Set times if provided
-        String departureTime = request.getParameter("departureTime");
-        if (departureTime != null && !departureTime.trim().isEmpty()) {
-            flight.setDepartureTime(LocalTime.parse(departureTime));
-        }
-        
-        String arrivalTime = request.getParameter("arrivalTime");
-        if (arrivalTime != null && !arrivalTime.trim().isEmpty()) {
-            flight.setArrivalTime(LocalTime.parse(arrivalTime));
-        }
-        
-        String returnDepartureTime = request.getParameter("returnDepartureTime");
-        if (returnDepartureTime != null && !returnDepartureTime.trim().isEmpty()) {
-            flight.setReturnDepartureTime(LocalTime.parse(returnDepartureTime));
-        }
-        
-        String returnArrivalTime = request.getParameter("returnArrivalTime");
-        if (returnArrivalTime != null && !returnArrivalTime.trim().isEmpty()) {
-            flight.setReturnArrivalTime(LocalTime.parse(returnArrivalTime));
-        }
+        // Note: Time fields belong to FlightSchedule, not Flight
         
         return flight;
     }

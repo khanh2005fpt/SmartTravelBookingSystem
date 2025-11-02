@@ -17,6 +17,7 @@ import model.Hotel;
 import model.Island;
 import model.IslandVehicle;
 import model.Place;
+import model.TourService;
 import utils.DBContext;
 import java.sql.Time;
 import model.FlightSchedule;
@@ -321,6 +322,115 @@ public class ServiceDao extends DBContext{
             e.printStackTrace();
             return false;
         }
+    }
+
+    // ==================== HOTEL PAGINATION METHODS ====================
+    
+    // Lay danh sach khach san theo trang voi thong tin dao
+    public List<Hotel> getHotelsByPageWithIslandNames(int page, int pageSize) throws SQLException {
+        List<Hotel> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT h.*, i.islandName, c.countryName FROM Hotels h " +
+                     "LEFT JOIN Islands i ON h.islandId = i.islandId " +
+                     "LEFT JOIN Countries c ON i.countryId = c.countryId " +
+                     "ORDER BY h.hotelId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Hotel h = new Hotel();
+                    h.setHotelId(rs.getInt("hotelId"));
+                    h.setIslandId(rs.getInt("islandId"));
+                    h.setHotelName(rs.getString("hotelName"));
+                    h.setCountryName(rs.getString("countryName"));
+                    h.setHotelImageUrl(rs.getString("hotelImageUrl"));
+                    h.setRoomType(rs.getString("roomType"));
+                    h.setPricePerNight(rs.getInt("pricePerNight"));
+                    h.setRoomAvailable(rs.getInt("roomsAvailable"));
+                    h.setRating(rs.getDouble("rating"));
+                    h.setIslandName(rs.getString("islandName"));
+                    list.add(h);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting hotels by page with island names failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // Dem tong so khach san
+    public int getTotalHotelsCount() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Hotels";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting total hotels count failed: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    // Tim kiem khach san theo ten voi phan trang va ten dao
+    public List<Hotel> searchHotelsByNameWithPaginationAndIslandNames(String searchTerm, int page, int pageSize) throws SQLException {
+        List<Hotel> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT h.*, i.islandName, c.countryName FROM Hotels h " +
+                     "LEFT JOIN Islands i ON h.islandId = i.islandId " +
+                     "LEFT JOIN Countries c ON i.countryId = c.countryId " +
+                     "WHERE h.hotelName LIKE ? ORDER BY h.hotelId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + searchTerm + "%");
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Hotel h = new Hotel();
+                    h.setHotelId(rs.getInt("hotelId"));
+                    h.setIslandId(rs.getInt("islandId"));
+                    h.setHotelName(rs.getString("hotelName"));
+                    h.setCountryName(rs.getString("countryName"));
+                    h.setHotelImageUrl(rs.getString("hotelImageUrl"));
+                    h.setRoomType(rs.getString("roomType"));
+                    h.setPricePerNight(rs.getInt("pricePerNight"));
+                    h.setRoomAvailable(rs.getInt("roomsAvailable"));
+                    h.setRating(rs.getDouble("rating"));
+                    h.setIslandName(rs.getString("islandName"));
+                    list.add(h);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Searching hotels by name with pagination and island names failed: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // Dem so khach san tim duoc theo ten
+    public int getSearchHotelsCount(String searchTerm) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Hotels WHERE hotelName LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + searchTerm + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("Getting search hotels count failed: " + e.getMessage());
+        }
+        return 0;
     }
 
     // la danh sach ve may bay dua theo diem den
@@ -1827,7 +1937,149 @@ if (keyword != null && !keyword.trim().isEmpty()) {
         }
         return list;
     }
+
+    // ==================== VEHICLE PAGINATION METHODS ====================
     
+    /**
+     * Get vehicles with pagination and island names
+     */
+    public List<IslandVehicle> getVehiclesByPageWithIslandNames(int page, int pageSize) {
+        List<IslandVehicle> list = new ArrayList<>();
+        String sql = "SELECT iv.*, i.islandName, c.countryName " +
+                    "FROM IslandVehicles iv " +
+                    "JOIN Islands i ON iv.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "ORDER BY iv.vehicleId " +
+                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, (page - 1) * pageSize);
+            ps.setInt(2, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    IslandVehicle vehicle = new IslandVehicle();
+                    vehicle.setVehicleId(rs.getInt("vehicleId"));
+                    vehicle.setIslandId(rs.getInt("islandId"));
+                    vehicle.setVehicleType(rs.getString("vehicleType"));
+                    vehicle.setModelName(rs.getString("modelName"));
+                    vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
+                    vehicle.setCapacity(rs.getInt("capacity"));
+                    vehicle.setAvailability(rs.getInt("availability"));
+                    
+                    // Set island and country names
+                    vehicle.setIslandName(rs.getString("islandName"));
+                    vehicle.setCountryName(rs.getString("countryName"));
+                    
+                    // Set additional fields
+                    vehicle.setVehicleName(rs.getString("modelName"));
+                    vehicle.setBrand("");
+                    vehicle.setModel(rs.getString("modelName"));
+                    vehicle.setContactInfo("");
+                    vehicle.setLocation("");
+                    vehicle.setDescription("");
+                    vehicle.setVehicleImageUrl("");
+                    
+                    list.add(vehicle);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    /**
+     * Get total count of vehicles
+     */
+    public int getTotalVehiclesCount() {
+        String sql = "SELECT COUNT(*) FROM IslandVehicles";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    /**
+     * Search vehicles with pagination and island names
+     */
+    public List<IslandVehicle> searchVehiclesByNameWithPaginationAndIslandNames(String searchTerm, int page, int pageSize) {
+        List<IslandVehicle> list = new ArrayList<>();
+        String sql = "SELECT iv.*, i.islandName, c.countryName " +
+                    "FROM IslandVehicles iv " +
+                    "JOIN Islands i ON iv.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE iv.vehicleType LIKE ? OR iv.modelName LIKE ? " +
+                    "ORDER BY iv.vehicleId " +
+                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            String searchPattern = "%" + searchTerm + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setInt(3, (page - 1) * pageSize);
+            ps.setInt(4, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    IslandVehicle vehicle = new IslandVehicle();
+                    vehicle.setVehicleId(rs.getInt("vehicleId"));
+                    vehicle.setIslandId(rs.getInt("islandId"));
+                    vehicle.setVehicleType(rs.getString("vehicleType"));
+                    vehicle.setModelName(rs.getString("modelName"));
+                    vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
+                    vehicle.setCapacity(rs.getInt("capacity"));
+                    vehicle.setAvailability(rs.getInt("availability"));
+                    
+                    // Set island and country names
+                    vehicle.setIslandName(rs.getString("islandName"));
+                    vehicle.setCountryName(rs.getString("countryName"));
+                    
+                    // Set additional fields
+                    vehicle.setVehicleName(rs.getString("modelName"));
+                    vehicle.setBrand("");
+                    vehicle.setModel(rs.getString("modelName"));
+                    vehicle.setContactInfo("");
+                    vehicle.setLocation("");
+                    vehicle.setDescription("");
+                    vehicle.setVehicleImageUrl("");
+                    
+                    list.add(vehicle);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    /**
+     * Get count of vehicles matching search term
+     */
+    public int getSearchVehiclesCount(String searchTerm) {
+        String sql = "SELECT COUNT(*) FROM IslandVehicles " +
+                    "WHERE vehicleType LIKE ? OR modelName LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            String searchPattern = "%" + searchTerm + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     // ==================== PLACE CRUD OPERATIONS ====================
     
     // Lay tat ca dia diem
@@ -2004,6 +2256,320 @@ if (keyword != null && !keyword.trim().isEmpty()) {
             e.printStackTrace();
         }
         return list;
+    }
+    
+    // ==================== PLACE PAGINATION METHODS ====================
+    
+    /**
+     * Get places with pagination and island names
+     */
+    public List<Place> getPlacesByPageWithIslandNames(int page, int pageSize) {
+        List<Place> list = new ArrayList<>();
+        String sql = "SELECT p.*, i.islandName, c.countryName " +
+                    "FROM Places p " +
+                    "JOIN Islands i ON p.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "ORDER BY p.placeName " +
+                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, (page - 1) * pageSize);
+            ps.setInt(2, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Place place = new Place();
+                    place.setPlaceId(rs.getInt("placeId"));
+                    place.setIslandId(rs.getInt("islandId"));
+                    place.setPlaceName(rs.getString("placeName"));
+                    place.setLocation(rs.getString("location"));
+                    place.setDescription(rs.getString("description"));
+                    place.setHasTicket(rs.getBoolean("hasTicket"));
+                    place.setTicketPrice(rs.getInt("ticketPrice"));
+                    
+                    // Set island and country names
+                    place.setIslandName(rs.getString("islandName"));
+                    place.setCountryName(rs.getString("countryName"));
+                    
+                    list.add(place);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    /**
+     * Get total count of places
+     */
+    public int getTotalPlacesCount() {
+        String sql = "SELECT COUNT(*) FROM Places";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    /**
+     * Search places with pagination and island names
+     */
+    public List<Place> searchPlacesByNameWithPaginationAndIslandNames(String searchTerm, int page, int pageSize) {
+        List<Place> list = new ArrayList<>();
+        String sql = "SELECT p.*, i.islandName, c.countryName " +
+                    "FROM Places p " +
+                    "JOIN Islands i ON p.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ? " +
+                    "ORDER BY p.placeName " +
+                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            String searchPattern = "%" + searchTerm + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ps.setInt(4, (page - 1) * pageSize);
+            ps.setInt(5, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Place place = new Place();
+                    place.setPlaceId(rs.getInt("placeId"));
+                    place.setIslandId(rs.getInt("islandId"));
+                    place.setPlaceName(rs.getString("placeName"));
+                    place.setLocation(rs.getString("location"));
+                    place.setDescription(rs.getString("description"));
+                    place.setHasTicket(rs.getBoolean("hasTicket"));
+                    place.setTicketPrice(rs.getInt("ticketPrice"));
+                    
+                    // Set island and country names
+                    place.setIslandName(rs.getString("islandName"));
+                    place.setCountryName(rs.getString("countryName"));
+                    
+                    list.add(place);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    /**
+     * Get count of places matching search term
+     */
+    public int getSearchPlacesCount(String searchTerm) {
+        String sql = "SELECT COUNT(*) FROM Places " +
+                    "WHERE placeName LIKE ? OR location LIKE ? OR description LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            String searchPattern = "%" + searchTerm + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    // ==================== TOUR SERVICE OPERATIONS ====================
+    
+    // Lay tat ca services theo islandId (Hotels, Restaurants, Places, Vehicles)
+    public List<TourService> getServicesByIslandId(int islandId) {
+        List<TourService> services = new ArrayList<>();
+        
+        // Get Hotels
+        try {
+            List<Hotel> hotels = getListHotelsById(islandId);
+            for (Hotel hotel : hotels) {
+                TourService service = new TourService();
+                service.setServiceType("Hotel");
+                service.setServiceId(hotel.getHotelId());
+                service.setServiceName(hotel.getHotelName());
+                service.setServiceDescription("Room Type: " + hotel.getRoomType());
+                service.setServicePrice(hotel.getPricePerNight());
+                service.setServiceImageUrl(hotel.getHotelImageUrl());
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        // Get Restaurants
+        List<model.Restaurant> restaurants = getRestaurantsByIslandId(islandId);
+        for (model.Restaurant restaurant : restaurants) {
+            TourService service = new TourService();
+            service.setServiceType("Restaurant");
+            service.setServiceId(restaurant.getRestaurantId());
+            service.setServiceName(restaurant.getRestaurantName());
+            service.setServiceDescription(restaurant.getCuisineType() + " - " + restaurant.getPriceRange());
+            service.setServicePrice(0); // Restaurants don't have fixed price
+            service.setServiceImageUrl(restaurant.getRestaurantImageUrl());
+            services.add(service);
+        }
+        
+        // Get Places
+        List<Place> places = getPlacesByIslandId(islandId);
+        for (Place place : places) {
+            TourService service = new TourService();
+            service.setServiceType("Place");
+            service.setServiceId(place.getPlaceId());
+            service.setServiceName(place.getPlaceName());
+            service.setServiceDescription(place.getDescription());
+            service.setServicePrice(place.getTicketPrice());
+            service.setServiceImageUrl(""); // Places don't have image URL in current model
+            services.add(service);
+        }
+        
+        // Get Vehicles
+        try {
+            List<IslandVehicle> vehicles = getListVehicleById(islandId);
+            for (IslandVehicle vehicle : vehicles) {
+                TourService service = new TourService();
+                service.setServiceType("Vehicle");
+                service.setServiceId(vehicle.getVehicleId());
+                service.setServiceName(vehicle.getVehicleType() + " - " + vehicle.getModelName());
+                service.setServiceDescription("Capacity: " + vehicle.getCapacity() + " people");
+                service.setServicePrice((int) vehicle.getPricePerDay());
+                service.setServiceImageUrl(""); // Vehicles don't have image URL in current model
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return services;
+    }
+    
+    // Them service vao tour
+    public boolean addServiceToTour(int tourId, String serviceType, int serviceId) {
+        String sql = "INSERT INTO TourServices (tourId, serviceType, serviceId, createdAt) VALUES (?, ?, ?, GETDATE())";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            ps.setString(2, serviceType);
+            ps.setInt(3, serviceId);
+            
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Xoa service khoi tour
+    public boolean removeServiceFromTour(int tourServiceId) {
+        String sql = "DELETE FROM TourServices WHERE tourServiceId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, tourServiceId);
+            
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Lay tat ca services cua mot tour
+    public List<TourService> getServicesByTourId(int tourId) {
+        List<TourService> services = new ArrayList<>();
+        String sql = "SELECT ts.*, " +
+                    "CASE " +
+                    "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelName " +
+                    "WHEN UPPER(ts.serviceType) = 'RESTAURANT' THEN r.restaurantName " +
+                    "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.placeName " +
+                    "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN CONCAT(v.vehicleType, ' - ', v.modelName) " +
+                    "END as serviceName, " +
+                    "CASE " +
+                    "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelImageUrl " +
+                    "WHEN UPPER(ts.serviceType) = 'RESTAURANT' THEN r.restaurantImageUrl " +
+                    "ELSE '' " +
+                    "END as serviceImageUrl, " +
+                    "CASE " +
+                    "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.pricePerNight " +
+                    "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.ticketPrice " +
+                    "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN v.pricePerDay " +
+                    "ELSE 0 " +
+                    "END as servicePrice " +
+                    "FROM TourServices ts " +
+                    "LEFT JOIN Hotels h ON UPPER(ts.serviceType) = 'HOTEL' AND ts.serviceId = h.hotelId " +
+                    "LEFT JOIN Restaurants r ON UPPER(ts.serviceType) = 'RESTAURANT' AND ts.serviceId = r.restaurantId " +
+                    "LEFT JOIN Places p ON UPPER(ts.serviceType) = 'PLACE' AND ts.serviceId = p.placeId " +
+                    "LEFT JOIN IslandVehicles v ON UPPER(ts.serviceType) = 'VEHICLE' AND ts.serviceId = v.vehicleId " +
+                    "WHERE ts.tourId = ? " +
+                    "ORDER BY ts.createdAt";
+        
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                TourService service = new TourService();
+                service.setTourServiceId(rs.getInt("tourServiceId"));
+                service.setTourId(rs.getInt("tourId"));
+                service.setServiceType(rs.getString("serviceType"));
+                service.setServiceId(rs.getInt("serviceId"));
+                service.setCreatedAt(rs.getTimestamp("createdAt"));
+                service.setServiceName(rs.getString("serviceName"));
+                service.setServiceImageUrl(rs.getString("serviceImageUrl"));
+                service.setServicePrice(rs.getInt("servicePrice"));
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return services;
+    }
+    
+    // Kiem tra xem service da duoc them vao tour chua
+    public boolean isServiceInTour(int tourId, String serviceType, int serviceId) {
+        String sql = "SELECT COUNT(*) FROM TourServices WHERE tourId = ? AND serviceType = ? AND serviceId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            ps.setString(2, serviceType);
+            ps.setInt(3, serviceId);
+            
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    // Xoa tat ca services cua mot tour
+    public boolean clearTourServices(int tourId) {
+        String sql = "DELETE FROM TourServices WHERE tourId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            
+            int result = ps.executeUpdate();
+            return result >= 0; // Return true even if no services were deleted (0 rows affected)
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     
     

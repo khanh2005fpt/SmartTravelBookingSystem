@@ -318,7 +318,7 @@
                             <option value="">Tất cả các hãng</option>
                             <c:forEach var="airline" items="${airlineNames}">
                                 <option value="${airline.airlineId}"
-                                    ${param.airlineId == airline.airlineId ? 'selected' : ''}>
+                                    ${param.airlineId != null && param.airlineId == airline.airlineId ? 'selected' : ''}>
                                     ${airline.airlineName}
                                 </option>
                             </c:forEach>
