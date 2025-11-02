@@ -389,81 +389,110 @@
 
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="iataCode">Chọn Mã chuyến bay <span class="required">*</span></label>
-                                    <select class="form-control ${not empty errors.airlineId ? 'is-invalid' : ''}" 
-                                            id="iataCode" 
-                                            name="airlineId" 
+                                    <label for="iataCode">Mã định danh chuyến bay <span class="required">*</span></label>
+                                    <select class="form-control ${not empty errors.flightId ? 'is-invalid' : ''}" 
+                                            id="flightId" 
+                                            name="flightId"
                                             required>
-                                        <option value="">Chọn Mã chuyến bay ...</option>
-                                        <c:forEach var="airline" items="${airlines}">
-                                            <option value="${airline.airlineId}"
-                                                    data-iata="${airline.iataCode}"
-                                                    ${ (flight != null && flight.airline.airlineId == airline.airlineId)
-                                                       || param.airlineId == airline.airlineId ? 'selected' : '' }>
-                                                        ${airline.iataCode} - ${airline.airlineName}
-                                                    </option>
-
-                                            </c:forEach>
+                                        <option value="">Chọn mã định danh...</option>
+                                        <c:forEach var="f" items="${flights}">
+                                            <option value="${f.flightId}"
+                                                    ${ (flightSchedule != null && flightSchedule.flight.flightId == f.flightId)
+                                                       || param.flightId == f.flightId ? 'selected' : '' }>
+                                           Mã số ${f.flightId} : ${f.departure} → ${f.destination}
+                                            </option>
+                                        </c:forEach>
                                         </select>
                                         <!-- hien thi loi khi validate o ben server -->      
-                                        <c:if test="${not empty errorFlightNumber}">
-                                            <div class="invalid-feedback">${errorFlightNumber}</div>
+                                       
+                                        <c:if test="${not empty errorFlightId}">
+                                            <div class="invalid-feedback">${errorFlightId}</div>
                                         </c:if>
+                                </div>
 
-                                        <c:if test="${not empty errorAirlineId}">
-                                            <div class="invalid-feedback">${errorAirlineId}</div>
-                                        </c:if>
+                                            <div class="form-group">
+                                                <!-- Notes -->
+                                                <label for="notes">Notes<span class="required">*</span></label>
+                                                <textarea name="notes" id="notes" rows="6">Hành khách không cần nhận lại hành lý</textarea>
+                                            </div>
+
+
                                     </div>
+                                    <div class="form-row">
+                                           <div class="form-group">
+                                           <!-- Arrival Airport -->
+                                           <label for="arrivalAirport">Sân bay đến<span class="required">*</span></label>
+                                           <select class="form-control" id="arrivalAirport" name="arrivalAirport" required>
+                                               <option value="">--Chọn sân bay đến--</option>
+                                               <option value="PQC">Phú Quốc (PQC)</option>
+                                               <option value="LGK">Langkawi (LGK)</option>
+                                               <option value="HKT">Phuket (HKT)</option>
+                                               <option value="DPS">Bali (DPS)</option>
+                                               <option value="MPH">Boracay (MPH)</option>
+                                               <option value="KOS">Sihanoukville (KOS)</option>
+                                               <option value="TOD">Tioman (TOD)</option>
+                                               <option value="USM">Koh Samui (USM)</option>
+                                               <option value="NDP">Nusa Penida (NDP)</option>
+                                               <option value="PPS">Palawan (PPS)</option>
+                                           </select>
 
-                                    <!-- input ẩn để lưu iataCode -->
-                                    <input type="hidden" id="flightNumber" name="flightNumber"/>
-
-
+                                            <!-- hien thi loi khi validate o ben server -->  
+                                            <c:if test="${not empty errorDeparture}">
+                                                <div class="invalid-feedback">${errorDeparture}</div>
+                                            </c:if>
+                                    
+                                        </div>     
+                                        
+                                        
                                     <div class="form-group">
-                                        <label for="destinationIslandId">Điểm đến du lịch <span class="required">*</span></label>
-                                        <select class="form-control" id="destinationIslandId" name="destinationIslandId" required>
-                                            <option value="">Chọn đảo...</option>
-                                            <c:forEach var="island" items="${islands}">
-                                                <option value="${island.islandId}"
-                                                        ${ (flight!=null && flight.destinationIsland.islandId == island.islandId)
-                                                           || param.destinationIslandId == island.islandId
-                                                           ? 'selected' : '' }>
-                                                            ${island.islandName}
-                                                        </option>
-                                                </c:forEach>
-                                            </select>
+                                        <label  for="departureAirport">Sân bay khởi hành<span class="required">*</span></label>
+                                        <select class="form-control"name="departureAirport" id="departureAirport" required>
+                                            <option value="">--Chọn sân bay --</option>
+                                            <option value="HAN">Nội Bài (HAN)</option>
+                                            <option value="SGN">Tân Sơn Nhất (SGN)</option>
+                                        </select>
+
+
 
                                             <!-- hien thi loi khi validate o ben server -->  
                                             <c:if test="${not empty errorDestinationIslandId}">
                                                 <div class="invalid-feedback">${errorDestinationIslandId}</div>
                                             </c:if>
                                         </div>
-
+                                                   
+                                    
                                     </div>
+
+                                </div>
+
+                                <!-- Location Information Section -->
+                                <div class="form-section">
+                                    <h4 class="section-title">
+                                        <i class="fa fa-map-marker-alt"></i> Thông tin về thời gian chuyến bay
+                                    </h4>
+
                                     <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="flightClass">Nơi khởi hành <span class="required">*</span></label>
-                                            <input type="text" 
+                                           <div class="form-group">
+                                            <label for="departureTime">Giờ khởi hành <span class="required">*</span></label>
+                                            <input type="time" 
                                                    class="form-control" 
-                                                   id="departure" 
-                                                   name="departure" 
-                                                   value="${flight.departure}"
-                                                   placeholder="Nhập nơi khởi hành ...">
+                                                   id="departureTime" 
+                                                   name="departureTime" 
+                                              >
 
                                             <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorDeparture}">
-                                                <div class="invalid-feedback">${errorDeparture}</div>
+                                            <c:if test="${not empty errorTicketAvailable}">
+                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
                                             </c:if>
-                                            <div class="form-text">Khởi hành tại 2 thành phố lớn Việt Nam</div>
+
                                         </div>
-                                        <div class="form-group">
-                                            <label for="ticketAvailable">Số vé còn lại <span class="required">*</span></label>
-                                            <input type="text" 
+                                       <div class="form-group">
+                                            <label for="arrivalTime">Giờ hạ cánh <span class="required">*</span></label>
+                                            <input type="time" 
                                                    class="form-control" 
-                                                   id="ticketAvailable" 
-                                                   name="ticketAvailable" 
-                                                   value="${flight !=null ? flight.ticketAvailable:param.ticketAvailable}"
-                                                   placeholder="Nhập số lượng vé">
+                                                   id="arrivalTime" 
+                                                   name="arrivalTime" 
+                                              >
 
                                             <!-- hien thi loi khi validate o ben server -->  
                                             <c:if test="${not empty errorTicketAvailable}">
@@ -473,75 +502,33 @@
                                         </div>
 
                                     </div>
-
-                                </div>
-
-                                <!-- Location Information Section -->
-                                <div class="form-section">
-                                    <h4 class="section-title">
-                                        <i class="fa fa-map-marker-alt"></i> Thông tin chi tiết 
-                                    </h4>
-
-                                    <div class="form-row">
-
-                                        <div class="form-group">
-                                            <label for="basePrice" class="form-label">
-                                                Giá vé chuyến bay  <span class="required">*</span>
-                                            </label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">₫</span>
-                                                </div>
-                                                <input type="number" 
-                                                       class="form-control ${not empty errors.basePrice ? 'is-invalid' : ''}" 
-                                                       id="basePrice" 
-                                                       name="basePrice" 
-                                                       value="${flight != null ? flight.basePrice : param.basePrice}"
-                                                       placeholder="0"
-                                                       min="0"
-                                                       step="1000"
-                                                       required>
-                                            </div>
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorBasePrice}">
-                                                <div class="invalid-feedback">${errorBasePrice}</div>
-                                            </c:if>
-                                            <div class="form-text">Giá tính bằng VNĐ, phải là số không âm và lớn hơn 0</div>
-                                        </div>
-
-
-                                    </div>
                                     <div class="form-row">  
-                                        <div class="form-group">
-                                            <label for="flightType">Loại chuyến bay</label>
-                                            <select class="form-control" id="flightType" name="flightType" required>
-                                                <option value="">--Chọn loại chuyến bay --</option>
-                                                <option value="Một chiều" ${(flight!=null && flight.flightType=='Một chiều')|| param.flightType == 'Một chiều' ? 'selected' : ''}>Một chiều</option>
-                                                <option value="Khứ hồi" ${ (flight!=null && flight.flightType=='Khứ hồi') ||param.flightType == 'Khứ hồi' ? 'selected' : ''}>Khứ hồi</option>
-                                            </select>
+                                          
+                                               <div class="form-group">
+                                            <label for="returnDepartureTime">Giờ khởi hành về <span class="required">*</span></label>
+                                            <input type="time" 
+                                                   class="form-control" 
+                                                   id="returnDepartureTime" 
+                                                   name="returnDepartureTime" 
+                                              >
 
-                                            <!-- hien thi loi khi validate o ben server -->   
-                                            <c:if test="${not empty errorFlightType}">
-                                                <div class="invalid-feedback">${errorFlightType}</div>
+                                            <!-- hien thi loi khi validate o ben server -->  
+                                            <c:if test="${not empty errorTicketAvailable}">
+                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
                                             </c:if>
 
                                         </div>
 
-
-
-                                        <div class="form-group">
-                                            <label for="flightClass">Hạng ghế</label>
-                                            <select class="form-control ${not empty errors.flightClass? 'is-invalid' : ''}"  id="flightClass" name="flightClass" required>
-                                                <option value="">-- Chọn hạng ghế vé--</option>
-                                                <option value="Phổ thông" ${(flight!=null && flight.flightClass=='Phổ thông')|| param.flightClass == 'Phổ thông' ? 'selected' : ''}>Phổ thông</option>
-                                                <option value="Thương gia" ${(flight!=null && flight.flightClass=='Thương gia')|| param.flightClass == 'Thương gia' ? 'selected' : ''}>Thương gia</option>
-                                                <option value="Hạng nhất" ${ (flight!=null && flight.flightClass=='Hạng nhất')|| param.flightClass == 'Hạng nhất' ? 'selected' : ''}>Hạng nhất</option>
-                                            </select>
-
-
+                                          <div class="form-group">
+                                            <label for="returnArrivalTime">Giờ hạ cánh về <span class="required">*</span></label>
+                                            <input type="time" 
+                                                   class="form-control" 
+                                                   id="returnArrivalTime" 
+                                                   name="returnArrivalTime" 
+                                              >
                                             <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorFlightClass}">
-                                                <div class="invalid-feedback">${errorFlightClass}</div>
+                                            <c:if test="${not empty errorTicketAvailable}">
+                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
                                             </c:if>
 
                                         </div>
@@ -549,53 +536,44 @@
                                     </div>
                                 </div>              
 
-                                <!---------- Ảnh đảo du lịch ------------------>
+                                <!----------Transit ------------------>
                                 <div class="form-section">
+                                    <h4 class="section-title">
+                                        <i class="fa fa-map-marker-alt"></i> Thông tin về sân bay quá cảnh(Nếu có)
+                                    </h4>
 
-                                    <h4><i class="fa fa-image"></i> Hình ảnh chuyến bay du lịch</h4>
+                                            <div class="form-row">  
+                                          
+                                               <div class="form-group">
+                                            <label for="transitAirport">Sân bay quả cảnh<span class="required">*</span></label>
+                                            <select class="form-control" name="transitAirport" id="transitAirport">
+                                                <option value="">None</option>
+                                                <option value="KUL">Kuala Lumpur (KUL)</option>
+                                                <option value="BKK">Bangkok (BKK)</option>
+                                                <option value="CGK">Jakarta (CGK)</option>
+                                                <option value="MNL">Manila (MNL)</option>
+                                                <option value="PNH">Phnom Penh (PNH)</option>
+                                            </select>
 
-
-                                    <div class="row">
-
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="tourImageFile" class="form-label">
-                                                    Tải lên hình ảnh chuyến bay
-                                                </label>
-                                                <input type="file" 
-                                                       class="form-control ${not empty flight.destinationImageUrl ? 'is-invalid' : ''}" 
-                                                       id="flightImageFile" 
-                                                       name="flightImageFile" 
-                                                       accept="image/*"
-                                                       onchange="previewImage(this)">
-
-                                                <c:if test="${not empty errorFlightImage}">
-                                                    <div class="invalid-feedback">${errorFlightImage}</div>
-                                                </c:if>
-                                                <div class="form-text">Chọn file hình ảnh (JPG, PNG, GIF). Tối đa 5MB</div>
-                                            </div> 
-
-                                        </div> 
-
-                                        <!---------- Xem trước ảnh------------------>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="form-label">Xem trước ảnh </label>
-                                                <div class="image-preview-container">
-                                                    <img id="imagePreview" 
-                                                         src="${flight != null && flight.destinationImageUrl != null ? pageContext.request.contextPath.concat('/').concat(flight.destinationImageUrl) : ''}" 
-                                                         alt="Preview" 
-                                                         style="max-width: 100%; max-height: 200px; display: ${flight != null && flight.destinationImageUrl != null ? 'block' : 'none'}; border: 1px solid #ddd; border-radius: 4px;">
-                                                    <div id="noImageText" style="display: ${flight != null && flight.destinationImageUrl != null ? 'none' : 'block'}; color: #6c757d; font-style: italic;">
-                                                        Chưa có hình ảnh
-                                                    </div>
-                                                </div>  
-                                            </div>
+                                            <!-- hien thi loi khi validate o ben server -->  
+                                            <c:if test="${not empty errorTicketAvailable}">
+                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
+                                            </c:if>
 
                                         </div>
+
+                                          <div class="form-group">
+                                            <label for="transitDuration">Thời gian quá cảnh<span class="required">*</span></label>
+                                             <input type="text"   class="form-control"  name="transitDuration" id="transitDuration" placeholder="e.g. 1h20">
+                                            <!-- hien thi loi khi validate o ben server -->  
+                                            <c:if test="${not empty errorTicketAvailable}">
+                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
+                                            </c:if>
+
+                                        </div>
+
                                     </div>
+                                   
                                 </div>
 
 

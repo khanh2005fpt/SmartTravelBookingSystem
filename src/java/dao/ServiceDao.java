@@ -1039,37 +1039,11 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
          
          
                 // === 1️⃣ Trường hợp test không lọc gì (hiển thị tất cả) ===
-            List<FlightSchedule> all = dao.searchFlightSchedules("", null, "");
-            System.out.println("🔹 Tổng số chuyến bay: " + all.size());
-            for (FlightSchedule fs : all) {
-                System.out.println(
-                    fs.getFlight().getFlightNumber() + " | " +
-                    fs.getDepartureAirport() + " -> " +
-                    fs.getArrivalAirport() + " | " +
-                    fs.getDepartureTime() + " - " + fs.getArrivalTime()
-                );
+            List<Flight> f = dao.getFlightsWithoutSchedule();
+            for(Flight flight :f ){
+                System.out.println(flight);
             }
-
-            // === 2️⃣ Test tìm theo keyword ===
-            System.out.println("\n=== Tìm theo từ khóa 'thuong' ===");
-            List<FlightSchedule> keywordList = dao.searchFlightSchedules("thuong", null, "");
-            for (FlightSchedule fs : keywordList) {
-                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getFlight().getFlightType()+"|" +fs.getFlight().getFlightClass());
-            }
-
-            // === 3️⃣ Test lọc theo flightId ===
-            System.out.println("\n=== Tìm chuyến bay có flightType ===");
-            List<FlightSchedule> flightIdList = dao.searchFlightSchedules("", "Khứ Hồi", "");
-            for (FlightSchedule fs : flightIdList) {
-                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getFlight().getFlightType() +"-"+fs.getFlight().getFlightClass()+"-"+ fs.getPlaneModel());
-            }
-
-            // === 4️⃣ Test lọc theo khoảng thời gian khởi hành ===
-            System.out.println("\n=== Tìm chuyến bay từ 08:00 đến 12:00 ===");
-            List<FlightSchedule> timeList = dao.searchFlightSchedules("", null, "08:00 -12:00");
-            for (FlightSchedule fs : timeList) {
-                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getDepartureTime());
-            }
+           
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1500,6 +1474,30 @@ private void setAircraftInfo(FlightSchedule schedule, String flightClass) {
             break;
     }
 }
+
+  //Lấy danh sách Flight chưa có lịch trình
+public List<Flight> getFlightsWithoutSchedule() throws SQLException {
+    List<Flight> list = new ArrayList<>();
+    String sql = """
+        SELECT flightId, departure , destination 
+        FROM Flights
+        WHERE hasSchedule = 0
+        ORDER BY flightId
+        """;
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            Flight f = new Flight();
+            f.setFlightId(rs.getInt("flightId"));
+            f.setDeparture(rs.getString("departure"));
+            f.setDestination(rs.getString("destination"));
+            list.add(f);
+        }
+    }
+    return list;
+}
+
+
 
 
     // ==================== ISLAND CRUD OPERATIONS ====================

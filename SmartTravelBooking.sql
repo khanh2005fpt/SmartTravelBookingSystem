@@ -201,8 +201,9 @@ CREATE TABLE Flights (
 GO
 
 select * from Flights
+/*
 DELETE FROM Flights
-WHERE flightId = 23; 
+WHERE flightId = 19; 
 DBCC CHECKIDENT ('Flights', RESEED, 18);  
 
 ALTER TABLE Flights
@@ -211,7 +212,7 @@ UPDATE Flights
 SET hasSchedule = 1
 WHERE flightId BETWEEN 1 AND 17;
 
-
+*/
 
 INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
                      basePrice, ticketAvailable, flightType, flightClass, destinationImageUrl)
@@ -266,8 +267,8 @@ CREATE TABLE FlightSchedules (
     transitAirport NVARCHAR(100) NULL,       -- sân bay trung chuyển (nếu có)
     transitDuration NVARCHAR(50) NULL,       -- thời gian dừng (VD: '7h30', '45 phút')
     notes NVARCHAR(255) NULL                 -- ghi chú
+	CONSTRAINT UQ_FlightSchedules_FlightId UNIQUE (flightId) -- 1 flight thì chỉ có 1 schedule
 );
-select * from FlightSchedules
 select * from FlightSchedules
 
 

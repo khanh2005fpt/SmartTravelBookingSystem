@@ -104,7 +104,7 @@ if(session != null){
                     handleFlightscheduleList(request, response);
                     break;
                 case "create":
-                    handleCreateForm(request, response);
+                    handleCreateSheduleForm(request, response);
                     break;
                 case "edit":
                     handleEditForm(request, response);
@@ -172,9 +172,7 @@ if(session != null){
             throws ServletException, IOException {
         try {
             List<FlightSchedule> flightSchedules = serviceDao.getFlightSchedules();
-            for(FlightSchedule fs : flightSchedules){
-                System.out.println("so luong:"+fs.getPlaneModel());
-            }
+          
             request.setAttribute("flightSchedules", flightSchedules);
             request.setAttribute("pageTitle", "FlightSchedules Management");
             request.getRequestDispatcher("/views/staff/flight_schedule-list.jsp").forward(request, response);
@@ -207,15 +205,14 @@ if(session != null){
     /**
      * Display create flight form
      */
-    private void handleCreateForm(HttpServletRequest request, HttpServletResponse response)
+    private void handleCreateSheduleForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Load airlines and islands for dropdowns
-            List<Airlines> airlines = serviceDao.getAllAirlines();
-            List<Island> islands = serviceDao.getAllIslands();
-            request.setAttribute("islands", islands);
-            request.setAttribute("airlines", airlines);
-            request.setAttribute("pageTitle", "Create New Flight");
+            // Load flights for dropdowns
+            List<Flight> flights = serviceDao.getFlightsWithoutSchedule();
+           
+            request.setAttribute("flights", flights);
+            request.setAttribute("pageTitle", "Create New FlightSchdeule");
             request.getRequestDispatcher("/views/staff/flight_schedule-form.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading create form: " + e.getMessage(), e);
