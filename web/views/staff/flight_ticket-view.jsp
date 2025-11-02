@@ -1,9 +1,3 @@
-<%-- 
-    Document   : restaurant-view
-    Created on : Staff Restaurant View Page
-    Author     : System
-    Description: View restaurant details
---%>
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.Restaurant" %>

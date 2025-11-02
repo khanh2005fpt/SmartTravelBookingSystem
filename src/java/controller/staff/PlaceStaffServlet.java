@@ -136,9 +136,42 @@ public class PlaceStaffServlet extends HttpServlet {
     private void handlePlaceList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            List<Place> places = serviceDao.getPlaces();
+            // Get pagination parameters
+            String pageParam = request.getParameter("page");
+            String pageSizeParam = request.getParameter("pageSize");
+            String search = request.getParameter("search");
+            
+            int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
+            int pageSize = (pageSizeParam != null) ? Integer.parseInt(pageSizeParam) : 10;
+            
+            List<Place> places;
+            int totalPlaces;
+            
+            // Handle search or normal listing
+            if (search != null && !search.trim().isEmpty()) {
+                places = serviceDao.searchPlacesByNameWithPaginationAndIslandNames(search.trim(), page, pageSize);
+                totalPlaces = serviceDao.getSearchPlacesCount(search.trim());
+                request.setAttribute("search", search);
+            } else {
+                places = serviceDao.getPlacesByPageWithIslandNames(page, pageSize);
+                totalPlaces = serviceDao.getTotalPlacesCount();
+            }
+            
+            // Calculate pagination info
+            int totalPages = (int) Math.ceil((double) totalPlaces / pageSize);
+            int startPage = Math.max(1, page - 2);
+            int endPage = Math.min(totalPages, page + 2);
+            
+            // Set attributes
             request.setAttribute("places", places);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("totalPlaces", totalPlaces);
+            request.setAttribute("startPage", startPage);
+            request.setAttribute("endPage", endPage);
             request.setAttribute("pageTitle", "Place Management");
+            
             request.getRequestDispatcher("/views/staff/place-list.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading place list: " + e.getMessage(), e);

@@ -494,7 +494,7 @@
                                 <select class="form-control" id="islandId" name="islandId" required>
                                     <option value="">Chọn đảo</option>
                                     <c:forEach var="island" items="${islands}">
-                                        <option value="${island.islandId}" ${place.islandId == island.islandId ? 'selected' : ''}>
+                                        <option value="${island.islandId}" ${place != null && place.islandId != null && place.islandId == island.islandId ? 'selected' : ''}>
                                             ${island.islandName}
                                         </option>
                                     </c:forEach>
@@ -531,7 +531,7 @@
                                            id="hasTicket" 
                                            name="hasTicket" 
                                            value="true"
-                                           ${place.hasTicket ? 'checked' : ''}
+                                           ${place != null && place.hasTicket != null && place.hasTicket == true ? 'checked' : ''}
                                            onchange="toggleTicketPrice()">
                                     <label class="form-check-label" for="hasTicket">
                                         Địa điểm này có thu phí vé tham quan
@@ -539,7 +539,7 @@
                                 </div>
                             </div>
                             
-                            <div class="form-group" id="ticketPriceGroup" style="${place.hasTicket ? '' : 'display: none;'}">
+                            <div class="form-group" id="ticketPriceGroup" style="${place != null && place.hasTicket != null && place.hasTicket == true ? '' : 'display: none;'}">
                                 <label for="ticketPrice">Giá vé (₫)</label>
                                 <input type="number" 
                                        class="form-control" 

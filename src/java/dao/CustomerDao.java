@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.List;
 import java.util.Objects;
 import model.CustomerProfile;
@@ -449,7 +450,8 @@ public void setPrimaryEmai(int userId, int emailId) {
                 profile.setProfileId(rs.getInt("profileId"));
                 profile.setUserId(rs.getInt("userId"));
                 profile.setFullName(rs.getString("fullName"));
-                profile.setDateOfBirth(rs.getDate("dateOfBirth").toLocalDate());
+                 Date dob = rs.getDate("dateOfBirth");
+                profile.setDateOfBirth(dob != null ? dob.toLocalDate() : null);
                 profile.setGender(profile.getGender());
                 profile.setAddress(rs.getString("address"));
                 profile.setProfilePicture(rs.getString("profilePicture"));

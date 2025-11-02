@@ -143,9 +143,63 @@ public class HotelStaffServlet extends HttpServlet {
     private void handleHotelList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            List<Hotel> hotels = serviceDao.getHotels();
+            // Get pagination parameters
+            String pageParam = request.getParameter("page");
+            String pageSizeParam = request.getParameter("pageSize");
+            String searchParam = request.getParameter("search");
+            
+            int page = 1;
+            if (pageParam != null && !pageParam.trim().isEmpty()) {
+                try {
+                    page = Integer.parseInt(pageParam);
+                    if (page < 1) page = 1;
+                } catch (NumberFormatException e) {
+                    page = 1;
+                }
+            }
+            
+            int pageSize = 12; // Default page size
+            if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+                try {
+                    pageSize = Integer.parseInt(pageSizeParam);
+                    if (pageSize < 1) pageSize = 12;
+                    if (pageSize > 100) pageSize = 100; // Max page size limit
+                } catch (NumberFormatException e) {
+                    pageSize = 12;
+                }
+            }
+            
+            List<Hotel> hotels;
+            int totalHotels;
+            
+            // Check if search is performed
+            if (searchParam != null && !searchParam.trim().isEmpty()) {
+                hotels = serviceDao.searchHotelsByNameWithPaginationAndIslandNames(searchParam.trim(), page, pageSize);
+                totalHotels = serviceDao.getSearchHotelsCount(searchParam.trim());
+                request.setAttribute("search", searchParam.trim());
+            } else {
+                hotels = serviceDao.getHotelsByPageWithIslandNames(page, pageSize);
+                totalHotels = serviceDao.getTotalHotelsCount();
+            }
+            
+            // Calculate pagination info
+            int totalPages = (int) Math.ceil((double) totalHotels / pageSize);
+            
+            // Set attributes for JSP
             request.setAttribute("hotels", hotels);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalHotels", totalHotels);
+            
+            // Calculate pagination display range
+            int startPage = Math.max(1, page - 2);
+            int endPage = Math.min(totalPages, page + 2);
+            request.setAttribute("startPage", startPage);
+            request.setAttribute("endPage", endPage);
+            
             request.setAttribute("pageTitle", "Hotel Management");
+            request.setAttribute("action", "list");
             request.getRequestDispatcher("/views/staff/hotel-list.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading hotel list: " + e.getMessage(), e);
