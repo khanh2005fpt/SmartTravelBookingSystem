@@ -173,7 +173,7 @@ if(session != null){
         try {
             List<FlightSchedule> flightSchedules = serviceDao.getFlightSchedules();
             for(FlightSchedule fs : flightSchedules){
-                System.out.println("so luong:"+fs.getSeatCapacity());
+                System.out.println("so luong:"+fs.getPlaneModel());
             }
             request.setAttribute("flightSchedules", flightSchedules);
             request.setAttribute("pageTitle", "FlightSchedules Management");

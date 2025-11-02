@@ -177,7 +177,7 @@ CREATE TABLE Airlines (
     logoUrl VARCHAR(255)                  -- Link logo hãng
 );
 go
-g
+
 -- bảng flights 
 
 CREATE TABLE Flights (
@@ -194,10 +194,23 @@ CREATE TABLE Flights (
     flightClass NVARCHAR(50) NOT NULL
         CONSTRAINT CK_Flights_flightClass CHECK (flightClass IN (N'Phổ thông', N'Thương gia', N'Hạng nhất')),
     destinationImageUrl NVARCHAR(255) NULL,
+	hasSchedule BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 GO
+
+select * from Flights
+DELETE FROM Flights
+WHERE flightId = 23; 
+DBCC CHECKIDENT ('Flights', RESEED, 18);  
+
+ALTER TABLE Flights
+ADD hasSchedule BIT NOT NULL DEFAULT 0;
+UPDATE Flights
+SET hasSchedule = 1
+WHERE flightId BETWEEN 1 AND 17;
+
 
 
 INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
@@ -255,77 +268,79 @@ CREATE TABLE FlightSchedules (
     notes NVARCHAR(255) NULL                 -- ghi chú
 );
 select * from FlightSchedules
+select * from FlightSchedules
+
 
 
 INSERT INTO FlightSchedules 
 (flightId, planeModel, departureAirport, arrivalAirport, departureTime, arrivalTime,returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes)
 VALUES
 -- 1. Hà Nội → Phú Quốc
-(1, N'Airbus A321neo', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '07:30', '09:45', '16:00', '18:15', NULL, NULL, 
+(1, N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '07:30', '09:45', '16:00', '18:15', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 2. Hà Nội → Phú Quốc
-(2, N'Airbus A320', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '12:00', '14:10', NULL, NULL, NULL, NULL, 
+(2, N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '12:00', '14:10', NULL, NULL, NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 3. Hà Nội → Phú Quốc
-(3, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '11:34', '13:10', NULL, NULL,  NULL, NULL, 
+(3, N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '11:34', '13:10', NULL, NULL,  NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 4. TP.HCM → Phú Quốc
-(4, N'Airbus A321', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', '09:00', '10:35', NULL, NULL,NULL, NULL, 
+(4,  N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', '09:00', '10:35', NULL, NULL,NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 5. Hà Nội → Phú Quốc (Khứ hồi)
-(5, N'Airbus A321', N'Nội Bài (HAN)', N'Phú Quốc (PQC)','07:50', '10:00', '21:30', '00:15', NULL, NULL, 
+(5, N'Nội Bài (HAN)', N'Phú Quốc (PQC)','07:50', '10:00', '21:30', '00:15', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 6. TP.HCM → Phú Quốc (Khứ hồi)
-(6, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)',  '08:25', '9:55', '20:45', '21:50',NULL, NULL, 
+(6, N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)',  '08:25', '9:55', '20:45', '21:50',NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 7. TP.HCM → Langkawi (Malaysia)
-(7, N'Boeing 737-800', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', '08:00', '10:30', '17:00', '19:30', N'Kuala Lumpur (KUL)', N'1h20', 
+(7,  N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', '08:00', '10:30', '17:00', '19:30', N'Kuala Lumpur (KUL)', N'1h20', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 8. TP.HCM → Langkawi
-(8, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)','09:15', '11:45', NULL, NULL, N'Kuala Lumpur (KUL)', N'1h15', 
+(8,  N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)','09:15', '11:45', NULL, NULL, N'Kuala Lumpur (KUL)', N'1h15', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 9. Hà Nội → Phuket (Thái Lan)
-(9, N'Airbus A321', N'Nội Bài (HAN)', N'Phuket (HKT)','06:45', '09:00', '15:30', '17:45', N'Bangkok (BKK)', N'1h05', 
+(9, N'Nội Bài (HAN)', N'Phuket (HKT)','06:45', '09:00', '15:30', '17:45', N'Bangkok (BKK)', N'1h05', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 10. TP.HCM → Bali (Indonesia)
-(10, N'Boeing 737 MAX 9', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)',   '08:15', '12:00', '18:00', '21:45', N'Jakarta (CGK)', N'1h30',
+(10, N'Tân Sơn Nhất (SGN)', N'Bali (DPS)',   '08:15', '12:00', '18:00', '21:45', N'Jakarta (CGK)', N'1h30',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 11. TP.HCM → Bali (1 chiều)
-(11, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)','09:15', '11:45', NULL, NULL, N'Jakarta (CGK)', N'1h20',
+(11,N'Tân Sơn Nhất (SGN)', N'Bali (DPS)','09:15', '11:45', NULL, NULL, N'Jakarta (CGK)', N'1h20',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 12. Hà Nội → Boracay (Philippines)
-(12, N'Airbus A321neo', N'Nội Bài (HAN)', N'Boracay (MPH)', '09:00', '12:15', '19:00', '22:15', N'Manila (MNL)', N'1h10', 
+(12, N'Nội Bài (HAN)', N'Boracay (MPH)', '09:00', '12:15', '19:00', '22:15', N'Manila (MNL)', N'1h10', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 13. TP.HCM → Sihanoukville (Campuchia)
-(13, N'ATR 72-600', N'Tân Sơn Nhất (SGN)', N'Sihanoukville (KOS)','10:00', '12:30', '17:45', '19:15', N'Phnom Penh (PNH)', NULL,
+(13, N'Tân Sơn Nhất (SGN)', N'Sihanoukville (KOS)','10:00', '12:30', '17:45', '19:15', N'Phnom Penh (PNH)', NULL,
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 14. Hà Nội → Tioman (Malaysia)
-(14, N'Airbus A320', N'Nội Bài (HAN)', N'Tioman (TOD)','07:00', '10:30', '15:00', '18:30', N'Kuala Lumpur (KUL)', N'1h25',
+(14,  N'Nội Bài (HAN)', N'Tioman (TOD)','07:00', '10:30', '15:00', '18:30', N'Kuala Lumpur (KUL)', N'1h25',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 15. TP.HCM → Koh Samui (Thái Lan)
-(15, N'Airbus A319', N'Tân Sơn Nhất (SGN)', N'Koh Samui (USM)',  '13:30', '17:15', NULL, NULL, N'Bangkok (BKK)', N'50 phút',
+(15, N'Tân Sơn Nhất (SGN)', N'Koh Samui (USM)',  '13:30', '17:15', NULL, NULL, N'Bangkok (BKK)', N'50 phút',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 16. Hà Nội → Nusa Penida (Indonesia)
-(16, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Nusa Penida (NDP)','06:30', '10:15', '17:00', '20:45', N'Denpasar (DPS)', N'1h10',
+(16, N'Nội Bài (HAN)', N'Nusa Penida (NDP)','06:30', '10:15', '17:00', '20:45', N'Denpasar (DPS)', N'1h10',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 17. TP.HCM → Palawan (Philippines)
-(17, N'Airbus A321neo', N'Tân Sơn Nhất (SGN)', N'Palawan (PPS)',  '09:00', '12:30', '18:00', '21:30',N'Manila (MNL)', N'1h00',
+(17, N'Tân Sơn Nhất (SGN)', N'Palawan (PPS)',  '09:00', '12:30', '18:00', '21:30',N'Manila (MNL)', N'1h00',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.');
 
 

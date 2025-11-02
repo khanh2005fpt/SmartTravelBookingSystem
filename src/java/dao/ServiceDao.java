@@ -1005,7 +1005,6 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
                 FlightSchedule schedule = new FlightSchedule();
                 schedule.setScheduleId(rs.getInt("scheduleId"));
                 schedule.setFlight(flight);
-                schedule.setPlaneModel(rs.getString("planeModel"));
                 schedule.setDepartureAirport(rs.getString("departureAirport"));
                 schedule.setArrivalAirport(rs.getString("arrivalAirport"));
                 schedule.setTransitAirport(rs.getString("transitAirport"));
@@ -1021,63 +1020,11 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
                 schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
                 Time retArr = rs.getTime("returnArrivalTime");
                 schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
-                  
-                 // --- Xác định sức chứa theo loại máy bay ---
-                    String model = rs.getString("planeModel");
-                    int capacity = 0;
-                    if (model != null) {
-                        switch (model.trim()) {
-                            case "Airbus A320":
-                                capacity = 180;
-                                break;
-                            case "Airbus A321":
-                                capacity = 200;
-                                break;
-                            case "Airbus A321neo":
-                                capacity = 206;
-                                break;
-                            case "Airbus A319":
-                                capacity = 144;
-                                break;
-                            case "Boeing 737 MAX 8":
-                                capacity = 178;
-                                break;
-                            case "Boeing 737 MAX 9":
-                                capacity = 193;
-                                break;
-                            case "Boeing 737-800":
-                                capacity = 189;
-                                break;
-                            case "ATR 72-600":
-                                capacity = 70;
-                                break;
-                            default:
-                                capacity = 150;
-                                break;
-                        }
-                    }
-                    schedule.setSeatCapacity(capacity);
-
-                    // --- Hành lý xách tay theo hạng ghế ---
-                    String flightClass = rs.getString("flightClass");
-                    String baggage = "7 kg";
-                    if (flightClass != null) {
-                        switch (flightClass.trim()) {
-                            case "Phổ thông":
-                                baggage = "7 kg";
-                                break;
-                            case "Thương gia":
-                                baggage = "10 kg";
-                                break;
-                            case "Hạng nhất":
-                                baggage = "15 kg";
-                                break;
-                            default:
-                                baggage = "7 kg";
-                                break;
-                        }
-                    }
-                        schedule.setCabinBaggage(baggage);
+                
+                       // --- Xác định loại máy bay và các thông số liên quan ---
+                String flightClass = rs.getString("flightClass");
+                setAircraftInfo(schedule, flightClass);
+               
                 flights.add(schedule);
             }
         }
@@ -1112,14 +1059,14 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
 
             // === 3️⃣ Test lọc theo flightId ===
             System.out.println("\n=== Tìm chuyến bay có flightType ===");
-            List<FlightSchedule> flightIdList = dao.searchFlightSchedules("", "Một Chiều", "");
+            List<FlightSchedule> flightIdList = dao.searchFlightSchedules("", "Khứ Hồi", "");
             for (FlightSchedule fs : flightIdList) {
-                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getFlight().getFlightType());
+                System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getFlight().getFlightType() +"-"+fs.getFlight().getFlightClass()+"-"+ fs.getPlaneModel());
             }
 
             // === 4️⃣ Test lọc theo khoảng thời gian khởi hành ===
             System.out.println("\n=== Tìm chuyến bay từ 08:00 đến 12:00 ===");
-            List<FlightSchedule> timeList = dao.searchFlightSchedules("", null, "00:00-01:00");
+            List<FlightSchedule> timeList = dao.searchFlightSchedules("", null, "08:00 -12:00");
             for (FlightSchedule fs : timeList) {
                 System.out.println(fs.getFlight().getFlightNumber() + " | " + fs.getDepartureTime());
             }
@@ -1446,13 +1393,11 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
     }
 
     // Lay tat ca lich bay
-    public List<FlightSchedule> getFlightSchedules() throws Exception {
-        List<FlightSchedule> list = new ArrayList<>();
-
-        String sql = """
+public List<FlightSchedule> getFlightSchedules() throws Exception {
+    List<FlightSchedule> list = new ArrayList<>();
+    String sql = """
         SELECT 
             fs.scheduleId,
-            fs.planeModel,
             fs.departureAirport,
             fs.arrivalAirport,
             fs.departureTime,
@@ -1474,133 +1419,88 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
         ORDER BY fs.scheduleId
         """;
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    // === Tạo Flight ===
-                    Flight flight = new Flight();
-                    flight.setFlightId(rs.getInt("flightId"));
-                    flight.setFlightNumber(rs.getString("flightNumber"));
-                    flight.setFlightClass(rs.getString("flightClass"));
-                    flight.setFlightType(rs.getString("flightType"));
-                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
 
-                    // === Tạo FlightSchedule ===
-                    FlightSchedule schedule = new FlightSchedule();
-                    schedule.setScheduleId(rs.getInt("scheduleId"));
-                    schedule.setFlight(flight);
-                    schedule.setPlaneModel(rs.getString("planeModel"));
+        while (rs.next()) {
+            // === Tạo Flight ===
+            Flight flight = new Flight();
+            flight.setFlightId(rs.getInt("flightId"));
+            flight.setFlightNumber(rs.getString("flightNumber"));
+            flight.setFlightClass(rs.getString("flightClass"));
+            flight.setFlightType(rs.getString("flightType"));
+            flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
 
-                    // Thời gian
-                    Time dep = rs.getTime("departureTime");
-                    schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
-                    Time arr = rs.getTime("arrivalTime");
-                    schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
-                    Time retDep = rs.getTime("returnDepartureTime");
-                    schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
-                    Time retArr = rs.getTime("returnArrivalTime");
-                    schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
+            // === Tạo FlightSchedule ===
+            FlightSchedule schedule = new FlightSchedule();
+            schedule.setScheduleId(rs.getInt("scheduleId"));
+            schedule.setFlight(flight);
 
-                    // --- Xác định sức chứa theo loại máy bay ---
-                    String model = rs.getString("planeModel");
-                    int capacity = 0;
-                    if (model != null) {
-                        switch (model.trim()) {
-                            case "Airbus A320":
-                                capacity = 180;
-                                break;
-                            case "Airbus A321":
-                                capacity = 200;
-                                break;
-                            case "Airbus A321neo":
-                                capacity = 206;
-                                break;
-                            case "Airbus A319":
-                                capacity = 144;
-                                break;
-                            case "Boeing 737 MAX 8":
-                                capacity = 178;
-                                break;
-                            case "Boeing 737 MAX 9":
-                                capacity = 193;
-                                break;
-                            case "Boeing 737-800":
-                                capacity = 189;
-                                break;
-                            case "ATR 72-600":
-                                capacity = 70;
-                                break;
-                            default:
-                                capacity = 150;
-                                break;
-                        }
-                    }
-                    schedule.setSeatCapacity(capacity);
+            // --- Thời gian ---
+            Time dep = rs.getTime("departureTime");
+            schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+            Time arr = rs.getTime("arrivalTime");
+            schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+            Time retDep = rs.getTime("returnDepartureTime");
+            schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+            Time retArr = rs.getTime("returnArrivalTime");
+            schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
 
-                    // --- Hành lý xách tay theo hạng ghế ---
-                    String flightClass = rs.getString("flightClass");
-                    String baggage = "7 kg";
-                    if (flightClass != null) {
-                        switch (flightClass.trim()) {
-                            case "Phổ thông":
-                                baggage = "7 kg";
-                                break;
-                            case "Thương gia":
-                                baggage = "10 kg";
-                                break;
-                            case "Hạng nhất":
-                                baggage = "15 kg";
-                                break;
-                            default:
-                                baggage = "7 kg";
-                                break;
-                        }
-                    }
+            // --- Xác định loại máy bay và các thông số liên quan ---
+            String flightClass = rs.getString("flightClass");
+            setAircraftInfo(schedule, flightClass);
 
-                    // === Hành lý và khoảng cách ghế ===
-                    String pitch = "Không rõ";
+            // --- Thông tin chuyến bay khác ---
+            schedule.setDepartureAirport(rs.getString("departureAirport"));
+            schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+            schedule.setTransitAirport(rs.getString("transitAirport"));
+            schedule.setTransitDuration(rs.getString("transitDuration"));
+            schedule.setNotes(rs.getString("notes"));
 
-                    if (model != null) {
-                        switch (model.trim()) {
-                            case "Airbus A320":
-                            case "Airbus A319":
-                                pitch = "30 inch (tiêu chuẩn)";
-                                break;
-                            case "Airbus A321":
-                            case "Airbus A321neo":
-                                pitch = "32 inch (rộng hơn trung bình)";
-                                break;
-                            case "Boeing 737 MAX 8":
-                            case "Boeing 737-800":
-                                pitch = "30 inch (tiêu chuẩn)";
-                                break;
-                            case "Boeing 737 MAX 9":
-                                pitch = "31 inch (hơi rộng)";
-                                break;
-                            case "ATR 72-600":
-                                pitch = "29 inch (ngắn hơn tiêu chuẩn)";
-                                break;
-                        }
-                    }
-
-                    schedule.setCabinBaggage(baggage);
-                    schedule.setSeatPitch(pitch);
-
-                    schedule.setDepartureAirport(rs.getString("departureAirport"));
-                    schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                    schedule.setTransitAirport(rs.getString("transitAirport"));
-                    schedule.setTransitDuration(rs.getString("transitDuration"));
-                    schedule.setNotes(rs.getString("notes"));
-
-                    list.add(schedule);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+            list.add(schedule);
         }
-        return list;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw e;
     }
+    return list;
+}
+
+    
+/**
+ * Helper gán planeModel, seatCapacity, seatPitch, cabinBaggage dựa trên flightClass
+ */
+private void setAircraftInfo(FlightSchedule schedule, String flightClass) {
+    if (flightClass == null) flightClass = "";
+    switch (flightClass.trim()) {
+        case "Phổ thông":
+            schedule.setPlaneModel("Airbus A319");
+            schedule.setSeatCapacity(100);
+            schedule.setSeatPitch("29 inch (ngắn hơn tiêu chuẩn)");
+            schedule.setCabinBaggage("7 kg");
+            break;
+        case "Thương gia":
+            schedule.setPlaneModel("Boeing 737 MAX 9");
+            schedule.setSeatCapacity(185);
+            schedule.setSeatPitch("30 inch (tiêu chuẩn)");
+            schedule.setCabinBaggage("10 kg");
+            break;
+        case "Hạng nhất":
+            schedule.setPlaneModel("Airbus A321neo");
+            schedule.setSeatCapacity(220);
+            schedule.setSeatPitch("32 inch (rộng hơn trung bình)");
+            schedule.setCabinBaggage("15 kg");
+            break;
+        default:
+            schedule.setPlaneModel("Boeing 737-800");
+            schedule.setSeatCapacity(189);
+            schedule.setSeatPitch("30 inch (tiêu chuẩn)");
+            schedule.setCabinBaggage("7 kg");
+            break;
+    }
+}
+
 
     // ==================== ISLAND CRUD OPERATIONS ====================
     // CREATE - Them dao moi
