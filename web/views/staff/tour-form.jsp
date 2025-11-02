@@ -8,6 +8,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.Tour" %>
 <%@ page import="model.Island" %>
+<%@ page import="model.TourService" %>
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -193,10 +194,93 @@
             border-left: 2px solid #667eea;
         }
         
+        /* Service Selection Styles */
+        .service-category {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            height: 100%;
+        }
+        
+        .service-category h5 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .service-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .service-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .service-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        
+        .service-item .form-check {
+            margin: 0;
+        }
+        
+        .service-item .form-check-input {
+            margin-top: 0.25rem;
+        }
+        
+        .service-item .form-check-label {
+            margin-left: 1.5rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .service-item .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .no-services {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .no-services i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        /* Custom scrollbar for service lists */
+        .service-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .service-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .service-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        .service-list::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
-                padding: 20px;
+                padding: 15px;
             }
             
             .form-container {
@@ -209,6 +293,10 @@
             
             .btn-form {
                 width: 100%;
+            }
+            
+            .service-category {
+                margin-bottom: 20px;
             }
         }
     </style>
@@ -293,7 +381,7 @@
                                     <option value="">Chọn đảo...</option>
                                     <c:forEach var="island" items="${islands}">
                                         <option value="${island.islandId}" 
-                                                ${(tour != null && tour.islandId == island.islandId) || param.islandId == island.islandId ? 'selected' : ''}>
+                                                ${(tour != null && tour.islandId != null && tour.islandId == island.islandId) || (param.islandId != null && param.islandId == island.islandId) ? 'selected' : ''}>
                                             ${island.islandName}
                                         </option>
                                     </c:forEach>
@@ -400,6 +488,159 @@
                     </c:if>
                 </div>
 
+                <!-- Service Selection Section -->
+                <div class="form-section">
+                    <h4><i class="fa fa-cogs"></i> Dịch vụ tour</h4>
+                    <p class="text-muted mb-3">Chọn các dịch vụ sẽ bao gồm trong tour này</p>
+                    
+                    <div class="row">
+                        <!-- Hotels -->
+                        <div class="col-md-6 mb-4">
+                            <div class="service-category">
+                                <h5><i class="fa fa-bed text-primary"></i> Khách sạn</h5>
+                                <div class="service-list" id="hotelList">
+                                    <c:choose>
+                                        <c:when test="${not empty availableHotels}">
+                                            <c:forEach var="hotel" items="${availableHotels}">
+                                                <div class="service-item">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" 
+                                                               type="checkbox" 
+                                                               name="selectedServices" 
+                                                               value="hotel_${hotel.hotelId}"
+                                                               id="hotel_${hotel.hotelId}"
+                                                               ${selectedServices != null && selectedServices.contains('hotel_'.concat(hotel.hotelId.toString())) ? 'checked' : ''}>
+                                                        <label class="form-check-label" for="hotel_${hotel.hotelId}">
+                                                            <strong>${hotel.hotelName}</strong>
+                                                            <br><small class="text-muted">${hotel.address}</small>
+                                                            <br><span class="badge badge-success">${hotel.price} VNĐ/đêm</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="no-services">
+                                                <i class="fa fa-info-circle"></i> Chưa có khách sạn nào. Vui lòng chọn đảo trước.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Restaurants -->
+                        <div class="col-md-6 mb-4">
+                            <div class="service-category">
+                                <h5><i class="fa fa-cutlery text-warning"></i> Nhà hàng</h5>
+                                <div class="service-list" id="restaurantList">
+                                    <c:choose>
+                                        <c:when test="${not empty availableRestaurants}">
+                                            <c:forEach var="restaurant" items="${availableRestaurants}">
+                                                <div class="service-item">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" 
+                                                               type="checkbox" 
+                                                               name="selectedServices" 
+                                                               value="restaurant_${restaurant.restaurantId}"
+                                                               id="restaurant_${restaurant.restaurantId}"
+                                                               ${selectedServices != null && selectedServices.contains('restaurant_'.concat(restaurant.restaurantId.toString())) ? 'checked' : ''}>
+                                                        <label class="form-check-label" for="restaurant_${restaurant.restaurantId}">
+                                                            <strong>${restaurant.restaurantName}</strong>
+                                                            <br><small class="text-muted">${restaurant.address}</small>
+                                                            <br><span class="badge badge-warning">${restaurant.cuisine}</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="no-services">
+                                                <i class="fa fa-info-circle"></i> Chưa có nhà hàng nào. Vui lòng chọn đảo trước.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Places -->
+                        <div class="col-md-6 mb-4">
+                            <div class="service-category">
+                                <h5><i class="fa fa-map-marker text-info"></i> Địa điểm</h5>
+                                <div class="service-list" id="placeList">
+                                    <c:choose>
+                                        <c:when test="${not empty availablePlaces}">
+                                            <c:forEach var="place" items="${availablePlaces}">
+                                                <div class="service-item">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" 
+                                                               type="checkbox" 
+                                                               name="selectedServices" 
+                                                               value="place_${place.placeId}"
+                                                               id="place_${place.placeId}"
+                                                               ${selectedServices != null && selectedServices.contains('place_'.concat(place.placeId.toString())) ? 'checked' : ''}>
+                                                        <label class="form-check-label" for="place_${place.placeId}">
+                                                            <strong>${place.placeName}</strong>
+                                                            <br><small class="text-muted">${place.address}</small>
+                                                            <br><span class="badge badge-info">${place.category}</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="no-services">
+                                                <i class="fa fa-info-circle"></i> Chưa có địa điểm nào. Vui lòng chọn đảo trước.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehicles -->
+                        <div class="col-md-6 mb-4">
+                            <div class="service-category">
+                                <h5><i class="fa fa-car text-danger"></i> Phương tiện</h5>
+                                <div class="service-list" id="vehicleList">
+                                    <c:choose>
+                                        <c:when test="${not empty availableVehicles}">
+                                            <c:forEach var="vehicle" items="${availableVehicles}">
+                                                <div class="service-item">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" 
+                                                               type="checkbox" 
+                                                               name="selectedServices" 
+                                                               value="vehicle_${vehicle.vehicleId}"
+                                                               id="vehicle_${vehicle.vehicleId}"
+                                                               ${selectedServices != null && selectedServices.contains('vehicle_'.concat(vehicle.vehicleId.toString())) ? 'checked' : ''}>
+                                                        <label class="form-check-label" for="vehicle_${vehicle.vehicleId}">
+                                                            <strong>${vehicle.vehicleName}</strong>
+                                                            <br><small class="text-muted">${vehicle.vehicleType}</small>
+                                                            <br><span class="badge badge-danger">${vehicle.price} VNĐ/ngày</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="no-services">
+                                                <i class="fa fa-info-circle"></i> Chưa có phương tiện nào. Vui lòng chọn đảo trước.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"></i>
+                        <strong>Lưu ý:</strong> Các dịch vụ được hiển thị dựa trên đảo đã chọn. Thay đổi đảo sẽ cập nhật danh sách dịch vụ.
+                    </div>
+                </div>
+
                 <!-- Form Actions -->
                 <div class="btn-group-form">
                     <a href="${pageContext.request.contextPath}/staff/tours?action=list" 
@@ -504,6 +745,11 @@
                 if (value) {
                     $(this).removeClass('is-invalid');
                     $(this).siblings('.invalid-feedback').remove();
+                    // Load services for selected island
+                    loadServicesForIsland(value);
+                } else {
+                    // Clear services if no island selected
+                    clearServiceLists();
                 }
             });
             
@@ -522,6 +768,12 @@
             setTimeout(function() {
                 $('.alert').fadeOut('slow');
             }, 5000);
+            
+            // Load services on page load if island is already selected (for edit mode)
+            const initialIslandId = $('#islandId').val();
+            if (initialIslandId) {
+                loadServicesForIsland(initialIslandId);
+            }
         });
         
         function showFieldError(fieldSelector, message) {
@@ -566,6 +818,144 @@
             } else {
                 preview.style.display = 'none';
                 noImageText.style.display = 'block';
+            }
+        }
+        
+        // Load services for selected island
+        function loadServicesForIsland(islandId) {
+            if (!islandId) {
+                clearServiceLists();
+                return;
+            }
+            
+            // Show loading state
+            showServiceLoading();
+            
+            // Make AJAX request to get services
+            $.ajax({
+                url: '${pageContext.request.contextPath}/staff/tours',
+                type: 'GET',
+                data: {
+                    action: 'getServices',
+                    islandId: islandId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        updateServiceLists(response.data);
+                    } else {
+                        console.error('Error loading services:', response.message);
+                        clearServiceLists();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error loading services:', error);
+                    clearServiceLists();
+                }
+            });
+        }
+        
+        // Show loading state for services
+        function showServiceLoading() {
+            const loadingHtml = '<div class="text-center p-3"><i class="fa fa-spinner fa-spin"></i> Đang tải...</div>';
+            $('#hotelList').html(loadingHtml);
+            $('#restaurantList').html(loadingHtml);
+            $('#placeList').html(loadingHtml);
+            $('#vehicleList').html(loadingHtml);
+        }
+        
+        // Clear all service lists
+        function clearServiceLists() {
+            const noServiceHtml = '<div class="no-services"><i class="fa fa-info-circle"></i> Chưa có dịch vụ nào. Vui lòng chọn đảo trước.</div>';
+            $('#hotelList').html(noServiceHtml.replace('dịch vụ', 'khách sạn'));
+            $('#restaurantList').html(noServiceHtml.replace('dịch vụ', 'nhà hàng'));
+            $('#placeList').html(noServiceHtml.replace('dịch vụ', 'địa điểm'));
+            $('#vehicleList').html(noServiceHtml.replace('dịch vụ', 'phương tiện'));
+        }
+        
+        // Update service lists with data
+        function updateServiceLists(data) {
+            // Update hotels
+            updateServiceList('hotelList', data.hotels, 'hotel', function(hotel) {
+                return `
+                    <div class="service-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedServices" 
+                                   value="hotel_\${hotel.id}" id="hotel_\${hotel.id}">
+                            <label class="form-check-label" for="hotel_\${hotel.id}">
+                                <strong>\${hotel.name}</strong>
+                                <br><small class="text-muted">\${hotel.address ? hotel.address : ''}</small>
+                                <br><span class="badge badge-success">\${hotel.price ? hotel.price : 0} VNĐ/đêm</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }, 'khách sạn');
+            
+            // Update restaurants
+            updateServiceList('restaurantList', data.restaurants, 'restaurant', function(restaurant) {
+                return `
+                    <div class="service-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedServices" 
+                                   value="restaurant_\${restaurant.id}" id="restaurant_\${restaurant.id}">
+                            <label class="form-check-label" for="restaurant_\${restaurant.id}">
+                                <strong>\${restaurant.name}</strong>
+                                <br><small class="text-muted">\${restaurant.address ? restaurant.address : ''}</small>
+                                <br><span class="badge badge-warning">\${restaurant.cuisine ? restaurant.cuisine : ''}</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }, 'nhà hàng');
+            
+            // Update places
+            updateServiceList('placeList', data.places, 'place', function(place) {
+                return `
+                    <div class="service-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedServices" 
+                                   value="place_\${place.id}" id="place_\${place.id}">
+                            <label class="form-check-label" for="place_\${place.id}">
+                                <strong>\${place.name}</strong>
+                                <br><small class="text-muted">\${place.address ? place.address : ''}</small>
+                                <br><span class="badge badge-info">\${place.category ? place.category : ''}</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }, 'địa điểm');
+            
+            // Update vehicles
+            updateServiceList('vehicleList', data.vehicles, 'vehicle', function(vehicle) {
+                return `
+                    <div class="service-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedServices" 
+                                   value="vehicle_\${vehicle.id}" id="vehicle_\${vehicle.id}">
+                            <label class="form-check-label" for="vehicle_\${vehicle.id}">
+                                <strong>\${vehicle.name}</strong>
+                                <br><small class="text-muted">\${vehicle.type ? vehicle.type : ''}</small>
+                                <br><span class="badge badge-danger">\${vehicle.price ? vehicle.price : 0} VNĐ/ngày</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }, 'phương tiện');
+        }
+        
+        // Helper function to update individual service list
+        function updateServiceList(listId, items, type, itemRenderer, serviceName) {
+            const listElement = $('#' + listId);
+            
+            if (items && items.length > 0) {
+                let html = '';
+                items.forEach(function(item) {
+                    html += itemRenderer(item);
+                });
+                listElement.html(html);
+            } else {
+                listElement.html(`<div class="no-services"><i class="fa fa-info-circle"></i> Chưa có ${serviceName} nào.</div>`);
             }
         }
     </script>
