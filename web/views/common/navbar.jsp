@@ -10,8 +10,7 @@
 <!-- lay thong tin customer_profile tu session  -->
   <%
                            CustomerProfile profile_customer = (CustomerProfile)session.getAttribute("profile_customer");
-                           
-                            
+                  
         %>
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
@@ -32,7 +31,7 @@
 
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/SearchIslandController" class="nav-link">Trang chủ</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/about.jsp" class="nav-link">Giới thiệu</a></li>
-                <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/destination.jsp" class="nav-link">Điểm đến</a></li>
+            
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/blog.jsp" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/contact.jsp" class="nav-link">Liên hệ</a></li>
                 <!-- Thêm nút đăng nhập / đăng ký -->
@@ -92,7 +91,7 @@
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=account#"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                             <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=member-priority#"><i class="bi bi-award"></i> Membership Level</a>
-                                <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=historyBooking#"><i class="bi bi-calendar2-check"></i>Lịch sử đặt chỗ của tôi</a>
+                                <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=historyBookings#"><i class="bi bi-calendar2-check"></i>Lịch sử đặt chỗ của tôi</a>
                                   <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=notifications#"><i class="bi bi-bell mr-2"></i> Thông báo</a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=favorites#"><i class="bi bi-heart-fill"></i>Tours and Services</a>

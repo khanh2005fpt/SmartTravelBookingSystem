@@ -237,7 +237,7 @@ public class TourDao extends DBContext {
                 if (day == 1 && time.equals("Buổi sáng")) {
                     continue;
                 }
-                if (day == numberOfDays && (time.equals("Buổi chiều") || time.equals("Buổi tối"))) {
+                if (day == numberOfDays && time.equals("Buổi tối")) {
                     continue;
                 }
                 scheduleSlots.add(new int[]{day, t}); //scheduleSlots là một danh sách chứa các cặp giá trị {day, t} Vi du (1, 0)
@@ -249,7 +249,7 @@ public class TourDao extends DBContext {
         for (int[] slot : scheduleSlots) {
             int day = slot[0];
             String time = times[slot[1]];
-            if (!(day == 1 && time.equals("Buổi chiều")) && !(day == numberOfDays && time.equals("Buổi sáng"))) {
+            if (!(day == 1 && time.equals("Buổi chiều")) && !(day == numberOfDays && time.equals("Buổi chiều"))) {
                 totalSlots++;
             }
         }
@@ -268,11 +268,11 @@ public class TourDao extends DBContext {
                     activity = "Hoạt động tự do và nghỉ ngơi";
                     location = hotelName;
                 } else if (day == 1 && timeOfDay.equals("Buổi chiều")) {
-                    activity = "Check-in " + hotelName + " và ổn định chỗ ở";
+                    activity = "Xuống sân bay và đến check-in tại khách sạn " + hotelName + " và ổn định chỗ ở";
                     location = hotelName;
                 }
-                else if (day == numberOfDays && timeOfDay.equals("Buổi sáng")) {
-                    activity = "Check-out " + hotelName + " và kết thúc tour";
+                else if (day == numberOfDays && timeOfDay.equals("Buổi chiều")) {
+                    activity = "Check-out tại khách sạn " + hotelName + " và ra sân bay";
                     location = hotelName;
                 }
                 else {
@@ -301,21 +301,7 @@ public class TourDao extends DBContext {
                 ps.setInt(1, customTourId);
                 ps.setInt(2, day);
 
-                // Logic to create activities by day
-                if (day == 1) {
-                    activity = "Hotel check-in and accommodation setup";
-                } else if (day == numberOfDays) {
-                    activity = "Hotel check-out and tour completion";
-                } else {
-                    activity = "Island sightseeing and experiences";
-                }
-
                 ps.setString(3, activity);
-                ps.setString(4, "Featured location day " + day);
-
-                // Sample activity hours: 08:00 - 17:00
-                ps.setTime(5, Time.valueOf("08:00:00"));
-                ps.setTime(6, Time.valueOf("17:00:00"));
 
                 ps.setString(4, location);
                 ps.setString(5, timeOfDay);
@@ -1028,3 +1014,4 @@ public class TourDao extends DBContext {
         }
     }
 }
+

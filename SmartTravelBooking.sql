@@ -94,7 +94,50 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
--- Bảng UserEmails
+
+
+CREATE TABLE CustomerContacts (
+    contactId INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    contactValue NVARCHAR(100) NOT NULL,
+    contactType NVARCHAR(10) CHECK (contactType IN ('EMAIL', 'PHONE')) NOT NULL,
+    isPrimary BIT DEFAULT 0,
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+go
+
+-- trigger set emaail chinh
+
+CREATE OR ALTER TRIGGER TR_ManagePrimaryEmail
+ON CustomerContacts
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF UPDATE(isPrimary)
+    BEGIN
+        -- 1️ Reset tất cả email về 0 cho userId tương ứng
+        UPDATE CustomerContacts
+        SET isPrimary = 0
+        WHERE userId IN (SELECT userId FROM inserted)
+          AND contactType = 'EMAIL';
+
+        -- 2️ Set isPrimary = 1 cho contactId vừa chọn
+        UPDATE CustomerContacts
+        SET isPrimary = 1
+        WHERE contactId IN (SELECT contactId FROM inserted WHERE isPrimary = 1 AND contactType = 'EMAIL');
+
+        -- 3️ Đồng bộ email chính sang bảng Users
+        UPDATE u
+        SET u.email = i.contactValue
+        FROM Users u
+        JOIN inserted i ON u.userId = i.userId
+        WHERE i.contactType = 'EMAIL' AND i.isPrimary = 1;
+    END
+END;
+GO
+
 
 
 CREATE TABLE Countries (
@@ -119,7 +162,6 @@ CREATE TABLE Islands (
     FOREIGN KEY (countryId) REFERENCES Countries(countryId) ON DELETE CASCADE
 );
 
-
 go
 CREATE TABLE Tours (
     tourId INT PRIMARY KEY IDENTITY(1,1),
@@ -127,9 +169,12 @@ CREATE TABLE Tours (
     tourName NVARCHAR(255) UNIQUE NOT NULL,
     description NVARCHAR(MAX),
     price INT CHECK(price >= 0),  -- dùng INT lưu VNĐ
+	approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED')),
 	tourImageUrl NVARCHAR(500),  
+
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
 
 CREATE TABLE TourItinerary (
     itineraryId INT PRIMARY KEY IDENTITY(1,1),
@@ -198,6 +243,19 @@ CREATE TABLE Flights (
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 GO
+
+SELECT 
+                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
+                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
+                b.status, b.bookingDate,
+                u.fullName as customerName,
+                t.tourName,
+                ct.tourName as customTourName
+            FROM Bookings b
+            LEFT JOIN Users u ON b.customerId = u.userId
+            LEFT JOIN Tours t ON b.tourId = t.tourId
+            LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
+            ORDER BY b.bookingDate DESC
 
 
 INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
@@ -393,8 +451,7 @@ CREATE TABLE IslandVehicles (
 );
 
 go
-
-
+select * from historybooking
  -- tour rieng le cho customer
 CREATE TABLE CustomTours (
     customTourId INT IDENTITY(1,1) PRIMARY KEY,
@@ -405,7 +462,6 @@ CREATE TABLE CustomTours (
     totalPrice INT CHECK (totalPrice >= 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-
 
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 VALUES
@@ -497,23 +553,49 @@ BEGIN
     FROM inserted;
 END;
 GO
-
+ SELECT 
+        f.flightId,
+        f.flightNumber,
+        f.departure,
+        f.destinationIslandId,   
+        f.destination,
+        f.basePrice,
+        f.ticketAvailable,
+        f.flightClass,
+        f.destinationImageUrl,
+        f.flightType,
+        -- Airline
+        a.airlineId,
+        a.airlineName,
+        a.iataCode,
+        a.logoUrl
+    FROM Flights f
+    JOIN Airlines a ON f.airlineId = a.airlineId
+    WHERE f.destinationIslandId = 1 AND f.flightType = 'Một chiều'
+    ORDER BY f.basePrice ASC
+select * from tours
 CREATE TABLE Bookings (
-		bookingId INT IDENTITY(1,1) PRIMARY KEY,
-		customerId INT NOT NULL,
-		departureDate DATE NOT NULL,
-		endDate DATE    ,
-		adultQuantity INT NOT NULL,
-		childQuantity INT NOT NULL,
-		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
-		bookingDate DATETIME DEFAULT GETDATE(),
---		FOREIGN KEY (customerId) REFERENCES Users(userId),
+    bookingId INT IDENTITY(1,1) PRIMARY KEY,
+    customerId INT NOT NULL,
+    customTourId INT NULL,
+    tourId INT NULL,
+    departureDate DATE NOT NULL,
+    endDate DATE,
+    adultQuantity INT NOT NULL,
+    childQuantity INT NOT NULL,
+    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
+	totalPrice INT,
+    bookingDate DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (customerId) REFERENCES Users(userId),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
 );
+
+
+
 
 -- Bảng Payments
   
-
-
 CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
@@ -522,22 +604,79 @@ CREATE TABLE Payments (
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 
-go
-
-
 
 CREATE TABLE HistoryBooking (
-    historyId INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
-    customerId INT NOT NULL,                                
-    paymentId INT NOT NULL,                                   
-    note NVARCHAR(255) NULL,                                  -- Ghi chú
-    tourStatus NVARCHAR(20) NOT NULL CHECK (
-        tourStatus IN ('COMPLETED', 'INCOMPLETE')
-    ) DEFAULT 'INCOMPLETE', 
---    FOREIGN KEY (customerId) REFERENCES CustomerProfiles(userId) ON DELETE CASCADE,
-    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE
+    historyId INT IDENTITY(1,1) PRIMARY KEY,
+    paymentId INT NOT NULL,
+    accountUserId INT NULL,
+    customerName NVARCHAR(100) NOT NULL,
+    customerEmail NVARCHAR(100) NOT NULL,
+    customerPhone NVARCHAR(20) NOT NULL,
+    createdAt DATETIME DEFAULT GETDATE(),
+    tourStatus NVARCHAR(20) CHECK (tourStatus IN ('COMPLETED', 'INCOMPLETE')) DEFAULT 'INCOMPLETE',
+    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE,
+    -- Cho phép null nếu user bị xóa
+    FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
 );
+
+SELECT 
+    hb.historyId,
+    hb.customerName AS fullname,
+    hb.customerPhone AS phone,
+    hb.createdAt,
+    t.tourName,
+    p.amount,
+    p.status AS paymentStatus
+FROM HistoryBooking hb
+JOIN Payments p ON hb.paymentId = p.paymentId
+JOIN Bookings b ON p.bookingId = b.bookingId
+LEFT JOIN Tours t ON b.tourId = t.tourId
+LEFT JOIN Users u ON hb.accountUserId = u.userId
+WHERE hb.historyId = 1;  -- hoặc lọc theo userId nếu muốn
+
+SELECT hb.paymentId, hb.customerName, hb.customerPhone, hb.createdAt, t.tourName, p.amount, p.status AS paymentStatus
+                  FROM HistoryBooking hb
+                  JOIN Payments p ON hb.paymentId = p.paymentId
+                  JOIN Bookings b ON p.bookingId = b.bookingId
+                  LEFT JOIN Tours t ON b.tourId = t.tourId
+                  WHERE hb.paymentId = 29
+select * from HistoryBooking
+
 GO
+
+
+-- triger ghi lại lịch sử booking 
+
+CREATE TRIGGER trg_Payments_StatusChange
+ON Payments
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO HistoryBooking (customerId, paymentId, note, tourStatus)
+    SELECT 
+        b.customerId,
+        i.paymentId,
+        CASE 
+            WHEN i.status = 'SUCCESS' THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thành công'
+            WHEN i.status = 'FAILED'  THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thất bại'
+            WHEN i.status = 'PENDING' THEN N'Gói "' + t.tourName + N'" của bạn đang chờ xử lý'
+        END AS note,
+        CASE 
+            WHEN i.status = 'SUCCESS' THEN 'COMPLETED'
+            ELSE 'INCOMPLETE'
+        END AS tourStatus
+    FROM inserted i
+    INNER JOIN Bookings b ON i.bookingId = b.bookingId
+    INNER JOIN Tours t ON b.tourId = t.tourId;
+END;
+GO
+
+
+
+
+
 
 
 
@@ -1188,6 +1327,24 @@ VALUES
 (10, N'Xe tay ga', N'Yamaha Aerox 155', 85000, 2, 10),
 (10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5),
 (10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
+INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
+OUTPUT INSERTED.customTourId
+VALUES (1, 'Test Tour', '2025-11-10', '2025-11-12', 5000000);
+
+
+CREATE TABLE Places (
+    placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
+    islandId INT NOT NULL,                   -- Mã đảo (liên kết đến bảng Islands)
+    placeName NVARCHAR(255) NOT NULL,        -- Tên địa điểm
+    location NVARCHAR(255),                  -- Địa chỉ / vị trí
+    description NVARCHAR(MAX),               -- Mô tả chi tiết
+    hasTicket BIT NOT NULL,                  -- Có vé hay không (true/false)
+    ticketPrice INT NULL,                    -- Giá vé (nếu có)
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+select * from Places
+
 
 CREATE TABLE Places (
     placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
@@ -1252,6 +1409,7 @@ VALUES
 (10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL),
 (10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL);
 
+select * from CustomTours
 /*
 delete from Flights
 DBCC CHECKIDENT ('Flights', RESEED, 0);
@@ -1412,8 +1570,9 @@ WHERE paymentId = 1;
 
 */
 
+select *from CustomTours
 
-
+DBCC CHECKIDENT ('CustomTours', RESEED, 0)
 
 
 -- TourServices table to manage services in tours

@@ -3,8 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.account;
+package controller.profile.history_bookings;
 
+import dao.CustomerDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,23 +14,31 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import model.User;
+import model.HistoryBooking;
+
 
 /**
  *
  * @author nqagh
  */
-@WebServlet(name="logoutServlet", urlPatterns={"/logout"})
-
-public class LogoutServlet extends HttpServlet {
-
+@WebServlet(name="HistoryBookingServlet", urlPatterns={"/HistoryBookingServlet"})
+public class HistoryBookingServlet extends HttpServlet {
    
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+        public CustomerDao customerDao;
+   
+       @Override
+    public void init() throws ServletException {
+        try {
+            customerDao = CustomerDao.INSTANCE;
+            System.out.println("profileDAO initialized successfully in loginServlet");
+        } catch (Exception e) {
+            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
+            e.printStackTrace();
+            throw new ServletException("Failed to initialize information", e);
+        }
+    }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -38,10 +47,10 @@ public class LogoutServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet logoutServlet</title>");  
+            out.println("<title>Servlet HistoryBooking</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet logoutServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet HistoryBooking at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -58,23 +67,32 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        
-      // huy session khi logout
-           HttpSession session = request.getSession();
-           if(session!=null){
-               session.invalidate();
-           }
-            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-            return;
+        try {
+            HttpSession session = request.getSession();
+            //lay session sau khi login thanh cong
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                return;
+            }
+
+            Integer userId = user.getUserId();
+
+            // Lấy danh sách lịch sử booking từ DB
+//          List<HistoryBooking> historyList = customerDao.getHistoryByCustomerId(userId);
+          
+//          session.setAttribute("historyList", historyList);
+          response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=historyBookings#");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi khi tải lịch sử đặt chỗ.");
+           response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=historyBookings#");
+        }
     } 
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {

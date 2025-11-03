@@ -78,7 +78,7 @@ public class FlightSearchController extends HttpServlet {
     
     int islandId;
     try {
-        islandId = Integer.parseInt(idRaw);
+islandId = Integer.parseInt(idRaw);
     } catch (NumberFormatException e) {
         response.sendRedirect(request.getContextPath() + "/IslandDetailController");
         return;
