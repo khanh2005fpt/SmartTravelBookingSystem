@@ -89,7 +89,7 @@ public class IslandDetailController extends HttpServlet {
 
             // Lấy danh sách flights dựa trên flightType 
             
-             List<FlightSchedule> flights= new ArrayList<>();
+             List<Flight> flights= new ArrayList<>();
             if (flightTypeRaw != null) {
                 String flightType;
                 switch (flightTypeRaw.toLowerCase()) {
@@ -104,7 +104,8 @@ public class IslandDetailController extends HttpServlet {
                 }
                 if (flightType != null) {
                    
-                    flights= serviceDao.getFlightSchedules(id, flightType);
+                    flights= serviceDao.getFlightTickets(id, flightType);
+                  
                  
                 }
             }

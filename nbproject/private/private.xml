@@ -8,6 +8,16 @@
             <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/com/vnpay/common/VnpayReturn.java</file>
             <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/com/vnpay/common/ajaxServlet.java</file>
             <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/controller/account/GoogleLogin.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/web/views/staff/flight_schedule-list.jsp</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightScheduleStaffServlet.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/model/FlightSchedule.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/web/views/staff/flight_ticket-form.jsp</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/dao/ServiceDao.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/controller/home/IslandDetailController.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/web/views/staff/flight_schedule-form.jsp</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/web/views/staff/sidebar.jsp</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/src/java/model/Flight.java</file>
+            <file>file:/D:/baokhanh/study%202024/Fall2025/SWP391/SmartTravelBookingSystem/web/views/staff/flight_ticket-list.jsp</file>
         </group>
     </open-files>
 </project-private>

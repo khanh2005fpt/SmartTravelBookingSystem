@@ -20,8 +20,16 @@ public class Booking {
     private Date endDate;
     private int adultQuantity;
     private int childQuantity;
+    private int price;
     private double totalPrice;
     private String status;
+    private Date bookingDate;
+    private int profileId;
+
+    // Additional fields for display purposes
+    private String customerName;
+    private String tourName;
+    private String customTourName;
 
     public Booking() {
     }
@@ -122,5 +130,52 @@ public class Booking {
     public void setStatus(String status) {
         this.status = status;
     }
-    
+
+    public Date getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(Date bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getTourName() {
+        return tourName;
+    }
+
+    public void setTourName(String tourName) {
+        this.tourName = tourName;
+    }
+
+    public String getCustomTourName() {
+        return customTourName;
+    }
+
+    public void setCustomTourName(String customTourName) {
+        this.customTourName = customTourName;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getProfileId() {
+        return profileId;
+    }
+
+    public void setProfileId(int profileId) {
+        this.profileId = profileId;
+    }
 }

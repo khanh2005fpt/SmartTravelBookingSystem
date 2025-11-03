@@ -163,8 +163,8 @@ public class CreateCustomTourController extends HttpServlet {
 
             int numberOfDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
 
-            if (numberOfDays > 7) {
-                request.getSession().setAttribute("errorMessage", "Người dùng không được đặt thời gian quá 7 ngày.");
+            if (numberOfDays > 7 || numberOfDays < 3) {
+                request.getSession().setAttribute("errorMessage", "Người dùng không được đặt thời gian quá 7 ngày và không được ít hơn 3 ngày.");
                 response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
@@ -178,7 +178,7 @@ public class CreateCustomTourController extends HttpServlet {
 
             long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
             long nights = days - 1;
-            int totalPrice = (int) ((hotelPrice) * (days)) + vehiclePrice + placePrice;
+            int totalPrice = (int) ((hotelPrice) * (days)) + vehiclePrice + placePrice + ticketFlightPrice;
 
             // Tạo tên tour
             String islandName = islandDao.getIslandNameById(islandId);

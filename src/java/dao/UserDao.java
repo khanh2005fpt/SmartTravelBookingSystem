@@ -84,7 +84,7 @@ public class UserDao extends DBContext {
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setStatus(rs.getString("status"));
-
+                user.setRoleId(rs.getInt("roleId"));
                 String storedPassword = user.getPassword();
 
                 // So sánh password plain text 

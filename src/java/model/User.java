@@ -102,6 +102,25 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Get role name based on roleId
+     * @return role name as string
+     */
+    public String getRole() {
+        switch (this.roleId) {
+            case 1:
+                return "admin";
+            case 2:
+                return "booking_manager";
+            case 3:
+                return "customer";
+            case 4:
+                return "staff";
+            default:
+                return "unknown";
+        }
+    }
+
     // toString
     @Override
     public String toString() {

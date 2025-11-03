@@ -62,8 +62,8 @@ public class VnpayReturn extends HttpServlet {
             fields.remove("vnp_SecureHash");
         }
         String signValue = Config.hashAllFields(fields);
-        System.out.println("✅ signValue (local) = " + signValue);
-        System.out.println("✅ vnp_SecureHash (from VNPAY) = " + vnp_SecureHash);
+    //    System.out.println("✅ signValue (local) = " + signValue);
+    //    System.out.println("✅ vnp_SecureHash (from VNPAY) = " + vnp_SecureHash);
         if (signValue.equals(vnp_SecureHash)) {
             String vnp_TxnRef = request.getParameter("vnp_TxnRef");
             int bookingId;
