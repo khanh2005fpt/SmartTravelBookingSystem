@@ -1,4 +1,4 @@
-﻿Create database SmartTravelBooking
+Create database SmartTravelBooking
 go
 use SmartTravelBooking
 go
@@ -1431,5 +1431,20 @@ WHERE paymentId = 1;
 
 
 
+
+-- TourServices table to manage services in tours
+CREATE TABLE TourServices (
+    tourServiceId INT IDENTITY(1,1) PRIMARY KEY,
+    tourId INT NOT NULL,
+    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','RESTAURANT','VEHICLE','PLACE')) NOT NULL,
+    serviceId INT NOT NULL,
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
+);
+GO
+
+-- Add approval status to Tours table
+ALTER TABLE Tours ADD approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED'));
+GO
 
 -------------------------------------------------------------------------------------------------------

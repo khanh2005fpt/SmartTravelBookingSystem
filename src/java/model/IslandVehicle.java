@@ -23,6 +23,7 @@ public class IslandVehicle {
     private String brand;
     private String model;
     private String islandName;
+    private String countryName;
     private String contactInfo;
     private String location;
     private String description;
@@ -153,6 +154,14 @@ public class IslandVehicle {
 
     public void setIslandName(String islandName) {
         this.islandName = islandName;
+    }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
     }
 
     public String getContactInfo() {

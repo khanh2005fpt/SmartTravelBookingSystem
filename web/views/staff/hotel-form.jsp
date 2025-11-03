@@ -315,7 +315,7 @@
                                     <option value="">Chọn đảo...</option>
                                     <c:forEach var="island" items="${islands}">
                                         <option value="${island.islandId}" 
-                                                ${(hotel != null && hotel.islandId == island.islandId) || param.islandId == island.islandId ? 'selected' : ''}>
+                                                ${(hotel != null && hotel.islandId != null && hotel.islandId == island.islandId) || (param.islandId != null && param.islandId == island.islandId) ? 'selected' : ''}>
                                             ${island.islandName}
                                         </option>
                                     </c:forEach>

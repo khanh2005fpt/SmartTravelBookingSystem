@@ -209,6 +209,13 @@
                         Quản lý Phương tiện
                     </a>
                 </div>
+                <div class="nav-child ">
+                    <a href="${pageContext.request.contextPath}/staff/places"
+                       class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-map-pin"></i>
+                        Quản lý Địa điểm
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -239,13 +246,7 @@
         </div>
 
       
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/places" 
-               class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
-                <i class="fa fa-map-pin"></i>
-                Quản lý Địa điểm
-            </a>
-        </div>
+
 
         <div class="nav-item">
             <a href="${pageContext.request.contextPath}/staff/bookings" 

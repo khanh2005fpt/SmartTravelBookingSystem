@@ -90,6 +90,7 @@
             font-weight: 600;
             color: #333;
             margin-bottom: 10px;
+            padding-right: 45px;
         }
         
         .tour-description {
@@ -145,6 +146,17 @@
             text-decoration: none;
         }
         
+        .btn-itinerary {
+            background: #6f42c1;
+            color: white;
+        }
+        
+        .btn-itinerary:hover {
+            background: #5a32a3;
+            color: white;
+            text-decoration: none;
+        }
+        
         .btn-edit {
             background: #ffc107;
             color: #212529;
@@ -165,6 +177,58 @@
             background: #c82333;
             color: white;
             text-decoration: none;
+        }
+        
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-approve:hover {
+            background: #218838;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-reject:hover {
+            background: #c82333;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .approval-status {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            padding: 5px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .status-approved {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-rejected {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .tour-card {
+            position: relative;
         }
         
         .pagination-wrapper {
@@ -300,6 +364,26 @@
                     <c:forEach var="tour" items="${tours}">
                         <div class="col-lg-6 col-xl-4 mb-3">
                             <div class="tour-card">
+                                <!-- Approval Status Badge -->
+                                <div class="approval-status 
+                                    <c:choose>
+                                        <c:when test="${tour.approvalStatus == 'APPROVED'}">status-approved</c:when>
+                                        <c:when test="${tour.approvalStatus == 'REJECTED'}">status-rejected</c:when>
+                                        <c:otherwise>status-pending</c:otherwise>
+                                    </c:choose>">
+                                    <c:choose>
+                                        <c:when test="${tour.approvalStatus == 'APPROVED'}">
+                                            <span class="badge status-approved">Đã duyệt</span>
+                                        </c:when>
+                                        <c:when test="${tour.approvalStatus == 'REJECTED'}">
+                                            <span class="badge status-rejected">Từ chối</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge status-pending">Chờ duyệt</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                
                                 <div class="tour-card-body">
                                     <h5 class="tour-title">${tour.tourName}</h5>
                                     <p class="tour-description">
@@ -328,6 +412,14 @@
                                            class="btn-action btn-view">
                                             <i class="fa fa-eye"></i> Xem
                                         </a>
+                                        
+                                        <!-- Itinerary management button -->
+                                        <a href="${pageContext.request.contextPath}/staff/tours?action=itinerary&id=${tour.tourId}" 
+                                           class="btn-action btn-itinerary">
+                                            <i class="fa fa-calendar"></i> Lịch trình
+                                        </a>
+                                        
+                                        <!-- Staff can only edit and delete tours -->
                                         <a href="${pageContext.request.contextPath}/staff/tours?action=edit&id=${tour.tourId}" 
                                            class="btn-action btn-edit">
                                             <i class="fa fa-edit"></i> Sửa
@@ -439,6 +531,8 @@
         </div>
     </div>
 
+
+
     <script>
         function confirmDelete(tourId, tourName) {
             document.getElementById('tourIdToDelete').value = tourId;
@@ -446,6 +540,8 @@
             document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/tours';
             $('#deleteModal').modal('show');
         }
+
+
 
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

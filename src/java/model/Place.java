@@ -19,6 +19,7 @@ public class Place {
     
     // Additional field for joins
     private String islandName;
+    private String countryName;
 
     public Place() {
     }
@@ -95,6 +96,14 @@ public class Place {
 
     public void setIslandName(String islandName) {
         this.islandName = islandName;
+    }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
     }
 
     @Override
