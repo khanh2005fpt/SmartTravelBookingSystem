@@ -1,0 +1,103 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+package controller.services;
+
+import dao.TourDao;
+import jakarta.servlet.RequestDispatcher;
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import model.CustomTour;
+
+/**
+ *
+ * @author Admin
+ */
+public class CustomTourDetailController extends HttpServlet {
+   
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        doGet(request, response);
+    } 
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        doPost(request, response);
+    } 
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+         try {
+            TourDao dao = new TourDao();
+
+            String idStr = request.getParameter("customtourid");
+            String flightTypeRaw = request.getParameter("flightType");
+
+            if (idStr == null || idStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                return;
+            }
+
+            int id = Integer.parseInt(idStr);
+
+            CustomTour tour = dao.getTourById(id);
+            if (tour == null) {
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                return;
+            }
+
+            request.setAttribute("tour", tour);
+            request.setAttribute("details", dao.getTourDetails(id));
+            request.setAttribute("flightType", flightTypeRaw);
+            request.setAttribute("itinerary", dao.getTourItinerary(id));
+
+            request.getRequestDispatcher("/views/trip/custom_tour_detail.jsp").forward(request, response);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Không thể tải chi tiết tour.");
+        }
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

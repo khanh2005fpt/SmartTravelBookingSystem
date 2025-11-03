@@ -1037,7 +1037,7 @@
             });
         </script>
         <script>
-            //2. Lấy modal element
+            //2. Lấy modal hotel
             const hotelModal = document.getElementById('hotelDetailModal');
 
             hotelModal.addEventListener('show.bs.modal', event => {

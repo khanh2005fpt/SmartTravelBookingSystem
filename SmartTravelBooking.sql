@@ -90,9 +90,7 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
-select * from CustomerContacts
-delete from CustomerContacts
-DBCC CHECKIDENT ('CustomerContacts' , RESEED , 0)
+select * from users
 
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
@@ -392,8 +390,7 @@ CREATE TABLE IslandVehicles (
 );
 
 go
-
-
+select * from historybooking
  -- tour rieng le cho customer
 CREATE TABLE CustomTours (
     customTourId INT IDENTITY(1,1) PRIMARY KEY,

@@ -97,6 +97,7 @@ public class VnpayReturn extends HttpServlet {
                     // Nếu có người đăng nhập thì lấy userId từ session
                     Integer userId = (Integer) request.getSession().getAttribute("userId");
                     hb.setAccountUserId(userId);
+                    System.out.println(userId);
 
                     // Thông tin khách hàng (nếu có trong form)
                     hb.setCustomerName(fullname);

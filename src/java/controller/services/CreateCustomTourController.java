@@ -42,18 +42,7 @@ public class CreateCustomTourController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CreateCustomTourController</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet CreateCustomTourController at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        doGet(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -68,7 +57,7 @@ public class CreateCustomTourController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doPost(request, response);
     }
 
     /**
@@ -218,14 +207,9 @@ public class CreateCustomTourController extends HttpServlet {
             dao.createSampleItinerary(customTourId, startDate, endDate);
 
             // Lấy dữ liệu tour để hiển thị chi tiết
-            CustomTour createdTour = dao.getTourById(customTourId);
-            request.getSession().removeAttribute("errorMessage");
-            request.setAttribute("tour", createdTour);
-            request.setAttribute("details", dao.getTourDetails(customTourId));
-            request.setAttribute("itinerary", dao.getTourItinerary(customTourId));
-
-            // Forward sang JSP chi tiết tour
-            request.getRequestDispatcher("/views/trip/custom_tour_detail.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath()
+                    + "/CustomTourDetailController?customtourid=" + customTourId
+                    + "&flightType=" + flightTypeRaw);
 
         } catch (Exception e) {
             e.printStackTrace();

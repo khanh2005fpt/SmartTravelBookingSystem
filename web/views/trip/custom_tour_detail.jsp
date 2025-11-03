@@ -30,13 +30,22 @@
     </head>
     <body class="bg-light">
 
-        <%@ include file="/views/common/navbar.jsp" %>
-
+        <%@ include file="/views/common/navbar.jsp"%>
+        <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
+            <div class="overlay"></div>
+            <div class="container">
+                <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-center">
+                    <div class="col-md-9 ftco-animate pb-5 text-center">
+                        <p class="breadcrumbs"><span class="mr-2"><a href="SearchIslandController">Trang chủ <i class="fa fa-chevron-right"></i></a></span></p>
+                        <h1 class="mb-0 bread">🌴 Tour Riêng vừa tạo thành công</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
         <div class="container py-5" style="max-width: 1400px;">
             <div class="row justify-content-center">
                 <!-- Header -->
                 <div class="col-12 text-center mb-5">
-                    <h1 class="display-5 fw-bold text-primary">🌴 Tour Riêng vừa tạo thành công</h1>
                     <p class="text-muted fs-6">Chi tiết tour & lịch trình mẫu — điều chỉnh và đặt ngay bên phải.</p>
                 </div>
 
@@ -160,7 +169,8 @@
                             <input type="hidden" name="customTourId" value="${tour.customTourId}">
                             <input type="hidden" name="price" value="${tour.totalPrice}">
                             <input type="hidden" name="startDate" value="${tour.startDate}">
-                            
+
+
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
                                     <label class="form-label">Người lớn</label>
@@ -189,11 +199,13 @@
                         <div class="alert alert-warning mb-0">
                             Bạn cần 
                             <c:url var="loginURL" value="/views/account/login.jsp">
-                                <c:param name="redirect" value="${pageContext.request.contextPath}/CreateCustomTourController?customtourid=${customTourId}" />
+                                <c:param name="redirect" 
+                                         value="${pageContext.request.contextPath}/CustomTourDetailController?customtourid=${tour.customTourId}&flightType=${flightType}" />
                             </c:url>
+
                             <a href="${loginURL}" class="text-primary fw-bold">đăng nhập</a> để đặt tour.</div>
-                    </c:otherwise>
-                </c:choose>
+                        </c:otherwise>
+                    </c:choose>
             </div>
         </div>
 

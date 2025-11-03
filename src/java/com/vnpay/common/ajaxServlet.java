@@ -62,7 +62,7 @@ public class ajaxServlet extends HttpServlet {
         }
 
         int customerId = user.getUserId();
-
+        System.out.println("customerId" + customerId);
         String tourIdParam = request.getParameter("tourId");
         String customTourIdParam = request.getParameter("customTourId");
 

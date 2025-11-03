@@ -127,11 +127,11 @@ public class BookingDao extends DBContext {
 
     public Bill getBillByHistoryBooking(int paymentId) throws SQLException {
         String sql = "SELECT [hb].[paymentId], [hb].[customerName], [hb].[customerPhone], [hb].[createdAt], "
-                + "[t].[tourName], [p].[amount], [p].[status] AS paymentStatus "
+                + "COALESCE([t].[tourName], [ct].[tourName]) AS tourNamePayment, [p].[amount], [p].[status] AS paymentStatus "
                 + "FROM [HistoryBooking] hb "
                 + "JOIN [Payments] p ON [hb].[paymentId] = [p].[paymentId] "
                 + "JOIN [Bookings] b ON [p].[bookingId] = [b].[bookingId] "
-                + "LEFT JOIN [Tours] t ON [b].[tourId] = [t].[tourId] "
+                + "LEFT JOIN [Tours] t ON [b].[tourId] = [t].[tourId] LEFT JOIN [CustomTours] ct ON [b].[customTourId] = [ct].[customTourId] "
                 + "WHERE [hb].[paymentId] = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -143,7 +143,7 @@ public class BookingDao extends DBContext {
                     bill.setFullname(rs.getString("customerName"));
                     bill.setPhone(rs.getString("customerPhone"));
                     bill.setCreatedAt(rs.getTimestamp("createdAt"));
-                    bill.setTourName(rs.getString("tourName"));
+                    bill.setTourName(rs.getString("tourNamePayment"));
                     bill.setAmount(rs.getLong("amount"));
                     bill.setStatus(rs.getString("paymentStatus"));
                     return bill;

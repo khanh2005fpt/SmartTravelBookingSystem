@@ -266,11 +266,11 @@ public class TourDao extends DBContext {
                     activity = "Hoạt động tự do và nghỉ ngơi";
                     location = hotelName;
                 } else if (day == 1 && timeOfDay.equals("Buổi chiều")) {
-                    activity = "Check-in " + hotelName + " và ổn định chỗ ở";
+                    activity = "Xuống sân bay và đến check-in tại khách sạn " + hotelName + " và ổn định chỗ ở";
                     location = hotelName;
                 } 
                 else if (day == numberOfDays && timeOfDay.equals("Buổi sáng")) {
-                    activity = "Check-out " + hotelName + " và kết thúc tour";
+                    activity = "Check-out tại khách sạn " + hotelName + " và ra sân bay";
                     location = hotelName;
                 } 
                 else {
