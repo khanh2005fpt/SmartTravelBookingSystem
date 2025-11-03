@@ -501,11 +501,8 @@
                             </option>
                         </select>
 
-
                     </div>
-
-
-                    <button type="submit" class="btn-search">
+                 <button type="submit" class="btn-search">
                         <i class="fa fa-search"></i> Tìm kiếm
                     </button>
                     <!-- Thông tin + nút thêm vé -->
@@ -715,5 +712,47 @@
                     });
                 });
             </script>
+            
+        <!-- Modal thông báo action khi thành công -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content text-center shadow-lg border-0 rounded-4 overflow-hidden">
+
+                    <!-- Header xanh lá -->
+                    <div class="modal-header bg-success text-white justify-content-center py-3">
+                        <h5 class="modal-title fw-bold text-uppercase text-white letter-spacing-1" id="successModalLabel">
+                            🎉 Thao tác thành công!
+                        </h5>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="modal-body fs-5 text-secondary py-4">
+                        ✈️ Lịch trình chuyến bay của bạn đã được <strong class="text-success fw-bold">${param.success}</strong> thành công!<br>
+                        <strong class="text-dark">ID Lịch trình chuyến bay:</strong> ${param.flightScheduleId}
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer justify-content-center border-0 pb-4">
+                        <button type="button" class="btn btn-success px-4 fw-semibold" id="btnOk" data-bs-dismiss="modal">
+                            <i class="fa fa-check-circle me-2"></i> OK
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Script bật modal -->
+        <c:if test="${param.success == 'created' || param.success == 'updated' || param.success == 'deleted'}">
+            <script>
+              document.addEventListener("DOMContentLoaded", function() {
+                const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+                modal.show();
+                document.getElementById("btnOk").addEventListener("click", function() {
+                  modal.hide();
+                });
+              });
+            </script>
+        </c:if>
     </body>
 </html>

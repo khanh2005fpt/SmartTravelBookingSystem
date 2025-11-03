@@ -10,7 +10,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${empty flightSchedules? 'Thêm' : 'Chỉnh sửa'} Vé máy bay - Meland Travel</title>
+        <title>${empty flightSchedule? 'Thêm' : 'Chỉnh sửa'} Vé máy bay - Meland Travel</title>
 
         <!-- Include common CSS -->
         <jsp:include page="../common/css.jsp" />
@@ -336,9 +336,9 @@
             <div class="page-header">
                 <h1>
                     <i class="fa fa-utensils"></i> 
-                    ${empty  flightSchedules ? 'Thêm thông tin lịch trình chuyến bay' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
+                    ${empty  flightSchedule ? 'Thêm thông tin lịch trình chuyến bay' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
                 </h1>
-                <p>${empty flightSchedules ? 'Thêm những lịch trình chuyến bay trong hệ thống' : 'Cập nhật thông tin lịch trình chuyến bay'}</p>
+                <p>${empty flightSchedule ? 'Thêm những lịch trình chuyến bay trong hệ thống' : 'Cập nhật thông tin lịch trình chuyến bay'}</p>
             </div>
 
             <!-- Success/Error Messages -->
@@ -365,19 +365,19 @@
                 <div class="form-header">
                     <h3 class="form-title">
                         <i class="fa fa-edit"></i> 
-                        ${empty flightSchedules ? 'Thông tin lịch trình chuyến bay mới' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
+                        ${empty flightSchedule ? 'Thông tin lịch trình chuyến bay mới' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
                     </h3>
                 </div>
 
                 <form action="${pageContext.request.contextPath}/staff/flight/schedules" 
-                      method="post" 
-                      enctype="multipart/form-data" 
+                      method="post"    
                       id="flight_scheduleForm" 
                       novalidate>
-                    <input type="hidden" name="action" value="${empty flightSchedules ? 'create' : 'update'}">
+          
+                    <input type="hidden" name="action" value="${empty flightSchedule ? 'create' : 'update'}">
 
-                    <c:if test="${flightSchedules!= null}">
-                        <input type="hidden" name="scheduleId" value="${flightSchedules.scheduleId}">
+                    <c:if test="${flightSchedule!= null}">
+                        <input type="hidden" name="scheduleId" value="${flightSchedule.scheduleId}">
                     </c:if>
 
                     <div class="form-content">
@@ -397,392 +397,388 @@
                                         <option value="">Chọn mã định danh...</option>
                                         <c:forEach var="f" items="${flights}">
                                             <option value="${f.flightId}"
+                                                    data-departure="${f.departure}"
+                                                    data-destination="${f.destination}"
+                                                    data-flight-type="${f.flightType}"
                                                     ${ (flightSchedule != null && flightSchedule.flight.flightId == f.flightId)
                                                        || param.flightId == f.flightId ? 'selected' : '' }>
-                                           Mã số ${f.flightId} : ${f.departure} → ${f.destination}
+                                                Mã số ${f.flightId} : ${f.departure} → ${f.destination} (${f.flightType})
                                             </option>
                                         </c:forEach>
-                                        </select>
-                                        <!-- hien thi loi khi validate o ben server -->      
-                                       
-                                        <c:if test="${not empty errorFlightId}">
-                                            <div class="invalid-feedback">${errorFlightId}</div>
-                                        </c:if>
+                                    </select>
+                                            
+                                            <!-- Thêm hidden input  -->
+                                            <input type="hidden" id="flightType" name="flightType" value="">
+                                    <!-- hien thi loi khi validate o ben server -->      
+
+                                    <c:if test="${not empty errorFlightId}">
+                                        <div class="invalid-feedback">${errorFlightId}</div>
+                                    </c:if>
+                                </div>
+                             
+
+
+                                <div class="form-group">
+                                    <!-- Notes -->
+                                    <label for="notes">Notes<span class="required">*</span></label>
+                                    <textarea name="notes" id="notes" rows="6" class="form-control w-50" 
+                                        required>${param.notes != null ? param.notes : (flightSchedule != null ? flightSchedule.notes : 
+                                        'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.')}</textarea>
                                 </div>
 
-                                            <div class="form-group">
-                                                <!-- Notes -->
-                                                <label for="notes">Notes<span class="required">*</span></label>
-                                                <textarea name="notes" id="notes" rows="6">Hành khách không cần nhận lại hành lý</textarea>
-                                            </div>
-
-
-                                    </div>
-                                    <div class="form-row">
-                                           <div class="form-group">
-                                           <!-- Arrival Airport -->
-                                           <label for="arrivalAirport">Sân bay đến<span class="required">*</span></label>
-                                           <select class="form-control" id="arrivalAirport" name="arrivalAirport" required>
-                                               <option value="">--Chọn sân bay đến--</option>
-                                               <option value="PQC">Phú Quốc (PQC)</option>
-                                               <option value="LGK">Langkawi (LGK)</option>
-                                               <option value="HKT">Phuket (HKT)</option>
-                                               <option value="DPS">Bali (DPS)</option>
-                                               <option value="MPH">Boracay (MPH)</option>
-                                               <option value="KOS">Sihanoukville (KOS)</option>
-                                               <option value="TOD">Tioman (TOD)</option>
-                                               <option value="USM">Koh Samui (USM)</option>
-                                               <option value="NDP">Nusa Penida (NDP)</option>
-                                               <option value="PPS">Palawan (PPS)</option>
-                                           </select>
-
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorDeparture}">
-                                                <div class="invalid-feedback">${errorDeparture}</div>
-                                            </c:if>
-                                    
-                                        </div>     
-                                        
-                                        
-                                    <div class="form-group">
-                                        <label  for="departureAirport">Sân bay khởi hành<span class="required">*</span></label>
-                                        <select class="form-control"name="departureAirport" id="departureAirport" required>
-                                            <option value="">--Chọn sân bay --</option>
-                                            <option value="HAN">Nội Bài (HAN)</option>
-                                            <option value="SGN">Tân Sơn Nhất (SGN)</option>
-                                        </select>
-
-
-
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorDestinationIslandId}">
-                                                <div class="invalid-feedback">${errorDestinationIslandId}</div>
-                                            </c:if>
-                                        </div>
-                                                   
-                                    
-                                    </div>
-
-                                </div>
-
-                                <!-- Location Information Section -->
-                                <div class="form-section">
-                                    <h4 class="section-title">
-                                        <i class="fa fa-map-marker-alt"></i> Thông tin về thời gian chuyến bay
-                                    </h4>
-
-                                    <div class="form-row">
-                                           <div class="form-group">
-                                            <label for="departureTime">Giờ khởi hành <span class="required">*</span></label>
-                                            <input type="time" 
-                                                   class="form-control" 
-                                                   id="departureTime" 
-                                                   name="departureTime" 
-                                              >
-
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorTicketAvailable}">
-                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
-                                            </c:if>
-
-                                        </div>
-                                       <div class="form-group">
-                                            <label for="arrivalTime">Giờ hạ cánh <span class="required">*</span></label>
-                                            <input type="time" 
-                                                   class="form-control" 
-                                                   id="arrivalTime" 
-                                                   name="arrivalTime" 
-                                              >
-
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorTicketAvailable}">
-                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
-                                            </c:if>
-
-                                        </div>
-
-                                    </div>
-                                    <div class="form-row">  
-                                          
-                                               <div class="form-group">
-                                            <label for="returnDepartureTime">Giờ khởi hành về <span class="required">*</span></label>
-                                            <input type="time" 
-                                                   class="form-control" 
-                                                   id="returnDepartureTime" 
-                                                   name="returnDepartureTime" 
-                                              >
-
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorTicketAvailable}">
-                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
-                                            </c:if>
-
-                                        </div>
-
-                                          <div class="form-group">
-                                            <label for="returnArrivalTime">Giờ hạ cánh về <span class="required">*</span></label>
-                                            <input type="time" 
-                                                   class="form-control" 
-                                                   id="returnArrivalTime" 
-                                                   name="returnArrivalTime" 
-                                              >
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorTicketAvailable}">
-                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
-                                            </c:if>
-
-                                        </div>
-
-                                    </div>
-                                </div>              
-
-                                <!----------Transit ------------------>
-                                <div class="form-section">
-                                    <h4 class="section-title">
-                                        <i class="fa fa-map-marker-alt"></i> Thông tin về sân bay quá cảnh(Nếu có)
-                                    </h4>
-
-                                            <div class="form-row">  
-                                          
-                                               <div class="form-group">
-                                            <label for="transitAirport">Sân bay quả cảnh<span class="required">*</span></label>
-                                            <select class="form-control" name="transitAirport" id="transitAirport">
-                                                <option value="">None</option>
-                                                <option value="KUL">Kuala Lumpur (KUL)</option>
-                                                <option value="BKK">Bangkok (BKK)</option>
-                                                <option value="CGK">Jakarta (CGK)</option>
-                                                <option value="MNL">Manila (MNL)</option>
-                                                <option value="PNH">Phnom Penh (PNH)</option>
-                                            </select>
-
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorTicketAvailable}">
-                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
-                                            </c:if>
-
-                                        </div>
-
-                                          <div class="form-group">
-                                            <label for="transitDuration">Thời gian quá cảnh<span class="required">*</span></label>
-                                             <input type="text"   class="form-control"  name="transitDuration" id="transitDuration" placeholder="e.g. 1h20">
-                                            <!-- hien thi loi khi validate o ben server -->  
-                                            <c:if test="${not empty errorTicketAvailable}">
-                                                <div class="invalid-feedback">${errorTicketAvailable}</div>
-                                            </c:if>
-
-                                        </div>
-
-                                    </div>
-                                   
-                                </div>
-
-
-                                <!-- Hidden field to store current image URL for edit mode -->
-                                <c:if test="${flight != null && flight.destinationImageUrl != null}">
-                                    <input type="hidden" name="currentImageUrl" value="${flight.destinationImageUrl}">
-                                </c:if>                
-                            </div>                  
-
-
-                            <!-- Form Actions -->
-                            <div class="form-actions">
-                                <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=list" class="btn-action btn-secondary">
-                                    <i class="fa fa-times"></i> Hủy
-                                </a>
-                                <button type="submit" class="btn-action btn-primary">
-                                    <i class="fa fa-save"></i> 
-                                    ${empty flight ? 'Tạo thông tin vé máy bay' : 'Cập nhật'}
-                                </button>
                             </div>
-                        </form>
-                    </div>
+                            <div class="form-row">
 
-                </div>
+
+
+                                <div class="form-group">
+                                    <label  for="departureAirport">Sân bay khởi hành<span class="required">*</span></label>
+                                    <select class="form-control" name="departureAirport" id="departureAirport" required>
+                                        <option value="">--Chọn sân bay---</option>
+                                        <option value="Nội Bài (HAN)"${(flightSchedule!=null && flightSchedule.departureAirport=='Nội Bài (HAN)') || param.departureAirport=='Nội Bài (HAN)' ? 'selected' : ''}>Nội Bài (HAN)</option>
+                                        <option value="Tân Sơn Nhất (SGN)"${(flightSchedule!=null && flightSchedule.departureAirport=='Tân Sơn Nhất (SGN)') || param.departureAirport=='Tân Sơn Nhất (SGN)' ? 'selected' : ''}>Tân Sơn Nhất (SGN)</option>
+                                    </select>
+
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorDepartureAirport}">
+                                        <div class="invalid-feedback">${errorDepartureAirport}</div>
+                                    </c:if>
+                                </div>
+
+                                <div class="form-group">
+                                    <!-- Arrival Airport -->
+                                    <label for="arrivalAirport">Sân bay đến<span class="required">*</span></label>
+                                    <select class="form-control" id="arrivalAirport" name="arrivalAirport" required>
+                                        <option value="">Chọn sân bay....</option>
+                                        <option value="Phú Quốc (PQC)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Phú Quốc (PQC)') || param.arrivalAirport=='Phú Quốc (PQC)' ? 'selected' : ''}>Phú Quốc (PQC)</option>
+                                        <option value="Langkawi (LGK)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Langkawi (LGK)') || param.arrivalAirport=='Langkawi (LGK)' ? 'selected' : ''}>Langkawi (LGK)</option>
+                                        <option value="Phuket (HKT)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Phuket (HKT)') || param.arrivalAirport=='Phuket (HKT)' ? 'selected' : ''}>Phuket (HKT)</option>
+                                        <option value="Bali (DPS)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Bali (DPS)') || param.arrivalAirport=='Bali (DPS)' ? 'selected' : ''}>Bali (DPS)</option>
+                                        <option value="Boracay (MPH)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Boracay (MPH)') || param.arrivalAirport=='Boracay (MPH)' ? 'selected' : ''}>Boracay (MPH)</option>
+                                        <option value="Sihanoukville (KOS)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Sihanoukville (KOS)') || param.arrivalAirport=='Sihanoukville (KOS)' ? 'selected' : ''}>Sihanoukville (KOS)</option>
+                                        <option value="Tioman (TOD)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Tioman (TOD)') || param.arrivalAirport=='Tioman (TOD)' ? 'selected' : ''}>Tioman (TOD)</option>
+                                        <option value="Koh Samui (USM)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Koh Samui (USM)') || param.arrivalAirport=='Koh Samui (USM)' ? 'selected' : ''}>Koh Samui (USM)</option>
+                                        <option value="Nusa Penida (NDP)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Nusa Penida (NDP)') || param.arrivalAirport=='Nusa Penida (NDP)' ? 'selected' : ''}>Nusa Penida (NDP)</option>
+                                        <option value="Palawan (PPS)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Palawan (PPS)') || param.arrivalAirport=='Palawan (PPS)' ? 'selected' : ''}>Palawan (PPS)</option>
+                                        
+                                    </select>
+
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorArrivalAirport}">
+                                        <div class="invalid-feedback">${errorArrivalAirport}</div>
+                                    </c:if>
+
+                                </div>     
+
+                            </div>
+
+                        </div>
+
+                        <!-- Location Information Section -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fa fa-map-marker-alt"></i>1. Thông tin về thời gian chuyến bay
+                            </h4>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="departureTime">Giờ khởi hành <span class="required">*</span></label>
+                                    <input type="time" 
+                                           class="form-control" 
+                                           id="departureTime" 
+                                           name="departureTime"
+                                           value="${param.departureTime != null ? param.departureTime : (flightSchedule != null ? flightSchedule.departureTime : '')}">
+
+
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorDepartureTime}">
+                                        <div class="invalid-feedback">${errorDepartureTime}</div>
+                                    </c:if>
+
+                                </div>
+                                <div class="form-group">
+                                    <label for="arrivalTime">Giờ hạ cánh <span class="required">*</span></label>
+                                    <input type="time" 
+                                           class="form-control" 
+                                           id="arrivalTime" 
+                                           name="arrivalTime"
+                                           value="${param.arrivalTime != null ? param.arrivalTime : (flightSchedule != null ? flightSchedule.arrivalTime : '')}">
+
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorArrivalTime}">
+                                        <div class="invalid-feedback">${errorArrivalTime}</div>
+                                    </c:if>
+
+                                </div>
+
+                            </div>
+                            <h4 class="section-title text-info">
+                                <i class="fa fa-map-marker-alt"></i>2. Thông tin về thời gian Khứ Hồi (Nếu có)
+                            </h4>
+                            <div class="form-row">  
+
+                                <div class="form-group">
+                                    <label for="returnDepartureTime">Giờ khởi hành về <span class="required">*</span></label>
+                                   <input type="time" 
+                                          class="form-control" 
+                                          id="returnDepartureTime" 
+                                          name="returnDepartureTime" 
+                                          value="${param.returnDepartureTime != null ? param.returnDepartureTime : (flightSchedule != null ? flightSchedule.returnDepartureTime : '')}">
+
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorReturnDepartureTime}">
+                                        <div class="invalid-feedback">${errorReturnDepartureTime}</div>
+                                    </c:if>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="returnArrivalTime">Giờ hạ cánh về <span class="required">*</span></label>
+                                    <input type="time" 
+                                           class="form-control" 
+                                           id="returnArrivalTime" 
+                                           name="returnArrivalTime"
+                                           value="${param.returnArrivalTime != null ? param.returnArrivalTime : (flightSchedule != null ? flightSchedule.returnArrivalTime : '')}">
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorReturnArrivalTime}">
+                                        <div class="invalid-feedback">${errorReturnArrivalTime}</div>
+                                    </c:if>
+
+                                </div>
+
+                            </div>
+                        </div>              
+
+                        <!----------Transit ------------------>
+                        <div class="form-section">
+                            <h4 class="section-title text-info">
+                                <i class="fa fa-map-marker-alt"></i>3. Thông tin về sân bay quá cảnh(Nếu có)
+                            </h4>
+
+                            <div class="form-row">  
+
+                                <div class="form-group">
+                                    <label for="transitAirport">Sân bay quả cảnh<span class="required">*</span></label>
+                                    <select class="form-control" name="transitAirport" id="transitAirport">
+                                        <option value="">Chọn sân bay...</option>
+                                        <option value="Kuala Lumpur (KUL)"${(flightSchedule != null && flightSchedule.transitAirport=='Kuala Lumpur (KUL)') || param.transitAirport=='Kuala Lumpur (KUL)' ? 'selected' : ''}>Kuala Lumpur (KUL)</option>
+                                        <option value="Bangkok (BKK)"${(flightSchedule != null && flightSchedule.transitAirport=='Bangkok (BKK)') || param.transitAirport=='Bangkok (BKK)' ? 'selected' : ''}>Bangkok (BKK)</option>
+                                        <option value="Jakarta (CGK)"${(flightSchedule != null && flightSchedule.transitAirport=='Jakarta (CGK)') || param.transitAirport=='Jakarta (CGK)' ? 'selected' : ''}>Jakarta (CGK)</option>
+                                        <option value="Manila (MNL)"${(flightSchedule != null && flightSchedule.transitAirport=='Manila (MNL)') || param.transitAirport=='Manila (MNL)' ? 'selected' : ''}>Manila (MNL)</option>
+                                        <option value="Phnom Penh (PNH)"${(flightSchedule != null && flightSchedule.transitAirport=='Phnom Penh (PNH)') || param.transitAirport=='Phnom Penh (PNH)' ? 'selected' : ''}>Phnom Penh (PNH)</option>
+                                    </select>
+
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorTransitAirport}">
+                                        <div class="invalid-feedback">${errorTransitAirport}</div>
+                                    </c:if>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="transitDuration">Thời gian quá cảnh<span class="required">*</span></label>
+                                    <input type="text" class="form-control" name="transitDuration" id="transitDuration" 
+                                           placeholder="e.g. 1h20"
+                                           value="${flightSchedule != null ? flightSchedule.transitDuration : (param.transitDuration != null ? param.transitDuration : '')}" 
+                                           >
+                                    <!-- hien thi loi khi validate o ben server -->  
+                                    <c:if test="${not empty errorTransitDuration}">
+                                        <div class="invalid-feedback">${errorTransitDuration}</div>
+                                    </c:if>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <a href="${pageContext.request.contextPath}/staff/flight/schdules?action=list" class="btn-action btn-secondary">
+                                <i class="fa fa-times"></i> Hủy
+                            </a>
+                            <button type="submit" class="btn-action btn-primary">
+                                <i class="fa fa-save"></i> 
+                                ${empty flightSchedule ? 'Tạo thông tin vé máy bay' : 'Cập nhật'}
+                            </button>
+                        </div>
+                </form>
             </div>
 
-            <!-- Include common scripts -->
-            <jsp:include page="../common/script.jsp" />
+        </div>
+    </div>
 
-            <script>
+    <!-- Include common scripts -->
+    <jsp:include page="../common/script.jsp" />
+    <script>
+        $('#flight_scheduleForm').on('submit', function (e) {
+            let isValid = true;
 
-                // Form validation
-                $('#flight_ticketForm').on('submit', function (e) {
-                    let isValid = true;
+            // Xóa lỗi cũ
+            $('.form-control').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
 
-                    // Xóa trạng thái lỗi cũ
-                    $('.form-control').removeClass('is-invalid');
-                    $('.invalid-feedback').remove();
-
-                    // --- validate các trường ---
-                    const iataCode = $('#iataCode').val();
-                    if (!iataCode) {
-                        showFieldError('#iataCode', 'Xin vui lòng chọn mã chuyến bay');
-                        isValid = false;
-                    }
-
-                    // ----- Validate departure -----
-                    const departure = $('#departure').val().trim();
-                    const depNormalized = removeVietnameseTones(departure).toLowerCase();
-                    const validDepartures = ['ha noi', 'tp ho chi minh', 'ho chi minh'];
-
-                    if (!departure) {
-                        showFieldError('#departure', 'Xin vui lòng nhập nơi khởi hành');
-                        isValid = false;
-                    } else if (!validDepartures.includes(depNormalized)) {
-                        showFieldError('#departure', 'Chỉ chấp nhận 2 thành phố Hà Nội hoặc Tp Hồ Chí Minh (phải có khoảng cách rõ ràng)');
-                        isValid = false;
-                    }
-                    // ----- Validate islandId-----
-                    const destinationIslandId = $('#destinationIslandId').val();
-                    if (!destinationIslandId) {
-                        showFieldError('#destinationIslandId', 'Vui lòng chọn điểm đến du lịch');
-                        isValid = false;
-                    }
-                    // ----- Validate basePrice-----
-                    const basePrice = $('#basePrice').val().trim();
-                    if (!basePrice) {
-                        showFieldError('#basePrice', 'Vui lòng nhập giá vé');
-                        isValid = false;
-                    } else if (isNaN(basePrice) || Number(basePrice) <= 0) {
-                        showFieldError('#basePrice', 'Giá vé phải là số hợp lệ và lớn hơn 0');
-                        isValid = false;
-                    }
-                    // ----- Validate  ticketAvailable-----
-                    const ticketAvailable = $('#ticketAvailable').val().trim();
-                    if (!ticketAvailable) {
-                        showFieldError('#ticketAvailable', 'Xin hãy nhập số vé');
-                        isValid = false;
-                    } else if (Number(ticketAvailable) <= 0) {
-                        showFieldError('#ticketAvailable', 'Số vé phải là số hợp lệ và lớn hơn 0');
-                        isValid = false;
-                    }
-                    // -----  Validate flightType-----
-                    const flightType = $('#flightType').val();
-                    if (!flightType) {
-                        showFieldError('#flightType', 'Vui lòng hãy chọn loại vé');
-                        isValid = false;
-                    }
-                    //-----  validate flightClass-----
-                    const flightClass = $('#flightClass').val();
-                    if (!flightClass) {
-                        showFieldError('#flightClass', 'Vui lòng hãy chọn hạng ghế');
-                        isValid = false;
-                    }
+            // ===== Validate các trường cơ bản =====
+            const flightId = $('#flightId').val();
+            const notes = $('#notes').val().trim();
+            const departureAirport = $('#departureAirport').val() || '';
+            const arrivalAirport = $('#arrivalAirport').val() || '';
+            const departureTime = $('#departureTime').val();
+            const arrivalTime = $('#arrivalTime').val();
+            const returnDepartureTime = $('#returnDepartureTime').val() || '';
+            const returnArrivalTime = $('#returnArrivalTime').val() || '';
+            const transitAirport = $('#transitAirport').val();
+            const transitDuration = $('#transitDuration').val().trim();
 
 
-                    // ----- Validate Ảnh chuyến bay du lịch -----
-                    const formAction = document.querySelector('input[name="action"]').value;
-                    const bannerInput = document.getElementById('flightImageFile');
+            if (!flightId) {
+                showFieldError('#flightId', 'Xin vui lòng chọn mã định danh chuyến bay');
+                isValid = false;
+            }
 
-                    // Chỉ bắt buộc khi tạo mới (create)
-                    if (formAction === 'create') {
-                        if (!bannerInput.files || bannerInput.files.length === 0) {
-                            showFieldError('#flightImageFile', 'Vui lòng chọn ảnh chuyến bay du lịch');
-                            isValid = false;
-                        }
-                    }
+            if (!notes) {
+                showFieldError('#notes', 'Vui lòng nhập ghi chú');
+                isValid = false;
+            } else if (notes.length < 5) {
+                showFieldError('#notes', 'Ghi chú phải dài ít nhất 5 ký tự');
+                isValid = false;
+            } else if (!/^[a-zA-ZÀ-ỹ0-9\s,.\-()!?]+$/.test(notes)) {
+                showFieldError('#notes', 'Ghi chú chỉ được chứa chữ, số và dấu câu thông thường');
+                isValid = false;
+            }
 
+            if (!departureAirport) {
+                showFieldError('#departureAirport', 'Vui lòng chọn sân bay khởi hành');
+                isValid = false;
+            }
 
+            if (!arrivalAirport) {
+                showFieldError('#arrivalAirport', 'Vui lòng chọn sân bay hạ cánh');
+                isValid = false;
+            }
 
+            if (!departureTime) {
+                showFieldError('#departureTime', 'Vui lòng hãy chọn thời gian khởi hành');
+                isValid = false;
+            }
 
-                    // --- Cuộn đến lỗi đầu tiên ---
-                    if (!isValid) {
-                        e.preventDefault(); // Ngăn submit
+            if (!arrivalTime) {
+                showFieldError('#arrivalTime', 'Vui lòng hãy chọn thời gian hạ cánh');
+                isValid = false;
+            }
 
-                        // Tìm ô lỗi đầu tiên
-                        const firstInvalid = $('.is-invalid').first();
+            // ===== Kiểm tra mapping giữa chuyến bay & sân bay =====
+            if (flightId) {
+                const airportMapping = {
+                    'Hà Nội': 'Nội Bài (HAN)',
+                    'Ha Noi': 'Nội Bài (HAN)',
+                    'TP Ho Chi Minh': 'Tân Sơn Nhất (SGN)',
+                    'TP Hồ Chí Minh': 'Tân Sơn Nhất (SGN)'
+                };
 
-                        if (firstInvalid.length > 0) {
-                            // Cuộn mượt đến vị trí lỗi đầu tiên
-                            $('html, body').animate({
-                                scrollTop: firstInvalid.offset().top - 100
-                            }, 600, function () {
-                                // Focus vào ô lỗi đầu tiên sau khi cuộn xong
-                                firstInvalid.focus();
-                            });
-                        }
-                    }
-                });
+                const selectedOption = $('#flightId option:selected');
 
+                // --- sân bay khởi hành ----
+                const expectedDepartureFull = selectedOption.data('departure') || '';
+                const expectedDepartureCity = expectedDepartureFull.split(' (')[0].trim();
+                const validDepartureAirport = airportMapping[expectedDepartureCity];
 
-                // ----- Hàm helper -----
-                function showFieldError(fieldSelector, message) {
-                    const field = $(fieldSelector);
-                    field.addClass('is-invalid');
-                    field.after('<div class="invalid-feedback">' + message + '</div>');
+                if (validDepartureAirport && departureAirport !== validDepartureAirport) {
+                    showFieldError(
+                            '#departureAirport',
+                            `Vui lòng chọn đúng sân bay tương ứng với điểm khởi hành`
+                            );
+                    isValid = false;
                 }
 
-                // Chuẩn hóa (xóa dấu, lowercase, bỏ khoảng trắng đầu/cuối)
-                function removeVietnameseTones(str) {
-                    return str
-                            .normalize('NFD')
-                            .replace(/[\u0300-\u036f]/g, '')
-                            .replace(/đ/g, 'd')
-                            .replace(/Đ/g, 'D')
-                            .trim();
+                // --- sân bay hạ cánh -----
+                const expectedDestinationFull = selectedOption.data('destination') || '';
+                const expectedDestinationCity = expectedDestinationFull.split(' (')[0].trim();
+                const arrivalCity = arrivalAirport.split(' (')[0].trim();
+
+                if (arrivalCity && arrivalCity !== expectedDestinationCity) {
+                    showFieldError(
+                            '#arrivalAirport',
+                            `Sân bay hạ cánh phải khớp với điểm đến của chuyến bay`
+                            );
+                    isValid = false;
                 }
 
+                // --- Nếu là chuyến khứ hồi thì bắt nhập giờ khứ hồi ---
+                const flightType = selectedOption.data('flightType') || '';
 
-                // Image preview function
-                function previewImage(input) {
-                    const preview = document.getElementById('imagePreview');
-                    const noImageText = document.getElementById('noImageText');
-
-                    if (input.files && input.files[0]) {
-                        const file = input.files[0];
-
-                        // Validate file size (5MB max)
-                        if (file.size > 5 * 1024 * 1024) {
-                            alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
-                            input.value = '';
-                            preview.style.display = 'none';
-                            noImageText.style.display = 'block';
-                            return;
-                        }
-
-                        // Validate file type
-                        if (!file.type.startsWith('image/')) {
-                            alert('Vui lòng chọn file hình ảnh!');
-                            input.value = '';
-                            preview.style.display = 'none';
-                            noImageText.style.display = 'block';
-                            return;
-                        }
-
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            preview.src = e.target.result;
-                            preview.style.display = 'block';
-                            noImageText.style.display = 'none';
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        preview.style.display = 'none';
-                        noImageText.style.display = 'block';
+                if (flightType === 'Khứ hồi') {
+                    if (!returnDepartureTime) {
+                        showFieldError('#returnDepartureTime', 'Vui lòng nhập giờ khởi hành chuyến về');
+                        isValid = false;
+                    }
+                    if (!returnArrivalTime) {
+                        showFieldError('#returnArrivalTime', 'Vui lòng nhập giờ hạ cánh chuyến về');
+                        isValid = false;
                     }
                 }
-                // xử lý input lấy data-iata ở iataCode
-                document.addEventListener('DOMContentLoaded', function () {
-                    const iataSelect = document.getElementById('iataCode');
-                    const flightNumberInput = document.getElementById('flightNumber');
+            }
+            // ===== Transit airport & duration (không bắt buộc) =====
+            if (transitAirport) {
+                // Nếu transitAirport nhập, transitDuration bắt buộc
+                if (!transitDuration) {
+                    showFieldError('#transitDuration', 'Vui lòng nhập thời gian quá cảnh');
+                    isValid = false;
+                } else if (!/^(\d+h(\d{1,2})?|\d+\s*(phút|m))$/i.test(transitDuration)) {
+                    showFieldError('#transitDuration', 'Thời gian quá cảnh phải theo định dạng 1h20 hoặc 10 phút');
+                    isValid = false;
+                }
+            }
 
-                    // Gán lại giá trị iataCode vào flightNumber khi trang load (nếu có selected)
-                    const selected = iataSelect.options[iataSelect.selectedIndex];
-                    if (selected) {
-                        const iata = selected.getAttribute('data-iata');
-                        flightNumberInput.value = iata || '';
-                    }
+            if (transitDuration) {
+                // Nếu transitDuration nhập mà transitAirport trống
+                if (!transitAirport) {
+                    showFieldError('#transitAirport', 'Vui lòng chọn sân bay quá cảnh');
+                    isValid = false;
+                } else if (!/^(\d+h(\d{1,2})?|\d+\s*(phút))$/i.test(transitDuration)) {
+                    showFieldError('#transitDuration', 'Thời gian quá cảnh phải theo định dạng 1h20 hoặc 10 phút');
+                    isValid = false;
+                }
+            }
 
-                    // Khi người dùng chọn lại airline
-                    iataSelect.addEventListener('change', function () {
-                        const selected = this.options[this.selectedIndex];
-                        const iata = selected.getAttribute('data-iata');
-                        flightNumberInput.value = iata || '';
+
+            // ===== Cuộn đến lỗi đầu tiên =====
+            if (!isValid) {
+                e.preventDefault();
+                const firstInvalid = $('.is-invalid').first();
+                if (firstInvalid.length > 0) {
+                    $('html, body').animate({
+                        scrollTop: firstInvalid.offset().top - 100
+                    }, 600, function () {
+                        firstInvalid.focus();
                     });
-                });
+                }
+            }
+        });
+        
+          // ===== Cập nhật hidden flightType khi chọn flight =====
+    $('#flightId').on('change', function () {
+        const flightType = $('#flightId option:selected').data('flight-type') || '';
+        $('#flightType').val(flightType);
+    });
+
+    // Khi load lại trang (edit), giữ nguyên flightType
+    const initialFlightType = $('#flightId option:selected').data('flight-type');
+    if (initialFlightType) {
+        $('#flightType').val(initialFlightType);
+    }
 
 
+        // ===== Helper hiển thị lỗi =====
+        function showFieldError(fieldSelector, message) {
+            const field = $(fieldSelector);
+            field.addClass('is-invalid');
+            field.after('<div class="invalid-feedback">' + message + '</div>');
+        }
+        
+    
+    </script>
 
-            </script>
-        </body>
-    </html>
+</body>
+</html>

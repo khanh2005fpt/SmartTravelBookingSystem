@@ -1361,30 +1361,42 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
 
     // ==================== FLIGHT SCHEDULE CRUD OPERATIONS ====================
     // CREATE - Them lich bay moi
-    public boolean createFlightSchedule(FlightSchedule schedule) {
-        String sql = "INSERT INTO FlightSchedules (flightId, planeModel, departureAirport, arrivalAirport, "
-                + "transitAirport, transitDuration, seatCapacity, cabinBaggage, seatPitch, notes) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, schedule.getFlight().getFlightId());
-            ps.setString(2, schedule.getPlaneModel());
-            ps.setString(3, schedule.getDepartureAirport());
-            ps.setString(4, schedule.getArrivalAirport());
-            ps.setString(5, schedule.getTransitAirport());
-            ps.setString(6, schedule.getTransitDuration());
-            ps.setInt(7, schedule.getSeatCapacity());
-            ps.setString(8, schedule.getCabinBaggage());
-            ps.setString(9, schedule.getSeatPitch());
-            ps.setString(10, schedule.getNotes());
+   public int createFlightSchedule(FlightSchedule schedule) throws SQLException {
+    String sql = "INSERT INTO FlightSchedules " +
+                 "(flightId, departureAirport, arrivalAirport, departureTime, arrivalTime, " +
+                 "returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes) " +
+                 "OUTPUT INSERTED.scheduleId VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, schedule.getFlight().getFlightId());
+        ps.setString(2, schedule.getDepartureAirport());
+        ps.setString(3, schedule.getArrivalAirport());
+
+        // Times
+        ps.setObject(4, schedule.getDepartureTime());// LocalTime -> TIME
+        ps.setObject(5, schedule.getArrivalTime());
+        ps.setObject(6, schedule.getReturnDepartureTime());  
+        ps.setObject(7, schedule.getReturnArrivalTime());  
+
+        // Nullable fields
+        ps.setString(8, schedule.getTransitAirport());
+        ps.setString(9, schedule.getTransitDuration());
+        ps.setString(10, schedule.getNotes());
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1); // scheduleId vừa insert
+            }
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new SQLException("Creating flight schedule failed: " + e.getMessage());
     }
+    return 0; // nếu thất bại
+}
+
+
+    
 
     // READ - Lay lich bay theo ID
     public FlightSchedule getFlightScheduleById(int scheduleId) {
@@ -1589,7 +1601,7 @@ private void setAircraftInfo(FlightSchedule schedule, String flightClass) {
 public List<Flight> getFlightsWithoutSchedule() throws SQLException {
     List<Flight> list = new ArrayList<>();
     String sql = """
-        SELECT flightId, departure , destination 
+        SELECT flightId, flightType ,departure , destination 
         FROM Flights
         WHERE hasSchedule = 0
         ORDER BY flightId
@@ -1599,6 +1611,7 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
         while (rs.next()) {
             Flight f = new Flight();
             f.setFlightId(rs.getInt("flightId"));
+            f.setFlightType(rs.getString("flightType"));
             f.setDeparture(rs.getString("departure"));
             f.setDestination(rs.getString("destination"));
             list.add(f);

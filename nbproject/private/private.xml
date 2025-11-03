@@ -6,12 +6,13 @@
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_schedule-list.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightScheduleStaffServlet.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/FlightSchedule.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightTicketStaffServlet.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_ticket-form.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightTicketStaffServlet.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/ServiceDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_schedule-form.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/sidebar.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_schedule-form.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/Flight.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_ticket-list.jsp</file>
         </group>
     </open-files>
 </project-private>
