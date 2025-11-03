@@ -95,7 +95,6 @@ BEGIN
 END;
 GO
 
-
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
