@@ -655,7 +655,7 @@
                         showFieldError('#departure', 'Xin vui lòng nhập nơi khởi hành');
                         isValid = false;
                     } else if (!validDepartures.includes(departure)) {
-                        showFieldError('#departure', 'Chỉ chấp nhận: Hà Nội, Ha Noi, TP Hồ Chí Minh hoặc TP Ho Chi Minh');
+                        showFieldError('#departure', 'Chỉ chấp nhận: Hà Nội, Ha Noi, TP Hồ Chí Minh hoặc Tp Ho Chi Minh');
                         isValid = false;
                     }
 

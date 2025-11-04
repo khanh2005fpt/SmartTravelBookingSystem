@@ -607,14 +607,17 @@
                                         <!-- Vạch ngăn cách trước nút -->
                                         <hr class="my-3" style="border-top: 1px solid #ddd;">
                                         <div class="d-flex justify-content-end mt-4 " style="gap: 12px;">
-                                            <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=edit&id=${s.scheduleId}"
+                                            <a href="${pageContext.request.contextPath}/staff/flight/schedules?action=edit&scheduleId=${s.scheduleId}"
                                                class="btn btn-outline-primary rounded-3 px-3 py-1">
                                                 <i class="fa fa-edit me-1"></i> Sửa
                                             </a>
-                                            <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=delete&id=${s.scheduleId}"
-                                               class="btn btn-outline-danger rounded-3 px-3 py-1">
-                                                <i class="fa fa-trash me-1"></i> Xóa
-                                            </a>
+                                         
+                                           <a href="#"
+   onclick="confirmDelete(${s.scheduleId}, ${s.flight.flightId}, '${s.flight.flightNumber}')"
+   class="btn btn-outline-danger rounded-3 px-3 py-1">
+   <i class="fa fa-trash me-1"></i> Xóa
+</a>
+
                                         </div>
 
                                     </div>
@@ -656,25 +659,26 @@
             <!-- Include common scripts -->
             <jsp:include page="../common/script.jsp" />
 
-            <!-- Delete Confirmation Modal -->
+             <!-- Delete Confirmation Modal -->
             <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Xác nhận xóa</h5>
+                            <h5 class="modal-title ">⚠️ Xác nhận xóa lịch trình chuyến bay</h5>
                             <button type="button" class="close" data-dismiss="modal">
                                 <span>&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <p>Bạn có chắc chắn muốn xóa nhà hàng "<span id="restaurantNameToDelete"></span>"?</p>
+                                <p>Bạn có chắc chắn muốn xóa lịch trình bay mã số : "<strong id="flightNumberToDelete"></strong>" ?</p>
                             <p class="text-danger"><small>Hành động này không thể hoàn tác.</small></p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                             <form id="deleteForm" method="post" style="display: inline;">
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" id="restaurantIdToDelete">
+                                <input type="hidden" name="scheduleId" id="scheduleIdToDelete">
+                                  <input type="hidden" name="flightId" id="flightIdToDelete">
                                 <button type="submit" class="btn btn-danger">Xóa</button>
                             </form>
                         </div>
@@ -682,14 +686,15 @@
                 </div>
             </div>
 
-            <script>
-                function confirmDelete(restaurantId, restaurantName) {
-                    document.getElementById('restaurantIdToDelete').value = restaurantId;
-                    document.getElementById('restaurantNameToDelete').textContent = restaurantName;
-                    document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/restaurants';
-                    $('#deleteModal').modal('show');
-                }
 
+                <script>
+                   function confirmDelete(scheduleId,flightId,flightNumber) {
+    document.getElementById('scheduleIdToDelete').value = scheduleId;
+    document.getElementById('flightIdToDelete').value = flightId;
+    document.getElementById('flightNumberToDelete').textContent = flightNumber;
+    document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/schedules';
+    $('#deleteModal').modal('show');
+}
                 // Auto-hide alerts after 5 seconds
                 setTimeout(function () {
                     $('.alert').fadeOut('slow');
@@ -728,7 +733,7 @@
                     <!-- Nội dung -->
                     <div class="modal-body fs-5 text-secondary py-4">
                         ✈️ Lịch trình chuyến bay của bạn đã được <strong class="text-success fw-bold">${param.success}</strong> thành công!<br>
-                        <strong class="text-dark">ID Lịch trình chuyến bay:</strong> ${param.flightScheduleId}
+                        <strong class="text-dark">ID Lịch trình chuyến bay:</strong> ${param.scheduleId}
                     </div>
 
                     <!-- Footer -->

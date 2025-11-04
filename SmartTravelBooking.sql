@@ -179,6 +179,10 @@ CREATE TABLE Airlines (
 go
 
 -- bảng flights 
+select * from Flights
+select * from FlightSchedules
+DELETE FROM FlightSchedules
+WHERE scheduleId = 18;
 
 CREATE TABLE Flights (
     flightId INT IDENTITY(1,1) PRIMARY KEY,
@@ -200,20 +204,20 @@ CREATE TABLE Flights (
 );
 GO
 
-select * from Flights
+select * from FlightSchedules
 /*
-DELETE FROM Flights
-WHERE flightId = 19; 
+DELETE FROM FlightSchedules
+WHERE flightId = 1; 
 DBCC CHECKIDENT ('Flights', RESEED, 18);  
 
 ALTER TABLE Flights
 ADD hasSchedule BIT NOT NULL DEFAULT 0;
 UPDATE Flights
-SET hasSchedule = 1
-WHERE flightId BETWEEN 1 AND 17;
+SET hasSchedule = 0
+WHERE flightId= 18;
 
 */
-
+select * from Flights
 INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
                      basePrice, ticketAvailable, flightType, flightClass, destinationImageUrl)
 VALUES
@@ -257,7 +261,6 @@ VALUES
 CREATE TABLE FlightSchedules (
     scheduleId INT IDENTITY(1,1) PRIMARY KEY,
     flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
-    planeModel NVARCHAR(100) NULL,           -- loại máy bay
     departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
     arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
     departureTime TIME NOT NULL,             -- giờ khởi hành
@@ -270,11 +273,9 @@ CREATE TABLE FlightSchedules (
 	CONSTRAINT UQ_FlightSchedules_FlightId UNIQUE (flightId) -- 1 flight thì chỉ có 1 schedule
 );
 select * from FlightSchedules
-
-
-
+select * from Flights
 INSERT INTO FlightSchedules 
-(flightId, planeModel, departureAirport, arrivalAirport, departureTime, arrivalTime,returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes)
+(flightId, departureAirport, arrivalAirport, departureTime, arrivalTime,returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes)
 VALUES
 -- 1. Hà Nội → Phú Quốc
 (1, N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '07:30', '09:45', '16:00', '18:15', NULL, NULL, 

@@ -336,9 +336,9 @@
             <div class="page-header">
                 <h1>
                     <i class="fa fa-utensils"></i> 
-                    ${empty  flightSchedule ? 'Thêm thông tin lịch trình chuyến bay' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
+                    ${empty  schedule ? 'Thêm thông tin lịch trình chuyến bay' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
                 </h1>
-                <p>${empty flightSchedule ? 'Thêm những lịch trình chuyến bay trong hệ thống' : 'Cập nhật thông tin lịch trình chuyến bay'}</p>
+                <p>${empty schedule ? 'Thêm những lịch trình chuyến bay trong hệ thống' : 'Cập nhật thông tin lịch trình chuyến bay'}</p>
             </div>
 
             <!-- Success/Error Messages -->
@@ -365,20 +365,19 @@
                 <div class="form-header">
                     <h3 class="form-title">
                         <i class="fa fa-edit"></i> 
-                        ${empty flightSchedule ? 'Thông tin lịch trình chuyến bay mới' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
+                        ${empty schedule ? 'Thông tin lịch trình chuyến bay mới' : 'Chỉnh sửa thông tin lịch trình chuyến bay'}
                     </h3>
                 </div>
-
                 <form action="${pageContext.request.contextPath}/staff/flight/schedules" 
                       method="post"    
                       id="flight_scheduleForm" 
                       novalidate>
-          
-                    <input type="hidden" name="action" value="${empty flightSchedule ? 'create' : 'update'}">
-
-                    <c:if test="${flightSchedule!= null}">
-                        <input type="hidden" name="scheduleId" value="${flightSchedule.scheduleId}">
-                    </c:if>
+               <input type="hidden" id="action" value="${param.action}">
+                    <input type="hidden" name="action" value="${empty  schedule ? 'create' : 'update'}">
+ 
+                    <c:if test="${ schedule!= null}">
+                        <input type="hidden" name="scheduleId" value="${ schedule.scheduleId}">
+                    </c:if> 
 
                     <div class="form-content">
                         <!-- Basic Information Section -->
@@ -388,41 +387,54 @@
                             </h4>
 
                             <div class="form-row">
-                                <div class="form-group">
-                                    <label for="iataCode">Mã định danh chuyến bay <span class="required">*</span></label>
-                                    <select class="form-control ${not empty errors.flightId ? 'is-invalid' : ''}" 
-                                            id="flightId" 
-                                            name="flightId"
-                                            required>
-                                        <option value="">Chọn mã định danh...</option>
-                                        <c:forEach var="f" items="${flights}">
-                                            <option value="${f.flightId}"
-                                                    data-departure="${f.departure}"
-                                                    data-destination="${f.destination}"
-                                                    data-flight-type="${f.flightType}"
-                                                    ${ (flightSchedule != null && flightSchedule.flight.flightId == f.flightId)
-                                                       || param.flightId == f.flightId ? 'selected' : '' }>
-                                                Mã số ${f.flightId} : ${f.departure} → ${f.destination} (${f.flightType})
-                                            </option>
-                                        </c:forEach>
-                                    </select>
-                                            
-                                            <!-- Thêm hidden input  -->
-                                            <input type="hidden" id="flightType" name="flightType" value="">
-                                    <!-- hien thi loi khi validate o ben server -->      
+         <div class="form-group">
+             <c:choose>
+                 <c:when test="${param.action == 'create'}">
+                     <label for="flightId">Mã định danh chuyến bay *</label>
+                     <select class="form-control ${not empty errors.flightId ? 'is-invalid' : ''}" 
+                             id="flightId" 
+                             name="flightId"
+                             required>
+                         <option value="">Chọn mã định danh...</option>
+                         <c:forEach var="f" items="${flights}">
+                             <option value="${f.flightId}"
+                                     data-departure="${f.departure}"
+                                     data-destination="${f.destination}"
+                                     data-flight-type="${f.flightType}"
+                                     <c:if test="${schedule != null && schedule.flight.flightId == f.flightId}">
+                                         selected
+                                     </c:if>>
+                                 Mã số ${f.flightId} : ${f.departure} → ${f.destination} (${f.flightType})
+                             </option>
+                         </c:forEach>
+                     </select>
+                 </c:when>
 
-                                    <c:if test="${not empty errorFlightId}">
-                                        <div class="invalid-feedback">${errorFlightId}</div>
-                                    </c:if>
-                                </div>
-                             
+                 <c:otherwise>
+                     <div class="mb-3">
+                         <label><i class="fa fa-map-pin"></i> Mã lịch trình</label>
+                         <input type="text" 
+                                class="form-control" 
+                                value="Đang chỉnh sửa Mã lịch trình chuyến bay số ${schedule.scheduleId}" 
+                                readonly>
+                     </div>
+                                   <input type="hidden" name="flightId" value="${schedule.scheduleId}">
+                 </c:otherwise>
+
+             </c:choose>
+             <input type="hidden" id="flightType" name="flightType" value="">
+
+             <c:if test="${not empty errorFlightId}">
+                 <div class="invalid-feedback">${errorFlightId}</div>
+             </c:if>
+                        </div>
 
 
                                 <div class="form-group">
                                     <!-- Notes -->
                                     <label for="notes">Notes<span class="required">*</span></label>
                                     <textarea name="notes" id="notes" rows="6" class="form-control w-50" 
-                                        required>${param.notes != null ? param.notes : (flightSchedule != null ? flightSchedule.notes : 
+                                        >${param.notes != null ? param.notes : (schedule != null ? schedule.notes : 
                                         'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.')}</textarea>
                                 </div>
 
@@ -435,8 +447,8 @@
                                     <label  for="departureAirport">Sân bay khởi hành<span class="required">*</span></label>
                                     <select class="form-control" name="departureAirport" id="departureAirport" required>
                                         <option value="">--Chọn sân bay---</option>
-                                        <option value="Nội Bài (HAN)"${(flightSchedule!=null && flightSchedule.departureAirport=='Nội Bài (HAN)') || param.departureAirport=='Nội Bài (HAN)' ? 'selected' : ''}>Nội Bài (HAN)</option>
-                                        <option value="Tân Sơn Nhất (SGN)"${(flightSchedule!=null && flightSchedule.departureAirport=='Tân Sơn Nhất (SGN)') || param.departureAirport=='Tân Sơn Nhất (SGN)' ? 'selected' : ''}>Tân Sơn Nhất (SGN)</option>
+                                        <option value="Nội Bài (HAN)"${(schedule!=null && schedule.departureAirport=='Nội Bài (HAN)') || param.departureAirport=='Nội Bài (HAN)' ? 'selected' : ''}>Nội Bài (HAN)</option>
+                                        <option value="Tân Sơn Nhất (SGN)"${(schedule!=null && schedule.departureAirport=='Tân Sơn Nhất (SGN)') || param.departureAirport=='Tân Sơn Nhất (SGN)' ? 'selected' : ''}>Tân Sơn Nhất (SGN)</option>
                                     </select>
 
                                     <!-- hien thi loi khi validate o ben server -->  
@@ -450,16 +462,16 @@
                                     <label for="arrivalAirport">Sân bay đến<span class="required">*</span></label>
                                     <select class="form-control" id="arrivalAirport" name="arrivalAirport" required>
                                         <option value="">Chọn sân bay....</option>
-                                        <option value="Phú Quốc (PQC)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Phú Quốc (PQC)') || param.arrivalAirport=='Phú Quốc (PQC)' ? 'selected' : ''}>Phú Quốc (PQC)</option>
-                                        <option value="Langkawi (LGK)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Langkawi (LGK)') || param.arrivalAirport=='Langkawi (LGK)' ? 'selected' : ''}>Langkawi (LGK)</option>
-                                        <option value="Phuket (HKT)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Phuket (HKT)') || param.arrivalAirport=='Phuket (HKT)' ? 'selected' : ''}>Phuket (HKT)</option>
-                                        <option value="Bali (DPS)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Bali (DPS)') || param.arrivalAirport=='Bali (DPS)' ? 'selected' : ''}>Bali (DPS)</option>
-                                        <option value="Boracay (MPH)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Boracay (MPH)') || param.arrivalAirport=='Boracay (MPH)' ? 'selected' : ''}>Boracay (MPH)</option>
-                                        <option value="Sihanoukville (KOS)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Sihanoukville (KOS)') || param.arrivalAirport=='Sihanoukville (KOS)' ? 'selected' : ''}>Sihanoukville (KOS)</option>
-                                        <option value="Tioman (TOD)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Tioman (TOD)') || param.arrivalAirport=='Tioman (TOD)' ? 'selected' : ''}>Tioman (TOD)</option>
-                                        <option value="Koh Samui (USM)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Koh Samui (USM)') || param.arrivalAirport=='Koh Samui (USM)' ? 'selected' : ''}>Koh Samui (USM)</option>
-                                        <option value="Nusa Penida (NDP)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Nusa Penida (NDP)') || param.arrivalAirport=='Nusa Penida (NDP)' ? 'selected' : ''}>Nusa Penida (NDP)</option>
-                                        <option value="Palawan (PPS)"${( flightSchedule!=null && flightSchedule.arrivalAirport=='Palawan (PPS)') || param.arrivalAirport=='Palawan (PPS)' ? 'selected' : ''}>Palawan (PPS)</option>
+                                        <option value="Phú Quốc (PQC)"${( schedule!=null && schedule.arrivalAirport=='Phú Quốc (PQC)') || param.arrivalAirport=='Phú Quốc (PQC)' ? 'selected' : ''}>Phú Quốc (PQC)</option>
+                                        <option value="Langkawi (LGK)"${( schedule!=null && schedule.arrivalAirport=='Langkawi (LGK)') || param.arrivalAirport=='Langkawi (LGK)' ? 'selected' : ''}>Langkawi (LGK)</option>
+                                        <option value="Phuket (HKT)"${( schedule!=null && schedule.arrivalAirport=='Phuket (HKT)') || param.arrivalAirport=='Phuket (HKT)' ? 'selected' : ''}>Phuket (HKT)</option>
+                                        <option value="Bali (DPS)"${( schedule!=null && schedule.arrivalAirport=='Bali (DPS)') || param.arrivalAirport=='Bali (DPS)' ? 'selected' : ''}>Bali (DPS)</option>
+                                        <option value="Boracay (MPH)"${(schedule!=null && schedule.arrivalAirport=='Boracay (MPH)') || param.arrivalAirport=='Boracay (MPH)' ? 'selected' : ''}>Boracay (MPH)</option>
+                                        <option value="Sihanoukville (KOS)"${(schedule!=null && schedule.arrivalAirport=='Sihanoukville (KOS)') || param.arrivalAirport=='Sihanoukville (KOS)' ? 'selected' : ''}>Sihanoukville (KOS)</option>
+                                        <option value="Tioman (TOD)"${(schedule!=null && schedule.arrivalAirport=='Tioman (TOD)') || param.arrivalAirport=='Tioman (TOD)' ? 'selected' : ''}>Tioman (TOD)</option>
+                                        <option value="Koh Samui (USM)"${( schedule!=null && schedule.arrivalAirport=='Koh Samui (USM)') || param.arrivalAirport=='Koh Samui (USM)' ? 'selected' : ''}>Koh Samui (USM)</option>
+                                        <option value="Nusa Penida (NDP)"${( schedule!=null && schedule.arrivalAirport=='Nusa Penida (NDP)') || param.arrivalAirport=='Nusa Penida (NDP)' ? 'selected' : ''}>Nusa Penida (NDP)</option>
+                                        <option value="Palawan (PPS)"${( schedule!=null && schedule.arrivalAirport=='Palawan (PPS)') || param.arrivalAirport=='Palawan (PPS)' ? 'selected' : ''}>Palawan (PPS)</option>
                                         
                                     </select>
 
@@ -487,7 +499,7 @@
                                            class="form-control" 
                                            id="departureTime" 
                                            name="departureTime"
-                                           value="${param.departureTime != null ? param.departureTime : (flightSchedule != null ? flightSchedule.departureTime : '')}">
+                                           value="${param.departureTime != null ? param.departureTime : (schedule != null ? schedule.departureTime : '')}">
 
 
                                     <!-- hien thi loi khi validate o ben server -->  
@@ -502,7 +514,7 @@
                                            class="form-control" 
                                            id="arrivalTime" 
                                            name="arrivalTime"
-                                           value="${param.arrivalTime != null ? param.arrivalTime : (flightSchedule != null ? flightSchedule.arrivalTime : '')}">
+                                           value="${param.arrivalTime != null ? param.arrivalTime : (schedule != null ? schedule.arrivalTime : '')}">
 
                                     <!-- hien thi loi khi validate o ben server -->  
                                     <c:if test="${not empty errorArrivalTime}">
@@ -523,7 +535,7 @@
                                           class="form-control" 
                                           id="returnDepartureTime" 
                                           name="returnDepartureTime" 
-                                          value="${param.returnDepartureTime != null ? param.returnDepartureTime : (flightSchedule != null ? flightSchedule.returnDepartureTime : '')}">
+                                           value="${param.returnDepartureTime != null ? param.returnDepartureTime : (schedule != null ? schedule.returnDepartureTime: '')}">
 
                                     <!-- hien thi loi khi validate o ben server -->  
                                     <c:if test="${not empty errorReturnDepartureTime}">
@@ -538,7 +550,7 @@
                                            class="form-control" 
                                            id="returnArrivalTime" 
                                            name="returnArrivalTime"
-                                           value="${param.returnArrivalTime != null ? param.returnArrivalTime : (flightSchedule != null ? flightSchedule.returnArrivalTime : '')}">
+                                           value="${param.returnArrivalTime != null ? param.returnArrivalTime : (schedule != null ? schedule.returnArrivalTime : '')}">
                                     <!-- hien thi loi khi validate o ben server -->  
                                     <c:if test="${not empty errorReturnArrivalTime}">
                                         <div class="invalid-feedback">${errorReturnArrivalTime}</div>
@@ -561,11 +573,11 @@
                                     <label for="transitAirport">Sân bay quả cảnh<span class="required">*</span></label>
                                     <select class="form-control" name="transitAirport" id="transitAirport">
                                         <option value="">Chọn sân bay...</option>
-                                        <option value="Kuala Lumpur (KUL)"${(flightSchedule != null && flightSchedule.transitAirport=='Kuala Lumpur (KUL)') || param.transitAirport=='Kuala Lumpur (KUL)' ? 'selected' : ''}>Kuala Lumpur (KUL)</option>
-                                        <option value="Bangkok (BKK)"${(flightSchedule != null && flightSchedule.transitAirport=='Bangkok (BKK)') || param.transitAirport=='Bangkok (BKK)' ? 'selected' : ''}>Bangkok (BKK)</option>
-                                        <option value="Jakarta (CGK)"${(flightSchedule != null && flightSchedule.transitAirport=='Jakarta (CGK)') || param.transitAirport=='Jakarta (CGK)' ? 'selected' : ''}>Jakarta (CGK)</option>
-                                        <option value="Manila (MNL)"${(flightSchedule != null && flightSchedule.transitAirport=='Manila (MNL)') || param.transitAirport=='Manila (MNL)' ? 'selected' : ''}>Manila (MNL)</option>
-                                        <option value="Phnom Penh (PNH)"${(flightSchedule != null && flightSchedule.transitAirport=='Phnom Penh (PNH)') || param.transitAirport=='Phnom Penh (PNH)' ? 'selected' : ''}>Phnom Penh (PNH)</option>
+                                        <option value="Kuala Lumpur (KUL)"${(schedule != null && schedule.transitAirport=='Kuala Lumpur (KUL)') || param.transitAirport=='Kuala Lumpur (KUL)' ? 'selected' : ''}>Kuala Lumpur (KUL)</option>
+                                        <option value="Bangkok (BKK)"${(schedule != null && schedule.transitAirport=='Bangkok (BKK)') || param.transitAirport=='Bangkok (BKK)' ? 'selected' : ''}>Bangkok (BKK)</option>
+                                        <option value="Jakarta (CGK)"${(schedule != null && schedule.transitAirport=='Jakarta (CGK)') || param.transitAirport=='Jakarta (CGK)' ? 'selected' : ''}>Jakarta (CGK)</option>
+                                        <option value="Manila (MNL)"${(schedule!= null && schedule.transitAirport=='Manila (MNL)') || param.transitAirport=='Manila (MNL)' ? 'selected' : ''}>Manila (MNL)</option>
+                                        <option value="Phnom Penh (PNH)"${(schedule != null && schedule.transitAirport=='Phnom Penh (PNH)') || param.transitAirport=='Phnom Penh (PNH)' ? 'selected' : ''}>Phnom Penh (PNH)</option>
                                     </select>
 
                                     <!-- hien thi loi khi validate o ben server -->  
@@ -579,7 +591,7 @@
                                     <label for="transitDuration">Thời gian quá cảnh<span class="required">*</span></label>
                                     <input type="text" class="form-control" name="transitDuration" id="transitDuration" 
                                            placeholder="e.g. 1h20"
-                                           value="${flightSchedule != null ? flightSchedule.transitDuration : (param.transitDuration != null ? param.transitDuration : '')}" 
+                                           value="${schedule!= null ? schedule.transitDuration : (param.transitDuration != null ? param.transitDuration : '')}" 
                                            >
                                     <!-- hien thi loi khi validate o ben server -->  
                                     <c:if test="${not empty errorTransitDuration}">
@@ -595,12 +607,12 @@
 
                         <!-- Form Actions -->
                         <div class="form-actions">
-                            <a href="${pageContext.request.contextPath}/staff/flight/schdules?action=list" class="btn-action btn-secondary">
+                            <a href="${pageContext.request.contextPath}/staff/flight/schedules?action=list" class="btn-action btn-secondary">
                                 <i class="fa fa-times"></i> Hủy
                             </a>
                             <button type="submit" class="btn-action btn-primary">
                                 <i class="fa fa-save"></i> 
-                                ${empty flightSchedule ? 'Tạo thông tin vé máy bay' : 'Cập nhật'}
+                                ${empty schedule ? 'Tạo thông tin lịch trình chuyến bay' : 'Cập nhật'}
                             </button>
                         </div>
                 </form>
@@ -621,6 +633,7 @@
 
             // ===== Validate các trường cơ bản =====
             const flightId = $('#flightId').val();
+            const action = document.getElementById('action').value;
             const notes = $('#notes').val().trim();
             const departureAirport = $('#departureAirport').val() || '';
             const arrivalAirport = $('#arrivalAirport').val() || '';
@@ -630,13 +643,14 @@
             const returnArrivalTime = $('#returnArrivalTime').val() || '';
             const transitAirport = $('#transitAirport').val();
             const transitDuration = $('#transitDuration').val().trim();
+            
 
-
-            if (!flightId) {
-                showFieldError('#flightId', 'Xin vui lòng chọn mã định danh chuyến bay');
-                isValid = false;
+            if (action === 'create') { // chỉ validate khi tạo mới
+           if (!flightId) {
+        showFieldError('#flightId', 'Xin vui lòng chọn mã định danh chuyến bay');
+        isValid = false;
+              }
             }
-
             if (!notes) {
                 showFieldError('#notes', 'Vui lòng nhập ghi chú');
                 isValid = false;
@@ -708,16 +722,21 @@
                 // --- Nếu là chuyến khứ hồi thì bắt nhập giờ khứ hồi ---
                 const flightType = selectedOption.data('flightType') || '';
 
-                if (flightType === 'Khứ hồi') {
-                    if (!returnDepartureTime) {
-                        showFieldError('#returnDepartureTime', 'Vui lòng nhập giờ khởi hành chuyến về');
-                        isValid = false;
-                    }
-                    if (!returnArrivalTime) {
-                        showFieldError('#returnArrivalTime', 'Vui lòng nhập giờ hạ cánh chuyến về');
-                        isValid = false;
-                    }
-                }
+               if (flightType === 'Khứ hồi') {
+    $('#returnDepartureTime, #returnArrivalTime').prop('disabled', false);
+    // Validate luôn
+    if (!returnDepartureTime) {
+        showFieldError('#returnDepartureTime', 'Vui lòng nhập giờ khởi hành chuyến về');
+        isValid = false;
+    }
+    if (!returnArrivalTime) {
+        showFieldError('#returnArrivalTime', 'Vui lòng nhập giờ hạ cánh chuyến về');
+        isValid = false;
+    }
+} else {
+    $('#returnDepartureTime, #returnArrivalTime').prop('disabled', true).val('');
+}
+
             }
             // ===== Transit airport & duration (không bắt buộc) =====
             if (transitAirport) {
@@ -731,17 +750,16 @@
                 }
             }
 
-            if (transitDuration) {
-                // Nếu transitDuration nhập mà transitAirport trống
-                if (!transitAirport) {
-                    showFieldError('#transitAirport', 'Vui lòng chọn sân bay quá cảnh');
-                    isValid = false;
-                } else if (!/^(\d+h(\d{1,2})?|\d+\s*(phút))$/i.test(transitDuration)) {
-                    showFieldError('#transitDuration', 'Thời gian quá cảnh phải theo định dạng 1h20 hoặc 10 phút');
-                    isValid = false;
-                }
-            }
-
+        if (transitDuration) {
+    // Nếu transitDuration nhập mà transitAirport trống
+    if (!transitAirport) {
+        showFieldError('#transitAirport', 'Vui lòng chọn sân bay quá cảnh');
+        isValid = false;
+    } else if (!/^(\d+[hH](\d{1,2})?\s*(phút|m)?|\d+\s*(phút|m))$/i.test(transitDuration.trim())) {
+        showFieldError('#transitDuration', 'Thời gian quá cảnh phải theo định dạng 1h, 1h20, 1h45 phút, 45 phút, 30m, ...');
+        isValid = false;
+    }
+}
 
             // ===== Cuộn đến lỗi đầu tiên =====
             if (!isValid) {

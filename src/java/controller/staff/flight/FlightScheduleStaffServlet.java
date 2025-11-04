@@ -101,7 +101,7 @@ if(session != null){
         try {
             switch (action) {
                 case "list":
-                    handleFlightscheduleList(request, response);
+                    handleFlightScheduleList(request, response);
                     break;
                 case "create":
                     handleCreateSheduleForm(request, response);
@@ -113,7 +113,7 @@ if(session != null){
                    handleFlightScheduleSearch(request, response);
                     break;
                 default:
-                    handleFlightscheduleList(request, response);
+                    handleFlightScheduleList(request, response);
                     break;
             }
         } catch (Exception e) {
@@ -153,10 +153,10 @@ if(session != null){
                     handleUpdateFlightSchedule(request, response);
                     break;
                 case "delete":
-                    handleDeleteFlight(request, response);
+                  handleDeleteFlightSchedule(request, response);
                     break;
                 default:
-                    handleFlightscheduleList(request, response);
+                   handleFlightScheduleList(request, response);
                     break;
             }
         } catch (Exception e) {
@@ -168,7 +168,7 @@ if(session != null){
      /**
      * Display list of all flights
      */
-    private void handleFlightscheduleList(HttpServletRequest request, HttpServletResponse response)
+    private void handleFlightScheduleList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             List<FlightSchedule> flightSchedules = serviceDao.getFlightSchedules();
@@ -182,21 +182,6 @@ if(session != null){
     }
 
  
-   private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-           HttpSession session = request.getSession();
-        try {
-            List<Flight> flights = serviceDao.getAllFlights();
-            List<Airlines> airlines = serviceDao.getAllAirlineNames();
-            session.setAttribute("airlineNames", airlines); 
-   
-            request.setAttribute("flights", flights);
-            request.setAttribute("pageTitle", "Flight Management");
-            request.getRequestDispatcher("/views/staff/flight__schedule-list.jsp").forward(request, response);
-        } catch (Exception e) {
-            handleError(request, response, "Error loading flight list: " + e.getMessage(), e);
-        }
-    }
 
     /**
      * Display flight details
@@ -208,10 +193,10 @@ if(session != null){
     private void handleCreateSheduleForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Load flights for dropdowns
+            //Danh sách chuyến bay chưa có lịch trình
             List<Flight> flights = serviceDao.getFlightsWithoutSchedule();
-           
             request.setAttribute("flights", flights);
+            
             request.setAttribute("pageTitle", "Create New FlightSchdeule");
             request.getRequestDispatcher("/views/staff/flight_schedule-form.jsp").forward(request, response);
         } catch (Exception e) {
@@ -225,41 +210,42 @@ if(session != null){
     private void handleEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String flightIdStr = request.getParameter("flightId");
-            if (flightIdStr == null || flightIdStr.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "Flight ID is required");
-                handleFlightList(request, response);
+            String scheduleIdStr = request.getParameter("scheduleId");
+            if (scheduleIdStr == null || scheduleIdStr.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Schedule ID is required");
+                handleFlightScheduleList(request, response);
                 return;
             }
             
-            int flightId = Integer.parseInt(flightIdStr);
-            Flight flight = serviceDao.getFlightById(flightId);
+            int scheduleId= Integer.parseInt(scheduleIdStr);
+            System.out.println("id:"+scheduleId);
+            FlightSchedule  schedule = serviceDao.getFlightScheduleById(scheduleId);
             
-            if (flight == null) {
-                request.setAttribute("errorMessage", "Flight not found");
-                handleFlightList(request, response);
+            if (schedule == null) {
+                request.setAttribute("errorMessage", "FlightSchedule not found");
+                  handleFlightScheduleList(request, response);
                 return;
             }
             
             // Load airlines and islands for dropdowns
-            List<Airlines> airlines = serviceDao.getAllAirlines();
-            List<Island> islands = serviceDao.getAllIslands();
-            
-            request.setAttribute("flight", flight);
-            request.setAttribute("airlines", airlines);
-            request.setAttribute("islands", islands);
+            List<Flight> flights = serviceDao.getFlightsWithoutSchedule();
+      
+          
+            request.setAttribute("schedule", schedule);
+            request.setAttribute("flights", flights);
             request.setAttribute("action", "edit");
-            request.setAttribute("pageTitle", "Edit Flight - " + flight.getFlightNumber());
+            request.setAttribute("pageTitle", "Edit FlightiD - " + schedule.getFlight().getFlightId());
             request.getRequestDispatcher("/views/staff/flight_schedule-form.jsp").forward(request, response);
             return;
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Invalid flight ID format");
-            handleFlightList(request, response);
+            handleFlightScheduleList(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading flight for edit: " + e.getMessage(), e);
         }
     }
-
+     
+    
     /**
      * Handle flight search
      */
@@ -272,7 +258,7 @@ if(session != null){
         String departureTimeRange = request.getParameter("departureTimeRange"); // dropdown khung giờ khởi hành
         System.out.println("Time"+departureTimeRange);
 
-     // Xử lý loại chuyến bay
+        // Xử lý loại chuyến bay
         String flightType = null;
         if ("Một chiều".equals(flightTypeRaw)) {
             flightType = "Một chiều";
@@ -311,7 +297,7 @@ if(session != null){
         request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
     }
 }
-    
+   
 
     /**
      * Handle create flight
@@ -337,7 +323,7 @@ if(session != null){
 
             if (newFlightScheduleId> 0) {
 
-                response.sendRedirect(request.getContextPath() + "/staff/flight/schedules?action=list&success=created&flightScheduleId=" + newFlightScheduleId);
+                response.sendRedirect(request.getContextPath() + "/staff/flight/schedules?action=list&success=created&scheduleId=" + newFlightScheduleId);
             } else {
                 request.setAttribute("errorMessage", "Failed to create flight. Please try again.");
                 List<Flight> flights = serviceDao.getFlightsWithoutSchedule();
@@ -359,15 +345,20 @@ if(session != null){
 
     private FlightSchedule createFlightScheduleFromRequest(HttpServletRequest request) throws IOException, ServletException, SQLException {
         FlightSchedule schedule = new FlightSchedule();
+ //   Nếu có scheduleId (tức là đang UPDATE) 
+    String scheduleIdStr = request.getParameter("scheduleId");
+    if (scheduleIdStr != null && !scheduleIdStr.trim().isEmpty()) {
+        schedule.setScheduleId(Integer.parseInt(scheduleIdStr));
+    }
 
-        // Flight reference
-        String flightIdStr = request.getParameter("flightId");
-        if (flightIdStr != null && !flightIdStr.trim().isEmpty()) {
-            int flightId = Integer.parseInt(flightIdStr);
-            Flight flight = serviceDao.getFlightById(flightId); // Lấy flight từ DB
-            schedule.setFlight(flight);
-        }
-
+    //  Chỉ khi CREATE mới cần flightId 
+    String flightIdStr = request.getParameter("flightId");
+    if ((scheduleIdStr == null || scheduleIdStr.isEmpty()) && flightIdStr != null && !flightIdStr.trim().isEmpty()) {
+        int flightId = Integer.parseInt(flightIdStr);
+        Flight flight = serviceDao.getFlightById(flightId);
+        schedule.setFlight(flight);
+    }
+        
         // Notes
         String notes = request.getParameter("notes");
         schedule.setNotes(notes != null ? notes.trim() : "");
@@ -424,6 +415,7 @@ if(session != null){
 
         // Lấy các giá trị từ form
         String flightIdStr = request.getParameter("flightId");
+        String action = request.getParameter("action");
         String notes = request.getParameter("notes");
         String departureAirport = request.getParameter("departureAirport");
         String arrivalAirport = request.getParameter("arrivalAirport");
@@ -435,6 +427,7 @@ if(session != null){
         String transitDuration = request.getParameter("transitDuration");
 
         // --- Validate flightId ---
+       if ("create".equalsIgnoreCase(action)) {
         if (flightIdStr == null || flightIdStr.trim().isEmpty()) {
             request.setAttribute("errorFlightId", "Vui lòng chọn mã định danh chuyến bay");
             isValid = false;
@@ -446,6 +439,7 @@ if(session != null){
                 isValid = false;
             }
         }
+    }
 
         // --- Validate notes ---
         if (notes == null || notes.trim().isEmpty()) {
@@ -492,20 +486,23 @@ if(session != null){
             if (returnArrivalTime == null || returnArrivalTime.trim().isEmpty()) {
                 request.setAttribute("errorReturnArrivalTime", "Vui lòng nhập giờ hạ cánh chuyến về");
                 isValid = false;
-            }
+            }   
         }
 
         // --- Validate transit airport & duration ---
-        if (transitAirport != null && !transitAirport.trim().isEmpty()) {
-            if (transitDuration == null || transitDuration.trim().isEmpty()) {
-                request.setAttribute("errorTransitDuration", "Vui lòng nhập thời gian quá cảnh");
-                isValid = false;
-            } else if (!transitDuration.matches("^(\\d+h(\\d{1,2})?|\\d+\\s*(phút))$")) { // ví dụ: 1h20
-                request.setAttribute("errorTransitDuration", "Thời gian quá cảnh phải theo định dạng 1h20 ,2h, 45 phút , ...");
-                isValid = false;
-            }
-        }
 
+        if (transitAirport != null && !transitAirport.trim().isEmpty()) {
+    if (transitDuration == null || transitDuration.trim().isEmpty()) {
+        request.setAttribute("errorTransitDuration", "Vui lòng nhập thời gian quá cảnh");
+        isValid = false;
+    } else if (!transitDuration.trim().matches(
+           "^(\\d+[hH](\\d{1,2})?\\s*(phút|m)?|\\d+\\s*(phút|m))$" )) {
+        request.setAttribute("errorTransitDuration",
+                "Thời gian quá cảnh phải theo định dạng 1h, 1h20, 1h45 phút, 45 phút, 30m, ...");
+        isValid = false;
+    }
+}
+        
         // Nếu transitDuration nhập mà transitAirport trống
         if ((transitDuration != null && !transitDuration.trim().isEmpty())
                 && (transitAirport == null || transitAirport.trim().isEmpty())) {
@@ -519,67 +516,69 @@ if(session != null){
 
     /**
      * Handle update flightSchedule
-     
-     
-     */
     
+     */
     private void handleUpdateFlightSchedule(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-     
-             // Validate input (nếu !false thì xử lý bên trong)
-            if (!validateFlightScheduleInput(request)) {
-                  List<Flight> flights = serviceDao.getFlightsWithoutSchedule();
-                  request.setAttribute("flights", flights);
-                request.setAttribute("pageTitle", "Create New FlightSchedule");
-                request.setAttribute(   "errorMessage", "Failed to create flightSchedule. Please try again.");
+        throws ServletException, IOException {
+    try {
+        // Nếu validate fail
+         if (!validateFlightScheduleInput(request)) {
+                String scheduleIdStr = request.getParameter("scheduleId");
+                if (scheduleIdStr!= null) {
+                    FlightSchedule schedule = serviceDao.getFlightScheduleById(Integer.parseInt(scheduleIdStr));
+                    request.setAttribute("schedule", schedule);
+                }
+                request.setAttribute("pageTitle", "Edit Flight");
                 request.getRequestDispatcher("/views/staff/flight_schedule-form.jsp").forward(request, response);
                 return;
             }
 
-            // Create flight object
-            FlightSchedule schedule = createFlightScheduleFromRequest(request);// catch exeptions
+        // Tạo đối tượng từ form
+        FlightSchedule schedule = createFlightScheduleFromRequest(request);
 
-            // Save flight
-            int newFlightScheduleId = serviceDao.createFlightSchedule(schedule);
-
-            if (newFlightScheduleId> 0) {
-
-                response.sendRedirect(request.getContextPath() + "/staff/flight/schedules?action=list&success=created&flightScheduleId=" + newFlightScheduleId);
-            } else {
-                request.setAttribute("errorMessage", "Failed to create flight. Please try again.");
-                List<Flight> flights = serviceDao.getFlightsWithoutSchedule();
-                request.setAttribute("flights", flights);
-                request.setAttribute("pageTitle", "Create New Flight");
-                request.getRequestDispatcher("/views/staff/flight_shedule-form.jsp").forward(request, response);
-            }
-
-            
-        } catch (Exception e) {
-            handleError(request, response, "Error updating flight: " + e.getMessage(), e);
+        // Gọi DAO cập nhật
+        int updatedId = serviceDao.updateFlightSchedule(schedule);
+       
+        
+        if (updatedId > 0) {
+            // Redirect về danh sách
+            response.sendRedirect(request.getContextPath()
+                + "/staff/flight/schedules?action=list&success=updated&scheduleId=" + updatedId);
+        } else {
+            //  Update thất bại
+            request.setAttribute("errorMessage", "Không thể cập nhật lịch trình. Vui lòng thử lại.");
+            request.getRequestDispatcher("/views/staff/flight_schedule-form.jsp").forward(request, response);
         }
-    }
 
+    } catch (Exception e) {
+        handleError(request, response, "Error updating flight: " + e.getMessage(), e);
+    }
+    
+    }
+  
     /**
      * Handle delete flight
      */
-    private void handleDeleteFlight(HttpServletRequest request, HttpServletResponse response)
+    private void handleDeleteFlightSchedule(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String scheduleIdStr = request.getParameter("scheduleId");
             String flightIdStr = request.getParameter("flightId");
-            if (flightIdStr == null || flightIdStr.trim().isEmpty()) {
+            
+            if (scheduleIdStr == null || scheduleIdStr.trim().isEmpty() || flightIdStr == null || flightIdStr.trim().isEmpty())  {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?error=invalid_id");
                 return;
             }
             
+            int scheduleId = Integer.parseInt(scheduleIdStr);
             int flightId = Integer.parseInt(flightIdStr);
    
              // Delete flight
-           int deleteFlightId = serviceDao.deleteFlight(flightId);
+           int deleteScheduleId = serviceDao.deleteFlightSchedule(scheduleId , flightId);
 
-            if (deleteFlightId > 0) {
+            if (deleteScheduleId > 0) {
 
-                response.sendRedirect(request.getContextPath() + "/staff/flight/tickets?action=list&success=deleted&flightId=" + deleteFlightId);
+                response.sendRedirect(request.getContextPath() + "/staff/flight/schedules?action=list&success=deleted&scheduleId=" + deleteScheduleId);
             } else {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?error=delete_failed");
             }

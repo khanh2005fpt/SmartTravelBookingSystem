@@ -21,6 +21,8 @@ import model.TourService;
 import utils.DBContext;
 import java.sql.Time;
 import model.FlightSchedule;
+import java.time.LocalTime;
+
 
 /**
  *
@@ -767,6 +769,9 @@ public class ServiceDao extends DBContext {
         }
         return 0; // ❌ Không có dòng nào bị xóa
     }
+  
+    
+    
 
     // Cap nhat so ve con lai
     public boolean updateFlightAvailability(int flightId, int newAvailability) {
@@ -895,21 +900,9 @@ public class ServiceDao extends DBContext {
         }
     }
 
-    // DELETE - Xoa hang hang khong
-    public boolean deleteAirline(int airlineId) {
-        String sql = "DELETE FROM Airlines WHERE airlineId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, airlineId);
-
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
+    
+    
+    
     // Lay tat ca hang hang khong
     public List<Airlines> getAllAirlines() throws SQLException {
         List<Airlines> list = new ArrayList<>();
@@ -1148,13 +1141,20 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
         try {
 
 
-                // === 1️⃣ Trường hợp test không lọc gì (hiển thị tất cả) ===
-            List<Flight> f = dao.getFlightsWithoutSchedule();
-            for(Flight flight :f ){
-                System.out.println(flight);
-            }
-           
+               FlightSchedule schedule = new FlightSchedule();
+        schedule.setScheduleId(5); // ID có sẵn trong DB
+        schedule.setDepartureAirport("Tân Sơn Nhất (SGN)");
+        schedule.setArrivalAirport("Bali (DPS)");
+        schedule.setDepartureTime(LocalTime.of(9, 30));
+        schedule.setArrivalTime(LocalTime.of(11, 10));
+        schedule.setReturnDepartureTime(LocalTime.of(16, 0));
+        schedule.setReturnArrivalTime(LocalTime.of(17, 20));
+        schedule.setTransitAirport("Jakarta (CGK)");
+        schedule.setTransitDuration("2h");
+        schedule.setNotes("Update test — không đổi flightId");
 
+        int updatedId = dao.updateFlightSchedule(schedule);
+        System.out.println("✅ Updated schedule ID: " + updatedId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1361,132 +1361,210 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
 
     // ==================== FLIGHT SCHEDULE CRUD OPERATIONS ====================
     // CREATE - Them lich bay moi
-   public int createFlightSchedule(FlightSchedule schedule) throws SQLException {
-    String sql = "INSERT INTO FlightSchedules " +
-                 "(flightId, departureAirport, arrivalAirport, departureTime, arrivalTime, " +
-                 "returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes) " +
-                 "OUTPUT INSERTED.scheduleId VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  public int createFlightSchedule(FlightSchedule schedule) throws SQLException {
+    String insertSql = """
+        INSERT INTO FlightSchedules 
+        (flightId, departureAirport, arrivalAirport, departureTime, arrivalTime, 
+         returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes) 
+        OUTPUT INSERTED.scheduleId 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, schedule.getFlight().getFlightId());
-        ps.setString(2, schedule.getDepartureAirport());
-        ps.setString(3, schedule.getArrivalAirport());
+    String updateSql = "UPDATE Flights SET hasSchedule = 1 WHERE flightId = ?";
 
-        // Times
-        ps.setObject(4, schedule.getDepartureTime());// LocalTime -> TIME
-        ps.setObject(5, schedule.getArrivalTime());
-        ps.setObject(6, schedule.getReturnDepartureTime());  
-        ps.setObject(7, schedule.getReturnArrivalTime());  
+    try {
+        // Tắt auto commit để bắt đầu transaction
+        connection.setAutoCommit(false);
 
-        // Nullable fields
-        ps.setString(8, schedule.getTransitAirport());
-        ps.setString(9, schedule.getTransitDuration());
-        ps.setString(10, schedule.getNotes());
+        int scheduleId = 0;
 
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1); // scheduleId vừa insert
+        try (PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
+            psInsert.setInt(1, schedule.getFlight().getFlightId());
+            psInsert.setString(2, schedule.getDepartureAirport());
+            psInsert.setString(3, schedule.getArrivalAirport());
+
+            psInsert.setObject(4, schedule.getDepartureTime());
+            psInsert.setObject(5, schedule.getArrivalTime());
+            psInsert.setObject(6, schedule.getReturnDepartureTime());
+            psInsert.setObject(7, schedule.getReturnArrivalTime());
+
+            psInsert.setString(8, schedule.getTransitAirport());
+            psInsert.setString(9, schedule.getTransitDuration());
+            psInsert.setString(10, schedule.getNotes());
+
+            try (ResultSet rs = psInsert.executeQuery()) {
+                if (rs.next()) {
+                    scheduleId = rs.getInt(1);
+                }
             }
         }
+
+        if (scheduleId > 0) {
+            // Sau khi insert thành công, update hasSchedule
+            try (PreparedStatement psUpdate = connection.prepareStatement(updateSql)) {
+                psUpdate.setInt(1, schedule.getFlight().getFlightId());
+                psUpdate.executeUpdate();
+            }
+        }
+
+        // Commit transaction
+        connection.commit();
+        return scheduleId;
+
     } catch (SQLException e) {
+        // Nếu lỗi, rollback lại hết
+        if (connection != null) connection.rollback();
         e.printStackTrace();
         throw new SQLException("Creating flight schedule failed: " + e.getMessage());
+    } finally {
+        // Bật lại auto commit
+        if (connection != null) connection.setAutoCommit(true);
     }
-    return 0; // nếu thất bại
 }
+
 
 
     
 
     // READ - Lay lich bay theo ID
     public FlightSchedule getFlightScheduleById(int scheduleId) {
-        String sql = "SELECT fs.*, f.flightNumber, f.departure, f.destination, a.airlineName, a.iataCode, a.logoUrl " +
-                    "FROM FlightSchedules fs " +
-                    "JOIN Flights f ON fs.flightId = f.flightId " +
-                    "JOIN Airlines a ON f.airlineId = a.airlineId " +
-                    "WHERE fs.scheduleId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, scheduleId);
-            ResultSet rs = ps.executeQuery();
+    String sql = """
+        SELECT fs.*, f.flightId, f.flightType, f.departure, f.destination
+        FROM FlightSchedules fs
+        JOIN Flights f ON fs.flightId = f.flightId
+        WHERE fs.scheduleId = ?
+        """;
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, scheduleId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            FlightSchedule schedule = new FlightSchedule();
+            schedule.setScheduleId(rs.getInt("scheduleId"));
+            schedule.setDepartureAirport(rs.getString("departureAirport"));
+            schedule.setArrivalAirport(rs.getString("arrivalAirport"));
 
-            if (rs.next()) {
-                FlightSchedule schedule = new FlightSchedule();
-                schedule.setScheduleId(rs.getInt("scheduleId"));
-                schedule.setPlaneModel(rs.getString("planeModel"));
-                schedule.setDepartureAirport(rs.getString("departureAirport"));
-                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                schedule.setTransitAirport(rs.getString("transitAirport"));
-                schedule.setTransitDuration(rs.getString("transitDuration"));
-                schedule.setSeatCapacity(rs.getInt("seatCapacity"));
-                schedule.setCabinBaggage(rs.getString("cabinBaggage"));
-                schedule.setSeatPitch(rs.getString("seatPitch"));
-                schedule.setNotes(rs.getString("notes"));
+            // --- Thời gian ---
+            Time dep = rs.getTime("departureTime");
+            schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
 
-                // Set flight information
-                Flight flight = new Flight();
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setDeparture(rs.getString("departure"));
-                flight.setDestination(rs.getString("destination"));
+            Time arr = rs.getTime("arrivalTime");
+            schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
 
-                Airlines airline = new Airlines();
-                airline.setAirlineName(rs.getString("airlineName"));
-                airline.setIataCode(rs.getString("iataCode"));
-                airline.setLogoUrl(rs.getString("logoUrl"));
-                flight.setAirline(airline);
+            Time retDep = rs.getTime("returnDepartureTime");
+            schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
 
-                schedule.setFlight(flight);
+            Time retArr = rs.getTime("returnArrivalTime");
+            schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
 
-                return schedule;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            // --- Các trường khác ---
+            schedule.setTransitAirport(rs.getString("transitAirport"));
+            schedule.setTransitDuration(rs.getString("transitDuration"));
+            schedule.setNotes(rs.getString("notes"));
+
+            // --- Thông tin chuyến bay ---
+            Flight flight = new Flight();
+            flight.setFlightId(rs.getInt("flightId"));
+            flight.setFlightType(rs.getString("flightType"));
+            flight.setDeparture(rs.getString("departure"));
+            flight.setDestination(rs.getString("destination"));
+            schedule.setFlight(flight);
+      
+            return schedule;
         }
-        return null;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return null;
+}
+
 
     // UPDATE - Cap nhat thong tin lich bay
-    public boolean updateFlightSchedule(FlightSchedule schedule) {
-        String sql = "UPDATE FlightSchedules SET flightId = ?, planeModel = ?, departureAirport = ?, "
-                + "arrivalAirport = ?, transitAirport = ?, transitDuration = ?, seatCapacity = ?, "
-                + "cabinBaggage = ?, seatPitch = ?, notes = ? WHERE scheduleId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, schedule.getFlight().getFlightId());
-            ps.setString(2, schedule.getPlaneModel());
-            ps.setString(3, schedule.getDepartureAirport());
-            ps.setString(4, schedule.getArrivalAirport());
-            ps.setString(5, schedule.getTransitAirport());
-            ps.setString(6, schedule.getTransitDuration());
-            ps.setInt(7, schedule.getSeatCapacity());
-            ps.setString(8, schedule.getCabinBaggage());
-            ps.setString(9, schedule.getSeatPitch());
-            ps.setString(10, schedule.getNotes());
-            ps.setInt(11, schedule.getScheduleId());
+// UPDATE - Cập nhật thông tin lịch trình chuyến bay (không thay đổi flightId)
+public int updateFlightSchedule(FlightSchedule schedule) throws SQLException {
+    String sql = """
+        UPDATE FlightSchedules
+        SET 
+            departureAirport = ?, 
+            arrivalAirport = ?, 
+            departureTime = ?, 
+            arrivalTime = ?, 
+            returnDepartureTime = ?, 
+            returnArrivalTime = ?, 
+            transitAirport = ?, 
+            transitDuration = ?, 
+            notes = ?
+        OUTPUT INSERTED.scheduleId
+        WHERE scheduleId = ?
+    """;
 
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        // --- Thông tin ---
+        ps.setString(1, schedule.getDepartureAirport());
+        ps.setString(2, schedule.getArrivalAirport());
+        
+        //Time
+        ps.setObject(3, schedule.getDepartureTime());
+        ps.setObject(4, schedule.getArrivalTime());
+        ps.setObject(5, schedule.getReturnDepartureTime());
+        ps.setObject(6, schedule.getReturnArrivalTime());
+        
+        
+        ps.setString(7, schedule.getTransitAirport());
+        ps.setString(8, schedule.getTransitDuration());
+        ps.setString(9, schedule.getNotes());
+        ps.setInt(10, schedule.getScheduleId());
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1); // Trả về scheduleId vừa update
+            }
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new SQLException("Updating flight schedule failed: " + e.getMessage());
     }
+
+    return 0;
+}
+
+
 
     // DELETE - Xoa lich bay
-    public boolean deleteFlightSchedule(int scheduleId) throws SQLException {
-        String sql = "DELETE FROM FlightSchedules WHERE scheduleId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, scheduleId);
+          public int deleteFlightSchedule(int scheduleId, int flightId) throws SQLException {
+    String deleteSql = "DELETE FROM FlightSchedules WHERE scheduleId = ? AND flightId = ?";
+    String updateSql = "UPDATE Flights SET hasSchedule = 0 WHERE flightId = ?";
+    try {
+        connection.setAutoCommit(false); // Bắt đầu transaction
 
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+        // Xóa lịch bay theo scheduleId và flightId
+        try (PreparedStatement psDelete = connection.prepareStatement(deleteSql)) {
+            psDelete.setInt(1, scheduleId);
+            psDelete.setInt(2, flightId);
+            int rowsAffected = psDelete.executeUpdate();
+
+            // Nếu xóa thành công → cập nhật lại Flights.hasSchedule = 0
+            if (rowsAffected > 0) {
+                try (PreparedStatement psUpdate = connection.prepareStatement(updateSql)) {
+                    psUpdate.setInt(1, flightId);
+                    psUpdate.executeUpdate();
+                }
+                connection.commit();
+                return scheduleId; // Trả về scheduleId đã xóa
+            } else {
+                connection.rollback();
+                return 0; // Không xóa được
+            }
         }
+
+    } catch (SQLException e) {
+        if (connection != null) connection.rollback(); // Rollback nếu lỗi
+        e.printStackTrace();
+        throw new SQLException("Deleting flight schedule failed: " + e.getMessage());
+    } finally {
+        if (connection != null) connection.setAutoCommit(true); // Reset lại auto commit
     }
+}
+
 
     // Lay tat ca lich bay
 public List<FlightSchedule> getFlightSchedules() throws Exception {
