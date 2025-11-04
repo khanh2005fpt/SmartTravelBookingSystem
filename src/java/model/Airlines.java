@@ -11,17 +11,19 @@ package model;
 public class Airlines {
      private int airlineId;
     private String airlineName; 
-    private String iataCode;        
+    private String iataCode;    
+    private int countryId;     
     private String hotline;     
     private String logoUrl; 
 
     public Airlines() {
     }
 
-    public Airlines(int airlineId, String airlineName, String iataCode, String hotline, String logoUrl) {
+    public Airlines(int airlineId, String airlineName, String iataCode, int countryId, String hotline, String logoUrl) {
         this.airlineId = airlineId;
         this.airlineName = airlineName;
         this.iataCode = iataCode;
+        this.countryId = countryId;
         this.hotline = hotline;
         this.logoUrl = logoUrl;
     }
@@ -50,6 +52,14 @@ public class Airlines {
         this.iataCode = iataCode;
     }
 
+    public int getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
+    }
+
     public String getHotline() {
         return hotline;
     }
@@ -68,10 +78,8 @@ public class Airlines {
 
     @Override
     public String toString() {
-        return "Airlines{" + "airlineId=" + airlineId + ", airlineName=" + airlineName + ", iataCode=" + iataCode + ", hotline=" + hotline + ", logoUrl=" + logoUrl + '}';
+        return "Airlines{" + "airlineId=" + airlineId + ", airlineName=" + airlineName + ", iataCode=" + iataCode + ", countryId=" + countryId + ", hotline=" + hotline + ", logoUrl=" + logoUrl + '}';
     }
-
-    
 
   
     

@@ -18,7 +18,6 @@ public class Tour {
     private int price;
     private String tourImageUrl;
     private String islandName; // Added for displaying island name
-    private String approvalStatus; // PENDING, APPROVED, REJECTED
 
     public Tour() {
     }
@@ -88,14 +87,6 @@ public class Tour {
 
     public void setIslandName(String islandName) {
         this.islandName = islandName;
-    }
-
-    public String getApprovalStatus() {
-        return approvalStatus;
-    }
-
-    public void setApprovalStatus(String approvalStatus) {
-        this.approvalStatus = approvalStatus;
     }
 
     @Override

@@ -292,11 +292,10 @@
                 <c:if test="${pageContext.errorData.servletName != null}">
                     <p><strong>Servlet:</strong> ${pageContext.errorData.servletName}</p>
                 </c:if>
-                    <c:if test="${pageContext.exception != null}">
-                        <p><strong>Exception:</strong> <%= pageContext.getException().getClass().getSimpleName() %></p>
-                        <p><strong>Message:</strong> ${pageContext.exception.message}</p>
-                    </c:if>
-
+                <c:if test="${pageContext.exception != null}">
+                    <p><strong>Exception:</strong> ${pageContext.exception.class.simpleName}</p>
+                    <p><strong>Message:</strong> ${pageContext.exception.message}</p>
+                </c:if>
             </div>
         </c:if>
 

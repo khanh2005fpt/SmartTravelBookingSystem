@@ -419,7 +419,7 @@
                                     </span>
                                     <span class="info-value">
                                         <c:choose>
-                                            <c:when test="${place != null && place.hasTicket != null && place.hasTicket == true}">
+                                            <c:when test="${place.hasTicket}">
                                                 <span class="price-display">
                                                     <fmt:formatNumber value="${place.ticketPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
                                                 </span>

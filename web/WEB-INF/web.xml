@@ -36,10 +36,6 @@
         <servlet-name>FlightSearchController</servlet-name>
         <servlet-class>controller.home.FlightSearchController</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>CustomTourDetailController</servlet-name>
-        <servlet-class>controller.services.CustomTourDetailController</servlet-class>
-    </servlet>
     <servlet-mapping>
         <servlet-name>Hello</servlet-name>
         <url-pattern>/Hello</url-pattern>
@@ -80,6 +76,7 @@
         <servlet-name>VnpayReturn</servlet-name>
         <url-pattern>/VnpayReturn</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>CreateCustomTourController</servlet-name>
         <url-pattern>/CreateCustomTourController</url-pattern>
@@ -91,9 +88,5 @@
     <servlet-mapping>
         <servlet-name>FlightSearchController</servlet-name>
         <url-pattern>/FlightSearchController</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>CustomTourDetailController</servlet-name>
-        <url-pattern>/CustomTourDetailController</url-pattern>
     </servlet-mapping>
 </web-app>

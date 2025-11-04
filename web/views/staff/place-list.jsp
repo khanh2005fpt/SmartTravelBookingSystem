@@ -471,7 +471,7 @@
                     <select class="form-control" id="islandId" name="islandId">
                         <option value="">Tất cả đảo</option>
                         <c:forEach var="island" items="${islands}">
-                            <option value="${island.islandId}" ${param.islandId != null && param.islandId == island.islandId ? 'selected' : ''}>
+                            <option value="${island.islandId}" ${param.islandId == island.islandId ? 'selected' : ''}>
                                 ${island.islandName}
                             </option>
                         </c:forEach>
@@ -549,7 +549,7 @@
                                         </td>
                                         <td>
                                             <c:choose>
-                                                <c:when test="${place != null && place.hasTicket != null && place.hasTicket == true}">
+                                                <c:when test="${place.hasTicket}">
                                                     <div class="place-price">
                                                         <c:choose>
                                                             <c:when test="${not empty place.ticketPrice && place.ticketPrice > 0}">

@@ -71,15 +71,14 @@ public class TourDetailController extends HttpServlet {
             // Gửi dữ liệu sang JSP
             request.setAttribute("tour", tour);
             request.setAttribute("itineraries", itineraries);
-            request.setAttribute("tourId", tourIdRaw);
+
+            // forward sang trang detail.jsp
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Đã xảy ra lỗi trong quá trình tải dữ liệu. Vui lòng thử lại sau!");
-            request.setAttribute("tourId", tourIdRaw);
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
-
         }
     }
 
@@ -94,7 +93,7 @@ public class TourDetailController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+        processRequest(request, response);
     }
 
     /**

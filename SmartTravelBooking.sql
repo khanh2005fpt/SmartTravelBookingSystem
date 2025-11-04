@@ -1,4 +1,4 @@
-Create database SmartTravelBooking
+﻿Create database SmartTravelBooking
 go
 use SmartTravelBooking
 go
@@ -16,12 +16,8 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
-update Airlines 
-set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
-where airlineId=7
 
-select * from Flights
-select * from Airlines
+
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -94,49 +90,23 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
-
-
-CREATE TABLE CustomerContacts (
-    contactId INT IDENTITY(1,1) PRIMARY KEY,
+-- Bảng UserEmails
+CREATE TABLE UserEmails (
+    emailId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
-    contactValue NVARCHAR(100) NOT NULL,
-    contactType NVARCHAR(10) CHECK (contactType IN ('EMAIL', 'PHONE')) NOT NULL,
-    isPrimary BIT DEFAULT 0,
+    email NVARCHAR(100) NOT NULL,
+    isPrimary BIT DEFAULT 0, -- Đánh dấu là email chính
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 go
 
--- trigger set emaail chinh
 
-CREATE OR ALTER TRIGGER TR_ManagePrimaryEmail
-ON CustomerContacts
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF UPDATE(isPrimary)
-    BEGIN
-        -- 1️ Reset tất cả email về 0 cho userId tương ứng
-        UPDATE CustomerContacts
-        SET isPrimary = 0
-        WHERE userId IN (SELECT userId FROM inserted)
-          AND contactType = 'EMAIL';
-
-        -- 2️ Set isPrimary = 1 cho contactId vừa chọn
-        UPDATE CustomerContacts
-        SET isPrimary = 1
-        WHERE contactId IN (SELECT contactId FROM inserted WHERE isPrimary = 1 AND contactType = 'EMAIL');
-
-        -- 3️ Đồng bộ email chính sang bảng Users
-        UPDATE u
-        SET u.email = i.contactValue
-        FROM Users u
-        JOIN inserted i ON u.userId = i.userId
-        WHERE i.contactType = 'EMAIL' AND i.isPrimary = 1;
-    END
-END;
-GO
+CREATE TABLE UserPhones (
+    phoneId INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    phoneNumber NVARCHAR(20) NOT NULL,
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
 
 
 
@@ -162,6 +132,7 @@ CREATE TABLE Islands (
     FOREIGN KEY (countryId) REFERENCES Countries(countryId) ON DELETE CASCADE
 );
 
+
 go
 CREATE TABLE Tours (
     tourId INT PRIMARY KEY IDENTITY(1,1),
@@ -169,12 +140,9 @@ CREATE TABLE Tours (
     tourName NVARCHAR(255) UNIQUE NOT NULL,
     description NVARCHAR(MAX),
     price INT CHECK(price >= 0),  -- dùng INT lưu VNĐ
-	approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED')),
 	tourImageUrl NVARCHAR(500),  
-
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-
 
 CREATE TABLE TourItinerary (
     itineraryId INT PRIMARY KEY IDENTITY(1,1),
@@ -211,179 +179,148 @@ CREATE TABLE Hotels (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
-
+-- Bảng Restaurants
+CREATE TABLE Restaurants (
+    restaurantId INT IDENTITY(1,1) PRIMARY KEY,
+    islandId INT NOT NULL,
+    restaurantName NVARCHAR(100) NOT NULL,
+    address NVARCHAR(255),
+    description NVARCHAR(MAX),
+    cuisineType NVARCHAR(50) NOT NULL
+        CHECK (cuisineType IN (N'Việt Nam', N'Thái Lan', N'Nhật Bản', N'Hàn Quốc', N'Trung Quốc', N'Ý', N'Pháp', N'Hải sản', N'Chay', N'Quốc tế', N'Khác')),
+    priceRange NVARCHAR(20) NOT NULL
+        CHECK (priceRange IN (N'Bình dân', N'Trung bình', N'Cao cấp', N'Sang trọng')),
+    rating DECIMAL(3,1) CHECK (rating >= 0 AND rating <= 5),
+    openTime TIME,
+    closeTime TIME,
+    openingHours NVARCHAR(100), -- giờ mở cửa dạng text (ví dụ: "08:00 - 22:00")
+    capacity INT CHECK (capacity > 0),
+    phoneNumber NVARCHAR(20),
+    restaurantImageUrl VARCHAR(255), -- đường dẫn ảnh nhà hàng
+    specialties NVARCHAR(MAX), -- món đặc sản của nhà hàng
+    isActive BIT DEFAULT 1, -- 1: hoạt động, 0: tạm đóng
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
 
 -- bảng Arlines : các hãng bay
 CREATE TABLE Airlines (
     airlineId INT IDENTITY(1,1) PRIMARY KEY,
     airlineName NVARCHAR(100) NOT NULL,   -- Tên hãng hàng không (Vietnam Airlines, Vietjet Air…)
     iataCode VARCHAR(5),                  -- Mã quốc tế (VN, VJ…)
+    countryId int NOT NULL,                 -- Quốc gia
 	hotline VARCHAR(20),                 -- Đường dây nóng
     logoUrl VARCHAR(255)                  -- Link logo hãng
+	FOREIGN KEY (countryId) REFERENCES Countries(countryId)
 );
 go
-g
+
 -- bảng flights 
 
 CREATE TABLE Flights (
     flightId INT IDENTITY(1,1) PRIMARY KEY,
-    flightNumber VARCHAR(20) NOT NULL,           
-    airlineId INT NOT NULL,                      
-    departure NVARCHAR(100) NOT NULL,            
-    destination NVARCHAR(100) NOT NULL,          
-    destinationIslandId INT NULL,                
-    basePrice INT NOT NULL,                      
-    ticketAvailable INT NOT NULL,
-    flightType NVARCHAR(10) NOT NULL
-        CONSTRAINT CK_Flights_flightType CHECK (flightType IN (N'Một chiều', N'Khứ hồi')),
-    flightClass NVARCHAR(50) NOT NULL
-        CONSTRAINT CK_Flights_flightClass CHECK (flightClass IN (N'Phổ thông', N'Thương gia', N'Hạng nhất')),
-    destinationImageUrl NVARCHAR(255) NULL,
+    flightNumber VARCHAR(20) NOT NULL,           -- Mã chuyến bay (VD: VN123)
+    airlineId INT NOT NULL,                      -- FK đến Airlines
+    departure NVARCHAR(100) NOT NULL,             -- Nơi xuất phát
+    destination NVARCHAR(100) NOT NULL,           -- Điểm đến
+    destinationIslandId INT NULL,                -- Nếu điểm đến là đảo -> FK Islands
+    departureTime TIME NOT NULL,                 -- Giờ khởi hành
+    arrivalTime TIME NOT NULL,                   -- Giờ đến
+    returnDepartureTime TIME NULL,               -- Giờ khởi hành chiều về
+    returnArrivalTime TIME NULL,                 -- Giờ hạ cánh chiều về
+    basePrice INT NOT NULL,                      -- Giá gốc (giá cơ bản)
+	ticketAvailable INT NOT NULL ,
+    flightType NVARCHAR(10) 
+        CHECK (flightType IN ('Một chiều', 'Khứ hồi')) NOT NULL,  -- Loại chuyến bay
+    flightClass NVARCHAR(50) 
+        CHECK (flightClass IN ('Phổ thông', 'Thương gia', 'Hạng nhất')) NOT NULL, -- Hạng vé
+    destinationImageUrl VARCHAR(255) NULL,       -- Ảnh điểm đến (nếu là đảo)
     FOREIGN KEY (airlineId) REFERENCES Airlines(airlineId),
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-GO
-
-SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
-                u.fullName as customerName,
-                t.tourName,
-                ct.tourName as customTourName
-            FROM Bookings b
-            LEFT JOIN Users u ON b.customerId = u.userId
-            LEFT JOIN Tours t ON b.tourId = t.tourId
-            LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
-            ORDER BY b.bookingDate DESC
 
 
-INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
-                     basePrice, ticketAvailable, flightType, flightClass, destinationImageUrl)
-VALUES
--- Từ Hà Nội đến Phú Quốc
-(N'VN101', 1, N'Hà Nội', N'Phú Quốc', 1, 2200000, 50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/phuquoc.jpg'),
-(N'VJ301', 2, N'Hà Nội', N'Phú Quốc', 1, 1100000, 50, N'Một chiều', N'Thương gia', N'views/home/images/islands/phuquoc.jpg'),
-(N'QH210', 3, N'Hà Nội', N'Phú Quốc', 1, 1530000, 50, N'Một chiều', N'Thương gia', N'views/home/images/islands/phuquoc.jpg'),
-(N'VN101', 1, N'TP.HCM', N'Phú Quốc', 1, 1322000, 50, N'Một chiều', N'Phổ thông', N'views/home/images/islands/phuquoc.jpg'),
-(N'QH210', 3, N'Hà Nội', N'Phú Quốc', 1, 3530000, 50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/phuquoc.jpg'),
-(N'VJ301', 2, N'TP.HCM', N'Phú Quốc', 1, 3530000, 50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/phuquoc.jpg'),
 
--- Từ TP.HCM đến Langkawi
-(N'VN205', 1, N'TP.HCM', N'Langkawi', 2, 3200000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/langkawi.jpg'),
-(N'QH505', 3, N'TP.HCM', N'Langkawi', 2, 1800000,50, N'Một chiều', N'Thương gia', N'views/home/images/islands/langkawi.jpg'),
-
--- Từ Hà Nội đến Phuket
-(N'VN307', 1, N'Hà Nội', N'Phuket', 3,3500000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/phuket.jpg'),
-
--- Từ TP.HCM đến Bali
-(N'VJ407', 2, N'TP.HCM', N'Bali', 4, 4000000,50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/bali.jpg'),
-(N'QH509', 3, N'TP.HCM', N'Bali', 4, 2100000,50, N'Một chiều', N'Phổ thông', N'views/home/images/islands/bali.jpg'),
-
--- Từ Hà Nội đến Boracay
-(N'VN321', 1, N'Hà Nội', N'Boracay', 5, 3700000, 50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/boracay.jpg'),
-
--- Từ TP.HCM đến Sihanoukville
-(N'VJ215', 2, N'TP.HCM', N'Sihanoukville', 6, 2500000,50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/sihanoukville.jpg'),
-
--- Từ Hà Nội đến Tioman
-(N'VN333', 1, N'Hà Nội', N'Tioman', 7, 3200000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/tioman.jpg'),
-
--- Từ TP.HCM đến Koh Samui
-(N'QH601', 3, N'TP.HCM', N'Koh Samui', 8,3300000,50, N'Một chiều', N'Phổ thông', N'views/home/images/islands/kohsamui.jpg'),
-
--- Từ Hà Nội đến Nusa Penida
-(N'VN901', 1, N'Hà Nội', N'Nusa Penida', 9, 4100000,50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/nusapenida.jpg'),
-
--- Từ TP.HCM đến Palawan
-(N'VJ701', 2, N'TP.HCM', N'Palawan', 10, 3900000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/palawan.jpg');
-
-CREATE TABLE FlightSchedules (
-    scheduleId INT IDENTITY(1,1) PRIMARY KEY,
-    flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
-    planeModel NVARCHAR(100) NULL,           -- loại máy bay
-    departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
-    arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
-    departureTime TIME NOT NULL,             -- giờ khởi hành
-    arrivalTime TIME NOT NULL,               -- giờ đến
-    returnDepartureTime TIME NULL,           -- giờ khởi hành chiều về
-    returnArrivalTime TIME NULL,             -- giờ hạ cánh chiều về
-    transitAirport NVARCHAR(100) NULL,       -- sân bay trung chuyển (nếu có)
-    transitDuration NVARCHAR(50) NULL,       -- thời gian dừng (VD: '7h30', '45 phút')
-    notes NVARCHAR(255) NULL                 -- ghi chú
-);
-select * from FlightSchedules
+	CREATE TABLE FlightSchedules (
+		scheduleId INT IDENTITY(1,1) PRIMARY KEY,
+		flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
+		planeModel NVARCHAR(100) NULL,          -- loại máy bay
+		departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
+		arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
+		transitAirport NVARCHAR(100) NULL,       -- sân bay trung chuyển (nếu có)
+		transitDuration NVARCHAR(50) NULL,       -- thời gian dừng (VD: '7h30', '45 phút')
+		notes NVARCHAR(255) NULL                 -- ghi chú (VD: "Hành khách không cần nhận lại hành lý...")
+	);
 
 
 INSERT INTO FlightSchedules 
-(flightId, planeModel, departureAirport, arrivalAirport, departureTime, arrivalTime,returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes)
+(flightId, planeModel, departureAirport, arrivalAirport, transitAirport, transitDuration, notes)
 VALUES
 -- 1. Hà Nội → Phú Quốc
-(1, N'Airbus A321neo', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '07:30', '09:45', '16:00', '18:15', NULL, NULL, 
+(1, N'Airbus A321neo', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 2. Hà Nội → Phú Quốc
-(2, N'Airbus A320', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '12:00', '14:10', NULL, NULL, NULL, NULL, 
+(2, N'Airbus A320', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 3. Hà Nội → Phú Quốc
-(3, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '11:34', '13:10', NULL, NULL,  NULL, NULL, 
+(3, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 4. TP.HCM → Phú Quốc
-(4, N'Airbus A321', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', '09:00', '10:35', NULL, NULL,NULL, NULL, 
+(4, N'Airbus A321', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 5. Hà Nội → Phú Quốc (Khứ hồi)
-(5, N'Airbus A321', N'Nội Bài (HAN)', N'Phú Quốc (PQC)','07:50', '10:00', '21:30', '00:15', NULL, NULL, 
+(5, N'Airbus A321', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 6. TP.HCM → Phú Quốc (Khứ hồi)
-(6, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)',  '08:25', '9:55', '20:45', '21:50',NULL, NULL, 
+(6, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', NULL, NULL, 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 7. TP.HCM → Langkawi (Malaysia)
-(7, N'Boeing 737-800', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', '08:00', '10:30', '17:00', '19:30', N'Kuala Lumpur (KUL)', N'1h20', 
+(7, N'Boeing 737-800', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', N'Kuala Lumpur (KUL)', N'1h20', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 8. TP.HCM → Langkawi
-(8, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)','09:15', '11:45', NULL, NULL, N'Kuala Lumpur (KUL)', N'1h15', 
+(8, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', N'Kuala Lumpur (KUL)', N'1h15', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 9. Hà Nội → Phuket (Thái Lan)
-(9, N'Airbus A321', N'Nội Bài (HAN)', N'Phuket (HKT)','06:45', '09:00', '15:30', '17:45', N'Bangkok (BKK)', N'1h05', 
+(9, N'Airbus A321', N'Nội Bài (HAN)', N'Phuket (HKT)', N'Bangkok (BKK)', N'1h05', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 10. TP.HCM → Bali (Indonesia)
-(10, N'Boeing 737 MAX 9', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)',   '08:15', '12:00', '18:00', '21:45', N'Jakarta (CGK)', N'1h30',
+(10, N'Boeing 737 MAX 9', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)', N'Jakarta (CGK)', N'1h30',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 11. TP.HCM → Bali (1 chiều)
-(11, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)','09:15', '11:45', NULL, NULL, N'Jakarta (CGK)', N'1h20',
+(11, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)', N'Jakarta (CGK)', N'1h20',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 12. Hà Nội → Boracay (Philippines)
-(12, N'Airbus A321neo', N'Nội Bài (HAN)', N'Boracay (MPH)', '09:00', '12:15', '19:00', '22:15', N'Manila (MNL)', N'1h10', 
+(12, N'Airbus A321neo', N'Nội Bài (HAN)', N'Boracay (MPH)', N'Manila (MNL)', N'1h10', 
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 13. TP.HCM → Sihanoukville (Campuchia)
-(13, N'ATR 72-600', N'Tân Sơn Nhất (SGN)', N'Sihanoukville (KOS)','10:00', '12:30', '17:45', '19:15', N'Phnom Penh (PNH)', NULL,
+(13, N'ATR 72-600', N'Tân Sơn Nhất (SGN)', N'Sihanoukville (KOS)', NULL, NULL,
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 14. Hà Nội → Tioman (Malaysia)
-(14, N'Airbus A320', N'Nội Bài (HAN)', N'Tioman (TOD)','07:00', '10:30', '15:00', '18:30', N'Kuala Lumpur (KUL)', N'1h25',
+(14, N'Airbus A320', N'Nội Bài (HAN)', N'Tioman (TOD)', N'Kuala Lumpur (KUL)', N'1h25',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 15. TP.HCM → Koh Samui (Thái Lan)
-(15, N'Airbus A319', N'Tân Sơn Nhất (SGN)', N'Koh Samui (USM)',  '13:30', '17:15', NULL, NULL, N'Bangkok (BKK)', N'50 phút',
+(15, N'Airbus A319', N'Tân Sơn Nhất (SGN)', N'Koh Samui (USM)', N'Bangkok (BKK)', N'50 phút',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 16. Hà Nội → Nusa Penida (Indonesia)
-(16, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Nusa Penida (NDP)','06:30', '10:15', '17:00', '20:45', N'Denpasar (DPS)', N'1h10',
+(16, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Nusa Penida (NDP)', N'Denpasar (DPS)', N'1h10',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
 
 -- 17. TP.HCM → Palawan (Philippines)
-(17, N'Airbus A321neo', N'Tân Sơn Nhất (SGN)', N'Palawan (PPS)',  '09:00', '12:30', '18:00', '21:30',N'Manila (MNL)', N'1h00',
+(17, N'Airbus A321neo', N'Tân Sơn Nhất (SGN)', N'Palawan (PPS)', N'Manila (MNL)', N'1h00',
  N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.');
 
 
@@ -451,7 +388,8 @@ CREATE TABLE IslandVehicles (
 );
 
 go
-select * from historybooking
+
+
  -- tour rieng le cho customer
 CREATE TABLE CustomTours (
     customTourId INT IDENTITY(1,1) PRIMARY KEY,
@@ -462,6 +400,7 @@ CREATE TABLE CustomTours (
     totalPrice INT CHECK (totalPrice >= 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
 
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 VALUES
@@ -553,49 +492,23 @@ BEGIN
     FROM inserted;
 END;
 GO
- SELECT 
-        f.flightId,
-        f.flightNumber,
-        f.departure,
-        f.destinationIslandId,   
-        f.destination,
-        f.basePrice,
-        f.ticketAvailable,
-        f.flightClass,
-        f.destinationImageUrl,
-        f.flightType,
-        -- Airline
-        a.airlineId,
-        a.airlineName,
-        a.iataCode,
-        a.logoUrl
-    FROM Flights f
-    JOIN Airlines a ON f.airlineId = a.airlineId
-    WHERE f.destinationIslandId = 1 AND f.flightType = 'Một chiều'
-    ORDER BY f.basePrice ASC
-select * from tours
+
 CREATE TABLE Bookings (
-    bookingId INT IDENTITY(1,1) PRIMARY KEY,
-    customerId INT NOT NULL,
-    customTourId INT NULL,
-    tourId INT NULL,
-    departureDate DATE NOT NULL,
-    endDate DATE,
-    adultQuantity INT NOT NULL,
-    childQuantity INT NOT NULL,
-    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
-	totalPrice INT,
-    bookingDate DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (customerId) REFERENCES Users(userId),
-    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
+		bookingId INT IDENTITY(1,1) PRIMARY KEY,
+		customerId INT NOT NULL,
+		departureDate DATE NOT NULL,
+		endDate DATE    ,
+		adultQuantity INT NOT NULL,
+		childQuantity INT NOT NULL,
+		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
+		bookingDate DATETIME DEFAULT GETDATE(),
+--		FOREIGN KEY (customerId) REFERENCES Users(userId),
 );
-
-
-
 
 -- Bảng Payments
   
+
+
 CREATE TABLE Payments (
     paymentId INT IDENTITY(1,1) PRIMARY KEY,
     bookingId INT NOT NULL,
@@ -604,79 +517,22 @@ CREATE TABLE Payments (
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 
+go
+
+
 
 CREATE TABLE HistoryBooking (
-    historyId INT IDENTITY(1,1) PRIMARY KEY,
-    paymentId INT NOT NULL,
-    accountUserId INT NULL,
-    customerName NVARCHAR(100) NOT NULL,
-    customerEmail NVARCHAR(100) NOT NULL,
-    customerPhone NVARCHAR(20) NOT NULL,
-    createdAt DATETIME DEFAULT GETDATE(),
-    tourStatus NVARCHAR(20) CHECK (tourStatus IN ('COMPLETED', 'INCOMPLETE')) DEFAULT 'INCOMPLETE',
-    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE,
-    -- Cho phép null nếu user bị xóa
-    FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
+    historyId INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
+    customerId INT NOT NULL,                                
+    paymentId INT NOT NULL,                                   
+    note NVARCHAR(255) NULL,                                  -- Ghi chú
+    tourStatus NVARCHAR(20) NOT NULL CHECK (
+        tourStatus IN ('COMPLETED', 'INCOMPLETE')
+    ) DEFAULT 'INCOMPLETE', 
+--    FOREIGN KEY (customerId) REFERENCES CustomerProfiles(userId) ON DELETE CASCADE,
+    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE
 );
-
-SELECT 
-    hb.historyId,
-    hb.customerName AS fullname,
-    hb.customerPhone AS phone,
-    hb.createdAt,
-    t.tourName,
-    p.amount,
-    p.status AS paymentStatus
-FROM HistoryBooking hb
-JOIN Payments p ON hb.paymentId = p.paymentId
-JOIN Bookings b ON p.bookingId = b.bookingId
-LEFT JOIN Tours t ON b.tourId = t.tourId
-LEFT JOIN Users u ON hb.accountUserId = u.userId
-WHERE hb.historyId = 1;  -- hoặc lọc theo userId nếu muốn
-
-SELECT hb.paymentId, hb.customerName, hb.customerPhone, hb.createdAt, t.tourName, p.amount, p.status AS paymentStatus
-                  FROM HistoryBooking hb
-                  JOIN Payments p ON hb.paymentId = p.paymentId
-                  JOIN Bookings b ON p.bookingId = b.bookingId
-                  LEFT JOIN Tours t ON b.tourId = t.tourId
-                  WHERE hb.paymentId = 29
-select * from HistoryBooking
-
 GO
-
-
--- triger ghi lại lịch sử booking 
-
-CREATE TRIGGER trg_Payments_StatusChange
-ON Payments
-AFTER INSERT, UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    INSERT INTO HistoryBooking (customerId, paymentId, note, tourStatus)
-    SELECT 
-        b.customerId,
-        i.paymentId,
-        CASE 
-            WHEN i.status = 'SUCCESS' THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thành công'
-            WHEN i.status = 'FAILED'  THEN N'Gói "' + t.tourName + N'" của bạn đã đặt thất bại'
-            WHEN i.status = 'PENDING' THEN N'Gói "' + t.tourName + N'" của bạn đang chờ xử lý'
-        END AS note,
-        CASE 
-            WHEN i.status = 'SUCCESS' THEN 'COMPLETED'
-            ELSE 'INCOMPLETE'
-        END AS tourStatus
-    FROM inserted i
-    INNER JOIN Bookings b ON i.bookingId = b.bookingId
-    INNER JOIN Tours t ON b.tourId = t.tourId;
-END;
-GO
-
-
-
-
-
 
 
 
@@ -1327,24 +1183,6 @@ VALUES
 (10, N'Xe tay ga', N'Yamaha Aerox 155', 85000, 2, 10),
 (10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5),
 (10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
-INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
-OUTPUT INSERTED.customTourId
-VALUES (1, 'Test Tour', '2025-11-10', '2025-11-12', 5000000);
-
-
-CREATE TABLE Places (
-    placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
-    islandId INT NOT NULL,                   -- Mã đảo (liên kết đến bảng Islands)
-    placeName NVARCHAR(255) NOT NULL,        -- Tên địa điểm
-    location NVARCHAR(255),                  -- Địa chỉ / vị trí
-    description NVARCHAR(MAX),               -- Mô tả chi tiết
-    hasTicket BIT NOT NULL,                  -- Có vé hay không (true/false)
-    ticketPrice INT NULL,                    -- Giá vé (nếu có)
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-);
-
-select * from Places
-
 
 CREATE TABLE Places (
     placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
@@ -1409,12 +1247,52 @@ VALUES
 (10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL),
 (10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL);
 
-select * from CustomTours
 /*
 delete from Flights
 DBCC CHECKIDENT ('Flights', RESEED, 0);
 */
+-- flights
 
+INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
+                     departureTime, arrivalTime, returnDepartureTime, returnArrivalTime, 
+                     basePrice, ticketAvailable, flightType, flightClass, destinationImageUrl)
+VALUES
+--  Từ Hà Nội đến Phú Quốc
+('VN101', 1, N'Hà Nội', N'Phú Quốc', 1, '07:30', '09:45', '16:00', '18:15', 2200000, 50, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/phuquoc.jpg'),
+('VJ301', 2, N'Hà Nội', N'Phú Quốc', 1, '12:00', '14:10', NULL, NULL, 1100000, 50, N'Một chiều', N'Thương gia', 'views/home/images/islands/phuquoc.jpg'),
+('QH210', 3, N'Hà Nội', N'Phú Quốc', 1, '08:40', '10:15', NULL, NULL, 1530000, 50, N'Một chiều', N'Thương gia', 'views/home/images/islands/phuquoc.jpg'),
+('VN101', 1, N'TP.HCM', N'Phú Quốc', 1, '09:00', '10:35', NULL, NULL, 1322000, 50, N'Một chiều', N'Phổ thông', 'views/home/images/islands/phuquoc.jpg'),
+('QH210', 3, N'Hà Nội', N'Phú Quốc', 1, '07:50', '10:00', '21:30', '00:15', 3530000, 50,N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/phuquoc.jpg'),
+('VJ301', 2, N'TP.HCM', N'Phú Quốc', 1, '08:25', '9:55', '20:45', '21:50', 3530000, 50,N'Khứ hồi', N'Thương gia', 'views/home/images/islands/phuquoc.jpg'),
+
+--  Từ TP.HCM đến Langkawi
+('VN205', 1, N'TP.HCM', N'Langkawi', 2, '08:00', '10:30', '17:00', '19:30', 3200000,50, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/langkawi.jpg'),
+('QH505', 3, N'TP.HCM', N'Langkawi', 2, '09:15', '11:45', NULL, NULL, 1800000,50, N'Một chiều', N'Thương gia', 'views/home/images/islands/langkawi.jpg'),
+
+--  Từ Hà Nội đến Phuket
+('VN307', 1, N'Hà Nội', N'Phuket', 3, '06:45', '09:00', '15:30', '17:45', 3500000,50, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/phuket.jpg'),
+
+--  Từ TP.HCM đến Bali
+('VJ407', 2, N'TP.HCM', N'Bali', 4, '08:15', '12:00', '18:00', '21:45', 4000000,50, N'Khứ hồi', N'Thương gia', 'views/home/images/islands/bali.jpg'),
+('QH509', 3, N'TP.HCM', N'Bali', 4, '13:30', '17:15', NULL, NULL, 2100000,50, N'Một chiều', N'Phổ thông', 'views/home/images/islands/bali.jpg'),
+
+--  Từ Hà Nội đến Boracay
+('VN321', 1, N'Hà Nội', N'Boracay', 5, '09:00', '12:15', '19:00', '22:15', 3700000, 50,N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/boracay.jpg'),
+
+--  Từ TP.HCM đến Sihanoukville
+('VJ215', 2, N'TP.HCM', N'Sihanoukville', 6, '10:00', '11:30', '17:45', '19:15', 2500000,50, N'Khứ hồi', N'Thương gia', 'views/home/images/islands/sihanoukville.jpg'),
+
+--  Từ Hà Nội đến Tioman
+('VN333', 1, N'Hà Nội', N'Tioman', 7, '07:00', '10:30', '15:00', '18:30', 3200000,50, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/tioman.jpg'),
+
+--  Từ TP.HCM đến Koh Samui
+('QH601', 3, N'TP.HCM', N'Koh Samui', 8, '08:00', '10:45', NULL, NULL, 3300000,50, N'Một chiều', N'Phổ thông', 'views/home/images/islands/kohsamui.jpg'),
+
+--  Từ Hà Nội đến Nusa Penida
+('VN901', 1, N'Hà Nội', N'Nusa Penida', 9, '06:30', '10:15', '17:00', '20:45', 4100000,50, N'Khứ hồi', N'Thương gia', 'views/home/images/islands/nusapenida.jpg'),
+
+--  Từ TP.HCM đến Palawan
+('VJ701', 2, N'TP.HCM', N'Palawan', 10, '09:00', '12:30', '18:00', '21:30', 3900000,50, N'Khứ hồi', N'Phổ thông', 'views/home/images/islands/palawan.jpg');
 
 -- payments
 
@@ -1570,24 +1448,8 @@ WHERE paymentId = 1;
 
 */
 
-select *from CustomTours
-
-DBCC CHECKIDENT ('CustomTours', RESEED, 0)
 
 
--- TourServices table to manage services in tours
-CREATE TABLE TourServices (
-    tourServiceId INT IDENTITY(1,1) PRIMARY KEY,
-    tourId INT NOT NULL,
-    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','RESTAURANT','VEHICLE','PLACE')) NOT NULL,
-    serviceId INT NOT NULL,
-    createdAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
-);
-GO
 
--- Add approval status to Tours table
-ALTER TABLE Tours ADD approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED'));
-GO
 
 -------------------------------------------------------------------------------------------------------

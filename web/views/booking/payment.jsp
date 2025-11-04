@@ -23,30 +23,29 @@
                         <h4 class="mb-3 text-primary fw-bold">📝 Thông tin khách hàng</h4>
 
                         <form action="PaymentController" method="post">
-                            <input type="hidden" name="tourId" value="${tour.tourId}" />
-                            <input type="hidden" name="customTourId" value="${customtour.customTourId}" />
-                            <input type="hidden" name="bookingId" value="${booking.bookingId}" />
-                            <input type="hidden" name="totalBill" value="${booking.totalPrice}">
+                            <input type="hidden" name="totalBill" value="${totalPrice}">
                             <input type="hidden" name="adultQuantity" value="${booking.adultQuantity}" />
                             <input type="hidden" name="childQuantity" value="${booking.childQuantity}" />
                             <input type="hidden" name="departureDate" value="${booking.departureDate}" />
 
                             <div class="mb-3">
-                                <label>Họ và tên</label>
-                                <input type="text" class="form-control" name="fullname"
-                                       value="${sessionScope.user.fullName}">
+                                <label class="form-label">Họ và tên</label>
+                                <input type="text" class="form-control" name="fullname" placeholder="Nhập họ và tên" required>
                             </div>
 
                             <div class="mb-3">
-                                <label>Email</label>
-                                <input type="email" class="form-control" name="email"
-                                       value="${sessionScope.user.email}">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" placeholder="Nhập email" required>
                             </div>
 
                             <div class="mb-3">
-                                <label>Số điện thoại</label>
-                                <input type="text" class="form-control" name="phone"
-                                       value="${sessionScope.user.phone}">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="text" class="form-control" name="phone" placeholder="Nhập số điện thoại" required pattern="^0\d{9,10}$" title="Số điện thoại phải bắt đầu bằng 0 và có 10-11 chữ số">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Địa chỉ</label>
+                                <input type="text" class="form-control" name="address" placeholder="Nhập địa chỉ" required>
                             </div>
 
                             <div class="mb-3">
@@ -65,7 +64,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="javascript:history.back()" class="btn btn-outline-secondary">Quay lại</a>
+                                <a href="tours.jsp" class="btn btn-outline-secondary">Quay lại</a>
                                 <button type="submit" class="btn btn-success">Thanh toán ngay</button>
                             </div>
                         </form>
@@ -85,19 +84,8 @@
                         <ul class="list-group mb-3">
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Tên tour</b></span>
-                                <c:choose>
-                                    <c:when test="${not empty tour}">
-                                        <span>${tour.tourName}</span>
-                                    </c:when>
-                                    <c:when test="${not empty customtour}">
-                                        <span>${customtour.tourName}</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="text-danger">Không có dữ liệu tour</span>
-                                    </c:otherwise>
-                                </c:choose>
+                                <span>${tour.tourName}</span>
                             </li>
-
                             <li class="list-group-item d-flex justify-content-between">
                                 <span><b>Ngày khởi hành</b></span>
                                 <span>
@@ -124,7 +112,7 @@
                                 <span><b>Tổng tiền</b></span>
                                 <span class="fw-bold text-danger">
                                     <fmt:setLocale value="vi_VN" />
-                                    <fmt:formatNumber value="${booking.totalPrice}" type="number" groupingUsed="true"/> VNĐ
+                                    <fmt:formatNumber value="${totalPrice}" type="number" groupingUsed="true"/> VNĐ
                                 </span>
                             </li>
                         </ul>

@@ -44,7 +44,18 @@ public class IslandDetailController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        doGet(request, response);
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet IslandDetailController</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet IslandDetailController at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -59,21 +70,9 @@ public class IslandDetailController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doPost(request, response);
-    }
+     
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-          try {
+        try {
             String idRaw = request.getParameter("detailId");
 
             int id = Integer.parseInt(idRaw);
@@ -89,7 +88,7 @@ public class IslandDetailController extends HttpServlet {
 
             // Lấy danh sách flights dựa trên flightType 
             
-             List<Flight> flights= new ArrayList<>();
+             List<FlightSchedule> flights= new ArrayList<>();
             if (flightTypeRaw != null) {
                 String flightType;
                 switch (flightTypeRaw.toLowerCase()) {
@@ -104,8 +103,7 @@ public class IslandDetailController extends HttpServlet {
                 }
                 if (flightType != null) {
                    
-                    flights= serviceDao.getFlightTickets(id, flightType);
-                  
+                    flights= serviceDao.getFlightSchedules(id, flightType);
                  
                 }
             }
@@ -125,6 +123,21 @@ public class IslandDetailController extends HttpServlet {
             e.printStackTrace();
             response.sendError(500, "Lỗi hệ thống");
         }
+       
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
     }
 
     /**

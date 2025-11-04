@@ -365,7 +365,7 @@ input::placeholder {
 
 /*----------------------------  flight service -----------------------------------------------------------*/
     
-/*----------1.Phu quoc-----------------*/
+  /*----------1.Phu quoc-----------------*/
   .date-item label {
     margin-left: 36px;
 }
@@ -581,4 +581,4 @@ input::placeholder {
     cursor: not-allowed !important;
     pointer-events: none;
 }
-/* ==========Favourite service , tours ========== */
+

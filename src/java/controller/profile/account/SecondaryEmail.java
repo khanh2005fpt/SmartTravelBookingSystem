@@ -89,65 +89,79 @@ public class SecondaryEmail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-       HttpSession session = request.getSession();
-User user = (User) session.getAttribute("user");
-if (user == null) {
-    response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-    return;
-}
+          HttpSession session = request.getSession();
+       User user = (User) session.getAttribute("user");
 
-Integer userId = user.getUserId();
-String action = request.getParameter("action");
-
-if (action == null) {
-    response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-    return;
-}
-
-// Xử lý xóa email
-        if (action.startsWith("delete-")) {
-            int emailId = Integer.parseInt(action.split("-")[1]);
-
-            // Kiểm tra email có tồn tại cho user không
-            boolean existEmail = customerDao.checkEmailExistsByIdAndUser(emailId, userId);
-            if (!existEmail) {
-                session.setAttribute("errorEmail_Deleted", "Email này đã bị xóa!");
-            } else {
-                boolean deleted = customerDao.deleteEmail(emailId);
-                if (deleted) {
-                    session.setAttribute("successEmail", "Đã xóa email thành công!");
-                } else {
-                    session.setAttribute("errorEmail_Deleted", "Xóa email không thành công!");
-                }
+       if(user==null){
+          response.sendRedirect(request.getContextPath()+"/views/account/login.jsp");
+          return;
+       }
+      Integer userId = user.getUserId();
+       
+       String action = request.getParameter("action");
+       if(action==null){
+            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+          return;
+       }
+       
+       if(action.startsWith("delete-")){
+          int emailId = Integer.parseInt(action.split("-")[1]);
+          //split("-")[1]) : cat chuoi thanh mang , roi lay phan tu thu 2
+            boolean isPrimary = customerDao.isPrimaryEmail(emailId);
+             
+            if(isPrimary){
+                session.setAttribute("errorEmail_Deleted", "Không thể xóa Email chính!");
+               
+         
+               
+            }else{
+                // check xoa emai ton tai hay chua
+            
+                
+                boolean existEmail= customerDao.checkEmailExistsByIdAndUser(emailId, userId);
+                if(!existEmail){
+                    session.setAttribute("errorEmail_Deleted", "email này đã bị xóa!"); 
+                     response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
+        return;
+               }
+                
+                
+                   boolean deleted = customerDao.deleteEmail(emailId);
+                  if(deleted){
+                      session.setAttribute("successEmail", "Đã xóa email thành công!");
+                   
+                  }else {
+                      session.setAttribute("errorEmail_Deleted", " Xóa email không thành công!");
+                     
+                  }
+                 
+             // Cập nhật danh sách email mới
+        session.removeAttribute("emailList");
+        List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
+        session.setAttribute("emailList", updatedList);
+              
             }
+             response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+            return;  
+          
+           }else if(action.startsWith("makePrimary-")){
+              int emailId = Integer.parseInt(action.split("-")[1]);
 
-            // Cập nhật danh sách email mới
-            session.removeAttribute("emailList");
-            List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
-            session.setAttribute("emailList", updatedList);
-
-            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-            return;
-        } // Xử lý đặt email chính
-        else if (action.startsWith("makePrimary-")) {
-            int emailId = Integer.parseInt(action.split("-")[1]);
-
-            // Đặt email mới làm chính, trigger tự đồng bộ sang Users
-            customerDao.setPrimaryEmai(userId, emailId);
+            // Đặt email mới làm chính, đồng bộ Users và UserEmails
+           customerDao.setPrimaryEmai(user.getUserId(), emailId);
+            System.out.println(user.getEmail());
 
             // Cập nhật session user để hiển thị profile ngay
             String newPrimaryEmail = customerDao.getEmailById(emailId);
             user.setEmail(newPrimaryEmail);
             session.setAttribute("user", user);
             session.setAttribute("successEmail", "Đã đặt email chính mới!");
-
-            // Cập nhật danh sách email mới
+            // xong hien thi email sau khinh set la email chinh
             List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
             session.setAttribute("emailList", updatedList);
-
-             response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
-        }
-
+              response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+       }      
+   
     }
 
     /** 

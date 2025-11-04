@@ -1,7 +1,12 @@
+<%-- 
+    Document   : sidebar
+    Created on : Staff Sidebar Component
+    Author     : System
+    Description: Modular sidebar component for staff pages navigation
+--%>
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.User" %>
- 
 
 <%
     User staffUser = (User) session.getAttribute("user");
@@ -179,7 +184,7 @@
     </div>
 
     <!-- Navigation Menu -->
-<nav class="sidebar-nav">
+    <nav class="sidebar-nav">
         <div class="nav-item">
             <a href="${pageContext.request.contextPath}/staff/tours" 
                class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
@@ -194,7 +199,7 @@
                 Quản lý Dịch vụ
                 <i class="fa fa-chevron-right expand-icon"></i>
             </div>
-            <div class="nav-children" id="servicesChildren">
+            <div class="nav-children expanded" id="servicesChildren">
                 <div class="nav-child">
                     <a href="${pageContext.request.contextPath}/staff/hotels" 
                        class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
@@ -202,15 +207,22 @@
                         Quản lý Khách sạn
                     </a>
                 </div>
-                <div class="nav-child ">
+                <div class="nav-child">
                     <a href="${pageContext.request.contextPath}/staff/vehicles" 
                        class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
                         <i class="fa fa-car"></i>
                         Quản lý Phương tiện
                     </a>
                 </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/places"
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/restaurants" 
+                       class="nav-link <%= "restaurants".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-cutlery"></i>
+                        Quản lý Nhà hàng
+                    </a>
+                </div>
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/places" 
                        class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
                         <i class="fa fa-map-pin"></i>
                         Quản lý Địa điểm
@@ -218,35 +230,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Dropdown Quản lý Chuyến bay -->
-        <div class="nav-item">
-            <div class="nav-link nav-parent expanded" id="flightsParent">
-                <i class="fa fa-plane"></i>
-                Quản lý Chuyến bay
-                <i class="fa fa-chevron-right expand-icon"></i>
-            </div>
-            <div class="nav-children" id="flightsChildren">
-                <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/flight/tickets" 
-                       class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
-                        <i class="bi bi-ticket-detailed"></i> Vé máy bay
-
-                        
-                    </a>
-                </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/flight/schedules" 
-                       class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
-                        <i class="bi bi-calendar-check"> </i> Lịch trình chuyến bay
-                       
-                    </a>
-                </div>
-            </div>
-        </div>
-
-      
-
 
         <div class="nav-item">
             <a href="${pageContext.request.contextPath}/staff/bookings" 
@@ -265,14 +248,13 @@
         </div>
     </nav>
 
-
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-        <a href="<%= request.getContextPath() %>/logout" method="post" style="margin:0 ;">
+        <form action="${pageContext.request.contextPath}/logout" method="post" style="margin: 0;">
             <button type="submit" class="logout-btn">
                 <i class="fa fa-sign-out"></i> Đăng xuất
             </button>
-        </a>
+        </form>
     </div>
 </div>
 
@@ -302,39 +284,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle expandable navigation for Services
+    // Handle expandable navigation
     const servicesParent = document.getElementById('servicesParent');
     const servicesChildren = document.getElementById('servicesChildren');
     
     if (servicesParent && servicesChildren) {
-        servicesParent.addEventListener('click', function(e) {
+        servicesParent.addEventListener('click', function() {
+            // Toggle expanded class
             servicesParent.classList.toggle('expanded');
             servicesChildren.classList.toggle('expanded');
         });
     }
-
-    // Handle expandable navigation for Flights
-    const flightsParent = document.getElementById('flightsParent');
-    const flightsChildren = document.getElementById('flightsChildren');
-
-    if (flightsParent && flightsChildren) {
-        flightsParent.addEventListener('click', function(e) {
-            e.stopPropagation(); // tránh nổi bọt, không đóng Services dropdown
-            flightsParent.classList.toggle('expanded');
-            flightsChildren.classList.toggle('expanded');
-        });
-    }
-
-    // Ngăn việc click vào nav-child con đóng dropdown cấp cha
-    const navChildLinks = document.querySelectorAll('.nav-child > .nav-link');
-    navChildLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.stopPropagation(); // click vào link con không ảnh hưởng dropdown cha
-        });
-    });
 });
 </script>
-
-
-
-

@@ -12,11 +12,17 @@ public class DBContext {
     public DBContext()
     {
         try {
-            String url = "jdbc:sqlserver://localhost:1433;databaseName=SmartTravelBooking";
+String url = "jdbc:sqlserver://localhost:1433;databaseName=SmartTravelBooking;encrypt=true;trustServerCertificate=true;loginTimeout=30;";
             String username = "sa";
             String password = "12345";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, username, password);
+            
+               if (connection != null) {
+                System.out.println("✅ Kết nối cơ sở dữ liệu thành công!");
+            } else {
+                System.out.println("❌ Kết nối cơ sở dữ liệu thất bại!");
+            }
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
         }

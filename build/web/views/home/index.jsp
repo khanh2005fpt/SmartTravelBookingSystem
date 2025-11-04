@@ -7,7 +7,7 @@
 <html lang="vi">
     <head>
         <title>Smart Ticket Booking</title>
-
+        
 
         <%@ include file="/views/common/css.jsp" %>
 
@@ -15,122 +15,122 @@
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
         <!-- KẾT THÚC nav -->
+        
+          <!--hien thi modal login thanh cong -->
+          <style>
+.welcome-box {
+  width: 420px;
+  max-width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-left: 50px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+  background: #fff;
+  border: none;
+  text-align: center; 
+  height: 350px;
+}
 
-        <!--hien thi modal login thanh cong -->
-        <style>
-            .welcome-box {
-                width: 420px;
-                max-width: 100%;
-                border-radius: 16px;
-                overflow: hidden;
-                margin-left: 50px;
-                box-shadow: 0 8px 28px rgba(0,0,0,0.2);
-                background: #fff;
-                border: none;
-                text-align: center;
-                height: 350px;
-            }
-
-            /* Banner */
-            .welcome-banner img {
-                width: 100%;
-                height: 140px;
-                object-fit: cover;
-                display: block;
-                margin: 0 auto;
-            }
-
-
-            /* Tiêu đề */
-            .welcome-body h4 {
-                font-size: 1.7rem;
-                font-weight: 800;
-                margin-bottom: 1rem;
-                color: #1565c0;
-                margin-right: 30px;
-            }
+/* Banner */
+.welcome-banner img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
 
 
-            .welcome-body h4 span {
-                color: #1976d2;
-                margin-left: 30px;
-
-            }
-
-            /* Nội dung */
-            .welcome-body p {
-                font-size: 0.95rem;
-                color: #444;
-                margin-bottom: 1.5rem;
-                line-height: 1.6;
-            }
-
-            /* Nút CTA */
-            .btn-meland {
-                background: #1976d2;
-                color: #fff;
-                font-weight: 600;
-                padding: 10px 24px;
-                border-radius: 8px;
-                border: none;
-                transition: 0.25s;
-            }
-
-            .btn-meland:hover {
-                background: #0d47a1;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 15px rgba(25,118,210,0.3);
-            }
+/* Tiêu đề */
+.welcome-body h4 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #1565c0; 
+  margin-right: 30px;
+}
 
 
-        </style>
+.welcome-body h4 span {
+  color: #1976d2; 
+  margin-left: 30px;
+   
+}
 
-        <!-- Welcome Modal -->
-        <div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content welcome-box">
+/* Nội dung */
+.welcome-body p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
 
-                    <!-- Banner ảnh -->
-                    <div class="welcome-banner">
-                        <img src="${pageContext.request.contextPath}/views/home/images/wellcome_pic.jpg"  alt="Meland Banner">
-                    </div>
+/* Nút CTA */
+.btn-meland {
+  background: #1976d2;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  transition: 0.25s;
+}
 
-                    <!-- Nội dung -->
-                    <div class="welcome-body text-center p-4">
-                        <h4>🌴 Chào mừng đến với <span>MelandBooking</span></h4>
-                        <p>
-                            Trải nghiệm hệ thống đặt tour - khách sạn thông minh và tận hưởng kỳ nghỉ trọn vẹn cùng chúng tôi! 🏖️ <br>
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-
-        <!--xu ly modal login thanh cong -->
-        <%
-          String successFlag = (String) session.getAttribute("loginSuccess");
-          if ("oke".equals(successFlag)) {
-        %>
-        <script>
-            $(document).ready(function () {
-                $('#welcomeModal').modal('show'); // Bootstrap 4
-
-                setTimeout(function () {
-                    $('#welcomeModal').modal('hide');
-                }, 3000);
-
-            });
-        </script>
-        <%
-           session.removeAttribute("loginSuccess");
-           }
-        %>
+.btn-meland:hover {
+  background: #0d47a1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(25,118,210,0.3);
+}
 
 
+    </style>
+        
+    <!-- Welcome Modal -->
+<div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content welcome-box">
 
+      <!-- Banner ảnh -->
+      <div class="welcome-banner">
+        <img src="${pageContext.request.contextPath}/views/home/images/wellcome_pic.jpg"  alt="Meland Banner">
+      </div>
 
+      <!-- Nội dung -->
+      <div class="welcome-body text-center p-4">
+        <h4>🌴 Chào mừng đến với <span>MelandBooking</span></h4>
+        <p>
+          Trải nghiệm hệ thống đặt tour - khách sạn thông minh và tận hưởng kỳ nghỉ trọn vẹn cùng chúng tôi! 🏖️ <br>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+        
+     <!--xu ly modal login thanh cong -->
+ <%
+   String successFlag = (String) session.getAttribute("loginSuccess");
+   if ("oke".equals(successFlag)) {
+%>
+<script>
+  $(document).ready(function(){
+    $('#welcomeModal').modal('show'); // Bootstrap 4
+    
+    setTimeout(function(){
+      $('#welcomeModal').modal('hide');
+    }, 3000);
+    
+  });
+</script>
+<%
+   session.removeAttribute("loginSuccess");
+   }
+%>
+
+    
+        
+        
 
         <div class="hero-wrap js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
             <div class="overlay"></div>
@@ -165,7 +165,7 @@
 
                                         <!-- Tab tìm kiếm đảo -->
                                         <div class="tab-pane fade show active" id="v-pills-1" role="tabpanel">
-                                            <form action="SearchIslandController" method="post" class="search-property-1">
+                                            <form action="SearchIslandController" method="get" class="search-property-1">
                                                 <div class="row no-gutters">
 
                                                     <!-- Quốc gia -->
@@ -270,10 +270,7 @@
 
                                             <!-- Đẩy footer xuống cuối card -->
                                             <div class="mt-auto pt-2">
-                                                <form action="IslandDetailController" method="post" class="search-property-1">
-                                                    <button type="submit" class="btn btn-primary btn-sm" name="detailId" value="${island.islandId}">Xem chi tiết</button>
-                                                </form>
-
+                                                <a href="${pageContext.request.contextPath}/IslandDetailController?detailId=${island.islandId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
                                             </div>
                                         </div>
                                     </div>
@@ -286,49 +283,47 @@
 
 
                 </div>
-                <form action="SearchIslandController" method="post" class="search-property-1">
-                    <c:if test="${not empty islands}">
-                        <c:choose>
-                            <c:when test="${totalPages == 1}">
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-center mt-4">
-                                        <li class="page-item active">
-                                            <button type="submit" class="page-link btn btn-primary" name="page" value="1">1</button>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </c:when>
-                            <c:otherwise>
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-center mt-4">
-                                        <c:if test="${currentPage > 1}">
-                                            <li class="page-item">
-                                                <button type="submit" class="page-link btn btn-primary" name="page" value="${currentPage - 1}">Trước</button>
-                                            </li>
-                                        </c:if>
+                
+                <c:if test="${not empty islands}">
+                <c:choose>
+                    <c:when test="${totalPages == 1}">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination justify-content-center mt-4">
+                                <li class="page-item active">
+                                    <a class="page-link btn btn-primary" href="#">1</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </c:when>
 
-                                        <c:forEach begin="1" end="${totalPages}" var="i">
-                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <button type="submit" class="page-link btn btn-primary" name="page" value="${i}">${i}</button>
-                                            </li>
-                                        </c:forEach>
+                    <c:otherwise>
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination justify-content-center mt-4">
 
-                                        <c:if test="${currentPage < totalPages}">
-                                            <li class="page-item">
-                                                <button type="submit" class="page-link btn btn-primary" name="page" value="${currentPage + 1}">Sau</button>
-                                            </li>
-                                        </c:if>
-                                    </ul>
-                                </nav>
-                            </c:otherwise>
-                        </c:choose>
+                                <c:if test="${currentPage > 1}">
+                                    <li class="page-item">
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage - 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Trước</a>
+                                    </li>
+                                </c:if>
 
-                        <!-- Giữ các giá trị tìm kiếm khác -->
-                        <input type="hidden" name="country" value="${param.country}">
-                        <input type="hidden" name="bestSeason" value="${param.bestSeason}">
-                    </c:if>
-                </form>
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+                                    <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                        <a class="page-link btn btn-primary" href="?page=${i}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">${i}</a>
+                                    </li>
+                                </c:forEach>
 
+
+                                <c:if test="${currentPage < totalPages}">
+                                    <li class="page-item">
+                                        <a class="page-link btn btn-primary" href="?page=${currentPage + 1}&islandName=${param.islandName}&country=${param.country}&bestSeason=${param.bestSeason}">Sau</a>
+                                    </li>
+                                </c:if>
+
+                            </ul>
+                        </nav>
+                    </c:otherwise>
+                </c:choose>
+                </c:if>
             </div>
         </section>
 

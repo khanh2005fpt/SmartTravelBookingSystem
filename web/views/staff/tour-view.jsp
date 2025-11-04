@@ -263,45 +263,6 @@
             color: #721c24;
         }
         
-        /* Approval Status Styles */
-        .approval-status-section {
-            margin: 15px 0;
-        }
-        
-        .approval-status {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .status-approved {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        
-        .approval-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
@@ -460,72 +421,6 @@
                             </div>
                         </div>
 
-                        <!-- Tour Services -->
-                        <div class="info-section">
-                            <h3><i class="fa fa-cogs"></i> Dịch vụ Tour</h3>
-                            <div style="margin-bottom: 20px;">
-                                <a href="${pageContext.request.contextPath}/staff/tours?action=manage-services&tourId=${tour.tourId}" 
-                                   class="btn btn-primary">
-                                    <i class="fa fa-plus"></i> Quản lý dịch vụ
-                                </a>
-                            </div>
-                            
-                            <c:choose>
-                                <c:when test="${not empty currentServices}">
-                                    <div class="services-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
-                                        <c:forEach var="service" items="${currentServices}">
-                                            <div class="service-card" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; transition: all 0.3s ease;">
-                                                <div class="service-header" style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
-                                                    <div class="service-type" style="background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: 600; text-transform: uppercase;">
-                                                        ${service.serviceType}
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="service-info">
-                                                    <h5 style="margin: 0 0 10px 0; color: #333; font-weight: 600;">
-                                                        ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
-                                                    </h5>
-                                                    
-                                                    <c:if test="${not empty service.serviceDescription}">
-                                                        <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em; line-height: 1.4;">
-                                                            ${service.serviceDescription}
-                                                        </p>
-                                                    </c:if>
-                                                    
-                                                    <c:if test="${not empty service.servicePrice}">
-                                                        <div class="service-price" style="color: #28a745; font-weight: 600; font-size: 1.1em;">
-                                                            <fmt:formatNumber value="${service.servicePrice}" type="currency" 
-                                                                            currencySymbol="₫" groupingUsed="true"/>
-                                                        </div>
-                                                    </c:if>
-                                                </div>
-                                                
-                                                <div class="service-actions" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-                                                    <small class="text-muted">
-                                                        <i class="fa fa-calendar"></i> 
-                                                        Thêm vào: <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </c:forEach>
-                                    </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="no-services-placeholder" 
-                                         style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 10px; padding: 40px; text-align: center; color: #6c757d;">
-                                        <i class="fa fa-cogs" style="font-size: 3em; margin-bottom: 15px; opacity: 0.5;"></i>
-                                        <p style="margin: 0; font-style: italic;">Chưa có dịch vụ nào được thêm vào tour này</p>
-                                        <a href="${pageContext.request.contextPath}/staff/tours?action=manage-services&tourId=${tour.tourId}" 
-                                           class="btn btn-outline-primary mt-3">
-                                            <i class="fa fa-plus"></i> Thêm dịch vụ đầu tiên
-                                        </a>
-                                    </div>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-
-
-
                         <!-- Additional Information -->
                         <c:if test="${not empty island}">
                             <div class="info-section">
@@ -627,8 +522,6 @@
         </div>
     </div>
 
-
-
     <script>
         function confirmDelete(tourId, tourName) {
             document.getElementById('tourIdToDelete').value = tourId;
@@ -637,30 +530,10 @@
             $('#deleteModal').modal('show');
         }
 
-
-
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {
             $('.alert').fadeOut('slow');
         }, 5000);
-
-        // Add hover effects to service cards
-        $(document).ready(function() {
-            $('.service-card').hover(
-                function() {
-                    $(this).css({
-                        'transform': 'translateY(-5px)',
-                        'box-shadow': '0 8px 25px rgba(0,0,0,0.15)'
-                    });
-                },
-                function() {
-                    $(this).css({
-                        'transform': 'translateY(0)',
-                        'box-shadow': 'none'
-                    });
-                }
-            );
-        });
     </script>
 </body>
 </html>

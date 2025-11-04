@@ -13,7 +13,6 @@ public class Hotel {
     private int islandId;
     private String hotelName;
     private String countryName;
-    private String islandName;
     private String hotelImageUrl;
     private String roomType;
     private int pricePerNight;
@@ -68,14 +67,6 @@ public class Hotel {
 
     public void setCountryName(String countryName) {
         this.countryName = countryName;
-    }
-
-    public String getIslandName() {
-        return islandName;
-    }
-
-    public void setIslandName(String islandName) {
-        this.islandName = islandName;
     }
 
     public String getHotelImageUrl() {

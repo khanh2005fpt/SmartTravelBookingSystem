@@ -139,42 +139,9 @@ public class VehicleStaffServlet extends HttpServlet {
     private void handleVehicleList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Get pagination parameters
-            String pageParam = request.getParameter("page");
-            String pageSizeParam = request.getParameter("pageSize");
-            String search = request.getParameter("search");
-            
-            int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
-            int pageSize = (pageSizeParam != null) ? Integer.parseInt(pageSizeParam) : 10;
-            
-            List<IslandVehicle> vehicles;
-            int totalVehicles;
-            
-            // Handle search or normal listing
-            if (search != null && !search.trim().isEmpty()) {
-                vehicles = serviceDao.searchVehiclesByNameWithPaginationAndIslandNames(search.trim(), page, pageSize);
-                totalVehicles = serviceDao.getSearchVehiclesCount(search.trim());
-                request.setAttribute("search", search);
-            } else {
-                vehicles = serviceDao.getVehiclesByPageWithIslandNames(page, pageSize);
-                totalVehicles = serviceDao.getTotalVehiclesCount();
-            }
-            
-            // Calculate pagination info
-            int totalPages = (int) Math.ceil((double) totalVehicles / pageSize);
-            int startPage = Math.max(1, page - 2);
-            int endPage = Math.min(totalPages, page + 2);
-            
-            // Set attributes
+            List<IslandVehicle> vehicles = serviceDao.getAllIslandVehicles();
             request.setAttribute("vehicles", vehicles);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("pageSize", pageSize);
-            request.setAttribute("totalVehicles", totalVehicles);
-            request.setAttribute("startPage", startPage);
-            request.setAttribute("endPage", endPage);
             request.setAttribute("pageTitle", "Vehicle Management");
-            
             request.getRequestDispatcher("/views/staff/vehicle-list.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Error loading vehicle list: " + e.getMessage(), e);
