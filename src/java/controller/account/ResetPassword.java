@@ -23,7 +23,7 @@ import model.User;
  * @author nqagh
  */
 @WebServlet(name="ResetPassword", urlPatterns={"/ResetPassword"})
-public class resetPassword extends HttpServlet {
+public class ResetPassword extends HttpServlet {
     
   public userDao userDAO ;
     

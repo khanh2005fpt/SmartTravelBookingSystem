@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpSession;
  * @author nqagh
  */
 @WebServlet(name = "registerServlet", urlPatterns = {"/register"})
-public class registerServlet extends HttpServlet {
+public class RegisterServlet extends HttpServlet {
 
     private userDao userDAO;
 

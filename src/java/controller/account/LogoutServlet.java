@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpSession;
  */
 @WebServlet(name="logoutServlet", urlPatterns={"/logout"})
 
-public class logoutServlet extends HttpServlet {
+public class LogoutServlet extends HttpServlet {
 
    
     /** 
