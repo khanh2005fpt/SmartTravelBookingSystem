@@ -18,30 +18,23 @@ public class Flight {
     private String departure;          
     private String destination;        
     private Island destinationIsland;  
-    private LocalTime departureTime;
-    private LocalTime arrivalTime;
-    private LocalTime returnDepartureTime;
-    private LocalTime returnArrivalTime;
     private int basePrice;
     private int ticketAvailable;
     private String flightType;           
     private String flightClass;        
     private String destinationImageUrl;
-
+    private boolean hasSchedule = false; 
+    
     public Flight() {
     }
 
-    public Flight(int flightId, String flightNumber, Airlines airline, String departure, String destination, Island destinationIsland, LocalTime departureTime, LocalTime arrivalTime, LocalTime returnDepartureTime, LocalTime returnArrivalTime, int basePrice, int ticketAvailable, String flightType, String flightClass, String destinationImageUrl) {
+    public Flight(int flightId, String flightNumber, Airlines airline, String departure, String destination, Island destinationIsland, int basePrice, int ticketAvailable, String flightType, String flightClass, String destinationImageUrl) {
         this.flightId = flightId;
         this.flightNumber = flightNumber;
         this.airline = airline;
         this.departure = departure;
         this.destination = destination;
         this.destinationIsland = destinationIsland;
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
-        this.returnDepartureTime = returnDepartureTime;
-        this.returnArrivalTime = returnArrivalTime;
         this.basePrice = basePrice;
         this.ticketAvailable = ticketAvailable;
         this.flightType = flightType;
@@ -97,38 +90,6 @@ public class Flight {
         this.destinationIsland = destinationIsland;
     }
 
-    public LocalTime getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(LocalTime departureTime) {
-        this.departureTime = departureTime;
-    }
-
-    public LocalTime getArrivalTime() {
-        return arrivalTime;
-    }
-
-    public void setArrivalTime(LocalTime arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
-    public LocalTime getReturnDepartureTime() {
-        return returnDepartureTime;
-    }
-
-    public void setReturnDepartureTime(LocalTime returnDepartureTime) {
-        this.returnDepartureTime = returnDepartureTime;
-    }
-
-    public LocalTime getReturnArrivalTime() {
-        return returnArrivalTime;
-    }
-
-    public void setReturnArrivalTime(LocalTime returnArrivalTime) {
-        this.returnArrivalTime = returnArrivalTime;
-    }
-
     public int getBasePrice() {
         return basePrice;
     }
@@ -169,12 +130,19 @@ public class Flight {
         this.destinationImageUrl = destinationImageUrl;
     }
 
+    public boolean isHasSchedule() {
+        return hasSchedule;
+    }
+
+    public void setHasSchedule(boolean hasSchedule) {
+        this.hasSchedule = hasSchedule;
+    }
+
     @Override
     public String toString() {
-        return "Flight{" + "flightId=" + flightId + ", flightNumber=" + flightNumber + ", airline=" + airline + ", departure=" + departure + ", destination=" + destination + ", destinationIsland=" + destinationIsland + ", departureTime=" + departureTime + ", arrivalTime=" + arrivalTime + ", returnDepartureTime=" + returnDepartureTime + ", returnArrivalTime=" + returnArrivalTime + ", basePrice=" + basePrice + ", ticketAvailable=" + ticketAvailable + ", flightType=" + flightType + ", flightClass=" + flightClass + ", destinationImageUrl=" + destinationImageUrl + '}';
+        return "Flight{" + "flightId=" + flightId + ", flightNumber=" + flightNumber + ", airline=" + airline + ", departure=" + departure + ", destination=" + destination + ", destinationIsland=" + destinationIsland + ", basePrice=" + basePrice + ", ticketAvailable=" + ticketAvailable + ", flightType=" + flightType + ", flightClass=" + flightClass + ", destinationImageUrl=" + destinationImageUrl + ", hasSchedule=" + hasSchedule + '}';
     }
 
     
-    
-    
+   
 }

@@ -54,7 +54,7 @@ public class IslandDao extends DBContext {
                 i.setLocation(rs.getString("location"));
                 list.add(i);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new SQLException("Lỗi khi lấy danh sách đảo từ cơ sở dữ liệu.", e);
         }
         return list;
