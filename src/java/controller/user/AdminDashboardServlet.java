@@ -4,7 +4,7 @@
  */
 package controller.user;
 
-import dao.UserDao;
+import dao.userDao;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -31,7 +31,7 @@ public class AdminDashboardServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        UserDao dao = new UserDao();
+        userDao dao = new userDao();
         int totalUsers = dao.getTotalUsers2();
         int activeUsers = dao.getActiveUsers();
         int lockedUsers = dao.getLockedUsers();

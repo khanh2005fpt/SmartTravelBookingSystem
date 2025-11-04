@@ -1,6 +1,6 @@
 package controller.user;
 
-import dao.UserDao;
+import dao.userDao;
 import model.User;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +11,7 @@ import java.util.List;
 @WebServlet("/admin/user")
 public class UserManagerServlet extends HttpServlet {
 
-    private final UserDao dao = UserDao.INSTANCE;
+    private final userDao dao = userDao.INSTANCE;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)

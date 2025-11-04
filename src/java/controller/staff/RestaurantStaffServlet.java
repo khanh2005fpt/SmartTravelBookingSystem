@@ -1,7 +1,7 @@
 package controller.staff;
 
 import dao.ServiceDao;
-import dao.UserDao;
+import dao.userDao;
 import model.Restaurant;
 import model.Island;
 import model.User;
@@ -29,12 +29,12 @@ import java.util.List;
 public class RestaurantStaffServlet extends HttpServlet {
 
     private ServiceDao serviceDao;
-    private UserDao userDao;
+    private userDao userDao;
 
     @Override
     public void init() throws ServletException {
         serviceDao = new ServiceDao();
-        userDao = new UserDao();
+        userDao = new userDao();
     }
 
     @Override

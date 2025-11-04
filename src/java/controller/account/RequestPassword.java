@@ -6,7 +6,7 @@
 package controller.account;
 
 
-import dao.UserDao;
+import dao.userDao;
 import model.Token;
 import model.User;
 import java.io.IOException;
@@ -26,13 +26,13 @@ import jakarta.servlet.http.HttpSession;
  */
 @WebServlet(name="requestPassword", urlPatterns={"/requestPassword"})
 public class RequestPassword extends HttpServlet {
-    public UserDao userDAO ;
+    public userDao userDAO ;
     
     
     @Override
      public void init() throws ServletException {
         try {
-           userDAO = UserDao.INSTANCE;
+           userDAO = userDao.INSTANCE;
                
             System.out.println("userDao initialized successfully in requestPasswordServlet");
         } catch (Exception e) {

@@ -7,7 +7,7 @@ package controller.profile.account;
 
 import dao.CustomerDao;
 
-import dao.UserDao;
+import dao.userDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
