@@ -14,7 +14,17 @@
 
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
-
+        <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
+            <div class="overlay"></div>
+            <div class="container">
+                <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-center">
+                    <div class="col-md-9 ftco-animate pb-5 text-center">
+                        <p class="breadcrumbs"><span class="mr-2"><a href="SearchIslandController">Trang chủ <i class="fa fa-chevron-right"></i></a></span> <span>Khách sạn <i class="fa fa-chevron-right"></i></span></p>
+                        <h1 class="mb-0 bread">Chi tiết tour</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
         <div class="container" style="max-width: 1400px;">
             <div class="row" style="margin-top: 120px">
                 <!-- Cột nội dung tour -->
@@ -176,9 +186,16 @@
 
                             <c:otherwise>
                                 <div class="alert alert-warning">
-                                    Bạn cần <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
+                                    Bạn cần 
+                                    <c:url var="loginURL" value="/views/account/login.jsp">
+                                        <c:param name="redirect" value="${pageContext.request.contextPath}/TourDetailController?tourid=${tourId}" />
+                                    </c:url>
+                                    <a href="${loginURL}" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
                                 </div>
                             </c:otherwise>
+
+
+
                         </c:choose>
                     </div>
                 </div>

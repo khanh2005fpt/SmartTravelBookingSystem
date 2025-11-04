@@ -78,7 +78,7 @@ public class FlightSearchController extends HttpServlet {
     
     int islandId;
     try {
-        islandId = Integer.parseInt(idRaw);
+islandId = Integer.parseInt(idRaw);
     } catch (NumberFormatException e) {
         response.sendRedirect(request.getContextPath() + "/IslandDetailController");
         return;
@@ -101,7 +101,7 @@ public class FlightSearchController extends HttpServlet {
    
     // lay list de hien thi thong tin chuyen bay
   
-      List<FlightSchedule> flights = serviceDAO.getFlightSchedules(islandId, flightType);
+      List<Flight> flights = serviceDAO.getFlightTickets(islandId, flightType);
   
     request.setAttribute("flights", flights);
     request.setAttribute("flightType", flightType);

@@ -42,18 +42,7 @@ public class CreateCustomTourController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CreateCustomTourController</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet CreateCustomTourController at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        doGet(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -68,7 +57,7 @@ public class CreateCustomTourController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doPost(request, response);
     }
 
     /**
@@ -94,23 +83,38 @@ public class CreateCustomTourController extends HttpServlet {
             String selectedPlaces = request.getParameter("selectedPlaceId");
             String startDateStr = request.getParameter("startDate");
             String endDateStr = request.getParameter("endDate");
+            String flightTypeRaw = request.getParameter("flightType");
+            
+            String flightType;
+            switch (flightTypeRaw.toLowerCase()) {
+                case "motchieu":
+                    flightType = "Một chiều";
+                    break;
+                case "khuhoi":
+                    flightType = "Khứ hồi";
+                    break;
+                default:
+                    response.sendRedirect(request.getContextPath() + "/IslandDetailController");
+                    return;
+            }
             int id = Integer.parseInt(islandIdStr);
 
             // Kiểm tra các tham số bắt buộc
             if (islandIdStr == null || hotelIdStr == null || startDateStr == null || endDateStr == null) {
                 throw new ServletException("Thiếu tham số yêu cầu để tạo tour.");
             }
+
+            // Bat buoc muon tao tour phai chon khach san va chuyen bay
             if (hotelIdStr == null || hotelIdStr.isEmpty()) {
                 request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
-            if (flightIdStr == null ||flightIdStr.isEmpty()) {
+            if (flightIdStr == null || flightIdStr.isEmpty()) {
                 request.getSession().setAttribute("errorMessage", "Bắt buộc phải chọn những dịch vụ.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
-            
 
             int islandId = Integer.parseInt(islandIdStr);
             int hotelId = Integer.parseInt(hotelIdStr);
@@ -141,33 +145,40 @@ public class CreateCustomTourController extends HttpServlet {
             LocalDate today = LocalDate.now();
             if (startDate.isBefore(today)) {
                 request.getSession().setAttribute("errorMessage", "Ngày bắt đầu không thể trước ngày hiện tại.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
+
+            if (startDate.isBefore(today.plusDays(3))) {
+                request.getSession().setAttribute("errorMessage", "Ngày bắt đầu phải sau ít nhất 3 ngày kể từ hôm nay.");
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
+                return;
+            }
+
             if (endDate.isBefore(startDate)) {
                 request.getSession().setAttribute("errorMessage", "Ngày kết thúc không thể trước ngày bắt đầu.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
 
             int numberOfDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
-            if (numberOfDays > 7) {
-                request.getSession().setAttribute("errorMessage", "Người dùng không được đặt thời gian quá 10 ngày.");
-                response.sendRedirect("IslandDetailController?detailId=" + id);
+
+            if (numberOfDays > 7 || numberOfDays < 3) {
+                request.getSession().setAttribute("errorMessage", "Người dùng không được đặt thời gian quá 7 ngày và không được ít hơn 3 ngày.");
+                response.sendRedirect("IslandDetailController?detailId=" + id + "&flightType=" + flightTypeRaw);
                 return;
             }
             // Lấy giá dịch vụ
             int hotelPrice = dao.getServicePrice("Khách sạn", hotelId);
-            int ticketFlightPrice = dao.getServicePrice("Chuyến bay", flightId );
+            int ticketFlightPrice = dao.getServicePrice("Chuyến bay", flightId);
             int vehiclePrice = 0;
             if (vehicleId != null) {
                 vehiclePrice = dao.getServicePrice("Phương tiện", vehicleId);
             }
 
-
             long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
             long nights = days - 1;
-            int totalPrice = (int) ((hotelPrice) * (days)) + vehiclePrice + placePrice;
+            int totalPrice = (int) ((hotelPrice) * (days)) + vehiclePrice + placePrice + ticketFlightPrice;
 
             // Tạo tên tour
             String islandName = islandDao.getIslandNameById(islandId);
@@ -186,8 +197,7 @@ public class CreateCustomTourController extends HttpServlet {
             if (vehicleId != null) {
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Phương tiện", vehicleId, vehiclePrice));
             }
-            
-                        
+
             for (int pId : pids) {
                 int pPrice = dao.getServicePrice("Địa điểm nổi bật", pId);
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Địa điểm nổi bật", pId, pPrice));
@@ -197,14 +207,9 @@ public class CreateCustomTourController extends HttpServlet {
             dao.createSampleItinerary(customTourId, startDate, endDate);
 
             // Lấy dữ liệu tour để hiển thị chi tiết
-            CustomTour createdTour = dao.getTourById(customTourId);
-            request.getSession().removeAttribute("errorMessage");
-            request.setAttribute("tour", createdTour);
-            request.setAttribute("details", dao.getTourDetails(customTourId));
-            request.setAttribute("itinerary", dao.getTourItinerary(customTourId));
-
-            // Forward sang JSP chi tiết tour
-            request.getRequestDispatcher("/views/trip/custom_tour_detail.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath()
+                    + "/CustomTourDetailController?customtourid=" + customTourId
+                    + "&flightType=" + flightTypeRaw);
 
         } catch (Exception e) {
             e.printStackTrace();

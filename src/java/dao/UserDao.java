@@ -10,11 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
+import java.sql.CallableStatement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import model.Token;
 import utils.DBContext;
 
@@ -81,7 +80,7 @@ public class UserDao extends DBContext {
                 user.setUserId(rs.getInt("userId"));
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password")); // lấy hash từ DB
-                user.setFullName(rs.getString("fullName"));
+                user.setFullName(rs.getString("fullName")); 
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setStatus(rs.getString("status"));
@@ -361,7 +360,7 @@ public class UserDao extends DBContext {
         return formattedDate;
     }
 
-    // luu token moi
+      // luu token moi
     public boolean insertToken(Token tokenForget) {
 
         try {
@@ -371,7 +370,7 @@ public class UserDao extends DBContext {
                 ps.setString(2, tokenForget.getTokenValue());
                 ps.setTimestamp(3, Timestamp.valueOf(tokenForget.getExpiryDate()));
                 ps.setBoolean(4, tokenForget.isIsUsed());
-                ps.setString(5, tokenForget.getOtpCode());
+                ps.setString(5,tokenForget.getOtpCode());
                 ps.setInt(6, tokenForget.getAttemptCount());
                 return ps.executeUpdate() > 0;
             }
@@ -381,25 +380,26 @@ public class UserDao extends DBContext {
         }
         return false;
     }
+    
+     // check validToken
+public Token checkValidToken(String tokenValue) {
+    Token token = getTokenByValue(tokenValue);
 
-    // check validToken
-    public Token checkValidToken(String tokenValue) {
-        Token token = getTokenByValue(tokenValue);
-
-        if (token == null) {
-            return null;
-        }
-        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-            return null;
-        }
-        if (token.isIsUsed()) {
-            return null;
-        }
-
-        return token; // token hợp lệ
+    if (token == null) {
+        return null; 
+    }
+    if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+        return null;
+    }
+    if (token.isIsUsed()) {
+        return null;
     }
 
-    // danh dau token da su dung
+    return token; // token hợp lệ
+}
+
+
+ // danh dau token da su dung
     public void markTokenAsUsed(String tokenValue) {
 
         try {
@@ -414,7 +414,7 @@ public class UserDao extends DBContext {
         }
     }
 
-    // xoa token het han 
+ // xoa token het han 
     public void deleteExpiredTokens() {
 
         try {
@@ -427,8 +427,9 @@ public class UserDao extends DBContext {
         }
 
     }
+    
+     // get token 
 
-    // get token 
     public Token getTokenByValue(String tokenValue) {
         try {
             String sql = "SELECT * FROM Tokens WHERE TokenValue =? ";
@@ -445,7 +446,9 @@ public class UserDao extends DBContext {
                             rs.getString("OtpCode"),
                             rs.getInt("AttemptCount")
                     );
+                    
 
+                    
                 }
             }
 
@@ -454,244 +457,25 @@ public class UserDao extends DBContext {
         }
         return null;
     }
-
-    // update otpcode va attempt cout
-    public void updateOtpAndAttempt(int tokenId, String OtpCode, int AttemptCount) {
-        try {
-            String sqlOtp = "UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
-            try (PreparedStatement ps = connection.prepareStatement(sqlOtp)) {
-                ps.setString(1, OtpCode);
-
-                ps.setInt(2, AttemptCount);
-                ps.setInt(3, tokenId);
-
-                ps.executeUpdate();
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println(e);
-        }
-    }
-
-    // ========== LẤY DANH SÁCH NGƯỜI DÙNG CÓ PHÂN TRANG ==========
-    public List<User> getAllUsers(int offset, int limit) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users where roleId = 3  ORDER BY createdAt DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY ";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, offset);
-            ps.setInt(2, limit);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
+    
+     // update otpcode va attempt cout
+    
+      public void updateOtpAndAttempt(int tokenId , String OtpCode , int AttemptCount){
+            try{
+                String sqlOtp ="UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
+                try(PreparedStatement ps = connection.prepareStatement(sqlOtp)){
+                     ps.setString(1, OtpCode); 
+              
+                     ps.setInt(2, AttemptCount);
+                     ps.setInt(3, tokenId);
+                     
+                     ps.executeUpdate();
                 }
+                
+            }catch(SQLException e){
+                e.printStackTrace();
+                System.out.println(e);
             }
-        }
-        return list;
-    }
-
-    // ========== ĐẾM SỐ NGƯỜI DÙNG ==========
-    public int getTotalUsers() throws SQLException {
-        String sql = "SELECT COUNT(*) FROM Users";
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        }
-        return 0;
-    }
-
-    // ========== TÌM KIẾM THEO TÊN / EMAIL / USERNAME ==========
-    public List<User> searchUsers(String keyword) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE fullName LIKE ? OR email LIKE ? OR username LIKE ? ORDER BY createdAt DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ps.setString(3, "%" + keyword + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // ========== LỌC THEO TRẠNG THÁI ==========
-    public List<User> filterByStatus(String status) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE status = ? ORDER BY createdAt DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, status);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // ========== THÊM NGƯỜI DÙNG MỚI ==========
-    public void addUser(User u) throws SQLException {
-        String sql = "INSERT INTO Users (username, password, email, fullName, phone, roleId, createdAt, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, GETDATE(), ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, u.getUsername());
-            ps.setString(2, u.getPassword());
-            ps.setString(3, u.getEmail());
-            ps.setString(4, u.getFullName());
-            ps.setString(5, u.getPhone());
-            ps.setInt(6, u.getRoleId());
-            ps.setString(7, u.getStatus());
-            ps.executeUpdate();
-        }
-    }
-
-    // ========== CẬP NHẬT THÔNG TIN NGƯỜI DÙNG ==========
-    public void updateUser(User u) throws SQLException {
-        String sql = "UPDATE Users SET username=?, email=?, fullName=?, phone=?, roleId=?, status=? WHERE userId=?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, u.getUsername());
-            ps.setString(2, u.getEmail());
-            ps.setString(3, u.getFullName());
-            ps.setString(4, u.getPhone());
-            ps.setInt(5, u.getRoleId());
-            ps.setString(6, u.getStatus());
-            ps.setInt(7, u.getUserId());
-            ps.executeUpdate();
-        }
-    }
-
-    // ========== MAP USER ==========
-    private User mapRow(ResultSet rs) throws SQLException {
-        User u = new User();
-        u.setUserId(rs.getInt("userId"));
-        u.setUsername(rs.getString("username"));
-        u.setPassword(rs.getString("password"));
-        u.setEmail(rs.getString("email"));
-        u.setFullName(rs.getString("fullName"));
-        u.setPhone(rs.getString("phone"));
-        u.setRoleId(rs.getInt("roleId"));
-        u.setCreatedAt(rs.getTimestamp("createdAt"));
-        u.setStatus(rs.getString("status"));
-        return u;
-    }
-
-    // ========== LẤY USER THEO ID ==========
-    public User getUserById2(int id) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE userId = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapRow(rs);
-                }
-            }
-        }
-        return null;
-    }
-
-    // ========================== 🔍 SEARCH & FILTER CHO USER MANAGEMENT ==========================
-    // Tìm theo Username
-    public List<User> searchByUsername(String keyword) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE username LIKE ? ORDER BY createdAt DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // Tìm theo Fullname
-    public List<User> searchByFullName(String keyword) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE fullName LIKE ? ORDER BY createdAt DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // Tìm theo Email
-    public List<User> searchByEmail(String keyword) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE email LIKE ? ORDER BY createdAt DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // Lọc theo Role (RoleId)
-    public List<User> searchByRole(int roleId) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE roleId = ? ORDER BY createdAt DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, roleId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // Lọc theo Status
-    public List<User> searchByStatus(String status) throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE status = ? ORDER BY createdAt DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, status);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // ========================== 🔽 DROPDOWN CHO ROLE & STATUS ==========================
-    // Lấy danh sách Role cho dropdown (Role table)
-    public List<String[]> getAllRoles() throws SQLException {
-        List<String[]> roles = new ArrayList<>();
-        String sql = "SELECT roleId, roleName FROM Roles ORDER BY roleId";
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                roles.add(new String[]{String.valueOf(rs.getInt("roleId")), rs.getString("roleName")});
-            }
-        }
-        return roles;
-    }
-
-    // Lấy danh sách Status có trong bảng Users (động)
-    public List<String> getAllStatuses() throws SQLException {
-        List<String> statuses = new ArrayList<>();
-        String sql = "SELECT DISTINCT status FROM Users WHERE status IS NOT NULL ORDER BY status";
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                statuses.add(rs.getString("status"));
-            }
-        }
-        return statuses;
-    }
+      }
 
 }

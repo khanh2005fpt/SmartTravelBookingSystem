@@ -6,6 +6,7 @@
 package com.vnpay.common;
 
 import dao.BookingDao;
+import dao.TourDao;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +29,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Booking;
+import model.User;
 
 /**
  *
@@ -42,17 +44,51 @@ public class ajaxServlet extends HttpServlet {
         String orderType = "other";
         String returnUrl = Config.vnp_ReturnUrl;
         String fullName = request.getParameter("fullname");
-//        String email = request.getParameter("email");
-//        String phone = request.getParameter("phone");
-//        String address = request.getParameter("address");
+        String email = request.getParameter("email");
+        String phone = request.getParameter("phone");
+
         Date departureDate = Date.valueOf(request.getParameter("departureDate"));
         int adultQty = Integer.parseInt(request.getParameter("adultQuantity"));
         int childQty = Integer.parseInt(request.getParameter("childQuantity"));
+        HttpSession session = request.getSession();
+        session.setAttribute("fullname", request.getParameter("fullname"));
+        session.setAttribute("email", request.getParameter("email"));
+        session.setAttribute("phone", request.getParameter("phone"));
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            response.getWriter().println("❌ Bạn cần đăng nhập trước khi thanh toán.");
+            return;
+        }
+
+        int customerId = user.getUserId();
+        System.out.println("customerId" + customerId);
+        String tourIdParam = request.getParameter("tourId");
+        String customTourIdParam = request.getParameter("customTourId");
+
+        Integer tourId = null;
+        Integer customTourId = null;
+
+        if (tourIdParam != null && !tourIdParam.trim().isEmpty()) {
+            tourId = Integer.parseInt(tourIdParam);
+        }
+
+        if (customTourIdParam != null && !customTourIdParam.trim().isEmpty()) {
+            customTourId = Integer.parseInt(customTourIdParam);
+        }
+        System.out.println(tourId);
+        String totalBill = request.getParameter("totalBill"); // số tiền tổng tour
+        long amountLong = (long) (Double.parseDouble(totalBill) * 100); //số tiền hiển thị trong lúc thanh toán
+
         Booking booking = new Booking();
         booking.setDepartureDate(departureDate);
         booking.setAdultQuantity(adultQty);
         booking.setChildQuantity(childQty);
         booking.setStatus("PENDING");
+        booking.setCustomerId(customerId);
+        booking.setCustomTourId(customTourId);
+        booking.setTourId(tourId);
+        booking.setTotalPrice(Double.parseDouble(totalBill));
 
         BookingDao bd = new BookingDao();
         int bookingId = 0;
@@ -62,9 +98,6 @@ public class ajaxServlet extends HttpServlet {
             Logger.getLogger(ajaxServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
         response.getWriter().println("DEBUG bookingId param = " + bookingId);
-
-        String totalBill = request.getParameter("totalBill"); // số tiền tổng tour
-        long amountLong = (long) (Double.parseDouble(totalBill) * 100); //số tiền hiển thị trong lúc thanh toán
 
         String vnp_TxnRef = bookingId + "_" + System.currentTimeMillis();
 
@@ -98,7 +131,7 @@ public class ajaxServlet extends HttpServlet {
         StringBuilder query = new StringBuilder();
         Iterator itr = fieldNames.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next(); 
+            String fieldName = (String) itr.next();
             String fieldValue = (String) vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 //Build hash data

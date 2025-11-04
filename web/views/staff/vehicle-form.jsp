@@ -495,7 +495,7 @@
                                 <select class="form-control <c:if test='${not empty errorIslandId}'>is-invalid</c:if>" id="islandId" name="islandId" required>
                                     <option value="">Chọn đảo</option>
                                     <c:forEach var="island" items="${islands}">
-                                        <option value="${island.islandId}" ${vehicle.islandId == island.islandId ? 'selected' : ''}>
+                                        <option value="${island.islandId}" ${vehicle != null && vehicle.islandId != null && vehicle.islandId == island.islandId ? 'selected' : ''}>
                                             ${island.islandName}
                                         </option>
                                     </c:forEach>
