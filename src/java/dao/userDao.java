@@ -522,8 +522,8 @@ public class UserDao extends DBContext {
         }
         return count;
     }
-    
-        public List<User> getAllUsers(int page, int pageSize) {
+
+    public List<User> getAllUsers(int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
                 + "FROM Users "
@@ -551,8 +551,8 @@ public class UserDao extends DBContext {
         }
         return list;
     }
-        
-            public int getTotalUsers() {
+
+    public int getTotalUsers() {
         String sql = "SELECT COUNT(*) FROM Users";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
@@ -563,9 +563,8 @@ public class UserDao extends DBContext {
         }
         return 0;
     }
-            
-            
-               public List<User> searchUsers(String keyword, int page, int pageSize) {
+
+    public List<User> searchUsers(String keyword, int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
                 + "FROM Users "
@@ -595,8 +594,7 @@ public class UserDao extends DBContext {
         }
         return list;
     }
-               
-               
+
     public List<User> getUsersByStatus(String status, int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
@@ -633,8 +631,7 @@ public class UserDao extends DBContext {
         }
         return list;
     }
-    
-    
+
     public boolean updateUserStatus(int userId, String status) {
         String sql = "UPDATE Users SET status = ? WHERE userId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -643,6 +640,50 @@ public class UserDao extends DBContext {
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        return false;
+    }
+
+    // =================== ADD USER ===================
+    public boolean addUser(User user) {
+        String sql = "INSERT INTO Users (username, password, email, fullName, phone, roleId, status, createdAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            // Băm mật khẩu trước khi lưu
+            String passwordHash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, passwordHash);
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getFullName());
+            ps.setString(5, user.getPhone());
+            ps.setInt(6, user.getRoleId());
+            ps.setString(7, user.getStatus() != null ? user.getStatus() : "ACTIVE");
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Lỗi khi thêm người dùng: " + e.getMessage());
+        }
+        return false;
+    }
+
+// =================== UPDATE USER ===================
+// Không cho phép cập nhật username và email
+    public boolean updateUser(User user) {
+        String sql = "UPDATE Users SET fullName = ?, phone = ?, roleId = ?, status = ? WHERE userId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, user.getFullName());
+            ps.setString(2, user.getPhone());
+            ps.setInt(3, user.getRoleId());
+            ps.setString(4, user.getStatus());
+            ps.setInt(5, user.getUserId());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Lỗi khi cập nhật người dùng: " + e.getMessage());
         }
         return false;
     }

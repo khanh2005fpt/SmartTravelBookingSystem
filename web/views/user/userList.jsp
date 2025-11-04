@@ -265,7 +265,7 @@
                 <i class="fa-solid fa-users"></i> Quản lý người dùng
             </h1>
 
-            <!-- Thanh tìm kiếm + lọc -->
+            <!-- Thanh tìm kiếm + lọc + nút thêm -->
             <div class="d-flex justify-content-between mb-3">
                 <form class="input-group" method="get" action="user">
                     <input type="hidden" name="action" value="search">
@@ -273,11 +273,18 @@
                     <button class="btn btn-primary">Tìm</button>
                 </form>
 
-                <select class="form-select w-auto" onchange="filterByStatus(this)">
-                    <option value="ALL" ${selectedStatus == 'ALL' ? 'selected' : ''}>Tất cả trạng thái</option>
-                    <option value="ACTIVE" ${selectedStatus == 'ACTIVE' ? 'selected' : ''}>Hoạt động</option>
-                    <option value="LOCKED" ${selectedStatus == 'LOCKED' ? 'selected' : ''}>Đã khóa</option>
-                </select>
+                <div class="d-flex" style="gap:10px;">
+                    <select class="form-select w-auto" onchange="filterByStatus(this)">
+                        <option value="ALL" ${selectedStatus == 'ALL' ? 'selected' : ''}>Tất cả trạng thái</option>
+                        <option value="ACTIVE" ${selectedStatus == 'ACTIVE' ? 'selected' : ''}>Hoạt động</option>
+                        <option value="LOCKED" ${selectedStatus == 'LOCKED' ? 'selected' : ''}>Đã khóa</option>
+                    </select>
+
+                    <!-- NÚT THÊM NGƯỜI DÙNG -->
+                    <a href="user?action=addForm" class="btn btn-primary" style="white-space:nowrap;">
+                        ➕ Thêm người dùng
+                    </a>
+                </div>
             </div>
 
             <!-- Bảng người dùng -->
@@ -303,10 +310,17 @@
                             <td>${u.phone}</td>
                             <td><span class="status-badge status-${u.status}">${u.status}</span></td>
                             <td class="text-center">
+                                <!-- Nút xem chi tiết -->
                                 <a href="javascript:void(0)" onclick="showDetail(${u.userId})" class="action-btn btn-view" title="Xem chi tiết">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
 
+                                <!-- Nút cập nhật -->
+                                <a href="user?action=editForm&id=${u.userId}" class="action-btn btn-primary" title="Cập nhật thông tin">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+
+                                <!-- Nút khóa / mở khóa -->
                                 <c:choose>
                                     <c:when test="${u.status == 'ACTIVE'}">
                                         <a href="user?action=ban&id=${u.userId}" class="action-btn btn-ban" title="Khóa tài khoản"
@@ -359,13 +373,11 @@
     </div>
 
     <script>
-        // Bộ lọc trạng thái
         function filterByStatus(select) {
             const status = select.value;
             window.location.href = 'user?action=filter&status=' + status;
         }
 
-        // Hiển thị chi tiết qua AJAX
         async function showDetail(id) {
             const res = await fetch('user?action=detail&id=' + id);
             if (!res.ok) {
