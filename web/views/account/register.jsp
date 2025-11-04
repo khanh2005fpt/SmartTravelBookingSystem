@@ -15,11 +15,6 @@
         
     <%
 User currentUser = (User) session.getAttribute("user");
-if (currentUser == null) {
-        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-        return;
-    }
 if (currentUser != null) {
     int roleId = currentUser.getRoleId();
 

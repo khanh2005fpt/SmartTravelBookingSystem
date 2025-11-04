@@ -4,7 +4,15 @@
  
 
 <%
-    User staffUser = (User) session.getAttribute("user");
+     HttpSession sess = request.getSession(false);
+    User currentUser = (User) (sess != null ? sess.getAttribute("user") : null);
+    int roleId = (currentUser != null) ? currentUser.getRoleId() : 0;
+
+    String roleName = "Khách";
+    if (roleId == 1) roleName = "Quản trị viên";
+    else if (roleId == 2) roleName = "Quản lý Booking";
+    else if (roleId == 4) roleName = "Nhân viên";
+    
     String currentPage = request.getParameter("page");
     if (currentPage == null) {
         currentPage = "";
@@ -171,16 +179,182 @@
 <div class="staff-sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
-        <h4><i class="fa fa-user-tie"></i> Quản lý nhân viên</h4>
-        <% if (staffUser != null) { %>
+        <h4><i class="fa fa-user-tie"></i> Trang quản lý MelandBooking</h4>
+          <% if (currentUser != null) { %>
             <div class="staff-info">
-                Xin chào, <%= staffUser.getUsername() %>
+                    Xin chào mừng , <strong><%= currentUser.getUsername() %></strong><br>
+              Vai trò: <strong><%= roleName %></strong>
             </div>
         <% } %>
     </div>
 
     <!-- Navigation Menu -->
 <nav class="sidebar-nav">
+            <% if (roleId == 1) { %>
+            
+              <!-- Quản trị hệ thống -admin ------------------------------------>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/accounts"
+                   class="nav-link <%= "accounts".equals(currentPage) ? "active" : "" %>">
+                 <i class="bi bi-person-gear"></i> Quản lý Tài khoản
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/system"
+                   class="nav-link <%= "system".equals(currentPage) ? "active" : "" %>">
+                    <i class="fa fa-cogs"></i> Quản lý Hệ thống
+                </a>
+            </div>
+                    
+         <!-- Quản lý melandBooking - Manager --------------------------------->     
+                  <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/manager/service"
+                   class="nav-link <%= "system".equals(currentPage) ? "active" : "" %>">
+                   <i class="bi bi-grid"></i> Quản lý Dịch vụ chung
+                </a>
+            </div>  
+                    
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/manager/revenue"
+                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
+                   <i class="bi bi-graph-up-arrow"></i> Tổng doanh thu
+                </a>
+            </div>
+                    
+                              
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/manager/report"
+                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-file-bar-graph"></i> Báo cáo
+                </a>
+            </div>
+                        
+         <!-- Quản lý melandBooking - Staff --------------------------------->
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/staff/tours" 
+               class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
+                <i class="fa fa-map-marker"></i>
+                Quản lý Tour
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link nav-parent expanded" id="servicesParent">
+                <i class="fa fa-cogs"></i>
+                Quản lý Dịch vụ
+                <i class="fa fa-chevron-right expand-icon"></i>
+            </div>
+            <div class="nav-children" id="servicesChildren">
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/hotels" 
+                       class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-building"></i>
+                        Quản lý Khách sạn
+                    </a>
+                </div>
+                <div class="nav-child ">
+                    <a href="${pageContext.request.contextPath}/staff/vehicles" 
+                       class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-car"></i>
+                        Quản lý Phương tiện
+                    </a>
+                </div>
+                <div class="nav-child ">
+                    <a href="${pageContext.request.contextPath}/staff/places"
+                       class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
+                        <i class="fa fa-map-pin"></i>
+                        Quản lý Địa điểm
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dropdown Quản lý Chuyến bay -->
+        <div class="nav-item">
+            <div class="nav-link nav-parent expanded" id="flightsParent">
+                <i class="fa fa-plane"></i>
+                Quản lý Chuyến bay
+                <i class="fa fa-chevron-right expand-icon"></i>
+            </div>
+            <div class="nav-children" id="flightsChildren">
+                <div class="nav-child">
+                    <a href="${pageContext.request.contextPath}/staff/flight/tickets" 
+                       class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
+                        <i class="bi bi-ticket-detailed"></i> Vé máy bay
+
+                        
+                    </a>
+                </div>
+                <div class="nav-child ">
+                    <a href="${pageContext.request.contextPath}/staff/flight/schedules" 
+                       class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
+                        <i class="bi bi-calendar-check"> </i> Lịch trình chuyến bay
+                       
+                    </a>
+                </div>
+            </div>
+        </div>
+
+     
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/staff/bookings" 
+               class="nav-link <%= "bookings".equals(currentPage) ? "active" : "" %>">
+                <i class="fa fa-calendar-check-o"></i>
+                Quản lý Booking
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/staff/payments" 
+               class="nav-link <%= "payments".equals(currentPage) ? "active" : "" %>">
+                <i class="fa fa-credit-card"></i>
+                Quản lý Thanh toán
+            </a>
+        </div>
+    </nav>
+                
+                
+
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+        <a href="<%= request.getContextPath() %>/logout" method="post" style="margin:0 ;">
+            <button type="submit" class="logout-btn">
+                <i class="fa fa-sign-out"></i> Đăng xuất
+            </button>
+        </a>
+    </div>     
+                    
+                    
+              <!-- Quản lý melandBooking - Manager --------------------------------->  
+          <% } else if (roleId == 2) { %>
+              
+                  <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/manager/service"
+                   class="nav-link <%= "system".equals(currentPage) ? "active" : "" %>">
+                   <i class="bi bi-grid"></i> Quản lý Dịch vụ chung
+                </a>
+            </div>  
+                    
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/manager/revenue"
+                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
+                   <i class="bi bi-graph-up-arrow"></i> Tổng doanh thu
+                </a>
+            </div>
+                    
+                              
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/manager/report"
+                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-file-bar-graph"></i> Báo cáo
+                </a>
+            </div>
+                    
+            <!-- Quản lý melandBooking - Staff --------------------------------->         
+          <% } else if (roleId == 4) { %>
+                
         <div class="nav-item">
             <a href="${pageContext.request.contextPath}/staff/tours" 
                class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
@@ -264,6 +438,7 @@
                 Quản lý Thanh toán
             </a>
         </div>
+                   <% } %>
     </nav>
 
 

@@ -16,12 +16,12 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
-update Airlines 
-set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
-where airlineId=7
+update Users
+set fullName ='Manager'
+where userId =2
 
-select * from Flights
-select * from Airlines
+select * from Users
+select * from Roles
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -590,22 +590,9 @@ GO
     ORDER BY f.basePrice ASC
 select * from tours
 
-CREATE TABLE Bookings (
-    bookingId INT IDENTITY(1,1) PRIMARY KEY,
-    customerId INT NOT NULL,
-    customTourId INT NULL,
-    tourId INT NULL,
-    departureDate DATE NOT NULL,
-    endDate DATE,
-    adultQuantity INT NOT NULL,
-    childQuantity INT NOT NULL,
-    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
-	totalPrice INT,
-    bookingDate DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (customerId) REFERENCES Users(userId),
-    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
-);
+
+
+
 
 
 

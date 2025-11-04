@@ -290,7 +290,7 @@ if (currentUser == null) {
 if (currentUser != null) {
     int roleId = currentUser.getRoleId();
 
-    if (roleId != 1 && roleId != 4) {
+    if (roleId ==3 ) {
         session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
         response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
         return;
@@ -307,7 +307,7 @@ if (currentUser != null) {
         <!-- Welcome Header -->
         <div class="welcome-header">
             <h1><i class="fa fa-tachometer-alt"></i> Dashboard</h1>
-            <p>Chào mừng bạn đến với hệ thống quản lý Meland Travel</p>
+            <p>Chào mừng bạn đến với hệ thống quản lý<strong> Meland Travel Booking</strong> </p>
             <p><i class="fa fa-clock"></i> Hôm nay: <fmt:formatDate value="<%= new java.util.Date() %>" pattern="EEEE, dd/MM/yyyy"/></p>
         </div>
 
