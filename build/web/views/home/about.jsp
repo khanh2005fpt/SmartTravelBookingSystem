@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 3) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <html lang="vi">
     <head>
        <%@ include file="/views/common/css.jsp" %>
     </head>
+    
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
         <!-- END nav -->

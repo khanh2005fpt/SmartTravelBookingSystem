@@ -246,6 +246,7 @@ public class CustomerDao extends DBContext {
     return unreadIds;
 }
 
+    /*
       // Lấy danh sách lịch sử theo customerId
     public List<HistoryBooking> getHistoryByCustomerId(int customerId) throws SQLException {
     List<HistoryBooking> list = new ArrayList<>();
@@ -273,9 +274,41 @@ public class CustomerDao extends DBContext {
   
     }
 
+
+
     return list;
 }
+*/
      // them contact cho profile
+//    public List<HistoryBooking> getHistoryByCustomerId(int customerId) throws SQLException {
+//    List<HistoryBooking> list = new ArrayList<>();
+//    String sql = "SELECT * FROM HistoryBooking WHERE customerId = ?";
+//
+//    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+//        ps.setInt(1, customerId);
+//
+//        try (ResultSet rs = ps.executeQuery()) {
+//            while (rs.next()) {
+//                HistoryBooking h = new HistoryBooking(
+//                    rs.getInt("historyId"),
+//                    rs.getInt("customerId"),
+//                    rs.getInt("paymentId"),
+//                    rs.getString("note"),
+//                    rs.getString("tourStatus")
+//                );
+//                list.add(h);
+//            }
+//        }
+//
+//    } catch (SQLException e) {
+//         throw new SQLException("Lỗi khi lấy lịch sử booking theo customerId: " + customerId, e);
+//    
+//  
+//    }
+//
+//    return list;
+//}
+    
     public boolean addContact(int userId, String contactValue) throws SQLException {
         // Xác định contactType dựa vào value
        String contactType;
@@ -449,30 +482,6 @@ public class CustomerDao extends DBContext {
 
      
     
-     public static void main(String[] args) {
-       // Tạo đối tượng DAO
-        try {
-     CustomerDao dao = new CustomerDao();
-
-        // Nhập customerId muốn test
-          int contactId = 1; // giả sử userId đã tồn tại
-         
-
-        // Gọi phương thức
-
-
-       dao.setPrimaryEmailContact(contactId);
-
-            System.out.println("🎯 Đã gọi setPrimaryEmail(" + contactId + ").");
-            System.out.println("➡️ Hãy kiểm tra bảng CustomerContacts và Users để xem kết quả trigger đồng bộ.");
-
-            // Thêm phone
-         
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-        }
-    
+     
     }
 

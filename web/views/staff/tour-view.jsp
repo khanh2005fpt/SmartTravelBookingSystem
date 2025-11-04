@@ -10,7 +10,7 @@
 <%@ page import="model.Island" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -331,6 +331,25 @@
         }
     </style>
 </head>
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">

@@ -48,11 +48,9 @@ public class BookingStaffServlet extends HttpServlet {
         
         // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
-        
+        if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         try {
             String action = request.getParameter("action");
             
@@ -82,10 +80,9 @@ public class BookingStaffServlet extends HttpServlet {
         
         // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+         if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         
         try {
             String action = request.getParameter("action");
@@ -272,6 +269,49 @@ public class BookingStaffServlet extends HttpServlet {
     private boolean isValidStatus(String status) {
         return status.equals("PENDING") || status.equals("CONFIRMED") || 
                status.equals("CANCELLED") || status.equals("COMPLETED");
+    }
+    
+    /**
+     *isStaffAuthorized role in system
+     */
+    
+    private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    if (session == null) {
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    // Map roleId -> roleName
+ String role;
+        switch (user.getRoleId()) {
+            case 1:
+                role = "ADMIN";
+                break;
+            case 2:
+                role = "BOOKING MANAGER";
+                break;
+            case 3:
+                role = "CUSTOMER";
+                break;
+            default:
+                role = "STAFF";
+                break;
+        }
+
+        if (!"STAFF".equals(role) && !"ADMIN".equals(role)) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return false;
+        }
+
+        return true;
     }
     
     public String getServletInfo() {

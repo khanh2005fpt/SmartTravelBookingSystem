@@ -71,12 +71,11 @@ public class TourStaffServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+         HttpSession session = request.getSession(false);
         // Check staff authorization
-        if (!isStaffAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied. Staff authorization required.");
-            return;
-        }
+       if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
 
         String action = request.getParameter("action");
         if (action == null) {
@@ -159,21 +158,44 @@ public class TourStaffServlet extends HttpServlet {
     /**
      * Check if user is authorized as staff
      */
-    private boolean isStaffAuthorized(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            return false;
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return false;
-        }
-
-        // Check if user has staff role (roleId = 1 for admin, roleId = 2 for staff)
-        return user.getRoleId() == 1 || user.getRoleId() == 4;
+  private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    if (session == null) {
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
     }
 
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    // Map roleId -> roleName
+ String role;
+        switch (user.getRoleId()) {
+            case 1:
+                role = "ADMIN";
+                break;
+            case 2:
+                role = "BOOKING MANAGER";
+                break;
+            case 3:
+                role = "CUSTOMER";
+                break;
+            default:
+                role = "STAFF";
+                break;
+        }
+
+        if (!"STAFF".equals(role) && !"ADMIN".equals(role)) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return false;
+        }
+
+        return true;
+    }
     /**
      * List all tours
      */
@@ -629,13 +651,11 @@ public class TourStaffServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+         HttpSession session = request.getSession(false);
         // Check staff authorization for POST requests
-        if (!isStaffAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied. Staff authorization required.");
-            return;
-        }
-
+        if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         String action = request.getParameter("action");
         
         try {

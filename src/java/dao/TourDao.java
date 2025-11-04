@@ -195,6 +195,27 @@ public class TourDao extends DBContext {
             throw new SQLException("Lỗi khi tạo chi tiết custom tour, customTourId = " + detail.getCustomTourId(), e);
         }
     }
+    
+    public static void main(String[] args) {
+    // Tạo DAO
+    TourDao dao = new TourDao();
+    CustomTourDetail detail = new CustomTourDetail();
+
+    try {
+         int customTourId = 1; // Tour đã tồn tại trong DB
+            LocalDate startDate = LocalDate.of(2025, 12, 1);
+            LocalDate endDate = LocalDate.of(2025, 12, 3);
+
+            // Gọi phương thức tạo lịch trình mẫu
+            dao.createSampleItinerary(customTourId, startDate, endDate);
+
+            System.out.println("Tạo lịch trình mẫu thành công cho tour ID " + customTourId);
+    } catch (SQLException e) {
+        System.err.println("Lỗi khi tạo chi tiết custom tour, customTourId = " + detail.getCustomTourId());
+        e.printStackTrace();
+    }
+}
+    
 
     //Tao thong tin lich trinh cua tour le
     public void createSampleItinerary(int customTourId, LocalDate startDate, LocalDate endDate) throws SQLException {

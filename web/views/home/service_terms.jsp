@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -27,6 +28,25 @@
          
           <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style.css">
     </head>
+    
+            
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 3) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
     <body  class="service-page"  >
        <%@ include file="/views/common/navbar.jsp" %>
         <!-- KẾT THÚC nav -->

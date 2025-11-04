@@ -3,25 +3,23 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.account;
+package controller.services;
 
+import dao.TourDao;
+import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import model.CustomTour;
 
 /**
  *
- * @author nqagh
+ * @author Admin
  */
-@WebServlet(name="logoutServlet", urlPatterns={"/logout"})
-
-public class LogoutServlet extends HttpServlet {
-
+public class CustomTourDetailController extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,18 +31,7 @@ public class LogoutServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet logoutServlet</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet logoutServlet at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        doGet(request, response);
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -58,14 +45,7 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        
-      // huy session khi logout
-           HttpSession session = request.getSession();
-           if(session!=null){
-               session.invalidate();
-           }
-            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-            return;
+        doPost(request, response);
     } 
 
     /** 
@@ -78,7 +58,37 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+         try {
+            TourDao dao = new TourDao();
+
+            String idStr = request.getParameter("customtourid");
+            String flightTypeRaw = request.getParameter("flightType");
+
+            if (idStr == null || idStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                return;
+            }
+
+            int id = Integer.parseInt(idStr);
+
+            CustomTour tour = dao.getTourById(id);
+            if (tour == null) {
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                return;
+            }
+
+            request.setAttribute("tour", tour);
+            request.setAttribute("details", dao.getTourDetails(id));
+            request.setAttribute("flightType", flightTypeRaw);
+            request.setAttribute("itinerary", dao.getTourItinerary(id));
+
+            request.getRequestDispatcher("/views/trip/custom_tour_detail.jsp").forward(request, response);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Không thể tải chi tiết tour.");
+        }
     }
 
     /** 

@@ -3,28 +3,80 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package model;
-
+import java.sql.Timestamp;
 /**
  *
  * @author nqagh
  */
 public class HistoryBooking {
-      private int historyId;
-    private int customerId;
+    private int historyId;
     private int paymentId;
-    private String note;
+    private Integer accountUserId; // có thể null
+    private String customerName;
+    private String customerEmail;
+    private String customerPhone;
+    private Timestamp createdAt;
     private String tourStatus;
 
     public HistoryBooking() {
     }
+    
+    
 
-    public HistoryBooking(int historyId, int customerId, int paymentId, String note, String tourStatus) {
+    public HistoryBooking(int historyId,  int paymentId, Integer accountUserId, String customerName, String customerEmail, String customerPhone, Timestamp createdAt, String tourStatus) {
         this.historyId = historyId;
-        this.customerId = customerId;
         this.paymentId = paymentId;
-        this.note = note;
+        this.accountUserId = accountUserId;
+        this.customerName = customerName;
+        this.customerEmail = customerEmail;
+        this.customerPhone = customerPhone;
+        this.createdAt = createdAt;
         this.tourStatus = tourStatus;
     }
+
+
+    public Integer getAccountUserId() {
+        return accountUserId;
+    }
+
+    public void setAccountUserId(Integer accountUserId) {
+        this.accountUserId = accountUserId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    
 
     public int getHistoryId() {
         return historyId;
@@ -34,13 +86,6 @@ public class HistoryBooking {
         this.historyId = historyId;
     }
 
-    public int getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
-    }
 
     public int getPaymentId() {
         return paymentId;
@@ -50,13 +95,6 @@ public class HistoryBooking {
         this.paymentId = paymentId;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
 
     public String getTourStatus() {
         return tourStatus;
@@ -68,8 +106,10 @@ public class HistoryBooking {
 
     @Override
     public String toString() {
-        return "HistoryBooking{" + "historyId=" + historyId + ", customerId=" + customerId + ", paymentId=" + paymentId + ", note=" + note + ", tourStatus=" + tourStatus + '}';
+        return "HistoryBooking{" + "historyId=" + historyId + ", paymentId=" + paymentId + ", accountUserId=" + accountUserId + ", customerName=" + customerName + ", customerEmail=" + customerEmail + ", customerPhone=" + customerPhone + ", createdAt=" + createdAt + ", tourStatus=" + tourStatus + '}';
     }
+
+    
     
     
 }

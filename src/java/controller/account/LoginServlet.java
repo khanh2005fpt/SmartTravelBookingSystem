@@ -70,7 +70,7 @@ public class LoginServlet extends HttpServlet {
             out.println("<body>");
             out.println("<h1>Servlet loginServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
-            out.println("</html>");
+            out.println("</html>"); 
         }
     }
 
@@ -215,16 +215,15 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("profile_customer", profile);
          
         
-            List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(user.getUserId());
-             List<CustomerContacts> phoneList =customerDao.getPhoneContactByUserId(user.getUserId());
+        List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(user.getUserId());
+        List<CustomerContacts> phoneList =customerDao.getPhoneContactByUserId(user.getUserId());
         List<Notification> listNotification = customerDao.getNotificationByUser(user.getUserId());
 
         session.setAttribute("listNotification", listNotification);
         session.setAttribute("emailList_Current", emailList);
         session.setAttribute("phoneList_Current", phoneList);
-  
+        
 
-        session.setAttribute("userId", user.getUserId());
         session.setAttribute("loginSuccess", "oke");
         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
             

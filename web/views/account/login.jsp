@@ -25,7 +25,7 @@
 
                     <!-- Nút home -->
                     <div class="d-flex justify-content-end  mb-5 " style="max-width: 450px; width: 100%;" >
-                        <a href="${pageContext.request.contextPath}/views/home/index.jsp" class="btn btn-outline-primary">
+                        <a href="${pageContext.request.contextPath}/SearchIslandController" class="btn btn-outline-primary">
                             <i class="fa fa-home"></i> Trang Chủ
                         </a>
                     </div>
@@ -82,7 +82,7 @@
 
                         <!-- Form -->
                         <form action="${pageContext.request.contextPath}/login" method="POST">
-
+                             <input type="hidden" name="redirect" value="${param.redirect}">
                             <div class="mb-4">
                                 <label for="username" class="form-label">Tên đăng nhập</label>
                                 <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" >
