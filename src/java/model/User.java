@@ -16,7 +16,7 @@ public class User {
     private String email;
     private String fullName;
     private String phone;
-    private String role;
+    private int roleId;
     private Date createdAt;
     private String status;
 
@@ -26,14 +26,14 @@ public class User {
   
   
     public User(int userId, String username, String password, String email, 
-                String fullName, String phone, String role, Date createdAt, String status) {
+                String fullName, String phone, int roleId, Date createdAt, String status) {
         this.userId = userId;
         this.username = username;
         this.password = password;
         this.email = email;
         this.fullName = fullName;
         this.phone = phone;
-        this.role = role;
+        this.roleId = roleId;
         this.createdAt = createdAt;
         this.status = status;
     }
@@ -88,11 +88,11 @@ public class User {
         this.phone = phone;
     }
 
-    public String getRole() {
-        return role;
+    public int getRoleId() {
+        return roleId;
     }
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
     public Date getCreatedAt() {
@@ -100,6 +100,25 @@ public class User {
     }
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    /**
+     * Get role name based on roleId
+     * @return role name as string
+     */
+    public String getRole() {
+        switch (this.roleId) {
+            case 1:
+                return "admin";
+            case 2:
+                return "booking_manager";
+            case 3:
+                return "customer";
+            case 4:
+                return "staff";
+            default:
+                return "unknown";
+        }
     }
 
     // toString
@@ -111,7 +130,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", phone='" + phone + '\'' +
-                ", role='" + role + '\'' +
+                ", role='" + roleId + '\'' +
                 ", createdAt=" + createdAt +'\'' +
                  ", status=" + status+
                 '}';

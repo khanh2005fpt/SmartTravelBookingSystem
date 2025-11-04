@@ -1,10 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.User" %>
+<%@ page import="model.CustomerProfile" %>
 
 <!-- lay thong tin user tu session  -->
 <%
     User user = (User)session.getAttribute("user");
 %>
+
+<!-- lay thong tin customer_profile tu session  -->
+  <%
+                           CustomerProfile profile_customer = (CustomerProfile)session.getAttribute("profile_customer");
+                  
+        %>
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/SearchIslandController">Meland<span>Công ty Du lịch</span></a>
@@ -24,7 +31,7 @@
 
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/SearchIslandController" class="nav-link">Trang chủ</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/about.jsp" class="nav-link">Giới thiệu</a></li>
-                <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/destination.jsp" class="nav-link">Điểm đến</a></li>
+            
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/blog.jsp" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/contact.jsp" class="nav-link">Liên hệ</a></li>
                 <!-- Thêm nút đăng nhập / đăng ký -->
@@ -46,7 +53,7 @@
                         // Chưa đăng nhập → Hiện nút login/register
                 %>
                 <li class="nav-item ml-lg-5 ml-5 " ">
-                    <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="btn btn-login1"> 
+                    <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="btn btn-login1"> 
 
                         Đăng nhập</a>
 
@@ -57,7 +64,7 @@
 
 
                 <li class="nav-item ml-lg-3">
-                    <a href="${pageContext.request.contextPath}/views/home/register.jsp" class="btn btn-register1 "   >Đăng ký</a>
+                    <a href="${pageContext.request.contextPath}/views/account/register.jsp" class="btn btn-register1 "   >Đăng ký</a>
                 </li> 
 
 
@@ -66,9 +73,9 @@
                         // Đã đăng nhập → Hiện profile dropdown
                 %>
 
-                <li class="nav-item dropdown ml-lg-5">
+                <li class="nav-item dropdown ml-lg-5 w-auto">
                     <a href="#" 
-                       class="nav-link dropdown-toggle d-flex align-items-center" 
+                       class="nav-link dropdown-toggle d-flex align-items-center  " 
                        id="userDropdown" 
                        role="button" 
                        data-toggle="dropdown" 
@@ -77,18 +84,23 @@
                        style="background: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: #0077b6;">
 
                         <i class="bi bi-person-circle mr-2" style="font-size: 20px;"></i>
-                         <span><%= user != null ? user.getRole() : "Khách" %> | 0 Điểm</span>
+                        <span lang="vi"><%= user != null ? user.getFullName() : "Khách" %> | ${sessionScope.profile_customer.loyaltyPoints} Điểm</span>
                     </a>
 
                     <!-- Menu xổ xuống -->
-                    <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="profile.jsp"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
-                        <a class="dropdown-item" href="notifications.jsp"><i class="bi bi-bell mr-2"></i> Thông báo</a>
-                        <a class="dropdown-item" href="settings.jsp"><i class="bi bi-gear mr-2"></i> Cài đặt</a>
+                    <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=account#"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
+                            <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=member-priority#"><i class="bi bi-award"></i> Membership Level</a>
+                                <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=historyBookings#"><i class="bi bi-calendar2-check"></i>Lịch sử đặt chỗ của tôi</a>
+                                  <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=notifications#"><i class="bi bi-bell mr-2"></i> Thông báo</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=favorites#"><i class="bi bi-heart-fill"></i>Tours and Services</a>
+                    
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
                             <i class="bi bi-box-arrow-right mr-2"></i> Đăng xuất
-                        </a>    </div>
+                        </a>   
+                    </div>
                 </li>
 
                 <%
@@ -129,7 +141,7 @@
 <style>
 
     /* -------- Modal Logout -------- */
-    /* Box */
+ 
     .logout-box {
         width: 380px;
         max-width: 100%;
@@ -141,21 +153,19 @@
         text-align: center;
     }
 
-    /* Header */
     .logout-header {
         font-size: 1.5rem;
         font-weight: 800;
         color: #1976d2; /* xanh dương */
     }
 
-    /* Nội dung */
     .logout-body h5 {
         font-size: 1rem;
         font-weight: normal;
         color: #000;
     }
 
-    /* Nút Không */
+  
     .btn-cancel {
         background: #fff;
         color: #1976d2;
@@ -171,7 +181,6 @@
         color: #fff !important;
     }
 
-    /* Nút Có */
     .btn-logout {
         background: #1976d2;
         color: #fff;
@@ -195,4 +204,49 @@
         opacity: 0.3 !important;
     }
 
-</style>         
+    
+    
+
+/* Dropdown tổng thể */
+.dropdown-menu {
+  min-width: 300px;
+  border-radius: 10px;
+  padding: 6px 0;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /*  tránh lòi màu hover ra ngoài */
+}
+
+/* Các item trong menu */
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent; /* reset mặc định */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin-left: 15px;
+}
+
+/* Khi hover */
+.dropdown-item:hover {
+  background-color: #eaf6ff !important; /* nền xanh nhẹ */
+  color: #0077b6 !important;
+}
+
+
+.dropdown-item i {
+  font-size: 18px;
+  color: #0077b6;
+}
+
+
+.dropdown-item:hover i {
+  color: #0077b6;
+}
+
+    
+</style> 

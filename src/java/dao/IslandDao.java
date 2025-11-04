@@ -19,11 +19,10 @@ import model.Country;
  */
 public class IslandDao extends DBContext {
 
-    public List<Country> getAllCountries() {
+    public List<Country> getAllCountries() throws SQLException {
         List<Country> list = new ArrayList<>();
         String sql = "SELECT * FROM Countries";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Country c = new Country();
@@ -31,17 +30,16 @@ public class IslandDao extends DBContext {
                 c.setCountryName(rs.getString("countryName"));
                 list.add(c);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy danh sách quốc gia từ cơ sở dữ liệu.", e);
         }
         return list;
     }
 
-    public List<Island> getIslands() {
+    public List<Island> getIslands() throws SQLException {
         List<Island> list = new ArrayList<>();
         String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Island i = new Island();
@@ -57,15 +55,14 @@ public class IslandDao extends DBContext {
                 list.add(i);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new SQLException("Lỗi khi lấy danh sách đảo từ cơ sở dữ liệu.", e);
         }
         return list;
     }
 
-    public Island getIslandById(int id) {
+    public Island getIslandById(int id) throws SQLException {
         String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE islandId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) { // chỉ cần lấy 1 island thôi
@@ -81,13 +78,28 @@ public class IslandDao extends DBContext {
                 i.setLocation(rs.getString("location"));
                 return i; // trả về Island
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy thông tin đảo có islandId = " + id, e);
         }
         return null; // không tìm thấy thì trả về null
     }
 
-    public List<Island> searchIslands(String country, String season) {
+    public String getIslandNameById(int islandId) throws SQLException {
+        String islandName = "";
+        String sql = "SELECT islandName FROM Islands WHERE islandId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, islandId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                islandName = rs.getString("islandName");
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy tên đảo có islandId = " + islandId, e);
+        }
+        return islandName;
+    }
+
+    public List<Island> searchIslands(String country, String season) throws SQLException {
         List<Island> list = new ArrayList<>();
         String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE 1=1";
 
@@ -98,9 +110,7 @@ public class IslandDao extends DBContext {
             sql += " AND a.bestSeason = ?";
         }
 
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             int idx = 1;
             if (country != null && !country.isEmpty()) {
                 ps.setString(idx++, "%" + country + "%");
@@ -123,60 +133,34 @@ public class IslandDao extends DBContext {
                         rs.getString("location")
                 ));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    public List<Island> getIslandsByPage(int page, int pageSize) {
-        List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId order by islandId offset ? rows fetch next ? rows only";
-
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, (page - 1) * pageSize); // OFFSET
-            ps.setInt(2, pageSize);              // FETCH NEXT
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(new Island(
-                        rs.getInt("islandId"),
-                        rs.getString("islandName"),
-                        rs.getString("countryName"),
-                        rs.getString("shortDescription"),
-                        rs.getString("longDescription"),
-                        rs.getString("bestSeason"),
-                        rs.getString("activities"),
-                        rs.getString("imageUrl"),
-                        rs.getString("location")
-                ));
-            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException("Lỗi khi tìm kiếm đảo theo quốc gia hoặc mùa du lịch.", e);
         }
-
         return list;
     }
 
-    public int getTotalIslands() {
+    public int getTotalIslands() throws SQLException {
         int total = 0;
         String sql = "select count(*) from Islands";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 total = rs.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException("Lỗi khi đếm tổng số lượng đảo trong cơ sở dữ liệu.", e);
         }
         return total;
     }
 
     public static void main(String[] args) {
-        IslandDao id = new IslandDao();
-        List<Island> i = id.searchIslands("Thái Lan", "");
-
-        System.out.println(i.toString());
+        try {
+            IslandDao id = new IslandDao();
+            List<Island> i = id.searchIslands("Thái Lan", "");
+            System.out.println(i.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
 }

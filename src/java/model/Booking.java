@@ -1,21 +1,53 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.math.BigDecimal;
-import java.util.List;
+import java.util.Date;
 
+/**
+ *
+ * @author Admin
+ */
 public class Booking {
 
     private int bookingId;
-    private int profileId;     
-    private int customerId;    
-    private Integer price;     
-    private BookingStatus status;      
-    private LocalDateTime bookingDate; 
+    private int customerId;
+    private Integer tourId;
+    private Integer customTourId;
+    private Date departureDate;
+    private Date endDate;
+    private int adultQuantity;
+    private int childQuantity;
+    private int price;
+    private double totalPrice;
+    private String status;
+    private Date bookingDate;
+    private int profileId;
+
+    // Additional fields for display purposes
+    private String customerName;
+    private String tourName;
+    private String customTourName;
+
+    public Booking() {
+    }
+
+    public Booking(int bookingId, int customerId, Integer tourId, Integer customTourId, Date departureDate, Date endDate, int adultQuantity, int childQuantity, double totalPrice, String status) {
+        this.bookingId = bookingId;
+        this.customerId = customerId;
+        this.tourId = tourId;
+        this.customTourId = customTourId;
+        this.departureDate = departureDate;
+        this.endDate = endDate;
+        this.adultQuantity = adultQuantity;
+        this.childQuantity = childQuantity;
+        this.totalPrice = totalPrice;
+        this.status = status;
+    }
 
     
-    private List<BookingDetail> details;
 
     public int getBookingId() {
         return bookingId;
@@ -24,14 +56,7 @@ public class Booking {
     public void setBookingId(int bookingId) {
         this.bookingId = bookingId;
     }
-
-    public int getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(int profileId) {
-        this.profileId = profileId;
-    }
+    
 
     public int getCustomerId() {
         return customerId;
@@ -41,35 +66,116 @@ public class Booking {
         this.customerId = customerId;
     }
 
-    public Integer getPrice() {
-        return price;
+    public Integer getTourId() {
+        return tourId;
     }
 
-    public void setPrice(Integer price) {
-        this.price = price;
+    public void setTourId(Integer tourId) {
+        this.tourId = tourId;
     }
 
-    public BookingStatus getStatus() {
+    public Integer getCustomTourId() {
+        return customTourId;
+    }
+
+    public void setCustomTourId(Integer customTourId) {
+        this.customTourId = customTourId;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+    
+    
+    public Date getDepartureDate() {
+        return departureDate;
+    }
+
+    public void setDepartureDate(Date departureDate) {
+        this.departureDate = departureDate;
+    }
+
+    public int getAdultQuantity() {
+        return adultQuantity;
+    }
+
+    public void setAdultQuantity(int adultQuantity) {
+        this.adultQuantity = adultQuantity;
+    }
+
+    public int getChildQuantity() {
+        return childQuantity;
+    }
+
+    public void setChildQuantity(int childQuantity) {
+        this.childQuantity = childQuantity;
+    }
+
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(BookingStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public LocalDateTime getBookingDate() {
+    public Date getBookingDate() {
         return bookingDate;
     }
 
-    public void setBookingDate(LocalDateTime bookingDate) {
+    public void setBookingDate(Date bookingDate) {
         this.bookingDate = bookingDate;
     }
 
-    public List<BookingDetail> getDetails() {
-        return details;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setDetails(List<BookingDetail> details) {
-        this.details = details;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getTourName() {
+        return tourName;
+    }
+
+    public void setTourName(String tourName) {
+        this.tourName = tourName;
+    }
+
+    public String getCustomTourName() {
+        return customTourName;
+    }
+
+    public void setCustomTourName(String customTourName) {
+        this.customTourName = customTourName;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getProfileId() {
+        return profileId;
+    }
+
+    public void setProfileId(int profileId) {
+        this.profileId = profileId;
     }
 }

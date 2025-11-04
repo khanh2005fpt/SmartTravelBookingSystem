@@ -3,8 +3,23 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/dao/BookingDAO.java</file>
-            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SWP391-SE1957KS-Group-3-Smart-Travel/src/java/controller/customer/CustomerServlet.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/dao/BookingDAO.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/controller/customer/CustomerServlet.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/com/vnpay/common/Config.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/constant/Iconstant.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/com/vnpay/common/VnpayReturn.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/com/vnpay/common/ajaxServlet.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/controller/account/GoogleLogin.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/web/views/staff/flight_schedule-list.jsp</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightScheduleStaffServlet.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/model/FlightSchedule.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/web/views/staff/flight_ticket-form.jsp</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/dao/ServiceDao.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/controller/home/IslandDetailController.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/web/views/staff/flight_schedule-form.jsp</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/web/views/staff/sidebar.jsp</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/src/java/model/Flight.java</file>
+            <file>file:/C:/Users/User/OneDrive/Máy%20tính/123/SmartTravelBookingSystem/web/views/staff/flight_ticket-list.jsp</file>
         </group>
     </open-files>
 </project-private>

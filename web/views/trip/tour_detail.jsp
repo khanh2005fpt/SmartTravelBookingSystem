@@ -14,9 +14,25 @@
 
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
+<<<<<<< HEAD
 
         <div class="container py-5">
             <div class="row g-4">
+=======
+        <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
+            <div class="overlay"></div>
+            <div class="container">
+                <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-center">
+                    <div class="col-md-9 ftco-animate pb-5 text-center">
+                        <p class="breadcrumbs"><span class="mr-2"><a href="SearchIslandController">Trang chủ <i class="fa fa-chevron-right"></i></a></span> <span>Khách sạn <i class="fa fa-chevron-right"></i></span></p>
+                        <h1 class="mb-0 bread">Chi tiết tour</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="container" style="max-width: 1400px;">
+            <div class="row" style="margin-top: 120px">
+>>>>>>> 8c86465df15e7e08102ed4bdc1fdcad9cdf3a556
                 <!-- Cột nội dung tour -->
                 <div class="col-lg-7">
 
@@ -129,6 +145,7 @@
 
                 <!-- Cột sidebar -->
                 <div class="col-lg-5">
+<<<<<<< HEAD
 
 
 
@@ -168,6 +185,70 @@
                     </div>
                 </div>
             </div>
+=======
+                    <div class="card shadow-sm p-4">
+                        <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
+                        <c:if test="${not empty errorMessage}">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${errorMessage}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <c:remove var="errorMessage" scope="request"/> 
+                        </c:if>
+
+
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.user}">
+                                <form action="BookingController" method="post">
+                                    <input type="hidden" name="tourId" value="${tour.tourId}">
+                                    <input type="hidden" name="price" value="${tour.price}">
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Ngày khởi hành</label>
+                                        <input type="date" class="form-control" name="departureDate" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label">Người lớn (>15 tuổi)</label>
+                                            <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label">Trẻ em (≤15 tuổi)</label>
+                                            <input type="number" class="form-control" name="childQty" min="0" value="0" required>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mt-4 text-primary">Giá Tour</h5>
+                                    <h4 class="text-primary fw-bold mb-3">
+                                        <fmt:setLocale value="vi_VN" />
+                                        <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
+                                    </h4>
+
+                                    <button type="submit" class="btn btn-primary btn-block fw-bold">
+                                        <i class="bi bi-check-circle"></i> Đặt Tour Ngay
+                                    </button>
+                                </form>
+                            </c:when>
+
+                            <c:otherwise>
+                                <div class="alert alert-warning">
+                                    Bạn cần 
+                                    <c:url var="loginURL" value="/views/account/login.jsp">
+                                        <c:param name="redirect" value="${pageContext.request.contextPath}/TourDetailController?tourid=${tourId}" />
+                                    </c:url>
+                                    <a href="${loginURL}" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
+                                </div>
+                            </c:otherwise>
+
+
+
+                        </c:choose>
+                    </div>
+                </div>
+            </div>
+
+>>>>>>> 8c86465df15e7e08102ed4bdc1fdcad9cdf3a556
         </div>
 
         <%@ include file="/views/common/footer.jsp" %>
