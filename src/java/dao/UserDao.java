@@ -4,6 +4,10 @@
  */
 package dao;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.SecureRandom;
 import model.User;
 import java.sql.PreparedStatement;
@@ -14,6 +18,8 @@ import java.sql.CallableStatement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import model.Token;
 import utils.DBContext;
 
@@ -80,7 +86,7 @@ public class UserDao extends DBContext {
                 user.setUserId(rs.getInt("userId"));
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password")); // lấy hash từ DB
-                user.setFullName(rs.getString("fullName")); 
+                user.setFullName(rs.getString("fullName"));
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setStatus(rs.getString("status"));
@@ -360,7 +366,7 @@ public class UserDao extends DBContext {
         return formattedDate;
     }
 
-      // luu token moi
+    // luu token moi
     public boolean insertToken(Token tokenForget) {
 
         try {
@@ -370,7 +376,7 @@ public class UserDao extends DBContext {
                 ps.setString(2, tokenForget.getTokenValue());
                 ps.setTimestamp(3, Timestamp.valueOf(tokenForget.getExpiryDate()));
                 ps.setBoolean(4, tokenForget.isIsUsed());
-                ps.setString(5,tokenForget.getOtpCode());
+                ps.setString(5, tokenForget.getOtpCode());
                 ps.setInt(6, tokenForget.getAttemptCount());
                 return ps.executeUpdate() > 0;
             }
@@ -380,26 +386,25 @@ public class UserDao extends DBContext {
         }
         return false;
     }
-    
-     // check validToken
-public Token checkValidToken(String tokenValue) {
-    Token token = getTokenByValue(tokenValue);
 
-    if (token == null) {
-        return null; 
+    // check validToken
+    public Token checkValidToken(String tokenValue) {
+        Token token = getTokenByValue(tokenValue);
+
+        if (token == null) {
+            return null;
+        }
+        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return null;
+        }
+        if (token.isIsUsed()) {
+            return null;
+        }
+
+        return token; // token hợp lệ
     }
-    if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-        return null;
-    }
-    if (token.isIsUsed()) {
-        return null;
-    }
 
-    return token; // token hợp lệ
-}
-
-
- // danh dau token da su dung
+    // danh dau token da su dung
     public void markTokenAsUsed(String tokenValue) {
 
         try {
@@ -414,7 +419,7 @@ public Token checkValidToken(String tokenValue) {
         }
     }
 
- // xoa token het han 
+    // xoa token het han 
     public void deleteExpiredTokens() {
 
         try {
@@ -427,9 +432,8 @@ public Token checkValidToken(String tokenValue) {
         }
 
     }
-    
-     // get token 
 
+    // get token 
     public Token getTokenByValue(String tokenValue) {
         try {
             String sql = "SELECT * FROM Tokens WHERE TokenValue =? ";
@@ -446,9 +450,7 @@ public Token checkValidToken(String tokenValue) {
                             rs.getString("OtpCode"),
                             rs.getInt("AttemptCount")
                     );
-                    
 
-                    
                 }
             }
 
@@ -457,25 +459,155 @@ public Token checkValidToken(String tokenValue) {
         }
         return null;
     }
-    
-     // update otpcode va attempt cout
-    
-      public void updateOtpAndAttempt(int tokenId , String OtpCode , int AttemptCount){
-            try{
-                String sqlOtp ="UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
-                try(PreparedStatement ps = connection.prepareStatement(sqlOtp)){
-                     ps.setString(1, OtpCode); 
-              
-                     ps.setInt(2, AttemptCount);
-                     ps.setInt(3, tokenId);
-                     
-                     ps.executeUpdate();
-                }
-                
-            }catch(SQLException e){
-                e.printStackTrace();
-                System.out.println(e);
+
+    // update otpcode va attempt cout
+    public void updateOtpAndAttempt(int tokenId, String OtpCode, int AttemptCount) {
+        try {
+            String sqlOtp = "UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
+            try (PreparedStatement ps = connection.prepareStatement(sqlOtp)) {
+                ps.setString(1, OtpCode);
+
+                ps.setInt(2, AttemptCount);
+                ps.setInt(3, tokenId);
+
+                ps.executeUpdate();
             }
-      }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println(e);
+        }
+    }
+
+    public List<String[]> getAllRoles() throws SQLException {
+        List<String[]> roles = new ArrayList<>();
+        String sql = "SELECT roleId, roleName FROM Roles ORDER BY roleId";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                roles.add(new String[]{String.valueOf(rs.getInt("roleId")), rs.getString("roleName")});
+            }
+        }
+        return roles;
+    }
+
+    public List<String> getAllStatuses() throws SQLException {
+        List<String> statuses = new ArrayList<>();
+        String sql = "SELECT DISTINCT status FROM Users WHERE status IS NOT NULL ORDER BY status";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                statuses.add(rs.getString("status"));
+            }
+        }
+        return statuses;
+    }
+
+    public List<User> getAllUsers(int offset, int limit) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users where roleId = 3  ORDER BY createdAt DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY ";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    private User mapRow(ResultSet rs) throws SQLException {
+        User u = new User();
+        u.setUserId(rs.getInt("userId"));
+        u.setUsername(rs.getString("username"));
+        u.setPassword(rs.getString("password"));
+        u.setEmail(rs.getString("email"));
+        u.setFullName(rs.getString("fullName"));
+        u.setPhone(rs.getString("phone"));
+        u.setRoleId(rs.getInt("roleId"));
+        u.setCreatedAt(rs.getTimestamp("createdAt"));
+        u.setStatus(rs.getString("status"));
+        return u;
+    }
+
+    public List<User> searchByUsername(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND username LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByFullName(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND fullName LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByEmail(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND email LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByRole(int roleId) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND roleId = ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, roleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByStatus(String status) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND status = ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public int getTotalUsers() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Users WHERE roleId = 3";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
 
 }

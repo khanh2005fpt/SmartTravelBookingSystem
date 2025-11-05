@@ -362,8 +362,8 @@
         <table>
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Username</th>
+                    <th>ID</th>
+                    <th>Full Name</th>
                     <th>Họ tên</th>
                     <th>Email</th>
                     <th>Điện thoại</th>
