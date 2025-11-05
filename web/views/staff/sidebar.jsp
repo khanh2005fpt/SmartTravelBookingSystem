@@ -1,10 +1,13 @@
-
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.User" %>
- 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <%
-     HttpSession sess = request.getSession(false);
+    HttpSession sess = request.getSession(false);
     User currentUser = (User) (sess != null ? sess.getAttribute("user") : null);
     int roleId = (currentUser != null) ? currentUser.getRoleId() : 0;
 
@@ -12,437 +15,372 @@
     if (roleId == 1) roleName = "Quản trị viên";
     else if (roleId == 2) roleName = "Quản lý Booking";
     else if (roleId == 4) roleName = "Nhân viên";
-    
+
     String currentPage = request.getParameter("page");
     if (currentPage == null) {
         currentPage = "";
     }
 %>
 
-
 <style>
-.staff-sidebar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 250px;
-    z-index: 1000;
-    overflow-y: auto;
-}
-
-.sidebar-header {
-    padding: 20px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.1);
-}
-
-.sidebar-header h4 {
-    color: white;
-    margin: 0;
-    font-weight: 600;
-}
-
-.sidebar-header .staff-info {
-    color: rgba(255,255,255,0.8);
-    font-size: 0.9em;
-    margin-top: 5px;
-}
-
-.sidebar-nav {
-    padding: 20px 0;
-}
-
-.nav-item {
-    margin: 5px 15px;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: rgba(255,255,255,0.8);
-    text-decoration: none;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.nav-link:hover {
-    background: rgba(255,255,255,0.1);
-    color: white;
-    text-decoration: none;
-    transform: translateX(5px);
-}
-
-.nav-link.active {
-    background: rgba(255,255,255,0.2);
-    color: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.nav-link i {
-    margin-right: 12px;
-    width: 20px;
-    text-align: center;
-    font-size: 1.1em;
-}
-
-.nav-parent {
-    cursor: pointer;
-    position: relative;
-}
-
-.nav-parent .expand-icon {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.3s ease;
-}
-
-.nav-parent.expanded .expand-icon {
-    transform: translateY(-50%) rotate(90deg);
-}
-
-.nav-children {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-    background: rgba(0,0,0,0.1);
-    margin: 0 15px;
-    border-radius: 8px;
-}
-
-.nav-children.expanded {
-    max-height: 300px;
-}
-
-.nav-child {
-    margin: 0;
-}
-
-.nav-child .nav-link {
-    padding: 10px 20px 10px 40px;
-    font-size: 0.9em;
-    border-radius: 0;
-}
-
-.nav-child:first-child .nav-link {
-    border-radius: 8px 8px 0 0;
-}
-
-.nav-child:last-child .nav-link {
-    border-radius: 0 0 8px 8px;
-}
-
-.sidebar-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 20px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.1);
-}
-
-.logout-btn {
-    width: 100%;
-    padding: 10px;
-    background: rgba(220, 53, 69, 0.8);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.logout-btn:hover {
-    background: rgba(220, 53, 69, 1);
-    transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-    .staff-sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
+    html, body {
+        overflow-x: hidden;
     }
-    
+
+    .staff-sidebar {
+        width: 260px;
+        background: linear-gradient(180deg, #0077b6, #00b4d8);
+        height: 100vh;
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+        z-index: 999;
+    }
+
     .staff-sidebar.show {
         transform: translateX(0);
     }
+
+    @media (max-width: 768px) {
+        .staff-sidebar {
+            transform: translateX(-100%);
+        }
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+      .sidebar-header h3 {
+    margin: 0 0 15px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
+    .sidebar-header p {
+    margin: 5px 0;
+    font-size: 15px;
+    color: rgba(255,255,255,0.95);
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.sidebar-header b {
+    color: #f1f9ff; 
+    font-weight: 600;
+}
+   
+
+    .sidebar-nav {
+        flex-grow: 1;
+        padding: 15px 0;
+    }
+
+    .nav-item {
+        margin: 5px 20px;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        color: rgba(255,255,255,0.9);
+        text-decoration: none;
+        padding: 10px 12px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+
+    .nav-link i {
+        margin-right: 10px;
+        font-size: 16px;
+    }
+
+    .nav-link:hover {
+        background: rgba(255,255,255,0.15);
+        transform: translateX(5px);
+        color: white;
+    }
+
+    .nav-link.active {
+        background: rgba(255,255,255,0.25);
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .nav-parent {
+        cursor: pointer;
+    }
+
+    .nav-child {
+        display: none;
+        margin-left: 20px;
+    }
+
+    .nav-child.expanded {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        background: rgba(0,0,0,0.1);
+    }
+
+    .logout-btn {
+       background-color: #f44336; 
+  color: white;
+  font-weight: 500;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  width: 100%;
+  text-align: left;
+  transition: background-color 0.2s ease;
+    }
+
+    .logout-btn:hover {
+    background-color: #d32f2f; 
+  color: #fff;
+    }
 </style>
 
+<!-- Sidebar -->
 <div class="staff-sidebar">
-    <!-- Sidebar Header -->
     <div class="sidebar-header">
-        <h4><i class="fa fa-user-tie"></i> Trang quản lý MelandBooking</h4>
-          <% if (currentUser != null) { %>
-            <div class="staff-info">
-                    Xin chào mừng , <strong><%= currentUser.getUsername() %></strong><br>
-              Vai trò: <strong><%= roleName %></strong>
-            </div>
-        <% } %>
-    </div>
+    <h3> Trang Quản lý MelandBooking</h3>
+    <% if (currentUser != null) { %>
+        <p>Xin chào, <b><%= currentUser.getUsername() %></b></p>
+        <p>Vai trò: <b><%= roleName %></b></p>
+    <% } %>
+</div>
 
-    <!-- Navigation Menu -->
-<nav class="sidebar-nav">
-            <% if (roleId == 1) { %>
-            
-              <!-- Quản trị hệ thống -admin ------------------------------------>
+
+    <nav class="sidebar-nav">
+    <% if (roleId == 1) { %>
+        <!-- Admin -->
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/admin/dashboard-user"
+               class="nav-link <%= "dashboard-user".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-bar-chart-line-fill"></i> Dashboard
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/admin/user?action=list"
+               class="nav-link <%= "user".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-people-fill"></i> Quản lý Tài khoản
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/admin/logs"
+               class="nav-link <%= "logs".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-clock-history"></i> Nhật ký Log
+            </a>
+        </div>
+
+        <!-- Manager -->
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/manager/service"
+               class="nav-link <%= "service".equals(currentPage) ? "active" : "" %>">
+               <i class="bi bi-grid"></i> Quản lý Dịch vụ chung
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/manager/revenue"
+               class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-coin"></i> Tổng doanh thu
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/manager/report"
+               class="nav-link <%= "report".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-graph-up-arrow"></i> Báo cáo
+            </a>
+        </div>
+
+        <!-- Staff -->
+        <div class="nav-item nav-parent" id="servicesParent">
+            <a class="nav-link">
+                <i class="bi bi-briefcase-fill"></i> Dịch vụ 
+                <i class="bi bi-caret-down-fill" style="margin-left:auto;"></i>
+            </a>
+        </div>
+        <div class="nav-child" id="servicesChildren">
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/accounts"
-                   class="nav-link <%= "accounts".equals(currentPage) ? "active" : "" %>">
-                 <i class="bi bi-person-gear"></i> Quản lý Tài khoản
+                <a href="${pageContext.request.contextPath}/staff/tours"
+                   class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-map-fill"></i> Quản lý Tour
                 </a>
             </div>
-
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/system"
-                   class="nav-link <%= "system".equals(currentPage) ? "active" : "" %>">
-                    <i class="fa fa-cogs"></i> Quản lý Hệ thống
+                <a href="${pageContext.request.contextPath}/staff/hotels"
+                   class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-building"></i> Quản lý Khách sạn
                 </a>
             </div>
-                    
-         <!-- Quản lý melandBooking - Manager --------------------------------->     
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/vehicles"
+                   class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-car-front-fill"></i> Quản lý Phương tiện
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/places"
+                   class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-geo-alt-fill"></i> Quản lý Địa điểm
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-item nav-parent" id="flightsParent">
+            <a class="nav-link">
+                <i class="bi bi-airplane-fill"></i> Chuyến bay 
+                <i class="bi bi-caret-down-fill" style="margin-left:auto;"></i>
+            </a>
+        </div>
+        <div class="nav-child" id="flightsChildren">
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/flight/tickets"
+                   class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
+                 <i class="bi bi-ticket-detailed"></i> Vé máy bay
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/flight/schedules"
+                   class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
+                   <i class="bi bi-calendar-check"> </i> Lịch trình chuyến bay
+                </a>
+            </div>
+        </div>
                   <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/manager/service"
-                   class="nav-link <%= "system".equals(currentPage) ? "active" : "" %>">
-                   <i class="bi bi-grid"></i> Quản lý Dịch vụ chung
+                <a href="${pageContext.request.contextPath}/staff/bookings"
+                   class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-calendar2-check-fill"></i> Quản lý Booking
                 </a>
-            </div>  
-                    
+            </div>
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/manager/revenue"
-                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
-                   <i class="bi bi-graph-up-arrow"></i> Tổng doanh thu
+                <a href="${pageContext.request.contextPath}/staff/payments"
+                   class="nav-link <%= "payments".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-credit-card-2-front-fill"></i> Quản lý Thanh toán
                 </a>
             </div>
                     
-                              
+                    
+
+                    
+                    
+    <% } else if (roleId == 2) { %>
+        <!-- Manager -->
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/manager/service"
+               class="nav-link <%= "service".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-bell-fill"></i> Quản lý Dịch vụ
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/manager/revenue"
+               class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-coin"></i> Tổng doanh thu
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/manager/report"
+               class="nav-link <%= "report".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-graph-up-arrow"></i> Báo cáo
+            </a>
+        </div>
+
+    <% } else if (roleId == 4) { %>
+        <!-- Staff riêng -->
+         <div class="nav-item nav-parent" id="servicesParent">
+            <a class="nav-link">
+                <i class="bi bi-briefcase-fill"></i> Dịch vụ 
+                <i class="bi bi-caret-down-fill" style="margin-left:auto;"></i>
+            </a>
+        </div>
+        <div class="nav-child" id="servicesChildren">
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/manager/report"
-                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
-                    <i class="bi bi-file-bar-graph"></i> Báo cáo
+                <a href="${pageContext.request.contextPath}/staff/tours"
+                   class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-map-fill"></i> Quản lý Tour
                 </a>
             </div>
-                        
-         <!-- Quản lý melandBooking - Staff --------------------------------->
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/tours" 
-               class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
-                <i class="fa fa-map-marker"></i>
-                Quản lý Tour
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/hotels"
+                   class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-building"></i> Quản lý Khách sạn
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/vehicles"
+                   class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-car-front-fill"></i> Quản lý Phương tiện
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/places"
+                   class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-geo-alt-fill"></i> Quản lý Địa điểm
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-item nav-parent" id="flightsParent">
+            <a class="nav-link">
+                <i class="bi bi-airplane-fill"></i> Chuyến bay 
+                <i class="bi bi-caret-down-fill" style="margin-left:auto;"></i>
             </a>
         </div>
-
-        <div class="nav-item">
-            <div class="nav-link nav-parent expanded" id="servicesParent">
-                <i class="fa fa-cogs"></i>
-                Quản lý Dịch vụ
-                <i class="fa fa-chevron-right expand-icon"></i>
+        <div class="nav-child" id="flightsChildren">
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/flight/tickets"
+                   class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
+                 <i class="bi bi-ticket-detailed"></i> Vé máy bay
+                </a>
             </div>
-            <div class="nav-children" id="servicesChildren">
-                <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/hotels" 
-                       class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-building"></i>
-                        Quản lý Khách sạn
-                    </a>
-                </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/vehicles" 
-                       class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-car"></i>
-                        Quản lý Phương tiện
-                    </a>
-                </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/places"
-                       class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-map-pin"></i>
-                        Quản lý Địa điểm
-                    </a>
-                </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/staff/flight/schedules"
+                   class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
+                   <i class="bi bi-calendar-check"> </i> Lịch trình chuyến bay
+                </a>
             </div>
         </div>
-
-        <!-- Dropdown Quản lý Chuyến bay -->
-        <div class="nav-item">
-            <div class="nav-link nav-parent expanded" id="flightsParent">
-                <i class="fa fa-plane"></i>
-                Quản lý Chuyến bay
-                <i class="fa fa-chevron-right expand-icon"></i>
-            </div>
-            <div class="nav-children" id="flightsChildren">
-                <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/flight/tickets" 
-                       class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
-                        <i class="bi bi-ticket-detailed"></i> Vé máy bay
-
-                        
-                    </a>
-                </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/flight/schedules" 
-                       class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
-                        <i class="bi bi-calendar-check"> </i> Lịch trình chuyến bay
-                       
-                    </a>
-                </div>
-            </div>
-        </div>
-
-     
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/bookings" 
-               class="nav-link <%= "bookings".equals(currentPage) ? "active" : "" %>">
-                <i class="fa fa-calendar-check-o"></i>
-                Quản lý Booking
-            </a>
-        </div>
-
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/payments" 
-               class="nav-link <%= "payments".equals(currentPage) ? "active" : "" %>">
-                <i class="fa fa-credit-card"></i>
-                Quản lý Thanh toán
-            </a>
-        </div>
-    </nav>
-                
-                
-
-
-    <!-- Sidebar Footer -->
-    <div class="sidebar-footer">
-        <a href="<%= request.getContextPath() %>/logout" method="post" style="margin:0 ;">
-            <button type="submit" class="logout-btn">
-                <i class="fa fa-sign-out"></i> Đăng xuất
-            </button>
-        </a>
-    </div>     
-                    
-                    
-              <!-- Quản lý melandBooking - Manager --------------------------------->  
-          <% } else if (roleId == 2) { %>
-              
                   <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/manager/service"
-                   class="nav-link <%= "system".equals(currentPage) ? "active" : "" %>">
-                   <i class="bi bi-grid"></i> Quản lý Dịch vụ chung
+                <a href="${pageContext.request.contextPath}/staff/bookings"
+                   class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-calendar2-check-fill"></i> Quản lý Booking
                 </a>
-            </div>  
-                    
+            </div>
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/manager/revenue"
-                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
-                   <i class="bi bi-graph-up-arrow"></i> Tổng doanh thu
+                <a href="${pageContext.request.contextPath}/staff/payments"
+                   class="nav-link <%= "payments".equals(currentPage) ? "active" : "" %>">
+                    <i class="bi bi-credit-card-2-front-fill"></i> Quản lý Thanh toán
                 </a>
             </div>
                     
-                              
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/manager/report"
-                   class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
-                    <i class="bi bi-file-bar-graph"></i> Báo cáo
-                </a>
-            </div>
-                    
-            <!-- Quản lý melandBooking - Staff --------------------------------->         
-          <% } else if (roleId == 4) { %>
-                
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/tours" 
-               class="nav-link <%= "tours".equals(currentPage) ? "active" : "" %>">
-                <i class="fa fa-map-marker"></i>
-                Quản lý Tour
-            </a>
-        </div>
+    <% } %>
+</nav>
 
-        <div class="nav-item">
-            <div class="nav-link nav-parent expanded" id="servicesParent">
-                <i class="fa fa-cogs"></i>
-                Quản lý Dịch vụ
-                <i class="fa fa-chevron-right expand-icon"></i>
-            </div>
-            <div class="nav-children" id="servicesChildren">
-                <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/hotels" 
-                       class="nav-link <%= "hotels".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-building"></i>
-                        Quản lý Khách sạn
-                    </a>
-                </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/vehicles" 
-                       class="nav-link <%= "vehicles".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-car"></i>
-                        Quản lý Phương tiện
-                    </a>
-                </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/places"
-                       class="nav-link <%= "places".equals(currentPage) ? "active" : "" %>">
-                        <i class="fa fa-map-pin"></i>
-                        Quản lý Địa điểm
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dropdown Quản lý Chuyến bay -->
-        <div class="nav-item">
-            <div class="nav-link nav-parent expanded" id="flightsParent">
-                <i class="fa fa-plane"></i>
-                Quản lý Chuyến bay
-                <i class="fa fa-chevron-right expand-icon"></i>
-            </div>
-            <div class="nav-children" id="flightsChildren">
-                <div class="nav-child">
-                    <a href="${pageContext.request.contextPath}/staff/flight/tickets" 
-                       class="nav-link <%= "flights_tickets".equals(currentPage) ? "active" : "" %>">
-                        <i class="bi bi-ticket-detailed"></i> Vé máy bay
-
-                        
-                    </a>
-                </div>
-                <div class="nav-child ">
-                    <a href="${pageContext.request.contextPath}/staff/flight/schedules" 
-                       class="nav-link <%= "flights_schedules".equals(currentPage) ? "active" : "" %>">
-                        <i class="bi bi-calendar-check"> </i> Lịch trình chuyến bay
-                       
-                    </a>
-                </div>
-            </div>
-        </div>
-
-      
-
-
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/bookings" 
-               class="nav-link <%= "bookings".equals(currentPage) ? "active" : "" %>">
-                <i class="fa fa-calendar-check-o"></i>
-                Quản lý Booking
-            </a>
-        </div>
-
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/staff/payments" 
-               class="nav-link <%= "payments".equals(currentPage) ? "active" : "" %>">
-                <i class="fa fa-credit-card"></i>
-                Quản lý Thanh toán
-            </a>
-        </div>
-                   <% } %>
-    </nav>
-
-
-    <!-- Sidebar Footer -->
     <div class="sidebar-footer">
         <a href="<%= request.getContextPath() %>/logout" method="post" style="margin:0 ;">
             <button type="submit" class="logout-btn">
@@ -452,10 +390,9 @@
     </div>
 </div>
 
-<!-- Mobile Toggle Button -->
-<button class="btn btn-primary d-md-none" id="sidebarToggle" 
-        style="position: fixed; top: 20px; left: 20px; z-index: 1001;">
-    <i class="fa fa-bars"></i>
+<!-- Sidebar Toggle Button -->
+<button id="sidebarToggle" style="position:fixed;top:15px;left:6px;background:#0077b6;color:white;border:none;padding:8px 12px;border-radius:6px;z-index:1000;">
+    ☰
 </button>
 
 <script>
@@ -468,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.toggle('show');
         });
         
-        // Close sidebar when clicking outside on mobile
+        // Đóng sidebar khi click ra ngoài (trên mobile)
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 768 && 
                 !sidebar.contains(e.target) && 
@@ -478,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle expandable navigation for Services
+    // Dịch vụ dropdown
     const servicesParent = document.getElementById('servicesParent');
     const servicesChildren = document.getElementById('servicesChildren');
     
@@ -489,28 +426,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle expandable navigation for Flights
+    // Flights dropdown
     const flightsParent = document.getElementById('flightsParent');
     const flightsChildren = document.getElementById('flightsChildren');
 
     if (flightsParent && flightsChildren) {
         flightsParent.addEventListener('click', function(e) {
-            e.stopPropagation(); // tránh nổi bọt, không đóng Services dropdown
+            e.stopPropagation();
             flightsParent.classList.toggle('expanded');
             flightsChildren.classList.toggle('expanded');
         });
     }
 
-    // Ngăn việc click vào nav-child con đóng dropdown cấp cha
+    // Ngăn dropdown bị đóng khi click vào link con
     const navChildLinks = document.querySelectorAll('.nav-child > .nav-link');
     navChildLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            e.stopPropagation(); // click vào link con không ảnh hưởng dropdown cha
+            e.stopPropagation();
         });
     });
 });
 </script>
-
-
-
-

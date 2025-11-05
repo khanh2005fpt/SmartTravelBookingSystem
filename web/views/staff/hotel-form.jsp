@@ -11,7 +11,11 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<<<<<<< HEAD
 <%@ page import="model.User" %>
+=======
+
+>>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -235,6 +239,7 @@
         }
     </style>
 </head>
+<<<<<<< HEAD
          <!-- lay thong tin user và athorized -->
         
     <%
@@ -254,6 +259,8 @@ if (currentUser != null) {
     }
 }
 %>
+=======
+>>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">

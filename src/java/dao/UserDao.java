@@ -6,6 +6,7 @@ package dao;
 
 import java.security.SecureRandom;
 import model.User;
+import model.Log;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,7 +15,13 @@ import java.sql.CallableStatement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import model.Role;
 import model.Token;
+
 import utils.DBContext;
 
 /**
@@ -476,6 +483,397 @@ public Token checkValidToken(String tokenValue) {
                 e.printStackTrace();
                 System.out.println(e);
             }
-      }
+      }  
+      
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   
+   /*
+    // ===================  Phần ADMIN ===================
+  */   
+      
+         // lay roleAllUser
+    
+      public List<Role> getAllRoles() {
+        List<Role> list = new ArrayList<>();
+        String sql = "SELECT roleId, roleName FROM Roles ORDER BY roleName";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Role r = new Role();
+                r.setRoleId(rs.getInt("roleId"));
+                r.setRoleName(rs.getString("roleName"));
+                list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+      
+        // Thống kê người dùng theo trạng thái (ACTIVE, LOCKED, INACTIVE, v.v.)
+    public Map<String, Integer> getUserCountByStatus() {
+        Map<String, Integer> map = new HashMap<>();
+        String sql = "SELECT status, COUNT(*) AS total FROM Users GROUP BY status";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String status = rs.getString("status");
+                int total = rs.getInt("total");
+                map.put(status, total);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
 
+    public int getTotalUsers2() {
+        return getCount("SELECT COUNT(*) FROM Users");
+    }
+
+    public int getActiveUsers() {
+        return getCount("SELECT COUNT(*) FROM Users WHERE status = 'ACTIVE'");
+    }
+
+    public int getLockedUsers() {
+        return getCount("SELECT COUNT(*) FROM Users WHERE status = 'LOCKED'");
+    }
+    private int getCount(String sql) {
+        int count = 0;
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            rs.close();
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
+    
+    public List<User> getAllUsers(int page, int pageSize) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
+                + "FROM Users "
+                + "ORDER BY userId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int offset = (page - 1) * pageSize;
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setUserId(rs.getInt("userId"));
+                u.setUsername(rs.getString("username"));
+                u.setEmail(rs.getString("email"));
+                u.setFullName(rs.getString("fullName"));
+                u.setPhone(rs.getString("phone"));
+                u.setRoleId(rs.getInt("roleId"));
+                u.setCreatedAt(rs.getDate("createdAt"));
+                u.setStatus(rs.getString("status"));
+                list.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    // lay total user
+   public int getTotalUsers() {
+        String sql = "SELECT COUNT(*) FROM Users";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+   
+   
+   // search user of admin
+   
+   public List<User> searchUsers(String keyword, int page, int pageSize) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
+                + "FROM Users "
+                + "WHERE fullName LIKE ? OR email LIKE ? "
+                + "ORDER BY userId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            int offset = (page - 1) * pageSize;
+            ps.setInt(3, offset);
+            ps.setInt(4, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setUserId(rs.getInt("userId"));
+                u.setUsername(rs.getString("username"));
+                u.setEmail(rs.getString("email"));
+                u.setFullName(rs.getString("fullName"));
+                u.setPhone(rs.getString("phone"));
+                u.setRoleId(rs.getInt("roleId"));
+                u.setCreatedAt(rs.getDate("createdAt"));
+                u.setStatus(rs.getString("status"));
+                list.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+   
+   // lay user b trang thai
+    public List<User> getUsersByStatus(String status, int page, int pageSize) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
+                + "FROM Users ";
+        if (!"ALL".equalsIgnoreCase(status)) {
+            sql += "WHERE status = ? ";
+        }
+        sql += "ORDER BY userId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int idx = 1;
+            if (!"ALL".equalsIgnoreCase(status)) {
+                ps.setString(idx++, status);
+            }
+            int offset = (page - 1) * pageSize;
+            ps.setInt(idx++, offset);
+            ps.setInt(idx, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setUserId(rs.getInt("userId"));
+                u.setUsername(rs.getString("username"));
+                u.setEmail(rs.getString("email"));
+                u.setFullName(rs.getString("fullName"));
+                u.setPhone(rs.getString("phone"));
+                u.setRoleId(rs.getInt("roleId"));
+                u.setCreatedAt(rs.getDate("createdAt"));
+                u.setStatus(rs.getString("status"));
+                list.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+   // update status
+    public boolean updateUserStatus(int userId, String status) {
+        String sql = "UPDATE Users SET status = ? WHERE userId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+       // =================== ADD USER ===================
+    public boolean addUser(User user) {
+        String sql = "INSERT INTO Users (username, password, email, fullName, phone, roleId, status, createdAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            // Băm mật khẩu trước khi lưu
+            String passwordHash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, passwordHash);
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getFullName());
+            ps.setString(5, user.getPhone());
+            ps.setInt(6, user.getRoleId());
+            ps.setString(7, user.getStatus() != null ? user.getStatus() : "ACTIVE");
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Lỗi khi thêm người dùng: " + e.getMessage());
+        }
+        return false;
+    }
+
+// =================== UPDATE USER ===================
+// Không cho phép cập nhật username và email
+    public boolean updateUser(User user) {
+        String sql = "UPDATE Users SET fullName = ?, phone = ?, roleId = ?, status = ? WHERE userId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, user.getFullName());
+            ps.setString(2, user.getPhone());
+            ps.setInt(3, user.getRoleId());
+            ps.setString(4, user.getStatus());
+            ps.setInt(5, user.getUserId());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Lỗi khi cập nhật người dùng: " + e.getMessage());
+        }
+        return false;
+    }
+   // =================== Log của admin===================
+    public List<Log> getAllLogs() {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.roleName, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l "
+                + "LEFT JOIN Users u ON l.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON u.RoleId = r.RoleId "
+                + "ORDER BY l.Timestamp DESC";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("roleName"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+     // Lấy chi tiết log theo ID
+    public Log getLogById(int logId) {
+        String sql = "SELECT l.LogId, l.UserId, u.username, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l LEFT JOIN Users u ON l.UserId = u.UserId WHERE l.LogId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, logId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                return log;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+      // search log
+      public List<Log> searchLogsByUser(String keyword) {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.role_name, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l "
+                + "LEFT JOIN Users u ON l.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON u.RoleId = r.RoleId "
+                + "WHERE u.username LIKE ? OR u.email LIKE ? "
+                + "ORDER BY l.Timestamp DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("role_name"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+        public List<Log> searchLogsByAction(String action) {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.roleName, l.Action, l.Method, l.Timestamp \n"
+                + "                FROM Logs l \n"
+                + "                LEFT JOIN Users u ON l.UserId = u.UserId \n"
+                + "                LEFT JOIN Roles r ON u.RoleId = r.RoleId \n"
+                + "                WHERE l.Action = ? \n"
+                + "                ORDER BY l.Timestamp DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, action);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("role_name"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+         public List<Log> searchLogsByRole(String role) {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.roleName, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l "
+                + "LEFT JOIN Users u ON l.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON u.RoleId = r.RoleId "
+                + "WHERE r.roleName = ? "
+                + "ORDER BY l.Timestamp DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, role);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("roleName"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<String> getAllActions() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT Action FROM Logs ORDER BY Action";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getString("Action"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

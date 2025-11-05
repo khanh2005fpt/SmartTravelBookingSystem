@@ -287,7 +287,7 @@ if (currentUser != null) {
         return;
     }
 }
-%
+%>
 
 <body>
     <!-- Include Sidebar -->

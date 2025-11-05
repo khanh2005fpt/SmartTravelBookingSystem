@@ -297,6 +297,7 @@ if (currentUser != null) {
     }
 }
 %>
+
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
