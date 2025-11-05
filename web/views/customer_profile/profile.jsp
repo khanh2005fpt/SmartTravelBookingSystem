@@ -569,6 +569,7 @@ if (currentUser != null) {
                                 <div>
                                     <label for="gender">Giới tính</label>
                                     <select id="gender" name="gender">
+                                      
                                         <option value="MALE" ${requestScope.gender == 'MALE' ? 'selected' : ''}>Nam</option>
                                         <option value="FEMALE" ${requestScope.gender == 'FEMALE' ? 'selected' : ''}>Nữ</option>
                                         <option value="OTHER" ${requestScope.gender == 'OTHER' ? 'selected' : ''}>Khác</option>

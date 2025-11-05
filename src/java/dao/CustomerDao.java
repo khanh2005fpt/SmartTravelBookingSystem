@@ -27,69 +27,28 @@ public class CustomerDao extends DBContext {
     
     // PROFILE OF CUSTOMER
     
-    public CustomerProfile updateInformation(int userId, String fullName, LocalDate dob,
-        CustomerProfile.Gender gender, String address, String profilePicture,
-        int loyaltyPoints, CustomerProfile.MembershipLevel membershipLevel) {
-    
-    try {
-        // Kiểm tra xem bản ghi đã tồn tại trong CustomerProfiles chưa
-        String checkSql = "SELECT COUNT(*) FROM CustomerProfiles WHERE userId = ?";
-        try (PreparedStatement checkPs = connection.prepareStatement(checkSql)) {
-            checkPs.setInt(1, userId);
-            ResultSet rs = checkPs.executeQuery();
-            rs.next();
-            int count = rs.getInt(1);
+    public void updateProfileInfo(int userId, String fullName, LocalDate dob,
+        CustomerProfile.Gender gender, String address) throws SQLException {
 
-            // Update bang Users
-            String sqlUser = "UPDATE Users SET fullName=? WHERE userId=?";
-            try (PreparedStatement psUser = connection.prepareStatement(sqlUser)) {
-                psUser.setString(1, fullName);
-                psUser.setInt(2, userId);
-                psUser.executeUpdate();
-            }
+    String sqlProfile = """
+        UPDATE CustomerProfiles
+        SET fullName = ?, dateOfBirth = ?, gender = ?, address = ?
+        WHERE userId = ?
+    """;
 
-            // Update hoặc Insert bang CustomerProfiles
-            String sqlProfile;
-            if (count > 0) {
-                // Cập nhật nếu bản ghi đã tồn tại
-                sqlProfile = "UPDATE CustomerProfiles " +
-                        "SET fullName=?, dateOfBirth=?, gender=?, address=?, profilePicture=?, " +
-                        "loyaltyPoints=?, membershipLevel=? WHERE userId=?";
-            } else {
-                // Thêm mới nếu bản ghi chưa tồn tại
-                sqlProfile = "INSERT INTO CustomerProfiles (userId, fullName, dateOfBirth, gender, address, profilePicture, loyaltyPoints, membershipLevel) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            }
-
-            try (PreparedStatement ps = connection.prepareStatement(sqlProfile)) {
-           
-                ps.setString(1, fullName);
-                ps.setDate(2, dob != null ? java.sql.Date.valueOf(dob) : null);
-                ps.setString(3, gender != null ? gender.name() : null);
-                ps.setString(4, address);
-                ps.setString(5, profilePicture);
-                ps.setInt(6, loyaltyPoints);
-                ps.setString(7, membershipLevel != null ? membershipLevel.name() : "BRONZE");
-
-                if (count > 0) {
-                    ps.setInt(8, userId); // Cho UPDATE
-                }
-                ps.executeUpdate();
-            }
-
-            // Trả về đối tượng CustomerProfile (giả định)
-            return new CustomerProfile(userId, fullName, dob, gender, address, profilePicture, loyaltyPoints, membershipLevel);
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-     
-        return null; // Hoặc ném ngoại lệ tùy theo yêu cầu
+    try (PreparedStatement ps = connection.prepareStatement(sqlProfile)) {
+        ps.setString(1, fullName);
+        ps.setDate(2, dob != null ? java.sql.Date.valueOf(dob) : null);
+        ps.setString(3, gender != null ? gender.name() : null);
+        ps.setString(4, address);
+        ps.setInt(5, userId);
+        ps.executeUpdate();
     }
 }
     
     
     // check changing of information
-     public boolean isProfileChanged(int userId , String fullName , LocalDate dob , CustomerProfile.Gender gender , String address){
+     public boolean isProfileChanged(int userId , String fullName , LocalDate dob , CustomerProfile.Gender gender , String address) throws SQLException{
          try{
              String sqlChanged = "SELECT fullName , dateOfBirth , gender , address FROM CustomerProfiles WHERE userId =?";
               try(PreparedStatement ps = connection.prepareStatement(sqlChanged)){
@@ -117,12 +76,37 @@ public class CustomerDao extends DBContext {
              
          }catch (SQLException e) {
              e.printStackTrace();
-        System.out.println("Lỗi khi lưu thông tin: " + e.getMessage());
+       
         
     }
     return false;
      }
+     
+       public static void main(String[] args) {
+ 
+          // 2. Thông tin người dùng nhập
+          try{
+              CustomerDao dao = new CustomerDao();
+                   // Test update
+            dao.updateProfileInfo(
+                5,                                      // userId
+                "Nguyễn Văn a",                       // fullName
+                LocalDate.of(2003, 5, 12),               // dob
+                CustomerProfile.Gender.MALE,             // gender
+                "123 Đường Trần Hưng Đạo, Hà Nội"                         // profilePicture
+            );
 
+            System.out.println("✅ Update thành công (kiểm tra DB cả 2 bảng để xem trigger hoạt động).");
+          }catch(SQLException e){
+              e.printStackTrace();
+          }
+       
+    }
+
+     
+
+     
+     
  
    // ======= Cập nhật avatar =======
     public boolean updateProfilePicture(int userId, String avatarUrl) {

@@ -20,8 +20,8 @@ update Users
 set fullName ='Manager'
 where userId =2
 
-select * from Users
-select * from Roles
+select * from CustomerProfiles
+
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -30,6 +30,7 @@ GO
 
 INSERT INTO Roles (roleName)
 VALUES ('ADMIN'), ('BOOKING MANAGER'), ('CUSTOMER'), ('STAFF');
+SELECT DISTINCT gender FROM CustomerProfiles;
 
 -- Bảng CustomerProfiles
 CREATE TABLE CustomerProfiles (
@@ -138,7 +139,7 @@ BEGIN
 END;
 GO
 
-
+-- trigger update fullName đồng bộ với fullName user
 
 CREATE TABLE Countries (
     countryId INT IDENTITY(1,1) PRIMARY KEY,
@@ -222,7 +223,7 @@ CREATE TABLE Airlines (
     logoUrl VARCHAR(255)                  -- Link logo hãng
 );
 go
-g
+
 -- bảng flights 
 
 CREATE TABLE Flights (

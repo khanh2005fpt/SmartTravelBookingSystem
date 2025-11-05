@@ -154,7 +154,7 @@ if (currentUser != null) {
             <div class="container">
                 <div class="row no-gutters slider-text js-fullheight align-items-center" data-scrollax-parent="true">
                     <div class="col-md-7 ftco-animate">
-                        <span class="subheading">Chào mừng đến với Meland</span>
+                        <span class="subheading">Chào mừng đến với Meland Travel</span>
                         <h1 class="mb-4">Khám phá điểm đến yêu thích của bạn cùng chúng tôi</h1>
                         <p class="caps">Du lịch đến bất kỳ nơi nào trên thế giới, mà không cần phải đi vòng quanh</p>
                     </div>
