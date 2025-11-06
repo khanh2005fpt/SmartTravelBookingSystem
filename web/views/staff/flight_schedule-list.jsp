@@ -282,36 +282,37 @@
                 text-decoration: none;
             }
 
-            .pagination-container {
-                padding: 20px 25px;
-                background: #f8f9fa;
-                border-top: 1px solid #dee2e6;
+             .pagination-wrapper {
+                background: white;
+                padding: 25px;
+                border-radius: 15px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+                margin-top: 30px;
+                width: 100%;
             }
 
             .pagination {
-                margin: 0;
                 justify-content: center;
+                margin: 0;
             }
 
             .page-link {
                 border-radius: 8px;
-                margin: 0 2px;
-                border: 2px solid #e9ecef;
-                color: #667eea;
-                font-weight: 600;
+                margin: 0 3px;
+                border: none;
+                color: #00ACD4;
+                font-weight: 500;
             }
 
             .page-link:hover {
-                background-color: #667eea;
-                border-color: #667eea;
+                background: #007CB9;
                 color: white;
             }
 
             .page-item.active .page-link {
-                background-color: #667eea;
-                border-color: #667eea;
+                background: #00ACD4;
+                border-color: #007CB9;
             }
-
             .empty-state {
                 text-align: center;
                 padding: 60px 20px;
@@ -644,6 +645,55 @@ if (currentUser != null) {
                                 </div>
                             </div>
                         </c:forEach>
+                        
+                        
+                         <!-- Pagination -->
+                        <c:if test = "${totalPages>1}">
+                            <div class ="pagination-wrapper">
+                                <nav aria-label="FlightSchedule pagination">
+                                    <ul class="pagination">
+                                        <!-- Previous Page -->  
+                                        <c:if test="${currentPage>1}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage - 1}&pageSize=${pageSize}&search=${param.search}">
+                                                    <i class="fa fa-chevron-left"></i> Trước
+                                                </a>  
+                                            </li>
+                                        </c:if>
+
+                                        <!-- Page Numbers --> 
+                                        <c:forEach begin="${startPage}" end="${endPage}" var="pageNum">
+                                            <li class="page-item ${pageNum == currentPage ? 'active' : ''}">
+                                                <a class="page-link" href="?page=${pageNum}&pageSize=${pageSize}&search=${param.search}">
+                                                    ${pageNum}
+                                                </a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <!-- Next Page --> 
+                                        <c:if test="${currentPage < totalPages}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage + 1}&pageSize=${pageSize}&search=${param.search}">
+                                                    Sau <i class="fa fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </c:if>
+
+                                    </ul>
+
+                                </nav>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        Hiển thị ${(currentPage - 1) * pageSize + 1} - 
+                                        ${currentPage * pageSize > totalFlightSchedules ? totalFlightSchedules : currentPage * pageSize} 
+                                        trong tổng số ${totalFlightSchedules} Lịch trình chuyến bay bay
+                                    </small>
+                                </div>
+
+                            </div>
+
+                        </c:if>
+
                     </c:when>
                     <c:otherwise>
 

@@ -171,9 +171,71 @@ if(session != null){
     private void handleFlightScheduleList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            List<FlightSchedule> flightSchedules = serviceDao.getFlightSchedules();
-          
+           // Get pagination paramaters
+            String pageParam = request.getParameter("page");
+            String pageSizeParam = request.getParameter("pageSize");
+            String searchParam = request.getParameter("search");
+
+            // handle current page (dafault page =1)
+            int page = 1;
+            if (pageParam != null && !pageParam.trim().isEmpty()) {
+                try {
+                    page = Integer.parseInt(pageParam);
+                    if (page < 1) {
+                        page = 1;
+                    }
+                } catch (NumberFormatException e) {
+                    page = 1;
+                }
+            }
+
+            // handle pageSize (the number each pages display) 
+            int pageSize = 12;// default=12
+            if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+                try {
+                    pageSize = Integer.parseInt(pageSizeParam);
+                    if (pageSize < 1) {
+                        pageSize = 12;
+                    }
+                    if (pageSize > 100) {
+                        pageSize = 100;//Max page size limit
+                    }
+                } catch (NumberFormatException e) {
+                    pageSize = 12;
+                }
+            }
+
+            // check search or not
+            List<FlightSchedule> flightSchedules;
+            int totalFlightSchedules;
+
+            // check if search is performed
+            if (searchParam != null && !searchParam.trim().isEmpty()) {
+              flightSchedules = serviceDao.searchFlightSchedulesWithPagination(searchParam, page, pageSize);
+               totalFlightSchedules = serviceDao.getSearchFlighScheduletsCount(searchParam.trim());
+                request.setAttribute("search", searchParam.trim());
+
+            } else {
+               flightSchedules = serviceDao.getFlightsByPage(page, pageSize);
+               totalFlightSchedules = serviceDao.getTotalFlightsCount();
+            }
+
+            // calculate pagination info
+            int totalPages = (int) Math.ceil((double) totalFlightSchedules / pageSize);
+
+            //set Attribute
             request.setAttribute("flightSchedules", flightSchedules);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute(" totalFlightSchedules",  totalFlightSchedules);
+
+           
+            // calculate pagination display page
+            int startPage = Math.max(1, page - 2);
+            int endPage = Math.min(totalPages, page + 2);
+            request.setAttribute("startPage", startPage);
+            request.setAttribute("endPage", endPage);
             request.setAttribute("pageTitle", "FlightSchedules Management");
             request.getRequestDispatcher("/views/staff/flight_schedule-list.jsp").forward(request, response);
         } catch (Exception e) {
