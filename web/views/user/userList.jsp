@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Quản lý người dùng</title>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         /* RESET */
         * {
@@ -38,11 +38,11 @@
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 20px;
-            color: #2c3e50;
+            color: #00ACD4;
         }
 
         .page-title i {
-            color: #007bff;
+            color: #007CB9;
             margin-right: 8px;
         }
 
@@ -80,12 +80,12 @@
         }
 
         .btn-primary {
-            background-color: #007bff;
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: #fff;
         }
 
         .btn-primary:hover {
-            background-color: #0056b3;
+            background-color: #00ACD4;
         }
 
         .form-select {
@@ -153,12 +153,15 @@
             transition: 0.2s;
         }
 
-        .btn-view { background: #17a2b8; }
-        .btn-view:hover { background: #138496; }
+        .btn-view { background: linear-gradient(180deg, #0077b6, #00b4d8); }
+        .btn-view:hover { background: #00ACD4; }
 
         .btn-ban { background: #e74c3c; }
         .btn-ban:hover { background: #c0392b; }
-
+        
+        .btn-update{background:linear-gradient(180deg, #f97316, #fb923c)}
+        .btn-update:hover{background: #ea580c}
+        
         .btn-active { background: #28a745; }
         .btn-active:hover { background: #1e7e34; }
 
@@ -177,7 +180,7 @@
             text-decoration: none;
             border-radius: 6px;
             border: 1px solid #ddd;
-            color: #007bff;
+            color: #007CB9;
             transition: 0.2s;
         }
 
@@ -187,9 +190,9 @@
         }
 
         .page-item.active a {
-            background: #007bff;
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: #fff;
-            border-color: #007bff;
+            border-color: #007CB9;
         }
 
         /* MODAL CHI TIẾT */
@@ -197,7 +200,7 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
             display: none;
             justify-content: center;
             align-items: center;
@@ -216,8 +219,8 @@
 
         .modal-card h2 {
             margin-bottom: 16px;
-            color: #007bff;
-            font-size: 20px;
+            color: #007CB9;
+            font-size: 30px;
         }
 
         .modal-card table {
@@ -227,7 +230,7 @@
 
         .modal-card th {
             text-align: left;
-            color: #555;
+            color: #00ACD4;
             width: 40%;
             padding: 6px 4px;
         }
@@ -239,7 +242,7 @@
 
         .btn-close {
             margin-top: 18px;
-            background: #007bff;
+            background: #007CB9;
             color: #fff;
             border: none;
             padding: 8px 14px;
@@ -281,8 +284,8 @@
                     </select>
 
                     <!-- NÚT THÊM NGƯỜI DÙNG -->
-                    <a href="user?action=addForm" class="btn btn-primary" style="white-space:nowrap;">
-                        ➕ Thêm người dùng
+                    <a href="user?action=addForm" class="btn btn-primary add-user" style="white-space:nowrap;">
+                         Thêm người dùng
                     </a>
                 </div>
             </div>
@@ -316,7 +319,7 @@
                                 </a>
 
                                 <!-- Nút cập nhật -->
-                                <a href="user?action=editForm&id=${u.userId}" class="action-btn btn-primary" title="Cập nhật thông tin">
+                                <a href="user?action=editForm&id=${u.userId}" class="action-btn btn-update" title="Cập nhật thông tin">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 

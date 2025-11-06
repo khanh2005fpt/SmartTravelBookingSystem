@@ -15,11 +15,11 @@
 
         .main-content {
             padding: 40px;
-            margin-left: 260px; /* chừa chỗ cho sidebar */
+            margin-left: 260px; 
         }
 
         h1 {
-            color: #5a2fc2;
+            color: #00ACD4;
             margin-bottom: 30px;
             font-weight: 700;
         }
@@ -50,13 +50,13 @@
 
         .icon {
             font-size: 30px;
-            color: #5a2fc2;
+            color: #00ACD4;
             margin-bottom: 10px;
         }
 
         .title {
             font-weight: 600;
-            color: #5a2fc2;
+            color: #00ACD4;
             font-size: 18px;
             margin-bottom: 8px;
         }
@@ -64,7 +64,7 @@
         .count {
             font-size: 42px;
             font-weight: bold;
-            color: #2d3436;
+            color:#00ACD4;
         }
 
         /* === BIỂU ĐỒ === */
@@ -87,7 +87,7 @@
         }
 
         h2 {
-            color: #5a2fc2;
+            color: #00ACD4;
             text-align: center;
             margin-bottom: 15px;
         }
@@ -148,83 +148,85 @@
 
 
     <!-- SCRIPT BIỂU ĐỒ -->
-    <script>
-        const active = ${activeUsers};
-        const locked = ${lockedUsers};
-        const total = ${totalUsers};
+<script>
+    const active = ${activeUsers};
+    const locked = ${lockedUsers};
+    const total = ${totalUsers};
 
-        // 1️⃣ Biểu đồ đường - tổng người dùng theo thời gian (demo dữ liệu)
-        const ctxGrowth = document.getElementById('userGrowth');
-        new Chart(ctxGrowth, {
-            type: 'line',
-            data: {
-                labels: ['Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10'],
-                datasets: [{
-                    label: 'Tổng người dùng',
-                    data: [2, 3, 4, 5, total], // tạm thời dữ liệu giả
-                    borderColor: '#5a2fc2',
-                    backgroundColor: 'rgba(90,47,194,0.2)',
-                    tension: 0.3,
-                    fill: true,
-                    pointRadius: 5,
-                    pointHoverRadius: 8
-                }]
+    // 1. Biểu đồ đường - Tổng người dùng theo thời gian
+    const ctxGrowth = document.getElementById('userGrowth');
+    new Chart(ctxGrowth, {
+        type: 'line',
+        data: {
+            labels: ['Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10'],
+            datasets: [{
+                label: 'Tổng người dùng',
+                data: [2, 3, 4, 5, total],
+                borderColor: '#00ACD4',                    //  → xanh ngọc
+                backgroundColor: 'rgba(0, 172, 212, 0.2)', //  → xanh mờ
+                tension: 0.3,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#00ACD4',
+                pointBorderColor: '#0077b6'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
             },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1 }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: '#2d3436', font: { size: 14 } }
-                    }
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#2d3436', font: { size: 14 } }
                 }
             }
-        });
+        }
+    });
 
-        // 2️⃣ Biểu đồ tròn - ACTIVE vs LOCKED
-        const ctxPie = document.getElementById('statusPie');
-        new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: ['Active', 'Locked'],
-                datasets: [{
-                    data: [active, locked],
-                    backgroundColor: ['#5a2fc2', '#c0392b'],
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: '#2d3436', font: { size: 14 } }
-                    }
+    // 2. Biểu đồ tròn - ACTIVE vs LOCKED
+    const ctxPie = document.getElementById('statusPie');
+    new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Active', 'Locked'],
+            datasets: [{
+                data: [active, locked],
+                backgroundColor: ['#00ACD4', '#c0392b'],  
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#2d3436', font: { size: 14 } }
                 }
             }
-        });
+        }
+    });
 
-        // 3️⃣ Biểu đồ cột - tổng thể
-        const ctxBar = document.getElementById('totalBar');
-        new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: ['Tổng', 'Active', 'Locked'],
-                datasets: [{
-                    label: 'Số lượng người dùng',
-                    data: [total, active, locked],
-                    backgroundColor: ['#5a2fc2', '#27ae60', '#c0392b']
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-            }
-        });
-    </script>
+    // 3. Biểu đồ cột - Tổng thể
+    const ctxBar = document.getElementById('totalBar');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: ['Tổng', 'Active', 'Locked'],
+            datasets: [{
+                label: 'Số lượng người dùng',
+                data: [total, active, locked],
+                backgroundColor: ['#00ACD4', '#27ae60', '#c0392b']  // 
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+</script>
 </body>
 </html>

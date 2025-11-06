@@ -36,7 +36,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -144,14 +144,14 @@
         }
         
         .btn-primary-form {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         
         .btn-primary-form:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            color: white;
+              background: #00ACD4;
+      color: white;
             text-decoration: none;
         }
         

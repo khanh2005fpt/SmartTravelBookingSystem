@@ -35,7 +35,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -108,6 +108,21 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             align-items: end;
+        }
+        .btn-searchBooking{
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
+                color: white;
+                border: none;
+                padding: 10px 25px;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                height: fit-content;
+        }
+        .btn-searchBooking:hover{
+             transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                color: white;
         }
         
         .form-group label {
@@ -335,7 +350,7 @@ if (currentUser != null) {
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-searchBooking">
                         <i class="fa fa-search"></i> Tìm kiếm
                     </button>
                     <a href="${pageContext.request.contextPath}/staff/bookings" class="btn btn-secondary ml-2">

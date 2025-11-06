@@ -27,7 +27,7 @@
             }
 
             .page-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                 background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 padding: 30px;
                 border-radius: 15px;
@@ -84,8 +84,8 @@
                 box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
             }
 
-            .btn-search {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            .btn-searchTicket {
+               background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 border: none;
                 padding: 10px 25px;
@@ -95,7 +95,7 @@
                 height: fit-content;
             }
 
-            .btn-search:hover {
+            .btn-searchTicket:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
                 color: white;
@@ -288,7 +288,7 @@ if (currentUser != null) {
         <div class="main-content">
             <!-- Page Header -->
             <div class="page-header ">
-                <h1><i class="fa fa-utensils  text-left"></i> Quản lý chuyến bay MelanBooking</h1>
+               <h1><i class="fa fa-plane"></i> Quản lý chuyến bay MelanBooking</h1>
                <p class="flights-title text-white">
                                 <i class="fa fa-list"></i> Danh sách dịch vụ vé máy bay : <span class="flights-count text-white small">
                 ${not empty flights ? flights.size() : 0}  vé máy bay
@@ -358,7 +358,7 @@ if (currentUser != null) {
                     </div>
 
                     <!-- Nút tìm kiếm -->
-                    <button type="submit" class="btn btn-primary btn-sm d-flex align-items-center" style="height: fit-content; margin-top: 25px;">
+                    <button type="submit" class="btn btn-searchTicket btn-sm d-flex align-items-center" style="height: fit-content; margin-top: 25px;">
                         <i class="fa fa-search me-2"></i> Tìm kiếm
                     </button>
 

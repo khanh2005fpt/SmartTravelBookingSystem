@@ -28,7 +28,7 @@
             }
 
             .page-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 padding: 30px;
                 border-radius: 15px;
@@ -355,7 +355,7 @@ if (currentUser != null) {
             <!-- Page Header -->
             <div class="page-header">
                 <h1>
-                    <i class="fa fa-utensils"></i> 
+                    <i class="fa fa-plane"></i>
                     ${empty  flight ? 'Thêm thông tin vé máy bay' : 'Chỉnh sửa thông tin vé máy bay '}
                 </h1>
                 <p>${empty flight ? 'Thêm những vé máy bay mới trong hệ thống' : 'Cập nhật thông tin vé máy bay'}</p>

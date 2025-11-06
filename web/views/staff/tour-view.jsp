@@ -34,7 +34,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -107,7 +107,7 @@
             background: #f8f9fa;
             padding: 20px;
             border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #00ACD4;
         }
         
         .info-label {
@@ -160,9 +160,18 @@
             min-width: 140px;
             text-align: center;
         }
+        .btn-outline-addNew{
+          color: #00ACD4;
+    border: 2px solid #00ACD4;
+    background: transparent;  
+        }
+        .btn-outline-addNew:hover{
+          background: #00ACD4;
+    color: white;;  
+        }
         
         .btn-primary-action {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         
@@ -231,7 +240,7 @@
         }
         
         .breadcrumb-item a {
-            color: #667eea;
+            color: #00ACD4;
             text-decoration: none;
         }
         
@@ -535,7 +544,7 @@ if (currentUser != null) {
                                         <i class="fa fa-cogs" style="font-size: 3em; margin-bottom: 15px; opacity: 0.5;"></i>
                                         <p style="margin: 0; font-style: italic;">Chưa có dịch vụ nào được thêm vào tour này</p>
                                         <a href="${pageContext.request.contextPath}/staff/tours?action=manage-services&tourId=${tour.tourId}" 
-                                           class="btn btn-outline-primary mt-3">
+                                           class="btn btn-outline-addNew mt-3">
                                             <i class="fa fa-plus"></i> Thêm dịch vụ đầu tiên
                                         </a>
                                     </div>

@@ -34,7 +34,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -153,7 +153,7 @@
         }
         
         .vehicles-count {
-            background: #667eea;
+            background:#00ACD4;
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
@@ -250,6 +250,18 @@
             align-items: center;
             gap: 4px;
         }
+         .btn-search1{
+          background-color: #00ACD4; 
+            color: white;
+            padding: 13px;
+    border-radius: 10px;
+        }
+        .btn-search1:hover{
+             background-color: #007CB9; 
+             color: white;
+        }
+        
+        
         
         .btn-view {
             background: #17a2b8;
@@ -459,7 +471,7 @@ if (currentUser != null) {
                     </select>
                 </div>
                 
-                <button type="submit" class="btn-search">
+                <button type="submit" class="btn btn-search1">
                     <i class="fa fa-search"></i> Tìm kiếm
                 </button>
             </form>

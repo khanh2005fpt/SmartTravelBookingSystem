@@ -35,7 +35,7 @@
         }
         
         .welcome-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 40px;
             border-radius: 15px;
@@ -85,13 +85,13 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
         }
         
         .stat-icon {
             font-size: 3em;
             margin-bottom: 15px;
-            color: #667eea;
+            color: #00ACD4;
         }
         
         .stat-number {
@@ -146,7 +146,7 @@
         }
         
         .action-btn:hover {
-            background: #667eea;
+            background: #00ACD4;
             color: white;
             text-decoration: none;
             transform: translateY(-2px);

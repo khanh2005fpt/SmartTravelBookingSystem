@@ -27,31 +27,33 @@
         overflow-x: hidden;
     }
 
-    .staff-sidebar {
-        width: 260px;
-        background: linear-gradient(180deg, #0077b6, #00b4d8);
-        height: 100vh;
-        color: white;
-        position: fixed;
-        left: 0;
-        top: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        box-sizing: border-box;
-        overflow-y: auto;
-        overflow-x: hidden;
-        border-right: 1px solid rgba(255, 255, 255, 0.2);
-        transition: transform 0.3s ease;
-        z-index: 999;
-    }
+.main-sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #0077b6, #00b4d8);
+    min-height: 100vh; 
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    overflow-y: auto;   
+    overflow-x: hidden;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+    z-index: 999;
+}
 
-    .staff-sidebar.show {
+
+
+    .main-sidebar.show {
         transform: translateX(0);
     }
 
     @media (max-width: 768px) {
-        .staff-sidebar {
+        .main-sidebar {
             transform: translateX(-100%);
         }
     }
@@ -148,7 +150,7 @@
     }
 
     .logout-btn {
-       background-color: #f44336; 
+       background-color: #007CB9; 
   color: white;
   font-weight: 500;
   border: none;
@@ -160,13 +162,13 @@
     }
 
     .logout-btn:hover {
-    background-color: #d32f2f; 
+    background-color: #00ACD4; 
   color: #fff;
     }
 </style>
 
 <!-- Sidebar -->
-<div class="staff-sidebar">
+<div class="main-sidebar">
     <div class="sidebar-header">
     <h3> Trang Quản lý MelandBooking</h3>
     <% if (currentUser != null) { %>

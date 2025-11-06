@@ -34,7 +34,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+               background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -132,6 +132,14 @@
             text-decoration: none;
             transition: all 0.3s ease;
         }
+         .btn-search{
+          background-color: #00ACD4; 
+            color: white;
+        }
+        .btn-search:hover{
+             background-color: #007CB9; 
+             color: white;
+        }
         
         .btn-view {
             background: #17a2b8;
@@ -183,18 +191,18 @@
             border-radius: 8px;
             margin: 0 3px;
             border: none;
-            color: #667eea;
+            color: #00ACD4;
             font-weight: 500;
         }
         
         .page-link:hover {
-            background: #667eea;
+            background: #007CB9;
             color: white;
         }
         
         .page-item.active .page-link {
-            background: #667eea;
-            border-color: #667eea;
+            background: #00ACD4;
+            border-color: #007CB9;
         }
         
         .alert {
@@ -298,7 +306,7 @@ if (currentUser != null) {
                         <input type="text" name="search" class="form-control" 
                                placeholder="Tìm kiếm khách sạn theo tên..." 
                                value="${param.search}" style="border-radius: 8px;">
-                        <button type="submit" class="btn btn-primary ml-2" style="border-radius: 8px;">
+                        <button type="submit" class="btn btn-search ml-2" style="border-radius: 8px;">
                             <i class="fa fa-search"></i> Tìm kiếm
                         </button>
                     </form>
