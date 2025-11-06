@@ -202,28 +202,44 @@
          
                     
     <% } else if (roleId == 2) { %>
-        <!-- Manager -->
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/manager/service"
-               class="nav-link <%= "service".equals(currentPage) ? "active" : "" %>">
-                <i class="bi bi-bell-fill"></i> Quản lý Dịch vụ
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/manager/revenue"
-               class="nav-link <%= "revenue".equals(currentPage) ? "active" : "" %>">
-                <i class="bi bi-coin"></i> Tổng doanh thu
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/manager/report"
-               class="nav-link <%= "report".equals(currentPage) ? "active" : "" %>">
-                <i class="bi bi-graph-up-arrow"></i> Báo cáo
-            </a>
-        </div>
+        <!-- Manager --------------------------------------------------------->
+       <div class="nav-item">
+    <a href="${pageContext.request.contextPath}/manager/dashboard"
+       class="nav-link <%= "dashboard".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+</div>
+
+<div class="nav-item">
+    <a href="${pageContext.request.contextPath}/manager/booking"
+       class="nav-link <%= "booking".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-calendar-check"></i> Quản lý Booking
+    </a>
+</div>
+
+<div class="nav-item">
+    <a href="${pageContext.request.contextPath}/manager/tour-approval"
+       class="nav-link <%= "tour".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-map"></i> Quản lý Tour
+    </a>
+</div>
+
+<div class="nav-item">
+    <a href="${pageContext.request.contextPath}/manager/service"
+       class="nav-link <%= "service".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-bag-check"></i> Quản lý Dịch vụ
+    </a>
+</div>
+
+<div class="nav-item">
+    <a href="${pageContext.request.contextPath}/manager/report"
+       class="nav-link <%= "report".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-bar-chart-line"></i> Báo cáo
+    </a>
+</div>
 
     <% } else if (roleId == 4) { %>
-        <!-- Staff riêng -->
+        <!-- Staff riêng ------------------------------------------------------------->
          <div class="nav-item nav-parent" id="servicesParent">
             <a class="nav-link">
                 <i class="bi bi-briefcase-fill"></i> Dịch vụ 

@@ -876,4 +876,122 @@ public Token checkValidToken(String tokenValue) {
         }
         return list;
     }
+    
+     public List<String[]> getAllRolesOfManager() throws SQLException {
+        List<String[]> roles = new ArrayList<>();
+        String sql = "SELECT roleId, roleName FROM Roles ORDER BY roleId";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                roles.add(new String[]{String.valueOf(rs.getInt("roleId")), rs.getString("roleName")});
+            }
+        }
+        return roles;
+    }
+
+    public List<String> getAllStatuses() throws SQLException {
+        List<String> statuses = new ArrayList<>();
+        String sql = "SELECT DISTINCT status FROM Users WHERE status IS NOT NULL ORDER BY status";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                statuses.add(rs.getString("status"));
+            }
+        }
+        return statuses;
+    }
+   
+
+    private User mapRow(ResultSet rs) throws SQLException {
+        User u = new User();
+        u.setUserId(rs.getInt("userId"));
+        u.setUsername(rs.getString("username"));
+        u.setPassword(rs.getString("password"));
+        u.setEmail(rs.getString("email"));
+        u.setFullName(rs.getString("fullName"));
+        u.setPhone(rs.getString("phone"));
+        u.setRoleId(rs.getInt("roleId"));
+        u.setCreatedAt(rs.getTimestamp("createdAt"));
+        u.setStatus(rs.getString("status"));
+        return u;
+    }
+
+    public List<User> searchByUsername(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND username LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByFullName(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND fullName LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByEmail(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND email LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByRole(int roleId) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND roleId = ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, roleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByStatus(String status) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND status = ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public int getTotalUsersOfManager() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Users WHERE roleId = 3";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+    
 }

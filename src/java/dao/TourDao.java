@@ -284,19 +284,16 @@ public class TourDao extends DBContext {
                 String activity;
                 String location;
 
-
                 if (timeOfDay.equals("Buổi tối")) {
                     activity = "Hoạt động tự do và nghỉ ngơi";
                     location = hotelName;
                 } else if (day == 1 && timeOfDay.equals("Buổi chiều")) {
                     activity = "Xuống sân bay và đến check-in tại khách sạn " + hotelName + " và ổn định chỗ ở";
                     location = hotelName;
-                }
-                else if (day == numberOfDays && timeOfDay.equals("Buổi chiều")) {
+                } else if (day == numberOfDays && timeOfDay.equals("Buổi chiều")) {
                     activity = "Check-out tại khách sạn " + hotelName + " và ra sân bay";
                     location = hotelName;
-                }
-                else {
+                } else {
                     // Neu so dia diem nhieu hon so slot thi chia deu nhieu dia diem vao mot slot
                     int remainingPlaces = places.size() - placeIndex;
                     int remainingSlots = totalSlots - (placeIndex / Math.max(1, (places.size() / Math.max(1, totalSlots))));
@@ -469,7 +466,6 @@ public class TourDao extends DBContext {
     }
 
     // ==================== CRUD OPERATIONS FOR TOURS (STAFF FUNCTIONS) ====================
-
     //Tao tour tron goi moi (Create)
     public int createTour(Tour tour) throws SQLException {
         String sql = "INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) OUTPUT INSERTED.tourId VALUES (?, ?, ?, ?, ?)";
@@ -511,10 +507,10 @@ public class TourDao extends DBContext {
             throw new SQLException("Updating tour failed: " + e.getMessage());
         }
     }
-    
+
     //Cap nhat thong tin tour tron goi va cac dich vu (Update with Services)
-    public boolean updateTourWithServices(Tour tour, String[] selectedHotels, String[] selectedRestaurants, 
-                                        String[] selectedPlaces, String[] selectedVehicles) throws SQLException {
+    public boolean updateTourWithServices(Tour tour, String[] selectedHotels, String[] selectedRestaurants,
+            String[] selectedPlaces, String[] selectedVehicles) throws SQLException {
         try {
             String sql = "UPDATE Tours SET islandId = ?, tourName = ?, description = ?, price = ?, tourImageUrl = ?, approvalStatus = ? WHERE tourId = ?";
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -531,11 +527,11 @@ public class TourDao extends DBContext {
                     return false;
                 }
             }
-            
+
             // Clear existing services for this tour
             ServiceDao serviceDao = new ServiceDao();
             serviceDao.clearTourServices(tour.getTourId());
-            
+
             // Add selected hotels
             if (selectedHotels != null) {
                 for (String hotelId : selectedHotels) {
@@ -544,7 +540,7 @@ public class TourDao extends DBContext {
                     }
                 }
             }
-            
+
             // Add selected restaurants
             if (selectedRestaurants != null) {
                 for (String restaurantId : selectedRestaurants) {
@@ -553,7 +549,7 @@ public class TourDao extends DBContext {
                     }
                 }
             }
-            
+
             // Add selected places
             if (selectedPlaces != null) {
                 for (String placeId : selectedPlaces) {
@@ -562,7 +558,7 @@ public class TourDao extends DBContext {
                     }
                 }
             }
-            
+
             // Add selected vehicles
             if (selectedVehicles != null) {
                 for (String vehicleId : selectedVehicles) {
@@ -571,10 +567,9 @@ public class TourDao extends DBContext {
                     }
                 }
             }
-            
 
             return true;
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new SQLException("Updating tour with services failed: " + e.getMessage());
@@ -600,8 +595,7 @@ public class TourDao extends DBContext {
     public List<Tour> getAllTours() throws SQLException {
         List<Tour> list = new ArrayList<>();
         String sql = "SELECT * FROM Tours ORDER BY tourId";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Tour t = new Tour();
@@ -623,11 +617,10 @@ public class TourDao extends DBContext {
     //Lay tat ca tour voi ten dao
     public List<Tour> getAllToursWithIslandNames() throws SQLException {
         List<Tour> list = new ArrayList<>();
-        String sql = "SELECT t.*, i.islandName FROM Tours t " +
-                     "LEFT JOIN Islands i ON t.islandId = i.islandId " +
-                     "ORDER BY t.tourId";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String sql = "SELECT t.*, i.islandName FROM Tours t "
+                + "LEFT JOIN Islands i ON t.islandId = i.islandId "
+                + "ORDER BY t.tourId";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Tour t = new Tour();
@@ -681,9 +674,9 @@ public class TourDao extends DBContext {
     public List<Tour> getToursByPageWithIslandNames(int page, int pageSize) throws SQLException {
         List<Tour> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
-        String sql = "SELECT t.*, i.islandName FROM Tours t " +
-                     "LEFT JOIN Islands i ON t.islandId = i.islandId " +
-                     "ORDER BY t.tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT t.*, i.islandName FROM Tours t "
+                + "LEFT JOIN Islands i ON t.islandId = i.islandId "
+                + "ORDER BY t.tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, offset);
@@ -713,8 +706,7 @@ public class TourDao extends DBContext {
     //Dem tong so tour
     public int getTotalToursCount() throws SQLException {
         String sql = "SELECT COUNT(*) FROM Tours";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -760,9 +752,9 @@ public class TourDao extends DBContext {
     public List<Tour> searchToursByNameWithPaginationAndIslandNames(String searchTerm, int page, int pageSize) throws SQLException {
         List<Tour> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
-        String sql = "SELECT t.*, i.islandName FROM Tours t " +
-                     "LEFT JOIN Islands i ON t.islandId = i.islandId " +
-                     "WHERE t.tourName LIKE ? ORDER BY t.tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT t.*, i.islandName FROM Tours t "
+                + "LEFT JOIN Islands i ON t.islandId = i.islandId "
+                + "WHERE t.tourName LIKE ? ORDER BY t.tourId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, "%" + searchTerm + "%");
@@ -866,9 +858,8 @@ public class TourDao extends DBContext {
         }
         return list;
     }
-    
+
     // ==================== ITINERARY MANAGEMENT METHODS ====================
-    
     /**
      * Create a new tour itinerary day
      */
@@ -878,7 +869,7 @@ public class TourDao extends DBContext {
             ps.setInt(1, itinerary.getTourId());
             ps.setInt(2, itinerary.getDayNumber());
             ps.setString(3, itinerary.getTitle());
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -889,7 +880,7 @@ public class TourDao extends DBContext {
         }
         return 0;
     }
-    
+
     /**
      * Create a new tour activity
      */
@@ -900,7 +891,7 @@ public class TourDao extends DBContext {
             ps.setInt(2, activity.getActivityOrder());
             ps.setString(3, activity.getActivityTitle());
             ps.setString(4, activity.getDescription());
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -911,7 +902,7 @@ public class TourDao extends DBContext {
         }
         return 0;
     }
-    
+
     /**
      * Update a tour activity
      */
@@ -922,7 +913,7 @@ public class TourDao extends DBContext {
             ps.setString(2, activity.getDescription());
             ps.setInt(3, activity.getActivityOrder());
             ps.setInt(4, activity.getActivityId());
-            
+
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -976,7 +967,7 @@ public class TourDao extends DBContext {
         }
         return null;
     }
-    
+
     /**
      * Update tour itinerary
      */
@@ -986,7 +977,7 @@ public class TourDao extends DBContext {
             ps.setInt(1, itinerary.getDayNumber());
             ps.setString(2, itinerary.getTitle());
             ps.setInt(3, itinerary.getItineraryId());
-            
+
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -999,14 +990,14 @@ public class TourDao extends DBContext {
      */
     public void deleteTourItineraries(int tourId) throws SQLException {
         // First delete all activities
-        String deleteActivitiesSql = "DELETE ta FROM TourActivities ta " +
-                                   "INNER JOIN TourItinerary ti ON ta.itineraryId = ti.itineraryId " +
-                                   "WHERE ti.tourId = ?";
+        String deleteActivitiesSql = "DELETE ta FROM TourActivities ta "
+                + "INNER JOIN TourItinerary ti ON ta.itineraryId = ti.itineraryId "
+                + "WHERE ti.tourId = ?";
         try (PreparedStatement ps = connection.prepareStatement(deleteActivitiesSql)) {
             ps.setInt(1, tourId);
             ps.executeUpdate();
         }
-        
+
         // Then delete itineraries
         String deleteItinerariesSql = "DELETE FROM TourItinerary WHERE tourId = ?";
         try (PreparedStatement ps = connection.prepareStatement(deleteItinerariesSql)) {
@@ -1014,7 +1005,7 @@ public class TourDao extends DBContext {
             ps.executeUpdate();
         }
     }
-    
+
     /**
      * Delete a specific itinerary by ID
      */
@@ -1025,7 +1016,7 @@ public class TourDao extends DBContext {
             ps.setInt(1, itineraryId);
             ps.executeUpdate();
         }
-        
+
         // Then delete the itinerary
         String deleteItinerarySql = "DELETE FROM TourItinerary WHERE itineraryId = ?";
         try (PreparedStatement ps = connection.prepareStatement(deleteItinerarySql)) {
@@ -1034,4 +1025,81 @@ public class TourDao extends DBContext {
             return rowsAffected > 0;
         }
     }
+
+    // -------------------- LẤY DANH SÁCH TOUR PENDING --------------------
+    public List<Tour> getPendingTours() throws SQLException {
+        List<Tour> list = new ArrayList<>();
+
+        String sql = """
+            SELECT t.tourId, t.islandId, t.tourName, t.description, t.price, 
+                   t.tourImageUrl, t.approvalStatus, i.islandName
+            FROM Tours t
+            JOIN Islands i ON t.islandId = i.islandId
+            WHERE t.approvalStatus = 'PENDING'
+            ORDER BY t.tourId DESC
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Tour t = new Tour();
+                t.setTourId(rs.getInt("tourId"));
+                t.setIslandId(rs.getInt("islandId"));
+                t.setTourName(rs.getString("tourName"));
+                t.setDescription(rs.getString("description"));
+                t.setPrice(rs.getInt("price"));
+                t.setTourImageUrl(rs.getString("tourImageUrl"));
+                t.setApprovalStatus(rs.getString("approvalStatus"));
+                t.setIslandName(rs.getString("islandName"));
+                list.add(t);
+            }
+        }
+        return list;
+    }
+
+    // -------------------- CẬP NHẬT TRẠNG THÁI DUYỆT TOUR --------------------
+    public void updateTourStatus(int tourId, String status) throws SQLException {
+        String sql = "UPDATE Tours SET approvalStatus = ? WHERE tourId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, tourId);
+            ps.executeUpdate();
+        }
+    }
+
+    // -------------------- LẤY TOÀN BỘ TOUR (THEO TRẠNG THÁI TUỲ CHỌN) --------------------
+    public List<Tour> getToursByStatus(String status) throws SQLException {
+        List<Tour> list = new ArrayList<>();
+        String sql = """
+            SELECT t.tourId, t.islandId, t.tourName, t.description, t.price, 
+                   t.tourImageUrl, t.approvalStatus, i.islandName
+            FROM Tours t
+            JOIN Islands i ON t.islandId = i.islandId
+            WHERE (? IS NULL OR t.approvalStatus = ?)
+            ORDER BY t.tourId DESC
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setString(2, status);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Tour t = new Tour();
+                t.setTourId(rs.getInt("tourId"));
+                t.setIslandId(rs.getInt("islandId"));
+                t.setTourName(rs.getString("tourName"));
+                t.setDescription(rs.getString("description"));
+                t.setPrice(rs.getInt("price"));
+                t.setTourImageUrl(rs.getString("tourImageUrl"));
+                t.setApprovalStatus(rs.getString("approvalStatus"));
+                t.setIslandName(rs.getString("islandName"));
+                list.add(t);
+            }
+        }
+        return list;
+    }
+
+    // -------------------- TEST CHẠY --------------------
+    
 }

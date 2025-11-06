@@ -106,7 +106,7 @@ public class VnpayReturn extends HttpServlet {
                     hb.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
                     bookingDao.createHistoryBooking(hb);
-                    bill = bookingDao.getBillByHistoryBooking(paymentId);
+                    bill =  bookingDao.getBillByHistoryBooking(paymentId);
                 }
 
                 request.setAttribute("bill", bill);

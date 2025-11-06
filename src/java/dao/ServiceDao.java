@@ -20,8 +20,11 @@ import model.Place;
 import model.TourService;
 import utils.DBContext;
 import java.sql.Time;
+import java.util.HashMap;
+import java.util.Map;
 import model.FlightSchedule;
 import java.time.LocalTime;
+import model.Service;
 
 /**
  *
@@ -2969,5 +2972,145 @@ public class ServiceDao extends DBContext {
             return false;
         }
     }
+
+    // ✅ Search & Sort dịch vụ (có thể kết hợp nhiều điều kiện)
+    public List<Service> searchServices(String name, String type, Double priceMin, Double priceMax, String status, String sortOrder) {
+        List<Service> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder(
+                "WITH AllServices AS ( "
+                + " SELECT hotelId AS serviceId, hotelName AS name, 'Hotel' AS type, pricePerNight AS price, "
+                + " CASE WHEN roomsAvailable > 0 THEN 'Active' ELSE 'Inactive' END AS status FROM Hotels "
+                + " UNION ALL "
+                + " SELECT flightId, CONCAT(departure, ' - ', destination), 'Flight', basePrice, "
+                + " CASE WHEN ticketAvailable > 0 THEN 'Active' ELSE 'Inactive' END FROM Flights "
+                + " UNION ALL "
+                + " SELECT vehicleId, modelName, 'Vehicle', pricePerDay, "
+                + " CASE WHEN availability > 0 THEN 'Active' ELSE 'Inactive' END FROM IslandVehicles "
+                + " UNION ALL "
+                + " SELECT placeId, placeName, 'Place', ticketPrice, "
+                + " CASE WHEN hasTicket = 1 THEN 'Active' ELSE 'Inactive' END FROM Places "
+                + ") SELECT * FROM AllServices WHERE 1=1 "
+        );
+
+        List<Object> params = new ArrayList<>();
+
+        if (name != null && !name.trim().isEmpty()) {
+            sql.append(" AND name LIKE ? ");
+            params.add("%" + name.trim() + "%");
+        }
+
+        if (type != null && !type.equalsIgnoreCase("All")) {
+            sql.append(" AND type = ? ");
+            params.add(type);
+        }
+
+        if (priceMin != null) {
+            sql.append(" AND price >= ? ");
+            params.add(priceMin);
+        }
+
+        if (priceMax != null) {
+            sql.append(" AND price <= ? ");
+            params.add(priceMax);
+        }
+
+        if (status != null && !status.equalsIgnoreCase("All")) {
+            sql.append(" AND status = ? ");
+            params.add(status);
+        }
+
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            sql.append(" ORDER BY price ASC ");
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            sql.append(" ORDER BY price DESC ");
+        } else {
+            sql.append(" ORDER BY name ASC ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Service s = new Service();
+                    s.setServiceId(rs.getInt("serviceId"));
+                    s.setName(rs.getString("name"));
+                    s.setType(rs.getString("type"));
+                    s.setPrice(rs.getDouble("price"));
+                    s.setStatus(rs.getString("status"));
+                    list.add(s);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public Map<String, Object> getServiceDetail(String type, int id) {
+        Map<String, Object> data = new HashMap<>();
+        String sql = "";
+        try {
+            switch (type) {
+                case "Hotel":
+                    sql = "SELECT hotelName, pricePerNight, roomsAvailable, rating FROM Hotels WHERE hotelId = ?";
+                    break;
+                case "Flight":
+                    sql = "SELECT flightNumber, departure, destination, basePrice, ticketAvailable FROM Flights WHERE flightId = ?";
+                    break;
+                case "Vehicle":
+                    sql = "SELECT modelName, pricePerDay, availability FROM IslandVehicles WHERE vehicleId = ?";
+                    break;
+                case "Place":
+                    sql = "SELECT placeName, ticketPrice, hasTicket FROM Places WHERE placeId = ?";
+                    break;
+                default:
+                    return data;
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        switch (type) {
+                            case "Hotel":
+                                data.put("name", rs.getString("hotelName"));
+                                data.put("price", rs.getDouble("pricePerNight"));
+                                data.put("rooms", rs.getInt("roomsAvailable"));
+                                data.put("rating", rs.getFloat("rating"));
+                                break;
+                            case "Flight":
+                                data.put("flightNumber", rs.getString("flightNumber"));
+                                data.put("departure", rs.getString("departure"));
+                                data.put("destination", rs.getString("destination"));
+                                data.put("price", rs.getDouble("basePrice"));
+                                data.put("tickets", rs.getInt("ticketAvailable"));
+                                break;
+                            case "Vehicle":
+                                data.put("modelName", rs.getString("modelName"));
+                                data.put("price", rs.getDouble("pricePerDay"));
+                                data.put("available", rs.getInt("availability"));
+                                break;
+                            case "Place":
+                                data.put("placeName", rs.getString("placeName"));
+                                data.put("price", rs.getDouble("ticketPrice"));
+                                data.put("hasTicket", rs.getBoolean("hasTicket"));
+                                break;
+                        }
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    
 
 }
