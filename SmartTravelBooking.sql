@@ -16,12 +16,9 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
-update Airlines 
-set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
-where airlineId=7
 
-select * from Flights
-select * from Airlines
+select * from tours
+select * from users
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -95,6 +92,8 @@ BEGIN
 END;
 GO
 
+select * from historybooking
+
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
@@ -137,8 +136,6 @@ BEGIN
 END;
 GO
 
-
-
 CREATE TABLE Countries (
     countryId INT IDENTITY(1,1) PRIMARY KEY,
     countryName NVARCHAR(100) UNIQUE NOT NULL,
@@ -174,6 +171,16 @@ CREATE TABLE Tours (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
+CREATE TABLE TourServices (
+    tourServiceId INT IDENTITY(1,1) PRIMARY KEY,
+    tourId INT NOT NULL,
+    serviceType VARCHAR(20) CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
+    serviceId INT NOT NULL,
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
+);
+GO
+
 
 CREATE TABLE TourItinerary (
     itineraryId INT PRIMARY KEY IDENTITY(1,1),
@@ -194,6 +201,51 @@ CREATE TABLE TourActivities (
     FOREIGN KEY (itineraryId) REFERENCES TourItinerary(itineraryId),
 	CONSTRAINT UQ_TourActivities_Tour_Day UNIQUE (itineraryId, activityOrder)
 );
+
+CREATE TABLE CustomTours (
+    customTourId INT IDENTITY(1,1) PRIMARY KEY,
+    islandId INT NOT NULL,
+    tourName NVARCHAR(150) NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+    totalPrice INT CHECK (totalPrice >= 0),
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
+VALUES
+(1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', '2025-11-10', '2025-11-11', 3590000),
+(1, N'Tour Lặn biển Phú Quốc 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
+(3, N'Tour Khám phá Phuket 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
+(4, N'Tour Văn hóa & Biển Bali 5N4Đ', '2025-10-1', '2025-10-6', 10000000),
+(4, N'Tour Nghỉ dưỡng Bali 4N3Đ', '2025-10-23', '2025-10-26', 82400000),
+(8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', '2025-9-23', '2025-9-25', 79100000),
+(8, N'Tour Văn hóa Koh Samui 5N4Đ', '2025-9-3', '2025-9-10', 12900000);
+
+-- detail tour rieng le cho customer
+
+CREATE TABLE CustomTourDetails (
+    detailId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    serviceType NVARCHAR(50)
+        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
+    serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
+    price INT CHECK (price >= 0),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+select * from users
+go
+ -- lich trinh tour rieng le cho customer
+CREATE TABLE CustomTourItinerary (
+    itineraryId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    dayNumber INT CHECK (dayNumber > 0),
+    activity NVARCHAR(255) NOT NULL,
+    location NVARCHAR(150),
+    timeOfDay NVARCHAR(50),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+go
 
 -- Bảng Hotels
 CREATE TABLE Hotels (
@@ -221,7 +273,7 @@ CREATE TABLE Airlines (
     logoUrl VARCHAR(255)                  -- Link logo hãng
 );
 go
-g
+
 -- bảng flights 
 
 CREATE TABLE Flights (
@@ -452,55 +504,7 @@ CREATE TABLE IslandVehicles (
 go
 select * from historybooking
  -- tour rieng le cho customer
-CREATE TABLE CustomTours (
-    customTourId INT IDENTITY(1,1) PRIMARY KEY,
-    islandId INT NOT NULL,
-    tourName NVARCHAR(150) NOT NULL,
-    startDate DATE NOT NULL,
-    endDate DATE NOT NULL,
-    totalPrice INT CHECK (totalPrice >= 0),
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-);
 
-INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
-VALUES
-(1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', '2025-11-10', '2025-11-11', 3590000),
-(1, N'Tour Lặn biển Phú Quốc 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
-(3, N'Tour Khám phá Phuket 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
-(4, N'Tour Văn hóa & Biển Bali 5N4Đ', '2025-10-1', '2025-10-6', 10000000),
-(4, N'Tour Nghỉ dưỡng Bali 4N3Đ', '2025-10-23', '2025-10-26', 82400000),
-(8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', '2025-9-23', '2025-9-25', 79100000),
-(8, N'Tour Văn hóa Koh Samui 5N4Đ', '2025-9-3', '2025-9-10', 12900000);
-
-
-
-
-
-
- -- detail tour rieng le cho customer
-
-CREATE TABLE CustomTourDetails (
-    detailId INT IDENTITY(1,1) PRIMARY KEY,
-    customTourId INT NOT NULL,
-    serviceType NVARCHAR(50)
-        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
-    serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
-    price INT CHECK (price >= 0),
-    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
-);
-
-go
- -- lich trinh tour rieng le cho customer
-CREATE TABLE CustomTourItinerary (
-    itineraryId INT IDENTITY(1,1) PRIMARY KEY,
-    customTourId INT NOT NULL,
-    dayNumber INT CHECK (dayNumber > 0),
-    activity NVARCHAR(255) NOT NULL,
-    location NVARCHAR(150),
-    timeOfDay NVARCHAR(50),
-    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
-);
-go
 
 -- trigger check role customer mới đc booking 
 CREATE TRIGGER trg_Booking_CheckCustomer
@@ -551,6 +555,7 @@ BEGIN
         bookingDate
     FROM inserted;
 END;
+select * from bookings
 GO
  SELECT 
         f.flightId,
@@ -1574,19 +1579,5 @@ select *from CustomTours
 DBCC CHECKIDENT ('CustomTours', RESEED, 0)
 
 
--- TourServices table to manage services in tours
-CREATE TABLE TourServices (
-    tourServiceId INT IDENTITY(1,1) PRIMARY KEY,
-    tourId INT NOT NULL,
-    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','RESTAURANT','VEHICLE','PLACE')) NOT NULL,
-    serviceId INT NOT NULL,
-    createdAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
-);
-GO
-
--- Add approval status to Tours table
-ALTER TABLE Tours ADD approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED'));
-GO
 
 -------------------------------------------------------------------------------------------------------

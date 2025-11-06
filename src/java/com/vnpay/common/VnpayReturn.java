@@ -88,6 +88,8 @@ public class VnpayReturn extends HttpServlet {
                 payment.setStatus(isSuccess ? "Success" : "Failed");
                 int paymentId = bookingDao.createPayment(payment);
                 
+                
+                //Tao bill
                 Bill bill = null;
                 if (isSuccess) {
                     bookingDao.updateStatus(bookingId, "COMPLETED");

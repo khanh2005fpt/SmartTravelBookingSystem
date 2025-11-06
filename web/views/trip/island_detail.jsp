@@ -164,7 +164,9 @@
                                 <div class="input-group " style="max-width: 180px;">
                                     <div>
                                         <label for="startDateFlight" class="form-label fw-semibold">Ngày bắt đầu</label>
-                                        <input type="date" class="form-control rounded-pill text-center" id="startDateFlight" name="startDateFlight" >
+                                        <input type="date" class="form-control rounded-pill text-center"
+                                               id="startDateFlight" name="startDateFlight"
+                                               value="${param.startDateFlight}">                                    
                                     </div>
                                 </div>
                             </div>
@@ -173,7 +175,9 @@
                                 <div class="input-group" style="max-width: 180px;">
                                     <div>
                                         <label for="endDateFlight" class="form-label fw-semibold">Ngày kết thúc</label>
-                                        <input type="date" class="form-control rounded-pill text-center" id="endDateFlight" name="endDateFlight">
+                                        <input type="date" class="form-control rounded-pill text-center"
+                                               id="endDateFlight" name="endDateFlight"
+                                               value="${param.endDateFlight}">                                   
                                     </div>
                                 </div>
                             </div>
@@ -229,7 +233,7 @@
                             <c:choose>
                                 <c:when test="${not empty flights}">
                                     <c:forEach var="f" items="${flights}">
-                                   
+
                                         <div class="col-lg-4 col-md-6 mb-4 flight-item">
                                             <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
                                                  data-flightId="${f.flightId}">
