@@ -188,11 +188,70 @@ if(session != null){
             throws ServletException, IOException {
            HttpSession session = request.getSession();
         try {
-            List<Flight> flights = serviceDao.getAllFlights();
-            List<Airlines> airlines = serviceDao.getAllAirlineNames();
+            
+            // Get pagination paramaters
+            String pageParam = request.getParameter("page");
+            String pageSizeParam = request.getParameter("pageSize");
+            String searchParam = request.getParameter("search");
+            
+            // handle current page (dafault page =1)
+            int page=1;
+            if(pageParam !=null && !pageParam.trim().isEmpty()){
+                try{
+                    page = Integer.parseInt(pageParam);
+                    if(page<1) page=1;
+                }catch(NumberFormatException e){
+                    page=1;
+                }
+            }
+            
+            // handle pageSize (the number each pages display) 
+               int pageSize =12;// default=12
+               if(pageSizeParam!=null && !pageSizeParam.trim().isEmpty()){
+                   try{
+                       pageSize = Integer.parseInt(pageSizeParam);
+                       if(pageSize<1) pageSize=12;
+                       if(pageSize>100) pageSize=100;//Max page size limit
+                   }catch(NumberFormatException e){
+                       pageSize=12;
+                   }
+               }
+               
+               // check search or not
+                List<Flight> flights;
+                 int totalFlights;
+                 
+                 // check if search is performed
+                 if(searchParam!=null && !searchParam.trim().isEmpty()){
+                     flights = serviceDao.searchFlightsWithPagination(searchParam, page, pageSize);
+                     totalFlights = serviceDao.getSearchFlightsCount(searchParam.trim());
+                     request.setAttribute("search",searchParam.trim());
+                     
+                 }else {
+                     flights=serviceDao.getFlightsByPageWithAirlineNames(page, pageSize);
+                     totalFlights = serviceDao.getTotalFlightsCount();
+                 }
+                 
+                 // calculate pagination info
+                 
+                 int totalPages = (int)Math.ceil((double) totalFlights/pageSize);
+                 
+                 //set Attribute
+             request.setAttribute("flights", flights);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalFlights", totalFlights);
+            
+             List<Airlines> airlines = serviceDao.getAllAirlineNames();
             session.setAttribute("airlineNames", airlines); 
-   
-            request.setAttribute("flights", flights);
+             // calculate pagination display page
+             int startPage = Math.max(1, page-2);
+             int endPage = Math.min(totalPages, page+2);
+             request.setAttribute("startPage", startPage);
+              request.setAttribute("endPage", endPage);
+              
+            request.setAttribute("action", "list");
             request.setAttribute("pageTitle", "Flight Management");
             request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
         } catch (Exception e) {

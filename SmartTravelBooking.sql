@@ -16,21 +16,21 @@ CREATE TABLE Users (
 	FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 go
-<<<<<<< HEAD
+
 update Users
 set fullName ='Manager'
 where userId =2
 
 select * from CustomerProfiles
 
-=======
+
 update Airlines 
 set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
 where airlineId=7
 
 select * from Flights
 select * from Airlines
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
+
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -39,10 +39,9 @@ GO
 
 INSERT INTO Roles (roleName)
 VALUES ('ADMIN'), ('BOOKING MANAGER'), ('CUSTOMER'), ('STAFF');
-<<<<<<< HEAD
+
 SELECT DISTINCT gender FROM CustomerProfiles;
-=======
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
+
 
 -- Bảng CustomerProfiles
 CREATE TABLE CustomerProfiles (
@@ -107,7 +106,7 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
-<<<<<<< HEAD
+
 
 
 CREATE TABLE CustomerContacts (
@@ -154,11 +153,11 @@ GO
 
 -- trigger update fullName đồng bộ với fullName user
 
-=======
+
 -- Bảng UserEmails
 
 
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
+
 CREATE TABLE Countries (
     countryId INT IDENTITY(1,1) PRIMARY KEY,
     countryName NVARCHAR(100) UNIQUE NOT NULL,
