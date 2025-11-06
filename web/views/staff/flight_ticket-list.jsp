@@ -142,25 +142,15 @@
                 gap: 4px;
             }
 
-            .btn-view {
-                background: #17a2b8;
-                color: white;
-            }
-
-            .btn-view:hover {
-                background: #138496;
-                color: white;
-                text-decoration: none;
-            }
 
             .btn-edit {
-                background: #ffc107;
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: #212529;
             }
 
             .btn-edit:hover {
-                background: #e0a800;
-                color: #212529;
+                background: #007CB9;
+                color: #007CB9;
                 text-decoration: none;
             }
 
@@ -348,7 +338,7 @@ if (currentUser != null) {
                     <!-- Filter giá -->
                     <div class="filter-group" style="min-width: 180px;">
                         <label for="priceRange" class="form-label mb-1 fw-semibold">Khoảng giá vé</label>
-                        <select class="form-control form-control-sm" id="priceRange" name="priceRange">
+                        <select class="form-control form-control-sm " id="priceRange" name="priceRange">
                             <option value="">Tất cả mức giá</option>
                             <option value="0-1000000" ${param.priceRange == '0-1000000' ? 'selected' : ''}>Dưới 1.000.000₫</option>
                             <option value="1000000-3000000" ${param.priceRange == '1000000-3000000' ? 'selected' : ''}>1.000.000₫ - 3.000.000₫</option>
@@ -429,7 +419,7 @@ if (currentUser != null) {
                                                     <div>
                                                       
                                                         <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=edit&flightId=${flight.flightId}" 
-                                                           class="btn-action btn-edit bg-success text-white ">
+                                                           class="btn-action btn-edit text-white ">
                                                             <i class="fa fa-edit"></i> Sửa
                                                         </a>
                                                         <a href="#" onclick="confirmDelete(${flight.flightId}, '${flight.flightNumber}')" 

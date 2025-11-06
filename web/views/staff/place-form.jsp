@@ -39,7 +39,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -72,13 +72,13 @@
         }
         
         .breadcrumb-item a {
-            color: #667eea;
+            color: #00ACD4;
             text-decoration: none;
             font-weight: 500;
         }
         
         .breadcrumb-item a:hover {
-            color: #764ba2;
+            color: #007CB9;
             text-decoration: underline;
         }
         
@@ -296,7 +296,7 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         
@@ -421,7 +421,7 @@ if (currentUser != null) {
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="${pageContext.request.contextPath}/staff/dashboard">
+                        <a href="${pageContext.request.contextPath}/views/staff/index.jsp">
                             <i class="fa fa-home"></i> Trang chủ
                         </a>
                     </li>

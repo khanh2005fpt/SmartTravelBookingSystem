@@ -11,11 +11,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<<<<<<< HEAD
 <%@ page import="model.User" %>
-=======
-
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -39,7 +35,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -147,7 +143,7 @@
         }
         
         .btn-primary-form {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         

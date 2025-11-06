@@ -34,7 +34,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -107,7 +107,7 @@
             background: #f8f9fa;
             padding: 20px;
             border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #00ACD4;
         }
         
         .info-label {
@@ -231,7 +231,7 @@
         }
         
         .breadcrumb-item a {
-            color: #667eea;
+            color: #00ACD4;
             text-decoration: none;
         }
         
@@ -329,7 +329,7 @@ if (currentUser != null) {
         <nav class="breadcrumb-nav">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="${pageContext.request.contextPath}/staff/dashboard">
+                    <a href="${pageContext.request.contextPath}/views/staff/index.jsp">
                         <i class="fa fa-home"></i> Dashboard
                     </a>
                 </li>

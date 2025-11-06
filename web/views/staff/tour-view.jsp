@@ -376,7 +376,7 @@ if (currentUser != null) {
         <nav class="breadcrumb-nav">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="${pageContext.request.contextPath}/staff/dashboard">
+                    <a href="${pageContext.request.contextPath}/views/staff/index.jsp">
                         <i class="fa fa-home"></i> Dashboard
                     </a>
                 </li>
