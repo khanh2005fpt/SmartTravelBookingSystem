@@ -87,16 +87,15 @@ public class CustomerDao extends DBContext {
           // 2. Thông tin người dùng nhập
           try{
               CustomerDao dao = new CustomerDao();
-                   // Test update
-            dao.updateProfileInfo(
-                5,                                      // userId
-                "Nguyễn Văn a",                       // fullName
-                LocalDate.of(2003, 5, 12),               // dob
-                CustomerProfile.Gender.MALE,             // gender
-                "123 Đường Trần Hưng Đạo, Hà Nội"                         // profilePicture
-            );
+              int testUserId = 7; // Thay bằng userId thực tế có trong bảng CustomerProfiles
+            String testAvatar = "test_avatar_123.jpg";
 
-            System.out.println("✅ Update thành công (kiểm tra DB cả 2 bảng để xem trigger hoạt động).");
+
+           CustomerProfile profile = dao.getProfileByUserId(2);
+            System.out.println("Profile after query: " + profile);
+  System.out.println("profile_customer"+ profile);
+System.out.println("Session set done!");
+
           }catch(SQLException e){
               e.printStackTrace();
           }
@@ -109,7 +108,7 @@ public class CustomerDao extends DBContext {
      
  
    // ======= Cập nhật avatar =======
-    public boolean updateProfilePicture(int userId, String avatarUrl) {
+    public boolean updateProfilePicture(int userId, String avatarUrl)throws SQLException{
         String sql = "UPDATE CustomerProfiles SET profilePicture = ? WHERE userId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, avatarUrl);
@@ -123,7 +122,8 @@ public class CustomerDao extends DBContext {
     
     
     // ======= Lấy profile theo userId =======
-    public CustomerProfile getProfileByUserId(int userId) {
+   
+   public CustomerProfile getProfileByUserId(int userId)throws SQLException{
         String sql = "SELECT * FROM CustomerProfiles WHERE userId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);

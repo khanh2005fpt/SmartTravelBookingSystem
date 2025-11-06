@@ -43,8 +43,9 @@
     <label class="form-label">Vai trò (Role)</label>
     <select name="roleId" class="form-select" required>
         <option value="1" ${user.roleId == 1 ? 'selected' : ''}>Quản trị viên (Admin)</option>
-        <option value="2" ${user.roleId == 2 ? 'selected' : ''}>Nhân viên (Staff)</option>
+        <option value="4" ${user.roleId == 4 ? 'selected' : ''}>Nhân viên (Staff)</option>
         <option value="3" ${user.roleId == 3 ? 'selected' : ''}>Người dùng (User)</option>
+         <option value="2" ${user.roleId == 2 ? 'selected' : ''}>Quản lý(Manager)</option>
     </select>
 </div>
 

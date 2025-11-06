@@ -125,12 +125,6 @@ if (currentUser != null) {
 
             <!-- NÚT HÀNH ĐỘNG -->
             <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <c:if test="${bill.status eq 'Success'}">
-                    <a href="${pageContext.request.contextPath}/bill-history.jsp"
-                       class="btn btn-outline-secondary btn-back">
-                        Xem lịch sử
-                    </a>
-                </c:if>
                 <a href="${pageContext.request.contextPath}/SearchIslandController"
                    class="btn btn-primary btn-back">
                     Quay lại trang chủ

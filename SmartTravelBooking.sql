@@ -155,7 +155,11 @@ BEGIN
 END;
 GO
 
+<<<<<<< HEAD
 
+=======
+select * from historybooking
+>>>>>>> efe358d0d2ac756fdc0c96b45c0563d8e583fa83
 
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
@@ -241,6 +245,16 @@ CREATE TABLE Tours (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
+CREATE TABLE TourServices (
+    tourServiceId INT IDENTITY(1,1) PRIMARY KEY,
+    tourId INT NOT NULL,
+    serviceType VARCHAR(20) CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
+    serviceId INT NOT NULL,
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
+);
+GO
+
 
 CREATE TABLE TourItinerary (
     itineraryId INT PRIMARY KEY IDENTITY(1,1),
@@ -262,6 +276,51 @@ CREATE TABLE TourActivities (
 	CONSTRAINT UQ_TourActivities_Tour_Day UNIQUE (itineraryId, activityOrder)
 );
 
+CREATE TABLE CustomTours (
+    customTourId INT IDENTITY(1,1) PRIMARY KEY,
+    islandId INT NOT NULL,
+    tourName NVARCHAR(150) NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+    totalPrice INT CHECK (totalPrice >= 0),
+    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
+);
+
+INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
+VALUES
+(1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', '2025-11-10', '2025-11-11', 3590000),
+(1, N'Tour Lặn biển Phú Quốc 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
+(3, N'Tour Khám phá Phuket 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
+(4, N'Tour Văn hóa & Biển Bali 5N4Đ', '2025-10-1', '2025-10-6', 10000000),
+(4, N'Tour Nghỉ dưỡng Bali 4N3Đ', '2025-10-23', '2025-10-26', 82400000),
+(8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', '2025-9-23', '2025-9-25', 79100000),
+(8, N'Tour Văn hóa Koh Samui 5N4Đ', '2025-9-3', '2025-9-10', 12900000);
+
+-- detail tour rieng le cho customer
+
+CREATE TABLE CustomTourDetails (
+    detailId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    serviceType NVARCHAR(50)
+        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
+    serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
+    price INT CHECK (price >= 0),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+select * from users
+go
+ -- lich trinh tour rieng le cho customer
+CREATE TABLE CustomTourItinerary (
+    itineraryId INT IDENTITY(1,1) PRIMARY KEY,
+    customTourId INT NOT NULL,
+    dayNumber INT CHECK (dayNumber > 0),
+    activity NVARCHAR(255) NOT NULL,
+    location NVARCHAR(150),
+    timeOfDay NVARCHAR(50),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
+);
+go
+
 -- Bảng Hotels
 CREATE TABLE Hotels (
     hotelId INT IDENTITY(1,1) PRIMARY KEY,
@@ -273,9 +332,20 @@ CREATE TABLE Hotels (
     roomsAvailable INT,
     rating DECIMAL(3,1),
     hotelImageUrl VARCHAR(255), -- đường dẫn ảnh khách sạn
-	area INT CHECK (area > 0),
+	totalRooms INT DEFAULT 0 CHECK (totalRooms >= 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -288,7 +358,7 @@ CREATE TABLE Airlines (
     logoUrl VARCHAR(255)                  -- Link logo hãng
 );
 go
-g
+
 -- bảng flights 
 
 CREATE TABLE Flights (
@@ -698,15 +768,6 @@ CREATE TABLE IslandVehicles (
 go
 select * from historybooking
  -- tour rieng le cho customer
-CREATE TABLE CustomTours (
-    customTourId INT IDENTITY(1,1) PRIMARY KEY,
-    islandId INT NOT NULL,
-    tourName NVARCHAR(150) NOT NULL,
-    startDate DATE NOT NULL,
-    endDate DATE NOT NULL,
-    totalPrice INT CHECK (totalPrice >= 0),
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-);
 
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 VALUES
@@ -812,6 +873,7 @@ BEGIN
         bookingDate
     FROM inserted;
 END;
+select * from bookings
 GO
  SELECT 
         f.flightId,
@@ -1440,7 +1502,6 @@ INSERT INTO TourActivities (itineraryId, activityOrder, activityTitle, descripti
 (21, 3, N'Tắm biển Patong', N'Thư giãn và vui chơi trên bãi biển Patong.'),
 (22, 1, N'Ra sân bay', N'Làm thủ tục bay về Hà Nội, kết thúc tour.')
 
-
 INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl)
 VALUES
 -- Phú Quốc
@@ -1869,3 +1930,9 @@ GO
 -- Drop the existing constraint (using the constraint name from error message)
 -- If the constraint name is different, you may need to find it first using:
 -- SELECT name FROM sys.check_constraints WHERE parent_object_id = OBJECT_ID('TourServices')
+
+select * from Tours
+update Tours
+set approvalStatus ='APPROVED'
+WHERE tourId BETWEEN 1 AND 10 
+

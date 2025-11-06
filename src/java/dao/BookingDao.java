@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
-
+import java.time.LocalDate;
 import java.util.Date;
 import utils.DBContext;
 import java.sql.PreparedStatement;
@@ -12,10 +12,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
+import java.time.LocalDateTime;
 import model.Booking;
 import utils.DBContext;
 import java.sql.*;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import model.BookingDetailItem;
@@ -36,31 +37,54 @@ public class BookingDao extends DBContext {
 
     public static BookingDao INSTANCE = new BookingDao();
 
-    public int createBooking(Booking booking) throws SQLException {
-        String sql = "INSERT INTO Bookings ( customerId, tourId, customTourId, departureDate, endDate, adultQuantity, childQuantity, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+     public int createBooking(Booking booking) throws SQLException {
+        String sql = "INSERT INTO Bookings (customerId, tourId, customTourId, departureDate, endDate, adultQuantity, childQuantity, status, totalPrice) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, booking.getCustomerId());
-            ps.setInt(2, booking.getTourId());
-            ps.setInt(3, booking.getCustomTourId());
+
+            // Cho phép tourId hoặc customTourId (tùy loại tour)
+            if (booking.getTourId() != null) {
+                ps.setInt(2, booking.getTourId());
+            } else {
+                ps.setNull(2, java.sql.Types.INTEGER);
+            }
+
+            if (booking.getCustomTourId() != null) {
+                ps.setInt(3, booking.getCustomTourId());
+            } else {
+                ps.setNull(3, java.sql.Types.INTEGER);
+            }
+
             ps.setDate(4, new java.sql.Date(booking.getDepartureDate().getTime()));
-            ps.setDate(5, booking.getEndDate() != null ? new java.sql.Date(booking.getEndDate().getTime()) : null);
+
+            if (booking.getEndDate() != null) {
+                ps.setDate(5, new java.sql.Date(booking.getEndDate().getTime()));
+            } else {
+                ps.setNull(5, java.sql.Types.DATE);
+            }
+
             ps.setInt(6, booking.getAdultQuantity());
             ps.setInt(7, booking.getChildQuantity());
             ps.setString(8, booking.getStatus());
+            ps.setDouble(9, booking.getTotalPrice());
 
-            ps.executeUpdate();
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                int paymentId = rs.getInt(1);
-                //payment.setPaymentId(paymentId);
-                return paymentId;
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("❌ Tạo booking thất bại.");
             }
-        } catch (Exception e) {
-            System.out.println(e);
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int bookingId = rs.getInt(1);
+                    booking.setBookingId(bookingId);
+                    return bookingId;
+                } else {
+                    throw new SQLException("❌ Tạo booking thất bại — không lấy được ID vừa tạo.");
+                }
+            }
         }
-        return 0;
     }
 
     /**
@@ -162,7 +186,9 @@ public class BookingDao extends DBContext {
                 String[] statuses = status.split(",");
                 sql.append(" AND b.status IN (");
                 for (int i = 0; i < statuses.length; i++) {
-                    if (i > 0) sql.append(",");
+                    if (i > 0) {
+                        sql.append(",");
+                    }
                     sql.append("?");
                     parameters.add(statuses[i].trim());
                 }
@@ -221,7 +247,7 @@ public class BookingDao extends DBContext {
         return false;
     }
 
-       public void createHistoryBooking(HistoryBooking hb) throws SQLException {
+    public void createHistoryBooking(HistoryBooking hb) throws SQLException {
         String sql = "INSERT INTO HistoryBooking (paymentId, accountUserId, customerName, "
                 + "customerEmail, customerPhone, tourStatus, createdAt) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -249,10 +275,44 @@ public class BookingDao extends DBContext {
         }
     }
 
+    public static void main(String[] args) {
+        try {
+            // 1. Tạo DAO (đảm bảo trong class này có connection hợp lệ)
+            BookingDao bookingDao = new BookingDao();
+            Booking booking= new Booking();
+  booking.setCustomerId(3); // ID khách hàng có sẵn trong DB
+            booking.setTourId(2);     // Tour có thật trong bảng Tours
+            booking.setCustomTourId(null); // nếu không dùng customTour, để 0
 
+            // Chuyển từ LocalDate sang java.util.Date
+            LocalDate depLocal = LocalDate.of(2025, 11, 10);
+            LocalDate endLocal = LocalDate.of(2025, 11, 15);
+            Date depDate = Date.from(depLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Date endDate = Date.from(endLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
+            booking.setDepartureDate(depDate);
+            booking.setEndDate(endDate);
 
-     public Bill getBillByHistoryBooking(int paymentId) throws SQLException {
+            booking.setAdultQuantity(2);
+            booking.setChildQuantity(1);
+            booking.setStatus("PENDING");
+
+            // 3. Gọi hàm createBooking()
+            int bookingId = bookingDao.createBooking(booking);
+
+            // 4. In kết quả ra console
+            if (bookingId > 0) {
+                System.out.println("✅ Booking created successfully with ID: " + bookingId);
+            } else {
+                System.out.println("❌ Failed to create booking!");
+            }
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Bill getBillByHistoryBooking(int paymentId) throws SQLException {
         String sql = "SELECT [hb].[paymentId], [hb].[customerName], [hb].[customerPhone], [hb].[createdAt], "
                 + "COALESCE([t].[tourName], [ct].[tourName]) AS tourNamePayment, [p].[amount], [p].[status] AS paymentStatus "
                 + "FROM [HistoryBooking] hb "
@@ -283,8 +343,7 @@ public class BookingDao extends DBContext {
         return null;
     }
 
-
-       //Tao thanh toan cho booking
+    //Tao thanh toan cho booking
     public int createPayment(Payment payment) throws SQLException {
         String sql = "INSERT INTO Payments (bookingId, amount, status) OUTPUT INSERTED.paymentId VALUES (?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -294,7 +353,7 @@ public class BookingDao extends DBContext {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int paymentId = rs.getInt(1);
-                //payment.setPaymentId(paymentId);
+                payment.setPaymentId(paymentId);
                 return paymentId;
             }
         } catch (Exception e) {
@@ -302,7 +361,6 @@ public class BookingDao extends DBContext {
         }
         return 0;
     }
-
 
     /**
      * Get booking statistics for dashboard
@@ -357,35 +415,6 @@ public class BookingDao extends DBContext {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Lỗi khi cập nhật trạng thái bookingId = " + bookingId, e);
-        }
-    }
-
-    public static void main(String[] args) {
-        BookingDao bookingDao = new BookingDao();
-
-        // Tạo đối tượng Booking mẫu
-        Booking booking = new Booking();
-
-        // **Quan trọng:** customerId phải tồn tại trong bảng Users
-        booking.setCustomerId(5); // Giả sử userId 1 có trong Users
-        try {
-            // Chuyển đổi string thành java.util.Date
-            Date departureDate = new SimpleDateFormat("yyyy-MM-dd").parse("2025-10-25");
-            booking.setDepartureDate(departureDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        booking.setAdultQuantity(2);
-        booking.setChildQuantity(1);
-        booking.setStatus("PENDING");
-
-        try {
-            bookingDao.createBooking(booking);
-            System.out.println("Tạo booking thành công. Booking ID: " + booking.getBookingId());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Tạo booking thất bại: " + e.getMessage());
         }
     }
 
@@ -562,24 +591,23 @@ public class BookingDao extends DBContext {
             return (total + PAGE_SIZE - 1) / PAGE_SIZE;
         }
     }
-    
-    public List<String> getAllTours() throws SQLException {
-    List<String> tours = new ArrayList<>();
-    String sql = "SELECT tourName FROM Tours ORDER BY tourName ASC";
 
-    try (PreparedStatement ps = connection.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            tours.add(rs.getString("tourName"));
+    public List<String> getAllTours() throws SQLException {
+        List<String> tours = new ArrayList<>();
+        String sql = "SELECT tourName FROM Tours ORDER BY tourName ASC";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                tours.add(rs.getString("tourName"));
+            }
         }
+        return tours;
     }
-    return tours;
-}
 
     public List<BookingListItem> searchByTourAndSort(String tour, String sortOrder) throws SQLException {
-    String orderBy = "ASC".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
+        String orderBy = "ASC".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
 
-    String sql = """
+        String sql = """
         SELECT 
             b.bookingId,
             u.fullName AS customerName,
@@ -594,34 +622,34 @@ public class BookingDao extends DBContext {
         WHERE (? IS NULL OR t.tourName = ?)
         ORDER BY b.totalPrice """ + orderBy;
 
-    List<BookingListItem> list = new ArrayList<>();
+        List<BookingListItem> list = new ArrayList<>();
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, tour == null || tour.isEmpty() ? null : tour);
-        ps.setString(2, tour == null || tour.isEmpty() ? null : tour);
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                BookingListItem it = new BookingListItem();
-                it.setBookingId(rs.getInt("bookingId"));
-                it.setProfileName(null);
-                it.setCustomerName(rs.getString("customerName"));
-                int p = rs.getInt("price");
-                it.setPrice(rs.wasNull() ? null : p);
-                String st = rs.getString("status");
-                it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
-                Timestamp ts = rs.getTimestamp("bookingDate");
-                it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
-                it.setTotalAmount(rs.getBigDecimal("totalAmount"));
-                it.setServices(rs.getString("services"));
-                list.add(it);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, tour == null || tour.isEmpty() ? null : tour);
+            ps.setString(2, tour == null || tour.isEmpty() ? null : tour);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BookingListItem it = new BookingListItem();
+                    it.setBookingId(rs.getInt("bookingId"));
+                    it.setProfileName(null);
+                    it.setCustomerName(rs.getString("customerName"));
+                    int p = rs.getInt("price");
+                    it.setPrice(rs.wasNull() ? null : p);
+                    String st = rs.getString("status");
+                    it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
+                    Timestamp ts = rs.getTimestamp("bookingDate");
+                    it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
+                    it.setTotalAmount(rs.getBigDecimal("totalAmount"));
+                    it.setServices(rs.getString("services"));
+                    list.add(it);
+                }
             }
         }
+        return list;
     }
-    return list;
-}
-    
-public BookingListItem getBookingById2(int id) throws SQLException {
-    String sql = """
+
+    public BookingListItem getBookingById2(int id) throws SQLException {
+        String sql = """
         SELECT 
             b.bookingId,
             u.fullName AS customerName,
@@ -639,29 +667,30 @@ public BookingListItem getBookingById2(int id) throws SQLException {
         WHERE b.bookingId = ?
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, id);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                BookingListItem it = new BookingListItem();
-                it.setBookingId(rs.getInt("bookingId"));
-                it.setCustomerName(rs.getString("customerName"));
-                it.setServices(rs.getString("services"));
-                it.setPrice(rs.getInt("price"));
-                String st = rs.getString("status");
-                it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    BookingListItem it = new BookingListItem();
+                    it.setBookingId(rs.getInt("bookingId"));
+                    it.setCustomerName(rs.getString("customerName"));
+                    it.setServices(rs.getString("services"));
+                    it.setPrice(rs.getInt("price"));
+                    String st = rs.getString("status");
+                    it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
 
-                Timestamp ts = rs.getTimestamp("bookingDate");
-                it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
+                    Timestamp ts = rs.getTimestamp("bookingDate");
+                    it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
 
-                it.setTotalAmount(rs.getBigDecimal("totalAmount"));
-                return it;
+                    it.setTotalAmount(rs.getBigDecimal("totalAmount"));
+                    return it;
+                }
             }
         }
+        return null;
     }
-    return null;
-}
- public List<BookingDetailItem> getDetailsByBookingId(int bookingId) throws SQLException {
+
+    public List<BookingDetailItem> getDetailsByBookingId(int bookingId) throws SQLException {
         String sql
                 = "SELECT d.*, "
                 + "       COALESCE(h.hotelName, f.flightNumber, v.modelName, t.tourName) AS serviceName "
@@ -692,7 +721,3 @@ public BookingListItem getBookingById2(int id) throws SQLException {
         return list;
     }
 }
-
-
-
-

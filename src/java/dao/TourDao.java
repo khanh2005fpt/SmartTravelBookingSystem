@@ -30,7 +30,7 @@ public class TourDao extends DBContext {
     //Lay danh sach tour tron goi theo dao
     public List<Tour> getListToursById(int id) throws SQLException {
         List<Tour> list = new ArrayList<>();
-        String sql = "select * from tours a join islands b on a.islandId = b.islandId where b.islandId = ?";
+        String sql = "select * from tours a join islands b on a.islandId = b.islandId where b.islandId = ? and a.approvalStatus = 'APPROVED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -226,7 +226,7 @@ public class TourDao extends DBContext {
                 + "VALUES (?, ?, ?, ?, ?)";
 
         // Lay danh sach dich vu trong tour
-        List<CustomTourDetail> services = getTourDetails(customTourId);
+        List<CustomTourDetail> services = getCustomTourDetails(customTourId);
 
         // Tinh so ngay tour
         int numberOfDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
@@ -359,7 +359,7 @@ public class TourDao extends DBContext {
     }
 
     //Lay thong tin chi tiet tour le theo id
-    public List<CustomTourDetail> getTourDetails(int tourId) throws SQLException {
+    public List<CustomTourDetail> getCustomTourDetails(int tourId) throws SQLException {
         List<CustomTourDetail> list = new ArrayList<>();
         String sql = "SELECT * FROM CustomTourDetails WHERE customTourId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

@@ -223,7 +223,7 @@ public class ServiceDao extends DBContext {
     // ==================== HOTEL CRUD OPERATIONS ====================
     // CREATE - Them khach san moi
     public boolean createHotel(Hotel hotel) {
-        String sql = "INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, totalRooms, rating, hotelImageUrl, area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, totalRooms, rating, hotelImageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, hotel.getIslandId());
@@ -234,7 +234,7 @@ public class ServiceDao extends DBContext {
             ps.setInt(6, hotel.getTotalRooms());
             ps.setDouble(7, hotel.getRating());
             ps.setString(8, hotel.getHotelImageUrl());
-            ps.setInt(9, 50); // Default area value
+        
 
             int result = ps.executeUpdate();
             return result > 0;
@@ -1284,38 +1284,27 @@ public class ServiceDao extends DBContext {
         ServiceDao dao = new ServiceDao();
         try {
 
-            // 🧮 Tham số tìm kiếm & phân trang
-            String searchTerm = "Ha";  // ví dụ tìm các chuyến có flightNumber chứa "VN"
-            int page = 1;               // trang đầu tiên
-            int pageSize = 5;           // mỗi trang 5 chuyến bay
+          Hotel hotel = new Hotel();
+        hotel.setIslandId(1); // ID của đảo (đảm bảo có trong DB)
+        hotel.setHotelName("Phuket Paradise Resort");
+        hotel.setRoomType("Tiêu chuẩn");
+        hotel.setPricePerNight(2500000); // giá mỗi đêm (VND)
+        hotel.setRoomAvailable(20);
+        hotel.setTotalRooms(50);
+        hotel.setRating(4.7);
+        hotel.setHotelImageUrl("images/hotels/phuket_paradise.jpg");
 
-            // 🛫 Gọi hàm tìm kiếm
-            List<Flight> flights = dao.searchFlightsWithPagination(searchTerm, page, pageSize);
+        // 3️⃣ Gọi hàm createHotel() để chèn vào DB
+        boolean success = dao.createHotel(hotel);
 
-            // 🧾 In kết quả ra console
-            System.out.println("\nKết quả tìm kiếm cho departure chứa: '" + searchTerm + "'");
-            for (Flight f : flights) {
-                System.out.println("----------------------------------------");
-                System.out.println("✈️ Flight ID: " + f.getFlightId());
-
-                System.out.println("Departure: " + f.getDeparture());
-                System.out.println("Destination: " + f.getDestination());
-                System.out.println("Base Price: " + f.getBasePrice());
-                System.out.println("Ticket Available: " + f.getTicketAvailable());
-                System.out.println("Type: " + f.getFlightType());
-                System.out.println("Class: " + f.getFlightClass());
-                if (f.getAirline() != null) {
-                    System.out.println("Airline: " + f.getAirline().getAirlineName());
-                    System.out.println("IATA Code: " + f.getAirline().getIataCode());
-                }
-                if (f.getDestinationIsland() != null) {
-                    System.out.println("Island: " + f.getDestinationIsland().getIslandName());
-                }
-            }
-
-            if (flights.isEmpty()) {
-                System.out.println("⚠️ Không tìm thấy chuyến bay nào!");
-            }
+        // 4️⃣ In kết quả
+        if (success) {
+            System.out.println("✅ Thêm khách sạn thành công!");
+        } else {
+            System.out.println("❌ Thêm khách sạn thất bại!");
+        }
+            
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

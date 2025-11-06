@@ -87,7 +87,7 @@ public class VnpayReturn extends HttpServlet {
 
                 payment.setStatus(isSuccess ? "Success" : "Failed");
                 int paymentId = bookingDao.createPayment(payment);
-                
+                System.out.println(paymentId);
                 Bill bill = null;
                 if (isSuccess) {
                     bookingDao.updateStatus(bookingId, "COMPLETED");
@@ -106,7 +106,7 @@ public class VnpayReturn extends HttpServlet {
                     hb.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
                     bookingDao.createHistoryBooking(hb);
-                    bill =  bookingDao.getBillByHistoryBooking(paymentId);
+                    bill = bookingDao.getBillByHistoryBooking(paymentId);
                 }
 
                 request.setAttribute("bill", bill);

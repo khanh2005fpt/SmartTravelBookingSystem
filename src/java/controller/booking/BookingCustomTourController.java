@@ -97,7 +97,7 @@ public class BookingCustomTourController extends HttpServlet {
 
             TourDao dao = new TourDao();
             CustomTour tour = dao.getTourById(customTourId);
-            List<CustomTourDetail> details = dao.getTourDetails(customTourId);
+            List<CustomTourDetail> details = dao.getCustomTourDetails(customTourId);
 
             List<CustomTourItinerary> itineraries = dao.getTourItinerary(customTourId);
             // Kiểm tra ngày khởi hành phải >= hôm nay

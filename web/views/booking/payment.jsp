@@ -64,7 +64,7 @@ if (currentUser != null) {
 
                             <div class="mb-3">
                                 <label>Số điện thoại</label>
-                                <input type="text" class="form-control" name="phone"
+                                <input pattern="^(?:\+84|0)(?:3|5|7|8|9)\d{7,8}$" type="text" class="form-control" name="phone"
                                        value="${sessionScope.user.phone}">
                             </div>
 

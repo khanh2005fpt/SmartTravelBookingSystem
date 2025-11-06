@@ -105,12 +105,28 @@ public class LoginServlet extends HttpServlet {
         User existing = userDAO.getUserByEmail(acc.getEmail());
         try {
             if (existing != null) {
+                   if ("LOCKED".equalsIgnoreCase(existing.getStatus())) {
+        // nếu tài khoản bị khóa, gửi thông báo và redirect về login
+        session.setAttribute("errorMess", "Tài khoản của bạn đã bị khóa!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return; // quan trọng: dừng tiếp tục xử lý
+    }
+
+                
+                
                 // user ton tai -> login
                 session.setAttribute("user", existing);
                 session.setAttribute("loginSuccess", "oke");
-
+           
+              System.out.println("UserId: " + existing.getUserId());
                 // gui thong bang session den trang profile
                 CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
+        
+
+System.out.println("Profile after query: " + profile);
+session.setAttribute("profile_customer", profile);
+System.out.println("Session set done!");
+
                 session.setAttribute("profile_customer", profile);
 
                 List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
@@ -201,7 +217,7 @@ public class LoginServlet extends HttpServlet {
             String error = null;
             if (user == null) {
                 error = "Tên đăng nhập hoặc mật khẩu không đúng!";
-            } else if ("Locked".equals(user.getStatus())) {
+            } else if ("LOCKED".equals(user.getStatus())) {
                 error = "Tài khoản của bạn đã bị khóa!";
             }
             // thong bao loi

@@ -235,7 +235,7 @@
         }
     </style>
 </head>
-<<<<<<< HEAD
+
          <!-- lay thong tin user và athorized -->
         
     <%
@@ -255,8 +255,7 @@ if (currentUser != null) {
     }
 }
 %>
-=======
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
+
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -370,25 +369,7 @@ if (currentUser != null) {
                                 <div class="form-text">Loại phòng chính của khách sạn</div>
                             </div>
                         </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="countryName" class="form-label">
-                                    Quốc gia
-                                </label>
-                                <input type="text" 
-                                       class="form-control ${not empty errors.countryName ? 'is-invalid' : ''}" 
-                                       id="countryName" 
-                                       name="countryName" 
-                                       value="${hotel != null ? hotel.countryName : param.countryName}"
-                                       placeholder="Nhập tên quốc gia..."
-                                       maxlength="100">
-                                <c:if test="${not empty errors.countryName}">
-                                    <div class="invalid-feedback">${errors.countryName}</div>
-                                </c:if>
-                                <div class="form-text">Quốc gia nơi khách sạn tọa lạc</div>
-                            </div>
-                        </div>
+                      
                     </div>
                 </div>
 
