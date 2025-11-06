@@ -130,6 +130,11 @@
             color: #c2185b;
         }
         
+        .service-type-airline {
+            background: #e0f7fa;
+            color: #007b8f;
+        }
+        
         .service-name {
             font-weight: 600;
             color: #333;
@@ -399,42 +404,89 @@ if (currentUser != null) {
                 <div class="section-content">
                     <c:choose>
                         <c:when test="${not empty currentServices}">
+                            <!-- Danh sách dịch vụ hiện tại (không gồm Vé máy bay) -->
                             <c:forEach var="service" items="${currentServices}">
-                                <div class="service-card">
-                                    <div class="service-type-badge service-type-${service.serviceType.toLowerCase()}">
-                                        ${service.serviceType}
-                                    </div>
-                                    <div class="service-name">
-                                        ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
-                                    </div>
-                                    <c:if test="${not empty service.serviceDescription}">
-                                        <div class="service-description">
-                                            ${service.serviceDescription}
+                                <c:if test="${service.serviceType ne 'FLIGHT' && service.serviceType ne 'AIRLINE'}">
+                                    <div class="service-card">
+                                        <div class="service-type-badge service-type-${service.serviceType.toLowerCase()}">
+                                            ${service.serviceType}
                                         </div>
-                                    </c:if>
-                                    <c:if test="${not empty service.servicePrice}">
-                                        <div class="service-price">
-                                            <fmt:formatNumber value="${service.servicePrice}" type="currency" 
-                                                            currencySymbol="₫" groupingUsed="true"/>
+                                        <div class="service-name">
+                                            ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
                                         </div>
-                                    </c:if>
-                                    <div class="service-actions">
-                                        <small class="text-muted">
-                                            <i class="fa fa-calendar"></i> 
-                                            <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
-                                        </small>
-                                        <form method="post" style="display: inline; margin-left: auto;">
-                                            <input type="hidden" name="action" value="remove-service">
-                                            <input type="hidden" name="tourId" value="${tour.tourId}">
-                                            <input type="hidden" name="tourServiceId" value="${service.tourServiceId}">
-                                            <button type="submit" class="btn-remove-service" 
-                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa dịch vụ này?')">
-                                                <i class="fa fa-trash"></i> Xóa
-                                            </button>
-                                        </form>
+                                        <c:if test="${not empty service.serviceDescription}">
+                                            <div class="service-description">
+                                                ${service.serviceDescription}
+                                            </div>
+                                        </c:if>
+                                        <c:if test="${not empty service.servicePrice}">
+                                            <div class="service-price">
+                                                <fmt:formatNumber value="${service.servicePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                            </div>
+                                        </c:if>
+                                        <div class="service-actions">
+                                            <small class="text-muted">
+                                                <i class="fa fa-calendar"></i>
+                                                <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                            </small>
+                                            <form method="post" style="display: inline; margin-left: auto;">
+                                                <input type="hidden" name="action" value="remove-service">
+                                                <input type="hidden" name="tourId" value="${tour.tourId}">
+                                                <input type="hidden" name="tourServiceId" value="${service.tourServiceId}">
+                                                <button type="submit" class="btn-remove-service" onclick="return confirm('Bạn có chắc chắn muốn xóa dịch vụ này?')">
+                                                    <i class="fa fa-trash"></i> Xóa
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
-                                </div>
+                                </c:if>
                             </c:forEach>
+
+                            <!-- Vé máy bay hiện tại -->
+                            <hr style="margin: 20px 0;">
+                            <h4 style="display:flex;align-items:center;gap:8px;"><i class="fa fa-plane"></i> Vé máy bay</h4>
+                            <c:set var="flightCount" value="0"/>
+                            <c:forEach var="service" items="${currentServices}">
+                                <c:if test="${service.serviceType == 'FLIGHT' || service.serviceType == 'AIRLINE'}">
+                                    <c:set var="flightCount" value="${flightCount + 1}"/>
+                                    <div class="service-card">
+                                        <div class="service-type-badge service-type-airline">FLIGHT</div>
+                                        <div class="service-name">
+                                            ${not empty service.serviceName ? service.serviceName : 'Vé máy bay ID: '.concat(service.serviceId)}
+                                        </div>
+                                        <c:if test="${not empty service.serviceDescription}">
+                                            <div class="service-description">
+                                                ${service.serviceDescription}
+                                            </div>
+                                        </c:if>
+                                        <c:if test="${not empty service.servicePrice}">
+                                            <div class="service-price">
+                                                <fmt:formatNumber value="${service.servicePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                            </div>
+                                        </c:if>
+                                        <div class="service-actions">
+                                            <small class="text-muted">
+                                                <i class="fa fa-calendar"></i>
+                                                <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                            </small>
+                                            <form method="post" style="display: inline; margin-left: auto;">
+                                                <input type="hidden" name="action" value="remove-service">
+                                                <input type="hidden" name="tourId" value="${tour.tourId}">
+                                                <input type="hidden" name="tourServiceId" value="${service.tourServiceId}">
+                                                <button type="submit" class="btn-remove-service" onclick="return confirm('Bạn có chắc chắn muốn xóa vé máy bay này?')">
+                                                    <i class="fa fa-trash"></i> Xóa
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </c:if>
+                            </c:forEach>
+                            <c:if test="${flightCount == 0}">
+                                <div class="empty-state">
+                                    <i class="fa fa-plane"></i>
+                                    <p>Chưa có vé máy bay nào trong tour này</p>
+                                </div>
+                            </c:if>
                         </c:when>
                         <c:otherwise>
                             <div class="empty-state">
@@ -454,38 +506,83 @@ if (currentUser != null) {
                 <div class="section-content">
                     <c:choose>
                         <c:when test="${not empty availableServices}">
+                            <!-- Danh sách dịch vụ khả dụng (không gồm Vé máy bay) -->
                             <c:forEach var="service" items="${availableServices}">
-                                <div class="service-card">
-                                    <div class="service-type-badge service-type-${service.serviceType.toLowerCase()}">
-                                        ${service.serviceType}
-                                    </div>
-                                    <div class="service-name">
-                                        ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
-                                    </div>
-                                    <c:if test="${not empty service.serviceDescription}">
-                                        <div class="service-description">
-                                            ${service.serviceDescription}
+                                <c:if test="${service.serviceType ne 'FLIGHT'}">
+                                    <div class="service-card">
+                                        <div class="service-type-badge service-type-${service.serviceType.toLowerCase()}">
+                                            ${service.serviceType}
                                         </div>
-                                    </c:if>
-                                    <c:if test="${not empty service.servicePrice}">
-                                        <div class="service-price">
-                                            <fmt:formatNumber value="${service.servicePrice}" type="currency" 
-                                                            currencySymbol="₫" groupingUsed="true"/>
+                                        <div class="service-name">
+                                            ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
                                         </div>
-                                    </c:if>
-                                    <div class="service-actions">
-                                        <form method="post" style="display: inline;">
-                                            <input type="hidden" name="action" value="add-service">
-                                            <input type="hidden" name="tourId" value="${tour.tourId}">
-                                            <input type="hidden" name="serviceType" value="${service.serviceType}">
-                                            <input type="hidden" name="serviceId" value="${service.serviceId}">
-                                            <button type="submit" class="btn-add-service">
-                                                <i class="fa fa-plus"></i> Thêm vào tour
-                                            </button>
-                                        </form>
+                                        <c:if test="${not empty service.serviceDescription}">
+                                            <div class="service-description">
+                                                ${service.serviceDescription}
+                                            </div>
+                                        </c:if>
+                                        <c:if test="${not empty service.servicePrice}">
+                                            <div class="service-price">
+                                                <fmt:formatNumber value="${service.servicePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                            </div>
+                                        </c:if>
+                                        <div class="service-actions">
+                                            <form method="post" style="display: inline;">
+                                                <input type="hidden" name="action" value="add-service">
+                                                <input type="hidden" name="tourId" value="${tour.tourId}">
+                                                <input type="hidden" name="serviceType" value="${service.serviceType}">
+                                                <input type="hidden" name="serviceId" value="${service.serviceId}">
+                                                <button type="submit" class="btn-add-service">
+                                                    <i class="fa fa-plus"></i> Thêm vào tour
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
-                                </div>
+                                </c:if>
                             </c:forEach>
+
+                            <!-- Vé máy bay khả dụng -->
+                            <hr style="margin: 20px 0;">
+                            <h4 style="display:flex;align-items:center;gap:8px;"><i class="fa fa-plane"></i> Vé máy bay khả dụng</h4>
+                            <c:set var="availableFlightCount" value="0"/>
+                            <c:forEach var="service" items="${availableServices}">
+                                <c:if test="${service.serviceType == 'FLIGHT'}">
+                                    <c:set var="availableFlightCount" value="${availableFlightCount + 1}"/>
+                                    <div class="service-card">
+                                        <div class="service-type-badge service-type-airline">FLIGHT</div>
+                                        <div class="service-name">
+                                            ${not empty service.serviceName ? service.serviceName : 'Vé máy bay ID: '.concat(service.serviceId)}
+                                        </div>
+                                        <c:if test="${not empty service.serviceDescription}">
+                                            <div class="service-description">
+                                                ${service.serviceDescription}
+                                            </div>
+                                        </c:if>
+                                        <c:if test="${not empty service.servicePrice}">
+                                            <div class="service-price">
+                                                <fmt:formatNumber value="${service.servicePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                            </div>
+                                        </c:if>
+                                        <div class="service-actions">
+                                            <form method="post" style="display: inline;">
+                                                <input type="hidden" name="action" value="add-service">
+                                                <input type="hidden" name="tourId" value="${tour.tourId}">
+                                                <input type="hidden" name="serviceType" value="${service.serviceType}">
+                                                <input type="hidden" name="serviceId" value="${service.serviceId}">
+                                                <button type="submit" class="btn-add-service">
+                                                    <i class="fa fa-plus"></i> Thêm vào tour
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </c:if>
+                            </c:forEach>
+                            <c:if test="${availableFlightCount == 0}">
+                                <div class="empty-state">
+                                    <i class="fa fa-plane"></i>
+                                    <p>Không có vé máy bay khả dụng cho đảo này</p>
+                                </div>
+                            </c:if>
                         </c:when>
                         <c:otherwise>
                             <div class="empty-state">

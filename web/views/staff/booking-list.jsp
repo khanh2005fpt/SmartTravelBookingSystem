@@ -79,8 +79,6 @@
         }
         
         .stat-card.pending .icon { color: #ffc107; }
-        .stat-card.confirmed .icon { color: #28a745; }
-        .stat-card.cancelled .icon { color: #dc3545; }
         .stat-card.completed .icon { color: #17a2b8; }
         .stat-card.total .icon { color: #6f42c1; }
         
@@ -291,23 +289,13 @@ if (currentUser != null) {
         <div class="stats-cards">
             <div class="stat-card pending">
                 <div class="icon"><i class="fa fa-clock"></i></div>
-                <div class="number">${pendingCount}</div>
-                <div class="label">Chờ xử lý</div>
-            </div>
-            <div class="stat-card confirmed">
-                <div class="icon"><i class="fa fa-check"></i></div>
-                <div class="number">${confirmedCount}</div>
-                <div class="label">Đã xác nhận</div>
+                <div class="number">${incompleteCount}</div>
+                <div class="label">Chưa hoàn thành</div>
             </div>
             <div class="stat-card completed">
                 <div class="icon"><i class="fa fa-flag-checkered"></i></div>
                 <div class="number">${completedCount}</div>
-                <div class="label">Hoàn thành</div>
-            </div>
-            <div class="stat-card cancelled">
-                <div class="icon"><i class="fa fa-times"></i></div>
-                <div class="number">${cancelledCount}</div>
-                <div class="label">Đã hủy</div>
+                <div class="label">Đã hoàn thành</div>
             </div>
             <div class="stat-card total">
                 <div class="icon"><i class="fa fa-list"></i></div>
@@ -332,10 +320,8 @@ if (currentUser != null) {
                     <label for="status">Trạng thái</label>
                     <select class="form-control" id="status" name="status">
                         <option value="">Tất cả trạng thái</option>
-                        <option value="PENDING" ${searchStatus == 'PENDING' ? 'selected' : ''}>Chờ xử lý</option>
-                        <option value="CONFIRMED" ${searchStatus == 'CONFIRMED' ? 'selected' : ''}>Đã xác nhận</option>
-                        <option value="COMPLETED" ${searchStatus == 'COMPLETED' ? 'selected' : ''}>Hoàn thành</option>
-                        <option value="CANCELLED" ${searchStatus == 'CANCELLED' ? 'selected' : ''}>Đã hủy</option>
+                        <option value="INCOMPLETE" ${searchStatus == 'INCOMPLETE' ? 'selected' : ''}>Chưa hoàn thành</option>
+                        <option value="COMPLETED" ${searchStatus == 'COMPLETED' ? 'selected' : ''}>Đã hoàn thành</option>
                     </select>
                 </div>
                 
@@ -396,7 +382,7 @@ if (currentUser != null) {
                                                 </c:when>
                                                 <c:when test="${not empty booking.customTourName}">
                                                     <span class="tour-name">${booking.customTourName}</span>
-                                                    <small class="text-muted d-block">Tour tùy chỉnh</small>
+                                                    <small class="text-muted d-block">Tour lẻ</small>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="text-muted">Không xác định</span>
@@ -422,17 +408,11 @@ if (currentUser != null) {
                                         </td>
                                         <td>
                                             <c:choose>
-                                                <c:when test="${booking.status == 'PENDING'}">
-                                                    <span class="status-badge status-pending">Chờ xử lý</span>
-                                                </c:when>
-                                                <c:when test="${booking.status == 'CONFIRMED'}">
-                                                    <span class="status-badge status-confirmed">Đã xác nhận</span>
+                                                <c:when test="${booking.status == 'PENDING' || booking.status == 'CONFIRMED'}">
+                                                    <span class="status-badge status-pending">Chưa hoàn thành</span>
                                                 </c:when>
                                                 <c:when test="${booking.status == 'COMPLETED'}">
-                                                    <span class="status-badge status-completed">Hoàn thành</span>
-                                                </c:when>
-                                                <c:when test="${booking.status == 'CANCELLED'}">
-                                                    <span class="status-badge status-cancelled">Đã hủy</span>
+                                                    <span class="status-badge status-completed">Đã hoàn thành</span>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="status-badge">${booking.status}</span>

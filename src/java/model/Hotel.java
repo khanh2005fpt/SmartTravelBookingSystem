@@ -18,6 +18,7 @@ public class Hotel {
     private String roomType;
     private int pricePerNight;
     private int roomAvailable;
+    private int totalRooms; // Tổng số phòng
     private double rating;
 
     public Hotel() {
@@ -110,6 +111,14 @@ public class Hotel {
         this.roomAvailable = roomAvailable;
     }
 
+    public int getTotalRooms() {
+        return totalRooms;
+    }
+
+    public void setTotalRooms(int totalRooms) {
+        this.totalRooms = totalRooms;
+    }
+
     public double getRating() {
         return rating;
     }
@@ -120,7 +129,7 @@ public class Hotel {
 
     @Override
     public String toString() {
-        return "Hotel{" + "hotelId=" + hotelId + ", islandId=" + islandId + ", hotelName=" + hotelName + ", countryName=" + countryName + ", hotelImageUrl=" + hotelImageUrl + ", roomType=" + roomType + ", pricePerNight=" + pricePerNight + ", roomAvailable=" + roomAvailable + ", rating=" + rating + '}' + "\n";
+        return "Hotel{" + "hotelId=" + hotelId + ", islandId=" + islandId + ", hotelName=" + hotelName + ", countryName=" + countryName + ", hotelImageUrl=" + hotelImageUrl + ", roomType=" + roomType + ", pricePerNight=" + pricePerNight + ", roomAvailable=" + roomAvailable + ", totalRooms=" + totalRooms + ", rating=" + rating + '}' + "\n";
     }
 
     

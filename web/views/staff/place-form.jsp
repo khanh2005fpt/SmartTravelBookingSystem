@@ -590,6 +590,45 @@ if (currentUser != null) {
                         </div>
                     </div>
 
+                    <!-- Image Upload Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fa fa-image"></i> Hình ảnh địa điểm
+                        </h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="placeImageFile" class="form-label">
+                                    Tải lên hình ảnh địa điểm
+                                </label>
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="placeImageFile" 
+                                       name="placeImageFile" 
+                                       accept="image/*"
+                                       onchange="previewImage(this, 'placeImagePreview')">
+                                <div class="form-text">Chọn file hình ảnh (JPG, PNG, GIF). Tối đa 10MB</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Xem trước</label>
+                                <div class="image-preview-container">
+                                    <img id="placeImagePreview" 
+                                         src="${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty() ? pageContext.request.contextPath.concat('/').concat(place.placeImageUrl) : ''}" 
+                                         alt="Preview" 
+                                         class="preview-image"
+                                         style="display: ${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty() ? 'block' : 'none'};">
+                                    <div id="noPlaceImageText" style="display: ${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty() ? 'none' : 'block'}; color: #6c757d; font-style: italic;">
+                                        Chưa có hình ảnh
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden field to store current image URL for edit mode -->
+                        <c:if test="${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty()}">
+                            <input type="hidden" name="currentImageUrl" value="${place.placeImageUrl}">
+                        </c:if>
+                    </div>
 
                 </div>
 
@@ -699,6 +738,25 @@ if (currentUser != null) {
                 }
             });
         });
+
+        // Image preview function
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(previewId);
+                    const noImageText = document.getElementById('noPlaceImageText');
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    if (noImageText) {
+                        noImageText.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
 </body>
 </html>

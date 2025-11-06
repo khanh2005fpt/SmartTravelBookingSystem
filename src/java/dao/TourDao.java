@@ -43,6 +43,7 @@ public class TourDao extends DBContext {
                 t.setPrice(rs.getInt("price"));
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
+                t.setAvailableQuantity(rs.getInt("availableQuantity"));
 
                 list.add(t);
             }
@@ -68,6 +69,7 @@ public class TourDao extends DBContext {
                 t.setPrice(rs.getInt("price"));
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
+                t.setAvailableQuantity(rs.getInt("availableQuantity"));
                 return t;
             }
         } catch (SQLException e) {
@@ -468,13 +470,14 @@ public class TourDao extends DBContext {
     // ==================== CRUD OPERATIONS FOR TOURS (STAFF FUNCTIONS) ====================
     //Tao tour tron goi moi (Create)
     public int createTour(Tour tour) throws SQLException {
-        String sql = "INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl) OUTPUT INSERTED.tourId VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Tours (islandId, tourName, description, price, tourImageUrl, availableQuantity) OUTPUT INSERTED.tourId VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, tour.getIslandId());
             ps.setString(2, tour.getTourName());
             ps.setString(3, tour.getDescription());
             ps.setInt(4, tour.getPrice());
             ps.setString(5, tour.getTourImageUrl());
+            ps.setInt(6, tour.getAvailableQuantity());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -490,7 +493,7 @@ public class TourDao extends DBContext {
 
     //Cap nhat thong tin tour tron goi (Update)
     public boolean updateTour(Tour tour) throws SQLException {
-        String sql = "UPDATE Tours SET islandId = ?, tourName = ?, description = ?, price = ?, tourImageUrl = ?, approvalStatus = ? WHERE tourId = ?";
+        String sql = "UPDATE Tours SET islandId = ?, tourName = ?, description = ?, price = ?, tourImageUrl = ?, approvalStatus = ?, availableQuantity = ? WHERE tourId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, tour.getIslandId());
             ps.setString(2, tour.getTourName());
@@ -498,7 +501,8 @@ public class TourDao extends DBContext {
             ps.setInt(4, tour.getPrice());
             ps.setString(5, tour.getTourImageUrl());
             ps.setString(6, tour.getApprovalStatus());
-            ps.setInt(7, tour.getTourId());
+            ps.setInt(7, tour.getAvailableQuantity());
+            ps.setInt(8, tour.getTourId());
 
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
@@ -512,7 +516,7 @@ public class TourDao extends DBContext {
     public boolean updateTourWithServices(Tour tour, String[] selectedHotels, String[] selectedRestaurants,
             String[] selectedPlaces, String[] selectedVehicles) throws SQLException {
         try {
-            String sql = "UPDATE Tours SET islandId = ?, tourName = ?, description = ?, price = ?, tourImageUrl = ?, approvalStatus = ? WHERE tourId = ?";
+            String sql = "UPDATE Tours SET islandId = ?, tourName = ?, description = ?, price = ?, tourImageUrl = ?, approvalStatus = ?, availableQuantity = ? WHERE tourId = ?";
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setInt(1, tour.getIslandId());
                 ps.setString(2, tour.getTourName());
@@ -520,7 +524,8 @@ public class TourDao extends DBContext {
                 ps.setInt(4, tour.getPrice());
                 ps.setString(5, tour.getTourImageUrl());
                 ps.setString(6, tour.getApprovalStatus());
-                ps.setInt(7, tour.getTourId());
+                ps.setInt(7, tour.getAvailableQuantity());
+                ps.setInt(8, tour.getTourId());
 
                 int rowsAffected = ps.executeUpdate();
                 if (rowsAffected == 0) {
@@ -605,6 +610,7 @@ public class TourDao extends DBContext {
                 t.setDescription(rs.getString("description"));
                 t.setPrice(rs.getInt("price"));
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
+                t.setAvailableQuantity(rs.getInt("availableQuantity"));
                 list.add(t);
             }
         } catch (Exception e) {
@@ -631,6 +637,7 @@ public class TourDao extends DBContext {
                 t.setPrice(rs.getInt("price"));
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
+                t.setAvailableQuantity(rs.getInt("availableQuantity"));
                 t.setIslandName(rs.getString("islandName"));
                 list.add(t);
             }
@@ -660,6 +667,7 @@ public class TourDao extends DBContext {
                     t.setDescription(rs.getString("description"));
                     t.setPrice(rs.getInt("price"));
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    t.setAvailableQuantity(rs.getInt("availableQuantity"));
                     list.add(t);
                 }
             }
@@ -692,6 +700,7 @@ public class TourDao extends DBContext {
                     t.setPrice(rs.getInt("price"));
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
                     t.setApprovalStatus(rs.getString("approvalStatus"));
+                    t.setAvailableQuantity(rs.getInt("availableQuantity"));
                     t.setIslandName(rs.getString("islandName"));
                     list.add(t);
                 }
@@ -738,6 +747,7 @@ public class TourDao extends DBContext {
                     t.setDescription(rs.getString("description"));
                     t.setPrice(rs.getInt("price"));
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    t.setAvailableQuantity(rs.getInt("availableQuantity"));
                     list.add(t);
                 }
             }
@@ -770,6 +780,7 @@ public class TourDao extends DBContext {
                     t.setDescription(rs.getString("description"));
                     t.setPrice(rs.getInt("price"));
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    t.setAvailableQuantity(rs.getInt("availableQuantity"));
                     t.setIslandName(rs.getString("islandName"));
                     list.add(t);
                 }
@@ -849,6 +860,7 @@ public class TourDao extends DBContext {
                     t.setDescription(rs.getString("description"));
                     t.setPrice(rs.getInt("price"));
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    t.setAvailableQuantity(rs.getInt("availableQuantity"));
                     list.add(t);
                 }
             }

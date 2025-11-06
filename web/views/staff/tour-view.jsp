@@ -500,41 +500,39 @@ if (currentUser != null) {
                             
                             <c:choose>
                                 <c:when test="${not empty currentServices}">
+                                    <!-- Danh sách dịch vụ -->
                                     <div class="services-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
                                         <c:forEach var="service" items="${currentServices}">
-                                            <div class="service-card" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; transition: all 0.3s ease;">
-                                                <div class="service-header" style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
-                                                    <div class="service-type" style="background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: 600; text-transform: uppercase;">
-                                                        ${service.serviceType}
+                                            <c:if test="${service.serviceType ne 'AIRLINE'}">
+                                                <div class="service-card" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; transition: all 0.3s ease;">
+                                                    <div class="service-header" style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
+                                                        <div class="service-type" style="background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: 600; text-transform: uppercase;">
+                                                            ${service.serviceType}
+                                                        </div>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h5 style="margin: 0 0 10px 0; color: #333; font-weight: 600;">
+                                                            ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
+                                                        </h5>
+                                                        <c:if test="${not empty service.serviceDescription}">
+                                                            <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em; line-height: 1.4;">
+                                                                ${service.serviceDescription}
+                                                            </p>
+                                                        </c:if>
+                                                        <c:if test="${not empty service.servicePrice}">
+                                                            <div class="service-price" style="color: #28a745; font-weight: 600; font-size: 1.1em;">
+                                                                <fmt:formatNumber value="${service.servicePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                                            </div>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="service-actions" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                                                        <small class="text-muted">
+                                                            <i class="fa fa-calendar"></i>
+                                                            Thêm vào: <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                                        </small>
                                                     </div>
                                                 </div>
-                                                
-                                                <div class="service-info">
-                                                    <h5 style="margin: 0 0 10px 0; color: #333; font-weight: 600;">
-                                                        ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
-                                                    </h5>
-                                                    
-                                                    <c:if test="${not empty service.serviceDescription}">
-                                                        <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em; line-height: 1.4;">
-                                                            ${service.serviceDescription}
-                                                        </p>
-                                                    </c:if>
-                                                    
-                                                    <c:if test="${not empty service.servicePrice}">
-                                                        <div class="service-price" style="color: #28a745; font-weight: 600; font-size: 1.1em;">
-                                                            <fmt:formatNumber value="${service.servicePrice}" type="currency" 
-                                                                            currencySymbol="₫" groupingUsed="true"/>
-                                                        </div>
-                                                    </c:if>
-                                                </div>
-                                                
-                                                <div class="service-actions" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-                                                    <small class="text-muted">
-                                                        <i class="fa fa-calendar"></i> 
-                                                        Thêm vào: <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
-                                                    </small>
-                                                </div>
-                                            </div>
+                                            </c:if>
                                         </c:forEach>
                                     </div>
                                 </c:when>

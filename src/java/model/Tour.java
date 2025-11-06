@@ -19,6 +19,7 @@ public class Tour {
     private String tourImageUrl;
     private String islandName; // Added for displaying island name
     private String approvalStatus; // PENDING, APPROVED, REJECTED
+    private int availableQuantity; // Số lượng tour còn lại
 
     public Tour() {
     }
@@ -98,9 +99,17 @@ public class Tour {
         this.approvalStatus = approvalStatus;
     }
 
+    public int getAvailableQuantity() {
+        return availableQuantity;
+    }
+
+    public void setAvailableQuantity(int availableQuantity) {
+        this.availableQuantity = availableQuantity;
+    }
+
     @Override
     public String toString() {
-        return "Tour{" + "tourId=" + tourId + ", islandId=" + islandId + ", tourName=" + tourName + ", description=" + description + ", price=" + price + ", tourImageUrl=" + tourImageUrl + ", islandName=" + islandName + '}' + "\n";
+        return "Tour{" + "tourId=" + tourId + ", islandId=" + islandId + ", tourName=" + tourName + ", description=" + description + ", price=" + price + ", tourImageUrl=" + tourImageUrl + ", islandName=" + islandName + ", availableQuantity=" + availableQuantity + '}' + "\n";
     }
     
     
