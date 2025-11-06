@@ -11,7 +11,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -35,7 +35,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -143,7 +143,7 @@
         }
         
         .btn-primary-form {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         
@@ -235,6 +235,27 @@
         }
     </style>
 </head>
+
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
+
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -348,23 +369,75 @@
                                 <div class="form-text">Loại phòng chính của khách sạn</div>
                             </div>
                         </div>
+                      
+                    </div>
+                </div>
+
+                <!-- Room and Pricing Information Section -->
+                <div class="form-section">
+                    <h4><i class="fa fa-bed"></i> Thông tin phòng và giá</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="pricePerNight" class="form-label">
+                                    Giá mỗi đêm (₫) <span class="required">*</span>
+                                </label>
+                                <input type="number" 
+                                       class="form-control ${not empty errors.pricePerNight ? 'is-invalid' : ''}" 
+                                       id="pricePerNight" 
+                                       name="pricePerNight" 
+                                       value="${hotel != null ? hotel.pricePerNight : param.pricePerNight}"
+                                       placeholder="0"
+                                       min="0"
+                                       step="1000"
+                                       required>
+                                <c:if test="${not empty errors.pricePerNight}">
+                                    <div class="invalid-feedback">${errors.pricePerNight}</div>
+                                </c:if>
+                                <div class="form-text">Giá thuê phòng mỗi đêm (VNĐ)</div>
+                            </div>
+                        </div>
                         
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="countryName" class="form-label">
-                                    Quốc gia
+                                <label for="totalRooms" class="form-label">
+                                    Tổng số phòng <span class="required">*</span>
                                 </label>
-                                <input type="text" 
-                                       class="form-control ${not empty errors.countryName ? 'is-invalid' : ''}" 
-                                       id="countryName" 
-                                       name="countryName" 
-                                       value="${hotel != null ? hotel.countryName : param.countryName}"
-                                       placeholder="Nhập tên quốc gia..."
-                                       maxlength="100">
-                                <c:if test="${not empty errors.countryName}">
-                                    <div class="invalid-feedback">${errors.countryName}</div>
+                                <input type="number" 
+                                       class="form-control ${not empty errors.totalRooms ? 'is-invalid' : ''}" 
+                                       id="totalRooms" 
+                                       name="totalRooms" 
+                                       value="${hotel != null ? hotel.totalRooms : param.totalRooms}"
+                                       placeholder="0"
+                                       min="1"
+                                       required>
+                                <c:if test="${not empty errors.totalRooms}">
+                                    <div class="invalid-feedback">${errors.totalRooms}</div>
                                 </c:if>
-                                <div class="form-text">Quốc gia nơi khách sạn tọa lạc</div>
+                                <div class="form-text">Tổng số phòng của khách sạn</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="roomAvailable" class="form-label">
+                                    Số phòng có sẵn <span class="required">*</span>
+                                </label>
+                                <input type="number" 
+                                       class="form-control ${not empty errors.roomAvailable ? 'is-invalid' : ''}" 
+                                       id="roomAvailable" 
+                                       name="roomAvailable" 
+                                       value="${hotel != null ? hotel.roomAvailable : param.roomAvailable}"
+                                       placeholder="0"
+                                       min="0"
+                                       required>
+                                <c:if test="${not empty errors.roomAvailable}">
+                                    <div class="invalid-feedback">${errors.roomAvailable}</div>
+                                </c:if>
+                                <div class="form-text">Số phòng hiện có sẵn để đặt</div>
                             </div>
                         </div>
                     </div>

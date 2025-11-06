@@ -78,7 +78,7 @@ public class CustomTourDetailController extends HttpServlet {
             }
 
             request.setAttribute("tour", tour);
-            request.setAttribute("details", dao.getTourDetails(id));
+            request.setAttribute("details", dao.getCustomTourDetails(id));
             request.setAttribute("flightType", flightTypeRaw);
             request.setAttribute("itinerary", dao.getTourItinerary(id));
 

@@ -133,7 +133,8 @@
 </div>
 
             <a href="${pageContext.request.contextPath}/views/account/login.jsp" class="btn-back">
-                Quay lại đăng nhập
+           <i class="fa fa-arrow-left"></i> Quay lại đăng nhập
+
             </a>
         </div>
     </body>

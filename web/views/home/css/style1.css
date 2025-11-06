@@ -582,3 +582,12 @@ input::placeholder {
     pointer-events: none;
 }
 /* ==========Favourite service , tours ========== */
+.heart {
+  color: #000; /* màu viền mặc định, có thể là xám hoặc đen nhạt */
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.heart.full {
+  color: red; /* khi click → tô đỏ */
+}

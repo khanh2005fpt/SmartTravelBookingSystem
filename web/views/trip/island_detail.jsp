@@ -110,7 +110,7 @@
                                                     <div class="d-flex justify-content-between mt-3">
                                                         <p class="mb-2" style="margin-left: 2px;">
 
-                                                            <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                            <i class="bi bi-heart heart" data-tour-id="${tour.tourId}" style="font-size:1.4rem;"></i>
                                                         </p>
                                                         <p class="text-primary fw-bold fs-5 mb-2 text-end">
                                                             Giá tour: 
@@ -164,7 +164,9 @@
                                 <div class="input-group " style="max-width: 180px;">
                                     <div>
                                         <label for="startDateFlight" class="form-label fw-semibold">Ngày bắt đầu</label>
-                                        <input type="date" class="form-control rounded-pill text-center" id="startDateFlight" name="startDateFlight" >
+                                        <input type="date" class="form-control rounded-pill text-center"
+                                               id="startDateFlight" name="startDateFlight"
+                                               value="${param.startDateFlight}">                                    
                                     </div>
                                 </div>
                             </div>
@@ -173,7 +175,9 @@
                                 <div class="input-group" style="max-width: 180px;">
                                     <div>
                                         <label for="endDateFlight" class="form-label fw-semibold">Ngày kết thúc</label>
-                                        <input type="date" class="form-control rounded-pill text-center" id="endDateFlight" name="endDateFlight">
+                                        <input type="date" class="form-control rounded-pill text-center"
+                                               id="endDateFlight" name="endDateFlight"
+                                               value="${param.endDateFlight}">                                   
                                     </div>
                                 </div>
                             </div>
@@ -229,7 +233,7 @@
                             <c:choose>
                                 <c:when test="${not empty flights}">
                                     <c:forEach var="f" items="${flights}">
-                                   
+
                                         <div class="col-lg-4 col-md-6 mb-4 flight-item">
                                             <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
                                                  data-flightId="${f.flightId}">
@@ -343,7 +347,7 @@
                                                         <div class="d-flex justify-content-between mt-3">
                                                             <p class="mb-2" style="margin-left: 2px;">
 
-                                                                <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                                <i class="bi bi-heart heart" data-hotel-id="${hotel.hotelId}" style="font-size:1.4rem;"></i>
                                                             </p>
                                                             <p class="text-danger fw-bold fs-5 mb-2 text-end">
                                                                 <fmt:setLocale value="vi_VN" />
@@ -423,7 +427,7 @@
                                             <div class="d-flex justify-content-between mt-3">
                                                 <p class="mb-2" style="margin-left: 2px;">
 
-                                                    <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                    <i class="bi bi-heart heart" data-vehicle-id="${v.vehicleId}" style="font-size:1.4rem;"></i>
                                                 </p>
                                                 <h6 class="text-danger fw-bold fs-5 mb-2 text-end">
                                                     <fmt:formatNumber value="${v.pricePerDay}" type="number" /> VNĐ/ngày
@@ -489,7 +493,7 @@
                                                     <div class="d-flex justify-content-between mt-3">
                                                         <p class="mb-2" style="margin-left: 2px;">
 
-                                                            <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                            <i class="bi bi-heart heart" data-place-id="${p.placeId}" style="font-size:1.4rem;"></i>
                                                         </p>
                                                         <div class="text-end">
                                                             <c:choose>
@@ -846,68 +850,85 @@
         </script>
 
         <!-- nhap thong tin ngay de tim chuyen bay va cam ket -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const startDate = document.getElementById('startDateFlight');
-                const endDate = document.getElementById('endDateFlight');
-                const oneWayLink = document.getElementById('oneWayLink');
-                const roundTripLink = document.getElementById('roundTripLink');
-                const commitCheckbox = document.getElementById('commitFlight');
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const startDate = document.getElementById('startDateFlight');
+    const endDate = document.getElementById('endDateFlight');
+    const oneWayLink = document.getElementById('oneWayLink');
+    const roundTripLink = document.getElementById('roundTripLink');
+    const commitCheckbox = document.getElementById('commitFlight');
 
-                // Lưu href gốc
-                const oneWayHref = oneWayLink.href;
-                const roundTripHref = roundTripLink.href;
+    const today = new Date().toISOString().split("T")[0];
+    startDate.setAttribute("min", today);
+    endDate.setAttribute("min", today);
+
+    // --- LOAD STATE ---
+    const savedStart = sessionStorage.getItem("startDateFlight");
+    const savedEnd = sessionStorage.getItem("endDateFlight");
+    const savedCommit = sessionStorage.getItem("commitFlightChecked") === "true";
+
+    if (savedCommit) {
+        if (savedStart) startDate.value = savedStart;
+        if (savedEnd) endDate.value = savedEnd;
+        commitCheckbox.checked = true;
+    }
+
+    // --- UPDATE BUTTONS ---
+ function updateButtons() {
+    const startVal = startDate.value;
+    const endVal = endDate.value;
+    const isCommitted = commitCheckbox.checked;
+
+    // Kiểm tra endDate < startDate
+    if (startVal && endVal && endVal < startVal) {
+        alert("❌ Ngày kết thúc không thể trước ngày bắt đầu!");
+        endDate.value = "";
+        
+        // Xóa sessionStorage liên quan để reload sau không bị alert lại
+        sessionStorage.removeItem("endDateFlight");
+    }
+
+    const hasStart = startDate.value.trim() !== '';
+    const hasEnd = endDate.value.trim() !== '';
+
+    oneWayLink.classList.toggle('disabled', !(hasStart && isCommitted));
+    oneWayLink.style.pointerEvents = hasStart && isCommitted ? 'auto' : 'none';
+    oneWayLink.style.opacity = hasStart && isCommitted ? '1' : '0.5';
+
+    roundTripLink.classList.toggle('disabled', !(hasStart && hasEnd && isCommitted));
+    roundTripLink.style.pointerEvents = hasStart && hasEnd && isCommitted ? 'auto' : 'none';
+    roundTripLink.style.opacity = hasStart && hasEnd && isCommitted ? '1' : '0.5';
+}
 
 
+    // --- SAVE STATE ---
+    function saveState() {
+        if (commitCheckbox.checked) {
+            sessionStorage.setItem("startDateFlight", startDate.value);
+            sessionStorage.setItem("endDateFlight", endDate.value);
+            sessionStorage.setItem("commitFlightChecked", commitCheckbox.checked);
+        }
+    }
 
+    // --- EVENT LISTENERS ---
+    startDate.addEventListener('change', () => { saveState(); updateButtons(); });
+    endDate.addEventListener('change', () => { saveState(); updateButtons(); });
+    commitCheckbox.addEventListener('change', () => {
+        if (!commitCheckbox.checked) {
+            sessionStorage.clear();
+            startDate.value = "";
+            endDate.value = "";
+        } else {
+            saveState();
+        }
+        updateButtons();
+    });
 
-                // Hàm kiểm tra và bật/tắt nút
-                function updateButtons() {
-                    const hasStart = startDate.value.trim() !== '';
-                    const hasEnd = endDate.value.trim() !== '';
-                    const isCommitted = commitCheckbox.checked;
-                    // Cập nhật nút Một chiều
-                    if (hasStart && isCommitted) {
-                        oneWayLink.href = oneWayHref;
-                        oneWayLink.classList.remove('disabled');
-                        oneWayLink.style.pointerEvents = 'auto';
-                        oneWayLink.style.opacity = '1';
-                    } else {
-                        oneWayLink.removeAttribute('href');
-                        oneWayLink.classList.add('disabled');
-                        oneWayLink.style.pointerEvents = 'none';
-                        oneWayLink.style.opacity = '0.5';
-                    }
+    updateButtons();
+});
+</script>
 
-                    // Cập nhật nút Khứ hồi
-                    if (hasStart && hasEnd && isCommitted) {
-                        roundTripLink.href = roundTripHref;
-                        roundTripLink.classList.remove('disabled');
-                        roundTripLink.style.pointerEvents = 'auto';
-                        roundTripLink.style.opacity = '1';
-                    } else {
-                        roundTripLink.removeAttribute('href');
-                        roundTripLink.classList.add('disabled');
-                        roundTripLink.style.pointerEvents = 'none';
-                        roundTripLink.style.opacity = '0.5';
-                    }
-                    // Nếu chưa có ngày → tự bỏ tick cam kết
-                    if (!hasStart && commitCheckbox.checked) {
-                        commitCheckbox.checked = false;
-                    }
-                }
-
-                // Gọi lần đầu
-                updateButtons();
-
-                // Lắng nghe thay đổi ngày
-                startDate.addEventListener('change', updateButtons);
-                endDate.addEventListener('change', updateButtons);
-                commitCheckbox.addEventListener('change', updateButtons);
-
-            });
-        </script>
-
+   <!-- add favaroutie tours ,services   -->
         <script >
 
 
@@ -921,7 +942,7 @@
                         const flightId = heart.dataset.flightId;
                         const liked = heart.classList.contains("full");
 
-                        // TODO: Gửi lên server nếu muốn lưu trạng thái like
+                        // Gửi lên server  lưu trạng thái like
                         console.log("Flight ID:", flightId, "Liked:", liked);
                     });
                 });

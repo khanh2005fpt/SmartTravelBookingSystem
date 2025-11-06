@@ -109,7 +109,7 @@
 
                             <a href="https://accounts.google.com/o/oauth2/auth?scope=email profile openid
 
-&redirect_uri=http://localhost:9999/SmartBookingTravelSystem/login
+&redirect_uri=http://localhost:9090/SmartBookingTravelSystem/login
 
 &response_type=code
 
@@ -121,7 +121,7 @@
 
                             <div class="text-center">
                                 <p>Chưa có tài khoản? 
-                                    <a href="register.jsp" class="fw-bold text-primary">Đăng ký ngay</a>
+                                    <a href="${pageContext.request.contextPath}/views/account/register.jsp" class="fw-bold text-primary">Đăng ký ngay</a>
                                 </p>
                             </div>
                         </form>

@@ -197,7 +197,6 @@ public class CreateCustomTourController extends HttpServlet {
             if (vehicleId != null) {
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Phương tiện", vehicleId, vehiclePrice));
             }
-
             for (int pId : pids) {
                 int pPrice = dao.getServicePrice("Địa điểm nổi bật", pId);
                 dao.createCustomTourDetail(new CustomTourDetail(customTourId, "Địa điểm nổi bật", pId, pPrice));

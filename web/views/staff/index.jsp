@@ -10,6 +10,7 @@
 <%@ page import="model.Tour" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="model.User" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -34,7 +35,7 @@
         }
         
         .welcome-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 40px;
             border-radius: 15px;
@@ -84,13 +85,13 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
         }
         
         .stat-icon {
             font-size: 3em;
             margin-bottom: 15px;
-            color: #667eea;
+            color: #00ACD4;
         }
         
         .stat-number {
@@ -145,7 +146,7 @@
         }
         
         .action-btn:hover {
-            background: #667eea;
+            background: #00ACD4;
             color: white;
             text-decoration: none;
             transform: translateY(-2px);
@@ -275,6 +276,28 @@
         }
     </style>
 </head>
+
+
+          <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId ==3 ) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
+
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -285,7 +308,7 @@
         <!-- Welcome Header -->
         <div class="welcome-header">
             <h1><i class="fa fa-tachometer-alt"></i> Dashboard</h1>
-            <p>Chào mừng bạn đến với hệ thống quản lý Meland Travel</p>
+            <p>Chào mừng bạn đến với hệ thống quản lý<strong> Meland Travel Booking</strong> </p>
             <p><i class="fa fa-clock"></i> Hôm nay: <fmt:formatDate value="<%= new java.util.Date() %>" pattern="EEEE, dd/MM/yyyy"/></p>
         </div>
 

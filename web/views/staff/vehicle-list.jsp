@@ -10,7 +10,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -34,7 +34,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -153,7 +153,7 @@
         }
         
         .vehicles-count {
-            background: #667eea;
+            background:#00ACD4;
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
@@ -250,6 +250,18 @@
             align-items: center;
             gap: 4px;
         }
+         .btn-search1{
+          background-color: #00ACD4; 
+            color: white;
+            padding: 13px;
+    border-radius: 10px;
+        }
+        .btn-search1:hover{
+             background-color: #007CB9; 
+             color: white;
+        }
+        
+        
         
         .btn-view {
             background: #17a2b8;
@@ -367,6 +379,26 @@
         }
     </style>
 </head>
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
+
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -439,7 +471,7 @@
                     </select>
                 </div>
                 
-                <button type="submit" class="btn-search">
+                <button type="submit" class="btn btn-search1">
                     <i class="fa fa-search"></i> Tìm kiếm
                 </button>
             </form>
