@@ -259,11 +259,7 @@
                 <p><%= d.getTotalBookings() %></p>
             </div>
 
-            <div class="stat-card card-payments" onclick="location.href='<%=request.getContextPath()%>/manager/payments'">
-                <div class="icon"><i class="fas fa-credit-card"></i></div>
-                <h3>Payments</h3>
-                <p><%= d.getTotalPayments() %></p>
-            </div>
+           
 
             <div class="stat-card card-reports" onclick="location.href='<%=request.getContextPath()%>/manager/report'">
                 <div class="icon"><i class="fas fa-file-invoice-dollar"></i></div>
@@ -276,6 +272,12 @@
                 <div class="icon"><i class="fas fa-users"></i></div>
                 <h3>Customers</h3>
                 <p><%= d.getTotalUsers() %></p>
+            </div>
+            
+             <div class="stat-card card-users" onclick="location.href='<%=request.getContextPath()%>/manager/tour-approval'">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <h3>Tour</h3>
+                
             </div>
 
             <div class="stat-card card-revenue">

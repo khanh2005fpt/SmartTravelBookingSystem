@@ -96,7 +96,7 @@ public class UserServlet extends HttpServlet {
             throws SQLException, ServletException, IOException {
         String keyword = request.getParameter("keyword");
         List<User> users = dao.searchByUsername(keyword);
-        forwardSearch(request, response, dao, users);
+        forwardSearch   (request, response, dao, users);
     }
 
     private void searchByFullName(HttpServletRequest request, HttpServletResponse response, UserDao dao)
