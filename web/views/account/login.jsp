@@ -121,7 +121,7 @@
 
                             <div class="text-center">
                                 <p>Chưa có tài khoản? 
-                                    <a href="register.jsp" class="fw-bold text-primary">Đăng ký ngay</a>
+                                    <a href="${pageContext.request.contextPath}/views/account/register.jsp" class="fw-bold text-primary">Đăng ký ngay</a>
                                 </p>
                             </div>
                         </form>

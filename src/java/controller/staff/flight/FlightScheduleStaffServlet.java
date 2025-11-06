@@ -228,7 +228,7 @@ if(session != null){
             request.setAttribute("currentPage", page);
             request.setAttribute("pageSize", pageSize);
             request.setAttribute("totalPages", totalPages);
-            request.setAttribute(" totalFlightSchedules",  totalFlightSchedules);
+            request.setAttribute("totalFlightSchedules",  totalFlightSchedules);
 
            
             // calculate pagination display page

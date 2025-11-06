@@ -16,6 +16,7 @@
     <%
 User currentUser = (User) session.getAttribute("user");
 if (currentUser != null) {
+         
     int roleId = currentUser.getRoleId();
 
     if (roleId != 1 && roleId != 3) {

@@ -3,27 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/TourStaffServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/edit-itinerary.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/vehicle-list.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/common/css.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/Airlines.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_schedule-list.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightScheduleStaffServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightTicketStaffServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/ServiceDao.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/hotel-list.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/SystemDao.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/sidebar.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/edit-activity.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-form.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/admin/admin_dashboard_user.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/place-list.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_schedule-list.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_ticket-form.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/account/reset_password.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-services.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-itinerary.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/booking-list.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_schedule-form.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-list.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/user/userList.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-view.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/Flight.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/HotelStaffServlet.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_ticket-list.jsp</file>
         </group>
     </open-files>

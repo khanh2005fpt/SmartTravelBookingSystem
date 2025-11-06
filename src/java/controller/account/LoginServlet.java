@@ -85,13 +85,15 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+       
+         
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
         if (error != null) {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
-
+    
         String code = request.getParameter("code");
         GoogleLogin gg = new GoogleLogin();
         String accessToken = gg.getToken(code);

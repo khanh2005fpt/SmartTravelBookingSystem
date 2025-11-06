@@ -27,7 +27,7 @@
             }
 
             .page-header {
-                   background: linear-gradient(180deg, #0077b6, #00b4d8);
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 padding: 30px;
                 border-radius: 15px;
@@ -85,7 +85,7 @@
             }
 
             .btn-searchSchedule {
-                 background: linear-gradient(180deg, #0077b6, #00b4d8);
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 border: none;
                 padding: 10px 25px;
@@ -282,7 +282,7 @@
                 text-decoration: none;
             }
 
-             .pagination-wrapper {
+            .pagination-wrapper {
                 background: white;
                 padding: 25px;
                 border-radius: 15px;
@@ -404,9 +404,9 @@
             }
         </style>
     </head>
-    
-             <!-- lay thong tin user và athorized -->
-        
+
+    <!-- lay thong tin user và athorized -->
+
     <%
 User currentUser = (User) session.getAttribute("user");
 if (currentUser == null) {
@@ -423,7 +423,7 @@ if (currentUser != null) {
         return;
     }
 }
-%>
+    %>
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="sidebar.jsp">
@@ -523,7 +523,7 @@ if (currentUser != null) {
                         </select>
 
                     </div>
-                 <button type="submit" class="btn-searchSchedule">
+                    <button type="submit" class="btn-searchSchedule">
                         <i class="fa fa-search"></i> Tìm kiếm
                     </button>
                     <!-- Thông tin + nút thêm vé -->
@@ -632,12 +632,12 @@ if (currentUser != null) {
                                                class="btn btn-outline-primary rounded-3 px-3 py-1">
                                                 <i class="fa fa-edit me-1"></i> Sửa
                                             </a>
-                                         
-                                           <a href="#"
-   onclick="confirmDelete(${s.scheduleId}, ${s.flight.flightId}, '${s.flight.flightNumber}')"
-   class="btn btn-outline-danger rounded-3 px-3 py-1">
-   <i class="fa fa-trash me-1"></i> Xóa
-</a>
+
+                                            <a href="#"
+                                               onclick="confirmDelete(${s.scheduleId}, ${s.flight.flightId}, '${s.flight.flightNumber}')"
+                                               class="btn btn-outline-danger rounded-3 px-3 py-1">
+                                                <i class="fa fa-trash me-1"></i> Xóa
+                                            </a>
 
                                         </div>
 
@@ -645,9 +645,9 @@ if (currentUser != null) {
                                 </div>
                             </div>
                         </c:forEach>
-                        
-                        
-                         <!-- Pagination -->
+
+
+                        <!-- Pagination -->
                         <c:if test = "${totalPages>1}">
                             <div class ="pagination-wrapper">
                                 <nav aria-label="FlightSchedule pagination">
@@ -729,7 +729,7 @@ if (currentUser != null) {
             <!-- Include common scripts -->
             <jsp:include page="../common/script.jsp" />
 
-             <!-- Delete Confirmation Modal -->
+            <!-- Delete Confirmation Modal -->
             <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -740,7 +740,7 @@ if (currentUser != null) {
                             </button>
                         </div>
                         <div class="modal-body">
-                                <p>Bạn có chắc chắn muốn xóa lịch trình bay mã số : "<strong id="flightNumberToDelete"></strong>" ?</p>
+                            <p>Bạn có chắc chắn muốn xóa lịch trình bay mã số : "<strong id="flightNumberToDelete"></strong>" ?</p>
                             <p class="text-danger"><small>Hành động này không thể hoàn tác.</small></p>
                         </div>
                         <div class="modal-footer">
@@ -748,7 +748,7 @@ if (currentUser != null) {
                             <form id="deleteForm" method="post" style="display: inline;">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="scheduleId" id="scheduleIdToDelete">
-                                  <input type="hidden" name="flightId" id="flightIdToDelete">
+                                <input type="hidden" name="flightId" id="flightIdToDelete">
                                 <button type="submit" class="btn btn-danger">Xóa</button>
                             </form>
                         </div>
@@ -757,14 +757,14 @@ if (currentUser != null) {
             </div>
 
 
-                <script>
-                   function confirmDelete(scheduleId,flightId,flightNumber) {
-    document.getElementById('scheduleIdToDelete').value = scheduleId;
-    document.getElementById('flightIdToDelete').value = flightId;
-    document.getElementById('flightNumberToDelete').textContent = flightNumber;
-    document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/schedules';
-    $('#deleteModal').modal('show');
-}
+            <script>
+                function confirmDelete(scheduleId, flightId, flightNumber) {
+                    document.getElementById('scheduleIdToDelete').value = scheduleId;
+                    document.getElementById('flightIdToDelete').value = flightId;
+                    document.getElementById('flightNumberToDelete').textContent = flightNumber;
+                    document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/schedules';
+                    $('#deleteModal').modal('show');
+                }
                 // Auto-hide alerts after 5 seconds
                 setTimeout(function () {
                     $('.alert').fadeOut('slow');
@@ -787,47 +787,47 @@ if (currentUser != null) {
                     });
                 });
             </script>
-            
-        <!-- Modal thông báo action khi thành công -->
-        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content text-center shadow-lg border-0 rounded-4 overflow-hidden">
 
-                    <!-- Header xanh lá -->
-                    <div class="modal-header bg-success text-white justify-content-center py-3">
-                        <h5 class="modal-title fw-bold text-uppercase text-white letter-spacing-1" id="successModalLabel">
-                            🎉 Thao tác thành công!
-                        </h5>
+            <!-- Modal thông báo action khi thành công -->
+            <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-center shadow-lg border-0 rounded-4 overflow-hidden">
+
+                        <!-- Header xanh lá -->
+                        <div class="modal-header bg-success text-white justify-content-center py-3">
+                            <h5 class="modal-title fw-bold text-uppercase text-white letter-spacing-1" id="successModalLabel">
+                                🎉 Thao tác thành công!
+                            </h5>
+                        </div>
+
+                        <!-- Nội dung -->
+                        <div class="modal-body fs-5 text-secondary py-4">
+                            ✈️ Lịch trình chuyến bay của bạn đã được <strong class="text-success fw-bold">${param.success}</strong> thành công!<br>
+                            <strong class="text-dark">ID Lịch trình chuyến bay:</strong> ${param.scheduleId}
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="modal-footer justify-content-center border-0 pb-4">
+                            <button type="button" class="btn btn-success px-4 fw-semibold" id="btnOk" data-bs-dismiss="modal">
+                                <i class="fa fa-check-circle me-2"></i> OK
+                            </button>
+                        </div>
+
                     </div>
-
-                    <!-- Nội dung -->
-                    <div class="modal-body fs-5 text-secondary py-4">
-                        ✈️ Lịch trình chuyến bay của bạn đã được <strong class="text-success fw-bold">${param.success}</strong> thành công!<br>
-                        <strong class="text-dark">ID Lịch trình chuyến bay:</strong> ${param.scheduleId}
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="modal-footer justify-content-center border-0 pb-4">
-                        <button type="button" class="btn btn-success px-4 fw-semibold" id="btnOk" data-bs-dismiss="modal">
-                            <i class="fa fa-check-circle me-2"></i> OK
-                        </button>
-                    </div>
-
                 </div>
             </div>
-        </div>
 
-        <!-- Script bật modal -->
-        <c:if test="${param.success == 'created' || param.success == 'updated' || param.success == 'deleted'}">
-            <script>
-              document.addEventListener("DOMContentLoaded", function() {
-                const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
-                modal.show();
-                document.getElementById("btnOk").addEventListener("click", function() {
-                  modal.hide();
-                });
-              });
-            </script>
-        </c:if>
+            <!-- Script bật modal -->
+            <c:if test="${param.success == 'created' || param.success == 'updated' || param.success == 'deleted'}">
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+                        modal.show();
+                        document.getElementById("btnOk").addEventListener("click", function () {
+                            modal.hide();
+                        });
+                    });
+                </script>
+            </c:if>
     </body>
 </html>

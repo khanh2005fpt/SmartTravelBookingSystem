@@ -37,12 +37,8 @@
                 <!-- Thêm nút đăng nhập / đăng ký -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" 
-                       aria-haspopup="true" aria-expanded="false">Dịch vụ</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdown04">
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/flight.jsp">Vé máy bay</a>
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/HotelsController">Khách sạn</a>
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/home/transport.jsp">Vé phương tiện di chuyển đến đảo</a>
-                    </div>
+                       aria-haspopup="true" aria-expanded="false">Thông báo</a>
+                  
                 </li>
 
 
