@@ -83,6 +83,7 @@ public class UserManagerServlet extends HttpServlet {
         String status = req.getParameter("status");
         int roleId = Integer.parseInt(req.getParameter("roleId"));
 
+        
         // Kiểm tra trùng username/email
         if (dao.checkUsernameExist(username) || dao.checkEmailExist(email)) {
             req.setAttribute("error", "Tên đăng nhập hoặc Email đã tồn tại!");
