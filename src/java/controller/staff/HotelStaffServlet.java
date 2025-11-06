@@ -547,6 +547,11 @@ public class HotelStaffServlet extends HttpServlet {
             hotel.setRoomAvailable(Integer.parseInt(roomAvailableStr));
         }
         
+        String totalRoomsStr = request.getParameter("totalRooms");
+        if (totalRoomsStr != null && !totalRoomsStr.trim().isEmpty()) {
+            hotel.setTotalRooms(Integer.parseInt(totalRoomsStr));
+        }
+        
         // Set island ID
         String islandIdStr = request.getParameter("islandId");
         if (islandIdStr != null && !islandIdStr.trim().isEmpty()) {

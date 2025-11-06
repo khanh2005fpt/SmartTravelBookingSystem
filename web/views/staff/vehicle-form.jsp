@@ -506,6 +506,25 @@
                             </div>
                             
                             <div class="form-group">
+                                <label for="totalQuantity">Tổng số lượng <span class="required">*</span></label>
+                                <input type="number" 
+                                       class="form-control <c:if test='${not empty errorTotalQuantity}'>is-invalid</c:if>" 
+                                       id="totalQuantity" 
+                                       name="totalQuantity" 
+                                       value="${vehicle.totalQuantity}"
+                                       min="1"
+                                       max="10000"
+                                       required
+                                       placeholder="Tổng số lượng phương tiện">
+                                <div class="form-text">Tổng số lượng phương tiện của loại này</div>
+                                <c:if test="${not empty errorTotalQuantity}">
+                                    <div class="invalid-feedback">${errorTotalQuantity}</div>
+                                </c:if>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
                                 <label for="availability">Số lượng có sẵn <span class="required">*</span></label>
                                 <input type="number" 
                                        class="form-control <c:if test='${not empty errorAvailability}'>is-invalid</c:if>" 
@@ -524,26 +543,46 @@
                         </div>
                     </div>
 
-
-                            <br>
-                            <button type="button" class="remove-image" onclick="removeImage()">
-                                <i class="fa fa-times"></i> Xóa hình ảnh
-                            </button>
+                    <!-- Image Upload Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fa fa-image"></i> Hình ảnh phương tiện
+                        </h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="vehicleImageFile" class="form-label">
+                                        Tải lên hình ảnh phương tiện
+                                    </label>
+                                    <input type="file" 
+                                           class="form-control" 
+                                           id="vehicleImageFile" 
+                                           name="vehicleImageFile" 
+                                           accept="image/*"
+                                           onchange="previewImage(this, 'vehicleImagePreview')">
+                                    <div class="form-text">Chọn file hình ảnh (JPG, PNG, GIF). Tối đa 10MB</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Xem trước</label>
+                                    <div class="image-preview-container">
+                                        <img id="vehicleImagePreview" 
+                                             src="${vehicle != null && vehicle.vehicleImageUrl != null && !vehicle.vehicleImageUrl.isEmpty() ? pageContext.request.contextPath.concat('/').concat(vehicle.vehicleImageUrl) : ''}" 
+                                             alt="Preview" 
+                                             style="max-width: 100%; max-height: 200px; display: ${vehicle != null && vehicle.vehicleImageUrl != null && !vehicle.vehicleImageUrl.isEmpty() ? 'block' : 'none'}; border: 1px solid #ddd; border-radius: 4px;">
+                                        <div id="noVehicleImageText" style="display: ${vehicle != null && vehicle.vehicleImageUrl != null && !vehicle.vehicleImageUrl.isEmpty() ? 'none' : 'block'}; color: #6c757d; font-style: italic;">
+                                            Chưa có hình ảnh
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <!-- Current image display for edit mode -->
-                        <c:if test="${not empty vehicle && not empty vehicle.vehicleImageUrl}">
-                            <div class="current-image" id="currentImage">
-                                <h4>Hình ảnh hiện tại:</h4>
-                                <img src="${pageContext.request.contextPath}/${vehicle.vehicleImageUrl}" 
-                                     alt="${vehicle.vehicleName}" 
-                                     class="preview-image">
-                                <br>
-                                <button type="button" class="remove-image" onclick="removeCurrentImage()">
-                                    <i class="fa fa-times"></i> Xóa hình ảnh hiện tại
-                                </button>
-                                <input type="hidden" id="removeCurrentImage" name="removeCurrentImage" value="false">
-                            </div>
+                        <!-- Hidden field to store current image URL for edit mode -->
+                        <c:if test="${vehicle != null && vehicle.vehicleImageUrl != null && !vehicle.vehicleImageUrl.isEmpty()}">
+                            <input type="hidden" name="currentImageUrl" value="${vehicle.vehicleImageUrl}">
                         </c:if>
                     </div>
                 </div>
@@ -671,6 +710,25 @@
             let value = e.target.value.replace(/[^\d]/g, '');
             e.target.value = value;
         });
+
+        // Image preview function
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(previewId);
+                    const noImageText = document.getElementById('noVehicleImageText');
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    if (noImageText) {
+                        noImageText.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
 </body>
 </html>

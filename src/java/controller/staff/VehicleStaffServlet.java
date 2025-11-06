@@ -8,7 +8,9 @@ import dao.ServiceDao;
 import model.IslandVehicle;
 import model.Island;
 import model.User;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -17,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 /**
  * Servlet for managing island vehicle operations for staff members
@@ -485,12 +488,48 @@ public class VehicleStaffServlet extends HttpServlet {
     /**
      * Create vehicle object from request parameters
      */
-    private IslandVehicle createVehicleFromRequest(HttpServletRequest request) {
+    private IslandVehicle createVehicleFromRequest(HttpServletRequest request) throws ServletException, IOException {
         IslandVehicle vehicle = new IslandVehicle();
         
         // Set basic fields that exist in database
         vehicle.setVehicleType(request.getParameter("vehicleType"));
         vehicle.setModelName(request.getParameter("modelName"));
+        
+        // Handle image URL - check for file upload first, then fallback to current URL
+        String imageUrl = request.getParameter("currentImageUrl"); // Default to existing image
+        
+        try {
+            Part filePart = request.getPart("vehicleImageFile");
+            if (filePart != null && filePart.getSize() > 0) {
+                // Get original filename
+                String originalName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
+                
+                // Generate unique filename
+                String fileExtension = originalName.substring(originalName.lastIndexOf("."));
+                String uniqueFileName = "vehicle_" + System.currentTimeMillis() + "_" + 
+                                      (int)(Math.random() * 1000) + fileExtension;
+                
+                // Create upload directory if it doesn't exist
+                String uploadDir = getServletContext().getRealPath("/") + "UploadData" + File.separator + "Vehicles";
+                File uploadDirFile = new File(uploadDir);
+                if (!uploadDirFile.exists()) {
+                    uploadDirFile.mkdirs();
+                }
+                
+                // Save the file
+                String filePath = uploadDir + File.separator + uniqueFileName;
+                filePart.write(filePath);
+                
+                // Set the relative path for database storage
+                imageUrl = "UploadData/Vehicles/" + uniqueFileName;
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling file upload: " + e.getMessage());
+            e.printStackTrace();
+            // Continue with existing image URL if file upload fails
+        }
+        
+        vehicle.setVehicleImageUrl(imageUrl);
         
         // Set numeric fields
         String pricePerDayStr = request.getParameter("pricePerDay");
@@ -506,6 +545,11 @@ public class VehicleStaffServlet extends HttpServlet {
         String availabilityStr = request.getParameter("availability");
         if (availabilityStr != null && !availabilityStr.trim().isEmpty()) {
             vehicle.setAvailability(Integer.parseInt(availabilityStr));
+        }
+        
+        String totalQuantityStr = request.getParameter("totalQuantity");
+        if (totalQuantityStr != null && !totalQuantityStr.trim().isEmpty()) {
+            vehicle.setTotalQuantity(Integer.parseInt(totalQuantityStr));
         }
         
         // Set island ID

@@ -34,6 +34,8 @@ import model.Island;
 import model.TourItinerary;
 import model.TourActivities;
 import model.TourService;
+import model.Airlines;
+import model.Flight;
 
 /**
  * Servlet for CRUD operations on tour data, specifically designed for staff users
@@ -325,6 +327,11 @@ public class TourStaffServlet extends HttpServlet {
 
             // Load islands data for dropdown
             List<Island> islands = islandDao.getIslands();
+            
+            // Load current services for the tour
+            List<TourService> currentServices = serviceDao.getServicesByTourId(tourId);
+            request.setAttribute("currentServices", currentServices);
+            
             request.setAttribute("islands", islands);
             request.setAttribute("tour", tour);
             request.setAttribute("action", "edit");
@@ -408,6 +415,12 @@ public class TourStaffServlet extends HttpServlet {
             Tour tour = new Tour(tourId, islandId, tourName, description, price, tourImageUrl);
             tour.setApprovalStatus("PENDING"); // Set status to PENDING when staff edit tours
             
+            // Set available quantity
+            String availableQuantityStr = request.getParameter("availableQuantity");
+            if (availableQuantityStr != null && !availableQuantityStr.trim().isEmpty()) {
+                tour.setAvailableQuantity(Integer.parseInt(availableQuantityStr));
+            }
+            
             // Get selected services from the request and parse them by type
             String[] selectedServices = request.getParameterValues("selectedServices");
             
@@ -415,18 +428,33 @@ public class TourStaffServlet extends HttpServlet {
             List<String> hotelIds = new ArrayList<>();
             List<String> placeIds = new ArrayList<>();
             List<String> vehicleIds = new ArrayList<>();
+            List<String> flightIds = new ArrayList<>();
             
             if (selectedServices != null) {
+                System.out.println("Total selectedServices count: " + selectedServices.length);
                 for (String service : selectedServices) {
+                    System.out.println("Processing service: " + service);
                     if (service.startsWith("hotel_")) {
                         hotelIds.add(service.substring(6)); // Remove "hotel_" prefix
                     } else if (service.startsWith("place_")) {
                         placeIds.add(service.substring(6)); // Remove "place_" prefix
                     } else if (service.startsWith("vehicle_")) {
                         vehicleIds.add(service.substring(8)); // Remove "vehicle_" prefix
+                    } else if (service.startsWith("flight_")) {
+                        flightIds.add(service.substring(7)); // Remove "flight_" prefix
+                        System.out.println("Found flight: " + service.substring(7));
+                    } else if (service.startsWith("airline_")) {
+                        // Backward compatibility: convert airline_ to flight_
+                        flightIds.add(service.substring(8)); // Remove "airline_" prefix
+                        System.out.println("Found airline (converted to flight): " + service.substring(8));
                     }
                 }
+            } else {
+                System.out.println("selectedServices is null!");
             }
+            
+            System.out.println("Parsed services - Hotels: " + hotelIds.size() + ", Places: " + placeIds.size() + 
+                             ", Vehicles: " + vehicleIds.size() + ", Flights: " + flightIds.size());
             
             // Convert lists to arrays
             String[] selectedHotels = hotelIds.toArray(new String[0]);
@@ -435,6 +463,14 @@ public class TourStaffServlet extends HttpServlet {
             
             // Update tour with services using the new method
             boolean success = tourDao.updateTourWithServices(tour, selectedHotels, null, selectedPlaces, selectedVehicles);
+            // After clearing and re-adding services, add flights
+            if (flightIds != null && !flightIds.isEmpty()) {
+                System.out.println("Calling addSelectedServicesToTour with " + flightIds.size() + " flights for tour " + tour.getTourId());
+                addSelectedServicesToTour(tour.getTourId(), flightIds.toArray(new String[0]), "FLIGHT");
+            } else {
+                System.out.println("No flights to add for tour " + tour.getTourId() + " (flightIds is " + 
+                                 (flightIds == null ? "null" : "empty") + ")");
+            }
 
             if (success) {
                 request.setAttribute("success", "Cập nhật tour thành công");
@@ -465,8 +501,13 @@ public class TourStaffServlet extends HttpServlet {
         Tour tour = tourDao.getTourDetailById(tourId);
         List<Island> islands = islandDao.getIslands();
         
+        // Load current services for the tour
+        List<TourService> currentServices = serviceDao.getServicesByTourId(tourId);
+        request.setAttribute("currentServices", currentServices);
+        
         request.setAttribute("tour", tour);
         request.setAttribute("islands", islands);
+        request.setAttribute("action", "edit");
         request.getRequestDispatcher("/views/staff/tour-form.jsp").forward(request, response);
     }
 
@@ -707,18 +748,48 @@ public class TourStaffServlet extends HttpServlet {
 
                 Tour tour = new Tour(0, islandId, tourName, description, price, tourImageUrl);
                 tour.setApprovalStatus("PENDING"); // Set default status to PENDING for staff-created tours
+                
+                // Set available quantity
+                String availableQuantityStr = request.getParameter("availableQuantity");
+                if (availableQuantityStr != null && !availableQuantityStr.trim().isEmpty()) {
+                    tour.setAvailableQuantity(Integer.parseInt(availableQuantityStr));
+                } else {
+                    tour.setAvailableQuantity(0); // Default to 0 if not provided
+                }
+                
                 int newTourId = tourDao.createTour(tour);
 
                 if (newTourId > 0) {
-                    // Process selected services
-                    String[] selectedHotels = request.getParameterValues("selectedHotels");
-                    String[] selectedPlaces = request.getParameterValues("selectedPlaces");
-                    String[] selectedVehicles = request.getParameterValues("selectedVehicles");
-                    
+                    // Process selected services in unified format: type_id
+                    String[] selectedServices = request.getParameterValues("selectedServices");
+
+                    List<String> hotelIds = new ArrayList<>();
+                    List<String> placeIds = new ArrayList<>();
+                    List<String> vehicleIds = new ArrayList<>();
+                    List<String> flightIds = new ArrayList<>();
+
+                    if (selectedServices != null) {
+                        for (String service : selectedServices) {
+                            if (service.startsWith("hotel_")) {
+                                hotelIds.add(service.substring(6));
+                            } else if (service.startsWith("place_")) {
+                                placeIds.add(service.substring(6));
+                            } else if (service.startsWith("vehicle_")) {
+                                vehicleIds.add(service.substring(8));
+                            } else if (service.startsWith("flight_")) {
+                                flightIds.add(service.substring(7));
+                            } else if (service.startsWith("airline_")) {
+                                // Backward compatibility: convert airline_ to flight_
+                                flightIds.add(service.substring(8));
+                            }
+                        }
+                    }
+
                     // Add selected services to tour
-                    addSelectedServicesToTour(newTourId, selectedHotels, "Hotel");
-                    addSelectedServicesToTour(newTourId, selectedPlaces, "Place");
-                    addSelectedServicesToTour(newTourId, selectedVehicles, "Vehicle");
+                    addSelectedServicesToTour(newTourId, hotelIds.toArray(new String[0]), "Hotel");
+                    addSelectedServicesToTour(newTourId, placeIds.toArray(new String[0]), "Place");
+                    addSelectedServicesToTour(newTourId, vehicleIds.toArray(new String[0]), "Vehicle");
+                    addSelectedServicesToTour(newTourId, flightIds.toArray(new String[0]), "FLIGHT");
                     
                     request.setAttribute("success", "Tạo tour thành công");
                     // Redirect to itinerary page after successful tour creation
@@ -818,6 +889,7 @@ public class TourStaffServlet extends HttpServlet {
                     List<String> hotelIds = new ArrayList<>();
                     List<String> placeIds = new ArrayList<>();
                     List<String> vehicleIds = new ArrayList<>();
+                    List<String> flightIds = new ArrayList<>();
                     
                     if (selectedServices != null) {
                         for (String service : selectedServices) {
@@ -827,6 +899,11 @@ public class TourStaffServlet extends HttpServlet {
                                 placeIds.add(service.substring(6)); // Remove "place_" prefix
                             } else if (service.startsWith("vehicle_")) {
                                 vehicleIds.add(service.substring(8)); // Remove "vehicle_" prefix
+                            } else if (service.startsWith("flight_")) {
+                                flightIds.add(service.substring(7)); // Remove "flight_" prefix
+                            } else if (service.startsWith("airline_")) {
+                                // Backward compatibility: convert airline_ to flight_
+                                flightIds.add(service.substring(8)); // Remove "airline_" prefix
                             }
                         }
                     }
@@ -838,6 +915,13 @@ public class TourStaffServlet extends HttpServlet {
                     
                     // Update tour with services using the new method in TourDao
                     boolean updated = tourDao.updateTourWithServices(tour, selectedHotels, null, selectedPlaces, selectedVehicles);
+                    // After clearing and re-adding services, add flights
+                    if (flightIds != null && !flightIds.isEmpty()) {
+                        addSelectedServicesToTour(tour.getTourId(), flightIds.toArray(new String[0]), "FLIGHT");
+                        System.out.println("Added " + flightIds.size() + " flights to tour " + tour.getTourId());
+                    } else {
+                        System.out.println("No flights to add for tour " + tour.getTourId());
+                    }
                     
                     if (updated) {
                         request.setAttribute("success", "Cập nhật tour thành công");
@@ -993,14 +1077,24 @@ public class TourStaffServlet extends HttpServlet {
                         int serviceId = Integer.parseInt(serviceIdStr);
                         // Check if service is not already in tour before adding
                         if (!serviceDao.isServiceInTour(tourId, serviceType, serviceId)) {
-                            serviceDao.addServiceToTour(tourId, serviceType, serviceId);
+                            boolean added = serviceDao.addServiceToTour(tourId, serviceType, serviceId);
+                            if (added) {
+                                System.out.println("Successfully added " + serviceType + " (ID: " + serviceId + ") to tour " + tourId);
+                            } else {
+                                System.err.println("Failed to add " + serviceType + " (ID: " + serviceId + ") to tour " + tourId);
+                            }
+                        } else {
+                            System.out.println(serviceType + " (ID: " + serviceId + ") already exists in tour " + tourId);
                         }
                     }
                 }
             } catch ( Exception e) {
                 // Log error but don't fail the tour creation
                 System.err.println("Error adding services to tour " + tourId + ": " + e.getMessage());
+                e.printStackTrace();
             }
+        } else {
+            System.out.println("No " + serviceType + " services to add for tour " + tourId);
         }
     }
     
@@ -1079,6 +1173,22 @@ public class TourStaffServlet extends HttpServlet {
                 }
             }
             
+            json.append("], \"flights\": [");
+
+            boolean firstFlight = true;
+            for (TourService service : services) {
+                if ("FLIGHT".equals(service.getServiceType())) {
+                    if (!firstFlight) json.append(",");
+                    json.append("{");
+                    json.append("\"id\": ").append(service.getServiceId()).append(",");
+                    json.append("\"name\": \"").append(escapeJson(service.getServiceName() != null ? service.getServiceName() : "")).append("\",");
+                    json.append("\"description\": \"").append(escapeJson(service.getServiceDescription() != null ? service.getServiceDescription() : "")).append("\",");
+                    json.append("\"price\": ").append(service.getServicePrice());
+                    json.append("}");
+                    firstFlight = false;
+                }
+            }
+
             json.append("]");
             json.append("}"); // Close data object
             json.append("}"); // Close main response object

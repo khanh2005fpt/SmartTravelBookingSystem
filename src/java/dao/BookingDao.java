@@ -151,8 +151,20 @@ public class BookingDao extends DBContext {
         }
 
         if (status != null && !status.trim().isEmpty()) {
-            sql.append(" AND b.status = ?");
-            parameters.add(status);
+            // Handle multiple statuses separated by comma (e.g., "PENDING,CONFIRMED")
+            if (status.contains(",")) {
+                String[] statuses = status.split(",");
+                sql.append(" AND b.status IN (");
+                for (int i = 0; i < statuses.length; i++) {
+                    if (i > 0) sql.append(",");
+                    sql.append("?");
+                    parameters.add(statuses[i].trim());
+                }
+                sql.append(")");
+            } else {
+                sql.append(" AND b.status = ?");
+                parameters.add(status);
+            }
         }
 
         if (dateFrom != null && !dateFrom.trim().isEmpty()) {

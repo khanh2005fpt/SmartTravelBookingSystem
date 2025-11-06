@@ -1448,4 +1448,38 @@ GO
 ALTER TABLE Tours ADD approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED'));
 GO
 
+-- Add availableQuantity to Tours table
+ALTER TABLE Tours ADD availableQuantity INT DEFAULT 0 CHECK (availableQuantity >= 0);
+GO
+
+-- Add totalRooms to Hotels table
+ALTER TABLE Hotels ADD totalRooms INT DEFAULT 0 CHECK (totalRooms >= 0);
+GO
+
+-- Add totalQuantity to IslandVehicles table
+ALTER TABLE IslandVehicles ADD totalQuantity INT DEFAULT 0 CHECK (totalQuantity >= 0);
+GO
+
+-- Update TourServices serviceType CHECK constraint to include FLIGHT and AIRLINE
+-- Drop the existing constraint (using the constraint name from error message)
+-- If the constraint name is different, you may need to find it first using:
+-- SELECT name FROM sys.check_constraints WHERE parent_object_id = OBJECT_ID('TourServices')
+DECLARE @constraintName NVARCHAR(200);
+SELECT @constraintName = name
+FROM sys.check_constraints
+WHERE parent_object_id = OBJECT_ID('TourServices')
+  AND parent_column_id = COLUMNPROPERTY(OBJECT_ID('TourServices'), 'serviceType', 'ColumnId');
+
+IF @constraintName IS NOT NULL
+BEGIN
+EXEC('ALTER TABLE TourServices DROP CONSTRAINT ' + @constraintName);
+END
+GO
+
+-- Add new constraint that includes FLIGHT and AIRLINE
+ALTER TABLE TourServices
+    ADD CONSTRAINT CK_TourServices_serviceType
+        CHECK (serviceType IN ('HOTEL','RESTAURANT','VEHICLE','PLACE','FLIGHT','AIRLINE'));
+GO
+
 -------------------------------------------------------------------------------------------------------
