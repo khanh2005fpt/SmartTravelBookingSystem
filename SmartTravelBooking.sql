@@ -180,10 +180,6 @@ CREATE TABLE Islands (
     FOREIGN KEY (countryId) REFERENCES Countries(countryId) ON DELETE CASCADE
 );
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 go
 CREATE TABLE Tours (
     tourId INT PRIMARY KEY IDENTITY(1,1),
@@ -191,7 +187,6 @@ CREATE TABLE Tours (
     tourName NVARCHAR(255) UNIQUE NOT NULL,
     description NVARCHAR(MAX),
     price INT CHECK(price >= 0),  -- dùng INT lưu VNĐ
-<<<<<<< HEAD
 	approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED')),
 	tourImageUrl NVARCHAR(500),  
 
@@ -199,12 +194,6 @@ CREATE TABLE Tours (
 );
 
 
-=======
-	tourImageUrl NVARCHAR(500),  
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-);
-
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 CREATE TABLE TourItinerary (
     itineraryId INT PRIMARY KEY IDENTITY(1,1),
     tourId INT NOT NULL,
@@ -657,7 +646,6 @@ CREATE TABLE IslandVehicles (
     availability INT,
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-<<<<<<< HEAD
 
 go
 select * from historybooking
@@ -670,125 +658,6 @@ CREATE TABLE CustomTours (
     endDate DATE NOT NULL,
     totalPrice INT CHECK (totalPrice >= 0),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-=======
-
-go
-
-
- -- tour rieng le cho customer
-CREATE TABLE CustomTours (
-    customTourId INT IDENTITY(1,1) PRIMARY KEY,
-    islandId INT NOT NULL,
-    tourName NVARCHAR(150) NOT NULL,
-    startDate DATE NOT NULL,
-    endDate DATE NOT NULL,
-    totalPrice INT CHECK (totalPrice >= 0),
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-);
-
-
-INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
-VALUES
-(1, N'Tour Văn hóa & Biển Phú Quốc 2N1Đ', '2025-11-10', '2025-11-11', 3590000),
-(1, N'Tour Lặn biển Phú Quốc 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
-(3, N'Tour Khám phá Phuket 4N3Đ', '2025-11-1', '2025-11-7', 7990000),
-(4, N'Tour Văn hóa & Biển Bali 5N4Đ', '2025-10-1', '2025-10-6', 10000000),
-(4, N'Tour Nghỉ dưỡng Bali 4N3Đ', '2025-10-23', '2025-10-26', 82400000),
-(8, N'Tour Nghỉ dưỡng Koh Samui 4N3Đ', '2025-9-23', '2025-9-25', 79100000),
-(8, N'Tour Văn hóa Koh Samui 5N4Đ', '2025-9-3', '2025-9-10', 12900000);
-
-
-
-
-
-
- -- detail tour rieng le cho customer
-
-CREATE TABLE CustomTourDetails (
-    detailId INT IDENTITY(1,1) PRIMARY KEY,
-    customTourId INT NOT NULL,
-    serviceType NVARCHAR(50)
-        CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
-    serviceId INT NOT NULL,       -- ID từ bảng Hotels, Flights, IslandVehicles
-    price INT CHECK (price >= 0),
-    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
-);
-
-go
- -- lich trinh tour rieng le cho customer
-CREATE TABLE CustomTourItinerary (
-    itineraryId INT IDENTITY(1,1) PRIMARY KEY,
-    customTourId INT NOT NULL,
-    dayNumber INT CHECK (dayNumber > 0),
-    activity NVARCHAR(255) NOT NULL,
-    location NVARCHAR(150),
-    timeOfDay NVARCHAR(50),
-    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
-);
-go
-
--- trigger check role customer mới đc booking 
-CREATE TRIGGER trg_Booking_CheckCustomer
-ON Bookings
-INSTEAD OF INSERT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Chỉ cho phép user có roleId = 3 (CUSTOMER)
-    IF EXISTS (
-        SELECT 1
-        FROM inserted i
-        JOIN Users u ON i.customerId = u.userId
-        WHERE u.roleId <> 3
-    )
-    BEGIN
-        RAISERROR('Only users with roleId = 3 (CUSTOMER) can create bookings.', 16, 1);
-        ROLLBACK TRANSACTION;
-        RETURN;
-    END
-
-    --  Nếu hợp lệ, insert dữ liệu vào Bookings
-    INSERT INTO Bookings (
-        profileId,
-        customerId,
-        tourId,
-        customTourId,
-        price,
-        departureDate,
-        endDate,
-        adultQuantity,
-        childQuantity,
-        status,
-        bookingDate
-    )
-    SELECT 
-        profileId,
-        customerId,
-        tourId,
-        customTourId,
-        price,
-        departureDate,
-        endDate,
-        adultQuantity,
-        childQuantity,
-        status,
-        bookingDate
-    FROM inserted;
-END;
-GO
-
-CREATE TABLE Bookings (
-		bookingId INT IDENTITY(1,1) PRIMARY KEY,
-		customerId INT NOT NULL,
-		departureDate DATE NOT NULL,
-		endDate DATE    ,
-		adultQuantity INT NOT NULL,
-		childQuantity INT NOT NULL,
-		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
-		bookingDate DATETIME DEFAULT GETDATE(),
---		FOREIGN KEY (customerId) REFERENCES Users(userId),
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 );
 
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
@@ -936,7 +805,6 @@ CREATE TABLE Payments (
     status VARCHAR(20) CHECK (status IN ('SUCCESS','FAILED','PENDING')) DEFAULT 'PENDING',
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
-<<<<<<< HEAD
 
 
 CREATE TABLE HistoryBooking (
@@ -1016,37 +884,16 @@ BEGIN
     INNER JOIN Bookings b ON i.bookingId = b.bookingId
     INNER JOIN Tours t ON b.tourId = t.tourId;
 END;
-=======
-
-go
-
-
-
-CREATE TABLE HistoryBooking (
-    historyId INT IDENTITY(1,1) PRIMARY KEY,                 -- Mã lịch sử
-    customerId INT NOT NULL,                                
-    paymentId INT NOT NULL,                                   
-    note NVARCHAR(255) NULL,                                  -- Ghi chú
-    tourStatus NVARCHAR(20) NOT NULL CHECK (
-        tourStatus IN ('COMPLETED', 'INCOMPLETE')
-    ) DEFAULT 'INCOMPLETE', 
---    FOREIGN KEY (customerId) REFERENCES CustomerProfiles(userId) ON DELETE CASCADE,
-    FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE
-);
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 GO
 
 
 
 
-<<<<<<< HEAD
 
 
 
 
 
-=======
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 
 -- Bảng Recommendations
 CREATE TABLE Recommendations (
@@ -1368,7 +1215,6 @@ VALUES
  N'Đi thuyền đảo, Kayak, Lặn ngắm san hô, Khám phá hang động, Island-hopping',
  N'views/home/images/islands/palawan.jpg',
  N'Thành phố Puerto Princesa, Tỉnh Palawan, Philippines');
-<<<<<<< HEAD
  -- Xóa các bản ghi có ID từ 1002 đến 1016
 DELETE FROM CustomTourDetails
 WHERE detailId BETWEEN 62 AND 64;
@@ -1381,8 +1227,6 @@ WHERE customTourId BETWEEN 1 AND 2;
 	select * from  CustomTours
 -- Reset IDENTITY về 10
 DBCC CHECKIDENT ('CustomTours', RESEED, 0);
-=======
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 
 
 --3.hotel
@@ -1708,7 +1552,6 @@ VALUES
 (10, N'Xe tay ga', N'Yamaha Aerox 155', 85000, 2, 10),
 (10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5),
 (10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
-<<<<<<< HEAD
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 OUTPUT INSERTED.customTourId
 VALUES (1, 'Test Tour', '2025-11-10', '2025-11-12', 5000000);
@@ -1727,19 +1570,6 @@ CREATE TABLE Places (
 
 select * from Places
 
-=======
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
-
-CREATE TABLE Places (
-    placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
-    islandId INT NOT NULL,                   -- Mã đảo (liên kết đến bảng Islands)
-    placeName NVARCHAR(255) NOT NULL,        -- Tên địa điểm
-    location NVARCHAR(255),                  -- Địa chỉ / vị trí
-    description NVARCHAR(MAX),               -- Mô tả chi tiết
-    hasTicket BIT NOT NULL,                  -- Có vé hay không (true/false)
-    ticketPrice INT NULL,                    -- Giá vé (nếu có)
-    FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
-);
 
 INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice)
 VALUES
@@ -1793,10 +1623,7 @@ VALUES
 (10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL),
 (10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL);
 
-<<<<<<< HEAD
 select * from CustomTours
-=======
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 /*
 delete from Flights
 DBCC CHECKIDENT ('Flights', RESEED, 0);
@@ -1957,14 +1784,9 @@ WHERE paymentId = 1;
 
 */
 
-<<<<<<< HEAD
 select *from CustomTours
 
 DBCC CHECKIDENT ('CustomTours', RESEED, 0)
-=======
-
-
->>>>>>> ba008d48be94080198e049925e83a146b0a834e3
 
 
 -- TourServices table to manage services in tours
