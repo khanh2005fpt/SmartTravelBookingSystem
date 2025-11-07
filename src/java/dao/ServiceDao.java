@@ -791,65 +791,91 @@ public class ServiceDao extends DBContext {
     }
 // Tìm kiếm chuyến bay theo điểm đi, điểm đến hoặc tên hãng hàng không (có phân trang)
 
-    public List<Flight> searchFlightsWithPagination(String searchTerm, int page, int pageSize) throws SQLException {
-        List<Flight> list = new ArrayList<>();
-        int offset = (page - 1) * pageSize;
+   public List<Flight> searchFlightTicketsWithPagination(String keyword, Integer airlineId, String priceRange, int page, int pageSize) throws SQLException {
+    List<Flight> flights = new ArrayList<>();
+    int offset = (page - 1) * pageSize;
 
-        String sql = "SELECT f.*, a.airlineName, a.iataCode, a.logoUrl, a.hotline, i.islandName "
-                + "FROM Flights f "
-                + "JOIN Airlines a ON f.airlineId = a.airlineId "
-                + "LEFT JOIN Islands i ON f.destinationIslandId = i.islandId "
-                + "WHERE f.departure LIKE ? OR f.destination LIKE ? OR a.airlineName LIKE ? "
-                + "ORDER BY f.flightId "
-                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    StringBuilder sql = new StringBuilder(
+            "SELECT f.*, a.airlineId, a.airlineName, a.logoUrl "
+            + "FROM Flights f "
+            + "JOIN Airlines a ON f.airlineId = a.airlineId "
+            + "WHERE 1=1"
+    );
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            String keyword = "%" + searchTerm + "%";
-            ps.setString(1, keyword);
-            ps.setString(2, keyword);
-            ps.setString(3, keyword);
-            ps.setInt(4, offset);
-            ps.setInt(5, pageSize);
+    List<Object> params = new ArrayList<>();
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Flight flight = new Flight();
-                    flight.setFlightId(rs.getInt("flightId"));
-                    flight.setFlightNumber(rs.getString("flightNumber"));
-                    flight.setDeparture(rs.getString("departure"));
-                    flight.setDestination(rs.getString("destination"));
-                    flight.setBasePrice(rs.getInt("basePrice"));
-                    flight.setTicketAvailable(rs.getInt("ticketAvailable"));
-                    flight.setFlightType(rs.getString("flightType"));
-                    flight.setFlightClass(rs.getString("flightClass"));
-                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+    // 1.Lọc theo keyword (departure / destination / flightNumber / type / class)
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        sql.append(" AND ("
+                + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
+                + ")");
+        String kw = "%" + keyword.trim() + "%";
+        for (int i = 0; i < 5; i++) {
+            params.add(kw);
+        }
+    }
 
-                    // Hãng hàng không
-                    Airlines airline = new Airlines();
-                    airline.setAirlineId(rs.getInt("airlineId"));
-                    airline.setAirlineName(rs.getString("airlineName"));
-                    airline.setIataCode(rs.getString("iataCode"));
-                    airline.setLogoUrl(rs.getString("logoUrl"));
-                    flight.setAirline(airline);
+    // 2️.loc theo hang bay
+    if (airlineId != null) {
+        sql.append(" AND f.airlineId = ?");
+        params.add(airlineId);
+    }
 
-                    // Đảo du lịch
-                    if (rs.getInt("destinationIslandId") != 0) {
-                        Island island = new Island();
-                        island.setIslandId(rs.getInt("destinationIslandId"));
-                        island.setIslandName(rs.getString("islandName"));
-                        flight.setDestinationIsland(island);
-                    }
+    // 3️.loc theo khoang gia
+    if (priceRange != null && !priceRange.isEmpty()) {
+        if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
+            sql.append(" AND f.basePrice > 5000000");
+        } else {
+            String[] range = priceRange.split("-");
+            sql.append(" AND f.basePrice BETWEEN ? AND ?");
+            params.add(Integer.parseInt(range[0]));
+            params.add(Integer.parseInt(range[1]));
+        }
+    }
 
-                    list.add(flight);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException("Searching flights failed: " + e.getMessage());
+    // 4.phan trang
+    sql.append(" ORDER BY f.flightId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+    params.add(offset);
+    params.add(pageSize);
+
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
         }
 
-        return list;
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                // Gắn hãng bay
+                Airlines airline = new Airlines();
+                airline.setAirlineId(rs.getInt("airlineId"));
+                airline.setAirlineName(rs.getString("airlineName"));
+                airline.setLogoUrl(rs.getString("logoUrl"));
+
+                // Gắn chuyến bay
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setAirline(airline);
+                flight.setDeparture(rs.getString("departure"));
+                flight.setDestination(rs.getString("destination"));
+                flight.setBasePrice(rs.getInt("basePrice"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                flights.add(flight);
+            }
+        }
     }
+
+    return flights;
+}
+    
 
     // lay flightTicket by Pagination
     public List<Flight> getFlightsByPageWithAirlineNames(int page, int pageSize) throws SQLException {
@@ -923,22 +949,58 @@ public class ServiceDao extends DBContext {
         return 0;
     }
 
-    // Đếm số chuyến bay tìm được theo flightNumber
-    public int getSearchFlightsCount(String searchTerm) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM Flights WHERE flightNumber LIKE ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, "%" + searchTerm + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new SQLException("Getting search flights count failed: " + e.getMessage());
+    // Đếm số chuyến bay khi search , Đếm tổng số kết quả tìm kiếm
+ 
+    public int getSearchFlightTicketsCount(String keyword, Integer airlineId, String priceRange) throws SQLException {
+    StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(*) AS total FROM Flights f JOIN Airlines a ON f.airlineId = a.airlineId WHERE 1=1"
+    );
+    List<Object> params = new ArrayList<>();
+
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        sql.append(" AND ("
+                + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
+                + ")");
+        String kw = "%" + keyword.trim() + "%";
+        for (int i = 0; i < 5; i++) {
+            params.add(kw);
         }
-        return 0;
     }
+
+    if (airlineId != null) {
+        sql.append(" AND f.airlineId = ?");
+        params.add(airlineId);
+    }
+
+    if (priceRange != null && !priceRange.isEmpty()) {
+        if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
+            sql.append(" AND f.basePrice > 5000000");
+        } else {
+            String[] range = priceRange.split("-");
+            sql.append(" AND f.basePrice BETWEEN ? AND ?");
+            params.add(Integer.parseInt(range[0]));
+            params.add(Integer.parseInt(range[1]));
+        }
+    }
+
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        }
+    }
+
+    return 0;
+}
 
     // Lay tat ca chuyen bay
     public List<Flight> getAllFlights() {

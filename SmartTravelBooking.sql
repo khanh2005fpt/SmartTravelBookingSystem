@@ -18,14 +18,7 @@ CREATE TABLE Users (
 go
 
 
-
-
-
-
-
-
-
-
+select * from Places
 
 -- Add availableQuantity to Tours table
 ALTER TABLE Tours ADD availableQuantity INT DEFAULT 0 CHECK (availableQuantity >= 0);
@@ -897,6 +890,22 @@ GO
     ORDER BY f.basePrice ASC
 select * from tours
 
+CREATE TABLE Bookings (
+    bookingId INT IDENTITY(1,1) PRIMARY KEY,
+    customerId INT NOT NULL,
+    customTourId INT NULL,
+    tourId INT NULL,
+    departureDate DATE NOT NULL,
+    endDate DATE,
+    adultQuantity INT NOT NULL,
+    childQuantity INT NOT NULL,
+    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
+	totalPrice INT,
+    bookingDate DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (customerId) REFERENCES Users(userId),
+    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
+    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
+);
 
 
 

@@ -165,95 +165,94 @@ public class FlightTicketStaffServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Layer flights service
-     */
+  
     /**
      * Display list of all flights
      */
-    private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        try {
+   private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    try {
+        // Lấy tham số phân trang và filter
+        String pageParam = request.getParameter("page");
+        String pageSizeParam = request.getParameter("pageSize");
+        String searchParam = request.getParameter("search");
+        String airlineIdParam = request.getParameter("airlineId");
+        String priceRangeParam = request.getParameter("priceRange");
 
-            // Get pagination paramaters
-            String pageParam = request.getParameter("page");
-            String pageSizeParam = request.getParameter("pageSize");
-            String searchParam = request.getParameter("search");
+        int page = 1;
+        int pageSize = 12;
 
-            // handle current page (dafault page =1)
-            int page = 1;
-            if (pageParam != null && !pageParam.trim().isEmpty()) {
-                try {
-                    page = Integer.parseInt(pageParam);
-                    if (page < 1) {
-                        page = 1;
-                    }
-                } catch (NumberFormatException e) {
-                    page = 1;
-                }
-            }
-
-            // handle pageSize (the number each pages display) 
-            int pageSize = 12;// default=12
-            if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
-                try {
-                    pageSize = Integer.parseInt(pageSizeParam);
-                    if (pageSize < 1) {
-                        pageSize = 12;
-                    }
-                    if (pageSize > 100) {
-                        pageSize = 100;//Max page size limit
-                    }
-                } catch (NumberFormatException e) {
-                    pageSize = 12;
-                }
-            }
-
-            // check search or not
-            List<Flight> flights;
-            int totalFlights;
-
-            // check if search is performed
-            if (searchParam != null && !searchParam.trim().isEmpty()) {
-                flights = serviceDao.searchFlightsWithPagination(searchParam, page, pageSize);
-                totalFlights = serviceDao.getSearchFlightsCount(searchParam.trim());
-                request.setAttribute("search", searchParam.trim());
-
-            } else {
-                flights = serviceDao.getFlightsByPageWithAirlineNames(page, pageSize);
-                totalFlights = serviceDao.getTotalFlightsCount();
-            }
-
-            // calculate pagination info
-            int totalPages = (int) Math.ceil((double) totalFlights / pageSize);
-
-            //set Attribute
-            request.setAttribute("flights", flights);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("pageSize", pageSize);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("totalFlights", totalFlights);
-
-            List<Airlines> airlines = serviceDao.getAllAirlineNames();
-            session.setAttribute("airlineNames", airlines);
-            // calculate pagination display page
-            int startPage = Math.max(1, page - 2);
-            int endPage = Math.min(totalPages, page + 2);
-            request.setAttribute("startPage", startPage);
-            request.setAttribute("endPage", endPage);
-
-            request.setAttribute("action", "list");
-            request.setAttribute("pageTitle", "Flight Management");
-            request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
-        } catch (Exception e) {
-            handleError(request, response, "Error loading flight list: " + e.getMessage(), e);
+        // Page
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException ignored) {}
         }
-    }
 
-    /**
-     * Display flight details
-     */
+        // PageSize
+        if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeParam);
+                if (pageSize < 1) pageSize = 12;
+                if (pageSize > 100) pageSize = 100;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // Airline ID
+        Integer airlineId = null;
+        if (airlineIdParam != null && !airlineIdParam.trim().isEmpty()) {
+            try {
+                airlineId = Integer.parseInt(airlineIdParam);
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // ==== Logic phân nhánh ====
+        List<Flight> flights;
+        int totalFlights;
+
+        if (searchParam != null && !searchParam.trim().isEmpty()
+                || airlineId != null
+                || (priceRangeParam != null && !priceRangeParam.isEmpty())) {
+
+            flights = serviceDao.searchFlightTicketsWithPagination(
+                    searchParam, airlineId, priceRangeParam, page, pageSize
+            );
+            totalFlights = serviceDao.getSearchFlightTicketsCount(searchParam, airlineId, priceRangeParam);
+            request.setAttribute("search", searchParam);
+            request.setAttribute("airlineId", airlineId);
+            request.setAttribute("priceRange", priceRangeParam);
+        } else {
+            flights = serviceDao.getFlightsByPageWithAirlineNames(page, pageSize);
+            totalFlights = serviceDao.getTotalFlightsCount();
+        }
+
+        // ==== Pagination info ====
+        int totalPages = (int) Math.ceil((double) totalFlights / pageSize);
+        int startPage = Math.max(1, page - 2);
+        int endPage = Math.min(totalPages, page + 2);
+
+        // ==== Set attributes ====
+        request.setAttribute("flights", flights);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalFlights", totalFlights);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("pageTitle", "Flight Management");
+
+        // Load danh sách hãng bay cho dropdown
+        List<Airlines> airlines = serviceDao.getAllAirlineNames();
+        session.setAttribute("airlineNames", airlines);
+
+        request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
+    } catch (Exception e) {
+        handleError(request, response, "Error loading flight list: " + e.getMessage(), e);
+    }
+}
+
     /**
      * Display create flight form
      */
@@ -340,6 +339,19 @@ public class FlightTicketStaffServlet extends HttpServlet {
                 request.setAttribute("errorMessage", "Khoảng giá không hợp lệ, bỏ qua filter.");
                 priceRange = null;
             }
+            
+              // ===== Kiểm tra nếu KHÔNG có filter nào (tức là xem toàn bộ danh sách kèm phân trang) =====
+        boolean noFilter = 
+            (keyword == null || keyword.trim().isEmpty()) &&
+            (airlineId == null) &&
+            (priceRange == null || priceRange.trim().isEmpty());
+
+        if (noFilter) {
+            // Không có filter nào -> gọi lại hàm hiển thị list
+            handleFlightList(request, response);
+            return;
+        }
+
 
             // Gọi DAO / service để tìm chuyến bay theo filter
             List<Flight> flights = serviceDao.searchFlightTickets(keyword, airlineId, priceRange);

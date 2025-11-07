@@ -138,9 +138,14 @@ System.out.println("Session set done!");
                 session.setAttribute("phoneList_Current", phoneList);
 
                int roleId = existing != null ? existing.getRoleId() : existing.getRoleId();
-                    if (roleId == 1 || roleId == 2 || roleId == 4) {
+                    if (roleId == 1) {
+                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                    }else if(roleId == 2 ){
+                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                    }else if( roleId == 4){
                         response.sendRedirect(request.getContextPath() + "/views/staff/index.jsp");
-                    } else if (roleId == 3) {
+                    }
+                     else if (roleId == 3) {
                         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
                     } else {
                         response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
@@ -246,15 +251,18 @@ System.out.println("Session set done!");
 
             // redirect theo roleId
             int roleId = user.getRoleId();
-            if (roleId == 1 || roleId == 2 || roleId == 4) {
-                response.sendRedirect(request.getContextPath() + "/views/staff/index.jsp");
-            } else if (roleId == 3) {
-                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-            } else {
-
-                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-            }
-
+                    if (roleId == 1) {
+                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                    }else if(roleId == 2 ){
+                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                    }else if( roleId == 4){
+                        response.sendRedirect(request.getContextPath() + "/views/staff/index.jsp");
+                    }
+                     else if (roleId == 3) {
+                        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                    }
         } catch (SQLException e) {
             e.printStackTrace();
             session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa or đặt lại email. Vui lòng thử lại!");
