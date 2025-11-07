@@ -26,6 +26,8 @@ import model.TourItinerary;
  * @author Admin
  */
 public class TourDao extends DBContext {
+    
+      public static TourDao INSTANCE = new TourDao();
 
     //Lay danh sach tour tron goi theo dao
     public List<Tour> getListToursById(int id) throws SQLException {
@@ -1112,6 +1114,20 @@ public class TourDao extends DBContext {
         return list;
     }
 
-    // -------------------- TEST CHẠY --------------------
+    // -------------------- Dashboard  tour --------------------
+    public int getTotalTours() throws SQLException {
+    int total = 0;
+    String sql = "SELECT COUNT(*) AS total FROM tours";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            total = rs.getInt("total");
+        }
+    } catch (SQLException e) {
+        throw new SQLException("Lỗi khi thực thi getTotalTours", e);
+    }
+    return total;
+}
+
     
 }

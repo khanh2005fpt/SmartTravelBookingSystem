@@ -240,6 +240,14 @@
 
     <% } else if (roleId == 4) { %>
         <!-- Staff riêng ------------------------------------------------------------->
+         <div class="nav-item">
+            <a href="${pageContext.request.contextPath}/staff/dashboard"
+               class="nav-link <%= "dashboard-user".equals(currentPage) ? "active" : "" %>">
+                <i class="bi bi-bar-chart-line-fill"></i> Dashboard
+            </a>
+        </div>
+        
+        
          <div class="nav-item nav-parent" id="servicesParent">
             <a class="nav-link">
                 <i class="bi bi-briefcase-fill"></i> Dịch vụ 

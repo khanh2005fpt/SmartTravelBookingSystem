@@ -11,7 +11,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="model.User" %>
-
+<fmt:setLocale value="vi_VN" />
+<fmt:setBundle basename="messages" />
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -273,6 +274,7 @@
                 align-items: flex-start;
                 gap: 10px;
             }
+            
         }
     </style>
 </head>
@@ -337,7 +339,7 @@ if (currentUser != null) {
             
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fa fa-island-tropical"></i>
+              <i class="fa-solid fa-water"></i>
                 </div>
                 <div class="stat-number">${totalIslands != null ? totalIslands : 0}</div>
                 <div class="stat-label">Số Đảo</div>
@@ -355,9 +357,10 @@ if (currentUser != null) {
                 <div class="stat-icon">
                     <i class="fa fa-money-bill-wave"></i>
                 </div>
-                <div class="stat-number">
-                    <fmt:formatNumber value="${totalRevenue != null ? totalRevenue : 0}" 
-                                    type="currency" currencySymbol="₫" groupingUsed="true"/>
+                <div class="stat-number"style="font-size:35px; ">
+                    <fmt:formatNumber value="${totalRevenues != null ? totalRevenues : 0}"
+                  type="currency" currencySymbol="₫" groupingUsed="true"/>
+
                 </div>
                 <div class="stat-label">Doanh thu</div>
             </div>
@@ -383,35 +386,36 @@ if (currentUser != null) {
                     </div>
                 </a>
                 
-                <a href="${pageContext.request.contextPath}/staff/bookings?action=list" class="action-btn">
-                    <i class="fa fa-calendar-check"></i>
+                <a href="${pageContext.request.contextPath}/staff/hotels?action=list" class="action-btn">
+                   <i class="fa fa-hotel"></i>
+
                     <div class="action-btn-text">
-                        <div class="action-btn-title">Đặt Tour</div>
-                        <div class="action-btn-desc">Quản lý đặt tour</div>
+                        <div class="action-btn-title">Khách sạn</div>
+                        <div class="action-btn-desc">Quản lý thông tin khách sạn</div>
                     </div>
                 </a>
                 
-                <a href="${pageContext.request.contextPath}/staff/customers?action=list" class="action-btn">
-                    <i class="fa fa-users"></i>
+                <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=list" class="action-btn">
+                    <i class="fa fa-plane-departure"></i>
                     <div class="action-btn-text">
-                        <div class="action-btn-title">Khách hàng</div>
-                        <div class="action-btn-desc">Quản lý khách hàng</div>
+                        <div class="action-btn-title">Chuyến bay</div>
+                        <div class="action-btn-desc">Quản lý vé máy bay</div>
                     </div>
                 </a>
                 
-                <a href="${pageContext.request.contextPath}/staff/reports" class="action-btn">
+                <a href="${pageContext.request.contextPath}/staff/bookings?action=list" " class="action-btn">
                     <i class="fa fa-chart-bar"></i>
                     <div class="action-btn-text">
-                        <div class="action-btn-title">Báo cáo</div>
-                        <div class="action-btn-desc">Xem báo cáo thống kê</div>
+                        <div class="action-btn-title">Booking</div>
+                        <div class="action-btn-desc">Xem thông tin booking</div>
                     </div>
                 </a>
                 
-                <a href="${pageContext.request.contextPath}/staff/settings" class="action-btn">
-                    <i class="fa fa-cog"></i>
+                <a href="${pageContext.request.contextPath}/staff/vehicles?action=list" class="action-btn">
+                    <i class="fa fa-car"></i>
                     <div class="action-btn-text">
-                        <div class="action-btn-title">Cài đặt</div>
-                        <div class="action-btn-desc">Cấu hình hệ thống</div>
+                        <div class="action-btn-title">Phương tiện</div>
+                        <div class="action-btn-desc">Quản lý phương tiện</div>
                     </div>
                 </a>
             </div>

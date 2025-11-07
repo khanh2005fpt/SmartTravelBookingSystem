@@ -121,12 +121,7 @@ public class LoginServlet extends HttpServlet {
               System.out.println("UserId: " + existing.getUserId());
                 // gui thong bang session den trang profile
                 CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
-        
-
-System.out.println("Profile after query: " + profile);
-session.setAttribute("profile_customer", profile);
-System.out.println("Session set done!");
-
+     
                 session.setAttribute("profile_customer", profile);
 
                 List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
@@ -143,7 +138,7 @@ System.out.println("Session set done!");
                     }else if(roleId == 2 ){
                         response.sendRedirect(request.getContextPath() + "/manager/dashboard");
                     }else if( roleId == 4){
-                        response.sendRedirect(request.getContextPath() + "/views/staff/index.jsp");
+                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
                     }
                      else if (roleId == 3) {
                         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
@@ -169,9 +164,14 @@ System.out.println("Session set done!");
 
                     // redirect theo roleId
                     int roleId = existing != null ? existing.getRoleId() : newUser.getRoleId();
-                    if (roleId == 1 || roleId == 2 || roleId == 4) {
-                        response.sendRedirect(request.getContextPath() + "/views/staff/index.jsp");
-                    } else if (roleId == 3) {
+                   if (roleId == 1) {
+                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                    }else if(roleId == 2 ){
+                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                    }else if( roleId == 4){
+                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+                    }
+                     else if (roleId == 3) {
                         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
                     } else {
                         response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
@@ -187,7 +187,7 @@ System.out.println("Session set done!");
         } catch (SQLException e) {
             e.printStackTrace();
             session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi login or register bằng google. Vui lòng thử lại!");
-            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+               response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         }
 
         //insertAccout , tao password ham random tu dong
@@ -256,7 +256,7 @@ System.out.println("Session set done!");
                     }else if(roleId == 2 ){
                         response.sendRedirect(request.getContextPath() + "/manager/dashboard");
                     }else if( roleId == 4){
-                        response.sendRedirect(request.getContextPath() + "/views/staff/index.jsp");
+                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
                     }
                      else if (roleId == 3) {
                         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
@@ -266,7 +266,7 @@ System.out.println("Session set done!");
         } catch (SQLException e) {
             e.printStackTrace();
             session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa or đặt lại email. Vui lòng thử lại!");
-            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         }
 
     }

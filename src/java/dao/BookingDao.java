@@ -719,5 +719,40 @@ public class BookingDao extends DBContext {
             }
         }
         return list;
+        
+        // get total booking
+        
+        
     }
+    public int getTotalBooking() throws  SQLException{
+    String sql = "SELECT COUNT(*) AS total FROM Bookings";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("total");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
 }
+    
+    // get revenue 
+    public long getTotalRevenue() throws SQLException{
+    String sql = "SELECT SUM(amount) AS totalRevenue FROM Payments WHERE status = 'SUCCESS'";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getLong("totalRevenue");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
+    
+}
+
