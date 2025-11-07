@@ -234,8 +234,6 @@ public class ServiceDao extends DBContext {
             ps.setInt(6, hotel.getTotalRooms());
             ps.setDouble(7, hotel.getRating());
             ps.setString(8, hotel.getHotelImageUrl());
-        
-
             int result = ps.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
@@ -789,95 +787,94 @@ public class ServiceDao extends DBContext {
             return false;
         }
     }
+
 // Tìm kiếm chuyến bay theo điểm đi, điểm đến hoặc tên hãng hàng không (có phân trang)
+    public List<Flight> searchFlightTicketsWithPagination(String keyword, Integer airlineId, String priceRange, int page, int pageSize) throws SQLException {
+        List<Flight> flights = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
 
-   public List<Flight> searchFlightTicketsWithPagination(String keyword, Integer airlineId, String priceRange, int page, int pageSize) throws SQLException {
-    List<Flight> flights = new ArrayList<>();
-    int offset = (page - 1) * pageSize;
+        StringBuilder sql = new StringBuilder(
+                "SELECT f.*, a.airlineId, a.airlineName, a.logoUrl "
+                + "FROM Flights f "
+                + "JOIN Airlines a ON f.airlineId = a.airlineId "
+                + "WHERE 1=1"
+        );
 
-    StringBuilder sql = new StringBuilder(
-            "SELECT f.*, a.airlineId, a.airlineName, a.logoUrl "
-            + "FROM Flights f "
-            + "JOIN Airlines a ON f.airlineId = a.airlineId "
-            + "WHERE 1=1"
-    );
+        List<Object> params = new ArrayList<>();
 
-    List<Object> params = new ArrayList<>();
-
-    // 1.Lọc theo keyword (departure / destination / flightNumber / type / class)
-    if (keyword != null && !keyword.trim().isEmpty()) {
-        sql.append(" AND ("
-                + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
-                + ")");
-        String kw = "%" + keyword.trim() + "%";
-        for (int i = 0; i < 5; i++) {
-            params.add(kw);
-        }
-    }
-
-    // 2️.loc theo hang bay
-    if (airlineId != null) {
-        sql.append(" AND f.airlineId = ?");
-        params.add(airlineId);
-    }
-
-    // 3️.loc theo khoang gia
-    if (priceRange != null && !priceRange.isEmpty()) {
-        if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
-            sql.append(" AND f.basePrice > 5000000");
-        } else {
-            String[] range = priceRange.split("-");
-            sql.append(" AND f.basePrice BETWEEN ? AND ?");
-            params.add(Integer.parseInt(range[0]));
-            params.add(Integer.parseInt(range[1]));
-        }
-    }
-
-    // 4.phan trang
-    sql.append(" ORDER BY f.flightId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-    params.add(offset);
-    params.add(pageSize);
-
-    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) {
-            ps.setObject(i + 1, params.get(i));
-        }
-
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                // Gắn hãng bay
-                Airlines airline = new Airlines();
-                airline.setAirlineId(rs.getInt("airlineId"));
-                airline.setAirlineName(rs.getString("airlineName"));
-                airline.setLogoUrl(rs.getString("logoUrl"));
-
-                // Gắn chuyến bay
-                Flight flight = new Flight();
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setAirline(airline);
-                flight.setDeparture(rs.getString("departure"));
-                flight.setDestination(rs.getString("destination"));
-                flight.setBasePrice(rs.getInt("basePrice"));
-                flight.setFlightType(rs.getString("flightType"));
-                flight.setFlightClass(rs.getString("flightClass"));
-                flight.setTicketAvailable(rs.getInt("ticketAvailable"));
-                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
-
-                flights.add(flight);
+        // 1.Lọc theo keyword (departure / destination / flightNumber / type / class)
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND ("
+                    + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
+                    + ")");
+            String kw = "%" + keyword.trim() + "%";
+            for (int i = 0; i < 5; i++) {
+                params.add(kw);
             }
         }
+
+        // 2️.loc theo hang bay
+        if (airlineId != null) {
+            sql.append(" AND f.airlineId = ?");
+            params.add(airlineId);
+        }
+
+        // 3️.loc theo khoang gia
+        if (priceRange != null && !priceRange.isEmpty()) {
+            if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
+                sql.append(" AND f.basePrice > 5000000");
+            } else {
+                String[] range = priceRange.split("-");
+                sql.append(" AND f.basePrice BETWEEN ? AND ?");
+                params.add(Integer.parseInt(range[0]));
+                params.add(Integer.parseInt(range[1]));
+            }
+        }
+
+        // 4.phan trang
+        sql.append(" ORDER BY f.flightId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(pageSize);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Gắn hãng bay
+                    Airlines airline = new Airlines();
+                    airline.setAirlineId(rs.getInt("airlineId"));
+                    airline.setAirlineName(rs.getString("airlineName"));
+                    airline.setLogoUrl(rs.getString("logoUrl"));
+
+                    // Gắn chuyến bay
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setAirline(airline);
+                    flight.setDeparture(rs.getString("departure"));
+                    flight.setDestination(rs.getString("destination"));
+                    flight.setBasePrice(rs.getInt("basePrice"));
+                    flight.setFlightType(rs.getString("flightType"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setTicketAvailable(rs.getInt("ticketAvailable"));
+                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                    flights.add(flight);
+                }
+            }
+        }
+
+        return flights;
     }
 
-    return flights;
-}
-    
-
-    // lay flightTicket by Pagination
+    // lay flightTicket by Pagination no search
     public List<Flight> getFlightsByPageWithAirlineNames(int page, int pageSize) throws SQLException {
         List<Flight> list = new ArrayList<>();
         // bo quan ban gi 
@@ -950,57 +947,56 @@ public class ServiceDao extends DBContext {
     }
 
     // Đếm số chuyến bay khi search , Đếm tổng số kết quả tìm kiếm
- 
     public int getSearchFlightTicketsCount(String keyword, Integer airlineId, String priceRange) throws SQLException {
-    StringBuilder sql = new StringBuilder(
-            "SELECT COUNT(*) AS total FROM Flights f JOIN Airlines a ON f.airlineId = a.airlineId WHERE 1=1"
-    );
-    List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) AS total FROM Flights f JOIN Airlines a ON f.airlineId = a.airlineId WHERE 1=1"
+        );
+        List<Object> params = new ArrayList<>();
 
-    if (keyword != null && !keyword.trim().isEmpty()) {
-        sql.append(" AND ("
-                + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
-                + ")");
-        String kw = "%" + keyword.trim() + "%";
-        for (int i = 0; i < 5; i++) {
-            params.add(kw);
-        }
-    }
-
-    if (airlineId != null) {
-        sql.append(" AND f.airlineId = ?");
-        params.add(airlineId);
-    }
-
-    if (priceRange != null && !priceRange.isEmpty()) {
-        if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
-            sql.append(" AND f.basePrice > 5000000");
-        } else {
-            String[] range = priceRange.split("-");
-            sql.append(" AND f.basePrice BETWEEN ? AND ?");
-            params.add(Integer.parseInt(range[0]));
-            params.add(Integer.parseInt(range[1]));
-        }
-    }
-
-    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-        for (int i = 0; i < params.size(); i++) {
-            ps.setObject(i + 1, params.get(i));
-        }
-
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("total");
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND ("
+                    + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
+                    + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
+                    + ")");
+            String kw = "%" + keyword.trim() + "%";
+            for (int i = 0; i < 5; i++) {
+                params.add(kw);
             }
         }
-    }
 
-    return 0;
-}
+        if (airlineId != null) {
+            sql.append(" AND f.airlineId = ?");
+            params.add(airlineId);
+        }
+
+        if (priceRange != null && !priceRange.isEmpty()) {
+            if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
+                sql.append(" AND f.basePrice > 5000000");
+            } else {
+                String[] range = priceRange.split("-");
+                sql.append(" AND f.basePrice BETWEEN ? AND ?");
+                params.add(Integer.parseInt(range[0]));
+                params.add(Integer.parseInt(range[1]));
+            }
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        }
+
+        return 0;
+    }
 
     // Lay tat ca chuyen bay
     public List<Flight> getAllFlights() {
@@ -1051,24 +1047,6 @@ public class ServiceDao extends DBContext {
     }
 
     // ==================== AIRLINES CRUD OPERATIONS ====================
-    // CREATE - Them hang hang khong moi
-    public boolean createAirline(Airlines airline) {
-        String sql = "INSERT INTO Airlines (airlineName, iataCode, countryId, hotline, logoUrl) VALUES (?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, airline.getAirlineName());
-            ps.setString(2, airline.getIataCode());
-            ps.setString(4, airline.getHotline());
-            ps.setString(5, airline.getLogoUrl());
-
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     // READ - Lay hang hang khong theo ID
     public Airlines getAirlineById(int airlineId) {
         String sql = "SELECT * FROM Airlines WHERE airlineId = ?";
@@ -1091,26 +1069,6 @@ public class ServiceDao extends DBContext {
             e.printStackTrace();
         }
         return null;
-    }
-
-    // UPDATE - Cap nhat thong tin hang hang khong
-    public boolean updateAirline(Airlines airline) {
-        String sql = "UPDATE Airlines SET airlineName = ?, iataCode = ?, countryId = ?, hotline = ?, logoUrl = ? "
-                + "WHERE airlineId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, airline.getAirlineName());
-            ps.setString(2, airline.getIataCode());
-            ps.setString(4, airline.getHotline());
-            ps.setString(5, airline.getLogoUrl());
-            ps.setInt(6, airline.getAirlineId());
-
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
     // Lay tat ca hang hang khong
@@ -1161,212 +1119,30 @@ public class ServiceDao extends DBContext {
         return list;
     }
 
-    // search and filter flightTicket in list
-    public List<Flight> searchFlightTickets(String keyword, Integer airlineId, String priceRange) throws SQLException {
-        List<Flight> flights = new ArrayList<>();
-
-        StringBuilder sql = new StringBuilder(
-                "SELECT f.*, a.airlineId, a.airlineName, a.logoUrl "
-                + "FROM Flights f "
-                + "JOIN Airlines a ON f.airlineId = a.airlineId "
-                + "WHERE 1=1"
-        );
-
-        List<Object> params = new ArrayList<>();
-
-        //  1. Tìm kiếm theo keyword (departure / destination / flightNumber)
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND ("
-                    + "f.departure COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                    + "f.destination COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                    + "f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                    + "f.flightType COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR "
-                    + "f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ?"
-                    + ")");
-
-            String kw = "%" + keyword.trim() + "%";
-            // Thêm 5 lần vì có 5 cột cần tìm
-            params.add(kw);
-            params.add(kw);
-            params.add(kw);
-            params.add(kw);
-            params.add(kw);
-        }
-
-        //  2. Lọc theo hãng bay
-        if (airlineId != null) {
-            sql.append(" AND f.airlineId = ?");
-            params.add(airlineId);
-        }
-
-        //  3. Lọc theo khoảng giá
-        if (priceRange != null && !priceRange.isEmpty()) {
-            if (priceRange.equals("5000000+") || priceRange.equals("over5000000")) {
-                sql.append(" AND f.basePrice > 5000000");
-            } else {
-                String[] range = priceRange.split("-");
-                sql.append(" AND f.basePrice BETWEEN ? AND ?");
-                //Gom giá trị thật vào params
-                params.add(Integer.parseInt(range[0]));
-                params.add(Integer.parseInt(range[1]));
-            }
-        }
-
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                // gán giá trị thật vào ?
-                ps.setObject(i + 1, params.get(i));
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    //  Gắn hãng bay
-                    Airlines airline = new Airlines();
-                    airline.setAirlineId(rs.getInt("airlineId"));
-                    airline.setAirlineName(rs.getString("airlineName"));
-                    airline.setLogoUrl(rs.getString("logoUrl"));
-
-                    //  Gắn chuyến bay
-                    Flight flight = new Flight();
-                    flight.setFlightId(rs.getInt("flightId"));
-                    flight.setFlightNumber(rs.getString("flightNumber"));
-                    flight.setAirline(airline);
-                    flight.setDeparture(rs.getString("departure"));
-                    flight.setDestination(rs.getString("destination"));
-                    flight.setBasePrice(rs.getInt("basePrice"));
-                    flight.setFlightType(rs.getString("flightType"));
-                    flight.setFlightClass(rs.getString("flightClass"));
-                    flight.setTicketAvailable(rs.getInt("ticketAvailable"));
-                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
-
-                    flights.add(flight);
-                }
-            }
-        }
-
-        return flights;
-    }
-
-    // search and filter flightSchedules in list
-    public List<FlightSchedule> searchFlightSchedules(String keyword, String flightType, String departureTimeRange) throws SQLException {
-        List<FlightSchedule> flights = new ArrayList<>();
-
-        StringBuilder sql = new StringBuilder(
-                "SELECT fs.*, f.flightNumber, f.flightType, f.flightClass "
-                + "FROM FlightSchedules fs "
-                + "JOIN Flights f ON fs.flightId = f.flightId "
-                + "WHERE 1=1 "
-        );
-
-        List<Object> params = new ArrayList<>();
-
-        // Tìm kiếm theo keyword (departureAirport / arrivalAirport / flightNumber / transitAirport / flightClass)
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (")
-                    .append("fs.departureAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
-                    .append("fs.arrivalAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
-                    .append("f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
-                    .append("fs.transitAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
-                    .append("f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? ")
-                    .append(")");
-            String kw = "%" + keyword.trim() + "%";
-            for (int i = 0; i < 5; i++) {
-                params.add(kw);
-            }
-        }
-
-        //Lọc theo loại chuyến bay (Một chiều / Khứ hồi)
-        if (flightType != null && !flightType.trim().isEmpty()) {
-            sql.append("AND f.flightType = ? ");
-            params.add(flightType.trim());
-        }
-
-// lọc theo giờ khởi hành (cả lượt đi và lượt về)
-        if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
-            String[] timeRangeParts = departureTimeRange.split("-");
-            if (timeRangeParts.length == 2) {
-                String startTime = timeRangeParts[0].trim();
-                String endTime = timeRangeParts[1].trim();
-                sql.append("AND (fs.departureTime BETWEEN ? AND ? OR fs.returnDepartureTime BETWEEN ? AND ?) ");
-                params.add(startTime);
-                params.add(endTime);
-                params.add(startTime);
-                params.add(endTime);
-            }
-        }
-
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-
-                    // === Gắn Flight ===
-                    Flight flight = new Flight();
-                    flight.setFlightId(rs.getInt("flightId"));
-                    flight.setFlightNumber(rs.getString("flightNumber"));
-                    flight.setFlightClass(rs.getString("flightClass"));
-                    flight.setFlightType(rs.getString("flightType"));
-
-                    // === Gắn FlightSchedule ===
-                    FlightSchedule schedule = new FlightSchedule();
-                    schedule.setScheduleId(rs.getInt("scheduleId"));
-                    schedule.setFlight(flight);
-                    schedule.setDepartureAirport(rs.getString("departureAirport"));
-                    schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                    schedule.setTransitAirport(rs.getString("transitAirport"));
-                    schedule.setTransitDuration(rs.getString("transitDuration"));
-                    schedule.setNotes(rs.getString("notes"));
-
-                    // Giờ bay (chuyển sang LocalTime
-                    Time dep = rs.getTime("departureTime");
-                    schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
-                    Time arr = rs.getTime("arrivalTime");
-                    schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
-                    Time retDep = rs.getTime("returnDepartureTime");
-                    schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
-                    Time retArr = rs.getTime("returnArrivalTime");
-                    schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
-
-                    // --- Xác định loại máy bay và các thông số liên quan ---
-                    String flightClass = rs.getString("flightClass");
-                    setAircraftInfo(schedule, flightClass);
-
-                    flights.add(schedule);
-                }
-            }
-        }
-
-        return flights;
-    }
-
     public static void main(String[] args) {
         ServiceDao dao = new ServiceDao();
         try {
 
-          Hotel hotel = new Hotel();
-        hotel.setIslandId(1); // ID của đảo (đảm bảo có trong DB)
-        hotel.setHotelName("Phuket Paradise Resort");
-        hotel.setRoomType("Tiêu chuẩn");
-        hotel.setPricePerNight(2500000); // giá mỗi đêm (VND)
-        hotel.setRoomAvailable(20);
-        hotel.setTotalRooms(50);
-        hotel.setRating(4.7);
-        hotel.setHotelImageUrl("images/hotels/phuket_paradise.jpg");
+            Hotel hotel = new Hotel();
+            hotel.setIslandId(1); // ID của đảo (đảm bảo có trong DB)
+            hotel.setHotelName("Phuket Paradise Resort");
+            hotel.setRoomType("Tiêu chuẩn");
+            hotel.setPricePerNight(2500000); // giá mỗi đêm (VND)
+            hotel.setRoomAvailable(20);
+            hotel.setTotalRooms(50);
+            hotel.setRating(4.7);
+            hotel.setHotelImageUrl("images/hotels/phuket_paradise.jpg");
 
-        // 3️⃣ Gọi hàm createHotel() để chèn vào DB
-        boolean success = dao.createHotel(hotel);
+            // 3️⃣ Gọi hàm createHotel() để chèn vào DB
+            boolean success = dao.createHotel(hotel);
 
-        // 4️⃣ In kết quả
-        if (success) {
-            System.out.println("✅ Thêm khách sạn thành công!");
-        } else {
-            System.out.println("❌ Thêm khách sạn thất bại!");
-        }
-            
-            
+            // 4️⃣ In kết quả
+            if (success) {
+                System.out.println("✅ Thêm khách sạn thành công!");
+            } else {
+                System.out.println("❌ Thêm khách sạn thất bại!");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1694,7 +1470,6 @@ public class ServiceDao extends DBContext {
         return null;
     }
 
-    // UPDATE - Cap nhat thong tin lich bay
 // UPDATE - Cập nhật thông tin lịch trình chuyến bay (không thay đổi flightId)
     public int updateFlightSchedule(FlightSchedule schedule) throws SQLException {
         String sql = """
@@ -1783,88 +1558,163 @@ public class ServiceDao extends DBContext {
     }
 
     // Tìm kiếm lịch trình chuyến bay theo sân bay,  hoặc mã code hàng không (có phân trang)
-    
-    public List<FlightSchedule> searchFlightSchedulesWithPagination(String searchTerm, int page, int pageSize) throws SQLException {
-    List<FlightSchedule> list = new ArrayList<>();
-    String sql = """
-        SELECT 
-             --FlightSchedule
-            fs.scheduleId,
-            fs.departureAirport,
-            fs.arrivalAirport,
-            fs.departureTime,
-            fs.arrivalTime,
-            fs.returnDepartureTime,
-            fs.returnArrivalTime,
-            fs.transitAirport,
-            fs.transitDuration,
-            fs.notes,
-            --Flight     
-            f.flightId,
-            f.flightNumber,
-            f.flightType,
-            f.flightClass,
-            f.destinationImageUrl
-        FROM FlightSchedules fs
-        JOIN Flights f ON fs.flightId = f.flightId
-        WHERE f.flightNumber LIKE ?
-           OR fs.planeModel LIKE ?
-           OR fs.departureAirport LIKE ?
-           OR fs.arrivalAirport LIKE ?
-        ORDER BY fs.scheduleId
-        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
-    """;
+    public List<FlightSchedule> searchFlightSchedulesWithPagination(
+            String keyword, String flightType, String departureTimeRange,
+            int page, int pageSize) throws SQLException {
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        for (int i = 1; i <= 4; i++) {
-            ps.setString(i, "%" + searchTerm + "%");
-        }
-        ps.setInt(5, (page - 1) * pageSize);
-        ps.setInt(6, pageSize);
+        List<FlightSchedule> flights = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-              // === Tạo Flight ===
-                Flight flight = new Flight();
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setFlightClass(rs.getString("flightClass"));
-                flight.setFlightType(rs.getString("flightType"));
-                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+        StringBuilder sql = new StringBuilder(
+                "SELECT fs.*, f.flightId, f.flightNumber, f.flightType, f.flightClass, f.destinationImageUrl "
+                + "FROM FlightSchedules fs "
+                + "JOIN Flights f ON fs.flightId = f.flightId "
+                + "WHERE 1=1 "
+        );
 
-                // === Tạo FlightSchedule ===
-                FlightSchedule schedule = new FlightSchedule();
-                schedule.setScheduleId(rs.getInt("scheduleId"));
-                schedule.setFlight(flight);
+        List<Object> params = new ArrayList<>();
 
-                // --- Thời gian ---
-                Time dep = rs.getTime("departureTime");
-                schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
-                Time arr = rs.getTime("arrivalTime");
-                schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
-                Time retDep = rs.getTime("returnDepartureTime");
-                schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
-                Time retArr = rs.getTime("returnArrivalTime");
-                schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
-
-                // --- Xác định loại máy bay và các thông số liên quan ---
-                String flightClass = rs.getString("flightClass");
-                setAircraftInfo(schedule, flightClass);
-
-                // --- Thông tin chuyến bay khác ---
-                schedule.setDepartureAirport(rs.getString("departureAirport"));
-                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                schedule.setTransitAirport(rs.getString("transitAirport"));
-                schedule.setTransitDuration(rs.getString("transitDuration"));
-                schedule.setNotes(rs.getString("notes"));
-
-                list.add(schedule);
+        // keyword filter
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (")
+                    .append("fs.departureAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("fs.arrivalAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("fs.transitAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? ")
+                    .append(") ");
+            String kw = "%" + keyword.trim() + "%";
+            for (int i = 0; i < 5; i++) {
+                params.add(kw);
             }
         }
+
+        // Flight type filter
+        if (flightType != null && !flightType.trim().isEmpty()) {
+            sql.append("AND f.flightType = ? ");
+            params.add(flightType.trim());
+        }
+
+        // Departure time range filter
+        if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
+            String[] timeRangeParts = departureTimeRange.split("-");
+            if (timeRangeParts.length == 2) {
+                String startTime = timeRangeParts[0].trim();
+                String endTime = timeRangeParts[1].trim();
+                sql.append("AND (fs.departureTime BETWEEN ? AND ? OR fs.returnDepartureTime BETWEEN ? AND ?) ");
+                params.add(startTime);
+                params.add(endTime);
+                params.add(startTime);
+                params.add(endTime);
+            }
+        }
+
+        // pagination
+        sql.append("ORDER BY fs.scheduleId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(pageSize);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setFlightType(rs.getString("flightType"));
+
+                    FlightSchedule schedule = new FlightSchedule();
+                    schedule.setScheduleId(rs.getInt("scheduleId"));
+                    schedule.setFlight(flight);
+                    schedule.setDepartureAirport(rs.getString("departureAirport"));
+                    schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                    schedule.setTransitAirport(rs.getString("transitAirport"));
+                    schedule.setTransitDuration(rs.getString("transitDuration"));
+                    schedule.setNotes(rs.getString("notes"));
+
+                    Time dep = rs.getTime("departureTime");
+                    schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+                    Time arr = rs.getTime("arrivalTime");
+                    schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+                    Time retDep = rs.getTime("returnDepartureTime");
+                    schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+                    Time retArr = rs.getTime("returnArrivalTime");
+                    schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
+
+                    setAircraftInfo(schedule, rs.getString("flightClass"));
+
+                    flights.add(schedule);
+                }
+            }
+        }
+
+        return flights;
     }
-    return list;
-}
-   
+    // count flightSchedule search paganition
+
+    public int getSearchFlightSchedulesCount(String keyword, String flightType, String departureTimeRange) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) "
+                + "FROM FlightSchedules fs "
+                + "JOIN Flights f ON fs.flightId = f.flightId "
+                + "WHERE 1=1 "
+        );
+
+        List<Object> params = new ArrayList<>();
+
+        // Keyword filter
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (")
+                    .append("fs.departureAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("fs.arrivalAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("f.flightNumber COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("fs.transitAirport COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? OR ")
+                    .append("f.flightClass COLLATE SQL_Latin1_General_CP1_CI_AI LIKE ? ")
+                    .append(") ");
+            String kw = "%" + keyword.trim() + "%";
+            for (int i = 0; i < 5; i++) {
+                params.add(kw);
+            }
+        }
+
+        // Flight type filter
+        if (flightType != null && !flightType.trim().isEmpty()) {
+            sql.append("AND f.flightType = ? ");
+            params.add(flightType.trim());
+        }
+
+        // Departure time range filter
+        if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
+            String[] parts = departureTimeRange.split("-");
+            if (parts.length == 2) {
+                String startTime = parts[0].trim();
+                String endTime = parts[1].trim();
+                sql.append("AND (fs.departureTime BETWEEN ? AND ? OR fs.returnDepartureTime BETWEEN ? AND ?) ");
+                params.add(startTime);
+                params.add(endTime);
+                params.add(startTime);
+                params.add(endTime);
+            }
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+
+        return 0;
+    }
+
     /**
      * Helper gán planeModel, seatCapacity, seatPitch, cabinBaggage dựa trên
      * flightClass
@@ -1900,10 +1750,10 @@ public class ServiceDao extends DBContext {
                 break;
         }
     }
-    
-        // Đếm số lịch trình chuyến bay tìm được theo sân bay, flightNumber
+
+    // Đếm số lịch trình chuyến bay tìm được theo sân bay, flightNumber
     public int getSearchFlighScheduletsCount(String searchTerm) throws SQLException {
-    String sql = """
+        String sql = """
         SELECT COUNT(*)
         FROM FlightSchedules fs
         JOIN Flights f ON fs.flightId = f.flightId
@@ -1913,92 +1763,94 @@ public class ServiceDao extends DBContext {
            OR fs.arrivalAirport LIKE ?
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        for (int i = 1; i <= 4; i++) {
-            ps.setString(i, "%" + searchTerm + "%");
-        }
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (int i = 1; i <= 4; i++) {
+                ps.setString(i, "%" + searchTerm + "%");
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
         }
+        return 0;
     }
-    return 0;
-}
-     // lay flightSchedule by Pagination 
-    public List<FlightSchedule> getFlightsByPage(int page, int pageSize) throws SQLException {
-    List<FlightSchedule> list = new ArrayList<>();
-    String sql = """
-        SELECT 
-              --FlightSchedule   
-            fs.scheduleId,
-            fs.departureAirport,
-            fs.arrivalAirport,
-            fs.departureTime,
-            fs.arrivalTime,
-            fs.returnDepartureTime,
-            fs.returnArrivalTime,
-            fs.transitAirport,
-            fs.transitDuration,
-            fs.notes,
-            --Flight
-            f.flightId,
-            f.flightNumber,
-            f.flightType,
-            f.flightClass,
+    // lay flightSchedule by Pagination 
+
+    public List<FlightSchedule> getFlightSchedulesByPage(int page, int pageSize) throws SQLException {
+        List<FlightSchedule> list = new ArrayList<>();
+        String sql = """
+       SELECT 
+            fs.*, 
+            f.flightId, 
+            f.flightNumber, 
+            f.flightType, 
+            f.flightClass, 
             f.destinationImageUrl
         FROM FlightSchedules fs
         JOIN Flights f ON fs.flightId = f.flightId
         ORDER BY fs.scheduleId
-        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY;
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, (page - 1) * pageSize);
-        ps.setInt(2, pageSize);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, (page - 1) * pageSize);
+            ps.setInt(2, pageSize);
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-               // === Tạo Flight ===
-                Flight flight = new Flight();
-                flight.setFlightId(rs.getInt("flightId"));
-                flight.setFlightNumber(rs.getString("flightNumber"));
-                flight.setFlightClass(rs.getString("flightClass"));
-                flight.setFlightType(rs.getString("flightType"));
-                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // === Tạo Flight ===
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flightId"));
+                    flight.setFlightNumber(rs.getString("flightNumber"));
+                    flight.setFlightClass(rs.getString("flightClass"));
+                    flight.setFlightType(rs.getString("flightType"));
+                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
 
-                // === Tạo FlightSchedule ===
-                FlightSchedule schedule = new FlightSchedule();
-                schedule.setScheduleId(rs.getInt("scheduleId"));
-                schedule.setFlight(flight);
+                    // === Tạo FlightSchedule ===
+                    FlightSchedule schedule = new FlightSchedule();
+                    schedule.setScheduleId(rs.getInt("scheduleId"));
+                    schedule.setFlight(flight);
 
-                // --- Thời gian ---
-                Time dep = rs.getTime("departureTime");
-                schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
-                Time arr = rs.getTime("arrivalTime");
-                schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
-                Time retDep = rs.getTime("returnDepartureTime");
-                schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
-                Time retArr = rs.getTime("returnArrivalTime");
-                schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
+                    // --- Thời gian ---
+                    Time dep = rs.getTime("departureTime");
+                    schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+                    Time arr = rs.getTime("arrivalTime");
+                    schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+                    Time retDep = rs.getTime("returnDepartureTime");
+                    schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+                    Time retArr = rs.getTime("returnArrivalTime");
+                    schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
 
-                // --- Xác định loại máy bay và các thông số liên quan ---
-                String flightClass = rs.getString("flightClass");
-                setAircraftInfo(schedule, flightClass);
+                    // --- Xác định loại máy bay và các thông số liên quan ---
+                    String flightClass = rs.getString("flightClass");
+                    setAircraftInfo(schedule, flightClass);
 
-                // --- Thông tin chuyến bay khác ---
-                schedule.setDepartureAirport(rs.getString("departureAirport"));
-                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                schedule.setTransitAirport(rs.getString("transitAirport"));
-                schedule.setTransitDuration(rs.getString("transitDuration"));
-                schedule.setNotes(rs.getString("notes"));
+                    // --- Thông tin chuyến bay khác ---
+                    schedule.setDepartureAirport(rs.getString("departureAirport"));
+                    schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                    schedule.setTransitAirport(rs.getString("transitAirport"));
+                    schedule.setTransitDuration(rs.getString("transitDuration"));
+                    schedule.setNotes(rs.getString("notes"));
 
-                list.add(schedule);
+                    list.add(schedule);
+                }
             }
         }
+        return list;
     }
-    return list;
+
+    // 2. Đếm tổng số flight schedules
+    public int getTotalFlightSchedulesCount() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM FlightSchedules";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
+    
 
     //Lấy danh sách Flight chưa có lịch trình
     public List<Flight> getFlightsWithoutSchedule() throws SQLException {
@@ -2847,18 +2699,19 @@ public class ServiceDao extends DBContext {
     }
 
     /**
-     * Get places with pagination, island names, and filters (hasTicket, islandId, search)
+     * Get places with pagination, island names, and filters (hasTicket,
+     * islandId, search)
      */
     public List<Place> getPlacesWithFilters(String search, String hasTicket, String islandId, int page, int pageSize) {
         List<Place> list = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT p.*, i.islandName, c.countryName " +
-                    "FROM Places p " +
-                    "JOIN Islands i ON p.islandId = i.islandId " +
-                    "JOIN Countries c ON i.countryId = c.countryId " +
-                    "WHERE 1=1 ");
-        
+        StringBuilder sql = new StringBuilder("SELECT p.*, i.islandName, c.countryName "
+                + "FROM Places p "
+                + "JOIN Islands i ON p.islandId = i.islandId "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE 1=1 ");
+
         List<Object> params = new ArrayList<>();
-        
+
         // Add search filter
         if (search != null && !search.trim().isEmpty()) {
             sql.append("AND (p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ?) ");
@@ -2867,14 +2720,14 @@ public class ServiceDao extends DBContext {
             params.add(searchPattern);
             params.add(searchPattern);
         }
-        
+
         // Add hasTicket filter
         if (hasTicket != null && !hasTicket.trim().isEmpty()) {
             boolean ticketValue = "true".equals(hasTicket.trim());
             sql.append("AND p.hasTicket = ? ");
             params.add(ticketValue);
         }
-        
+
         // Add islandId filter
         if (islandId != null && !islandId.trim().isEmpty()) {
             try {
@@ -2885,11 +2738,11 @@ public class ServiceDao extends DBContext {
                 // Invalid islandId, ignore
             }
         }
-        
+
         sql.append("ORDER BY p.placeName OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add((page - 1) * pageSize);
         params.add(pageSize);
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 Object param = params.get(i);
@@ -2901,7 +2754,7 @@ public class ServiceDao extends DBContext {
                     ps.setInt(i + 1, (Integer) param);
                 }
             }
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Place place = new Place();
@@ -2912,11 +2765,11 @@ public class ServiceDao extends DBContext {
                     place.setDescription(rs.getString("description"));
                     place.setHasTicket(rs.getBoolean("hasTicket"));
                     place.setTicketPrice(rs.getInt("ticketPrice"));
-                    
+
                     // Set island and country names
                     place.setIslandName(rs.getString("islandName"));
                     place.setCountryName(rs.getString("countryName"));
-                    
+
                     list.add(place);
                 }
             }
@@ -2932,7 +2785,7 @@ public class ServiceDao extends DBContext {
     public int getPlacesCountWithFilters(String search, String hasTicket, String islandId) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Places p WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
-        
+
         // Add search filter
         if (search != null && !search.trim().isEmpty()) {
             sql.append("AND (p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ?) ");
@@ -2941,14 +2794,14 @@ public class ServiceDao extends DBContext {
             params.add(searchPattern);
             params.add(searchPattern);
         }
-        
+
         // Add hasTicket filter
         if (hasTicket != null && !hasTicket.trim().isEmpty()) {
             boolean ticketValue = "true".equals(hasTicket.trim());
             sql.append("AND p.hasTicket = ? ");
             params.add(ticketValue);
         }
-        
+
         // Add islandId filter
         if (islandId != null && !islandId.trim().isEmpty()) {
             try {
@@ -2959,7 +2812,7 @@ public class ServiceDao extends DBContext {
                 // Invalid islandId, ignore
             }
         }
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 Object param = params.get(i);
@@ -2971,7 +2824,7 @@ public class ServiceDao extends DBContext {
                     ps.setInt(i + 1, (Integer) param);
                 }
             }
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -3060,8 +2913,8 @@ public class ServiceDao extends DBContext {
                     flightName = flight.getAirline().getAirlineName() + " - " + flight.getFlightNumber();
                 }
                 service.setServiceName(flightName);
-                service.setServiceDescription(flight.getDeparture() + " → " + flight.getDestination() + 
-                    " | " + flight.getFlightType() + " | " + flight.getFlightClass());
+                service.setServiceDescription(flight.getDeparture() + " → " + flight.getDestination()
+                        + " | " + flight.getFlightType() + " | " + flight.getFlightClass());
                 service.setServicePrice(flight.getBasePrice());
                 if (flight.getAirline() != null && flight.getAirline().getLogoUrl() != null) {
                     service.setServiceImageUrl(flight.getAirline().getLogoUrl());
@@ -3344,8 +3197,4 @@ public class ServiceDao extends DBContext {
         return data;
     }
 
-    
-
 }
-    
-

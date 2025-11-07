@@ -169,16 +169,12 @@ public class FlightTicketStaffServlet extends HttpServlet {
     /**
      * Display list of all flights
      */
-   private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
+  private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
     HttpSession session = request.getSession();
     try {
-        // Lấy tham số phân trang và filter
         String pageParam = request.getParameter("page");
         String pageSizeParam = request.getParameter("pageSize");
-        String searchParam = request.getParameter("search");
-        String airlineIdParam = request.getParameter("airlineId");
-        String priceRangeParam = request.getParameter("priceRange");
 
         int page = 1;
         int pageSize = 12;
@@ -200,40 +196,16 @@ public class FlightTicketStaffServlet extends HttpServlet {
             } catch (NumberFormatException ignored) {}
         }
 
-        // Airline ID
-        Integer airlineId = null;
-        if (airlineIdParam != null && !airlineIdParam.trim().isEmpty()) {
-            try {
-                airlineId = Integer.parseInt(airlineIdParam);
-            } catch (NumberFormatException ignored) {}
-        }
+        // ====== hiển thị danh sách toàn bộ flight có phân trang ======
+        List<Flight> flights = serviceDao.getFlightsByPageWithAirlineNames(page, pageSize);
+        int totalFlights = serviceDao.getTotalFlightsCount();
 
-        // ==== Logic phân nhánh ====
-        List<Flight> flights;
-        int totalFlights;
-
-        if (searchParam != null && !searchParam.trim().isEmpty()
-                || airlineId != null
-                || (priceRangeParam != null && !priceRangeParam.isEmpty())) {
-
-            flights = serviceDao.searchFlightTicketsWithPagination(
-                    searchParam, airlineId, priceRangeParam, page, pageSize
-            );
-            totalFlights = serviceDao.getSearchFlightTicketsCount(searchParam, airlineId, priceRangeParam);
-            request.setAttribute("search", searchParam);
-            request.setAttribute("airlineId", airlineId);
-            request.setAttribute("priceRange", priceRangeParam);
-        } else {
-            flights = serviceDao.getFlightsByPageWithAirlineNames(page, pageSize);
-            totalFlights = serviceDao.getTotalFlightsCount();
-        }
-
-        // ==== Pagination info ====
+        // ====== Pagination info ======
         int totalPages = (int) Math.ceil((double) totalFlights / pageSize);
         int startPage = Math.max(1, page - 2);
         int endPage = Math.min(totalPages, page + 2);
 
-        // ==== Set attributes ====
+        // ====== Set attributes ======
         request.setAttribute("flights", flights);
         request.setAttribute("currentPage", page);
         request.setAttribute("pageSize", pageSize);
@@ -243,15 +215,17 @@ public class FlightTicketStaffServlet extends HttpServlet {
         request.setAttribute("endPage", endPage);
         request.setAttribute("pageTitle", "Flight Management");
 
-        // Load danh sách hãng bay cho dropdown
+        // ====== Load danh sách hãng bay ======
         List<Airlines> airlines = serviceDao.getAllAirlineNames();
         session.setAttribute("airlineNames", airlines);
 
         request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
+
     } catch (Exception e) {
         handleError(request, response, "Error loading flight list: " + e.getMessage(), e);
     }
 }
+
 
     /**
      * Display create flight form
@@ -315,65 +289,102 @@ public class FlightTicketStaffServlet extends HttpServlet {
     /**
      * Handle flight search
      */
-    public void handleFlightSearch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            // Lấy tham số từ form
-            String keyword = request.getParameter("search");
-            String airlineIdStr = request.getParameter("airlineId");
-            String priceRange = request.getParameter("priceRange");
+    public void handleFlightSearch(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    try {
+        // ====== Lấy tham số từ form ======
+        String keyword = request.getParameter("search");
+        String airlineIdStr = request.getParameter("airlineId");
+        String priceRange = request.getParameter("priceRange");
 
-            // Chuyển airlineId sang Integer nếu hợp lệ, null nếu rỗng
-            Integer airlineId = null;
-            if (airlineIdStr != null && !airlineIdStr.isEmpty()) {
-                try {
-                    airlineId = Integer.parseInt(airlineIdStr);
-                } catch (NumberFormatException e) {
+        String pageParam = request.getParameter("page");
+        String pageSizeParam = request.getParameter("pageSize");
 
-                    request.setAttribute("errorMessage", "Hãng bay không hợp lệ, bỏ qua filter.");
-                    request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
-                }
+        int page = 1;
+        int pageSize = 12;
+
+        // Page
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // PageSize
+        if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeParam);
+                if (pageSize < 1) pageSize = 12;
+                if (pageSize > 100) pageSize = 100;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // ====== Chuyển airlineId sang Integer ======
+        Integer airlineId = null;
+        if (airlineIdStr != null && !airlineIdStr.isEmpty()) {
+            try {
+                airlineId = Integer.parseInt(airlineIdStr);
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "Hãng bay không hợp lệ.");
+                request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
+                return;
             }
+        }
 
-            // Kiểm tra priceRange hợp lệ, null hoặc rỗng cũng được
-            if (priceRange != null && !priceRange.isEmpty() && !priceRange.matches("\\d+-\\d+|\\d+\\+")) {
-                request.setAttribute("errorMessage", "Khoảng giá không hợp lệ, bỏ qua filter.");
-                priceRange = null;
-            }
-            
-              // ===== Kiểm tra nếu KHÔNG có filter nào (tức là xem toàn bộ danh sách kèm phân trang) =====
-        boolean noFilter = 
-            (keyword == null || keyword.trim().isEmpty()) &&
-            (airlineId == null) &&
-            (priceRange == null || priceRange.trim().isEmpty());
+        // ====== Kiểm tra khoảng giá ======
+        if (priceRange != null && !priceRange.isEmpty() && !priceRange.matches("\\d+-\\d+|\\d+\\+")) {
+            request.setAttribute("errorMessage", "Khoảng giá không hợp lệ.");
+            priceRange = null;
+        }
+
+        // ====== Kiểm tra nếu KHÔNG có filter nào (xem toàn bộ) ======
+        boolean noFilter =
+                (keyword == null || keyword.trim().isEmpty()) &&
+                (airlineId == null) &&
+                (priceRange == null || priceRange.trim().isEmpty());
 
         if (noFilter) {
-            // Không có filter nào -> gọi lại hàm hiển thị list
             handleFlightList(request, response);
             return;
         }
 
+        // ====== tìm chuyến bay theo filter + phân trang ======
+        List<Flight> flights = serviceDao.searchFlightTicketsWithPagination(
+                keyword, airlineId, priceRange, page, pageSize
+        );
 
-            // Gọi DAO / service để tìm chuyến bay theo filter
-            List<Flight> flights = serviceDao.searchFlightTickets(keyword, airlineId, priceRange);
+        int totalFlights = serviceDao.getSearchFlightTicketsCount(
+                keyword, airlineId, priceRange
+        );
 
-            // Truyền dữ liệu sang JSP
-            request.setAttribute("flights", flights);
-            request.setAttribute("keyword", keyword);
-            request.setAttribute("airlineId", airlineIdStr);
-            request.setAttribute("priceRange", priceRange);
+        // ====== Tính phân trang ======
+        int totalPages = (int) Math.ceil((double) totalFlights / pageSize);
+        int startPage = Math.max(1, page - 2);
+        int endPage = Math.min(totalPages, page + 2);
 
-            // Forward sang JSP danh sách chuyến bay
-            request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
+        // ====== Gửi dữ liệu sang JSP ======
+        request.setAttribute("flights", flights);
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("airlineId", airlineIdStr);
+        request.setAttribute("priceRange", priceRange);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalFlights", totalFlights);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
 
-        } catch (Exception e) {
+        request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
 
-            e.printStackTrace();
-            // Forward sang trang error
-            request.setAttribute("message", "Lỗi khi tìm chuyến bay: " + e.getMessage());
-            request.setAttribute("exception", e);
-            request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
-        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        request.setAttribute("message", "Lỗi khi tìm chuyến bay: " + e.getMessage());
+        request.setAttribute("exception", e);
+        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
     }
+}
+
 
     /**
      * Handle create flight

@@ -174,68 +174,47 @@ if(session != null){
            // Get pagination paramaters
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
-            String searchParam = request.getParameter("search");
+            
+        int page = 1;
+        int pageSize = 12;
 
-            // handle current page (dafault page =1)
-            int page = 1;
-            if (pageParam != null && !pageParam.trim().isEmpty()) {
-                try {
-                    page = Integer.parseInt(pageParam);
-                    if (page < 1) {
-                        page = 1;
-                    }
-                } catch (NumberFormatException e) {
-                    page = 1;
-                }
-            }
+        // Page
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException ignored) {}
+        }
 
-            // handle pageSize (the number each pages display) 
-            int pageSize = 12;// default=12
-            if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
-                try {
-                    pageSize = Integer.parseInt(pageSizeParam);
-                    if (pageSize < 1) {
-                        pageSize = 12;
-                    }
-                    if (pageSize > 100) {
-                        pageSize = 100;//Max page size limit
-                    }
-                } catch (NumberFormatException e) {
-                    pageSize = 12;
-                }
-            }
-
-            // check search or not
-            List<FlightSchedule> flightSchedules;
-            int totalFlightSchedules;
-
-            // check if search is performed
-            if (searchParam != null && !searchParam.trim().isEmpty()) {
-              flightSchedules = serviceDao.searchFlightSchedulesWithPagination(searchParam, page, pageSize);
-               totalFlightSchedules = serviceDao.getSearchFlighScheduletsCount(searchParam.trim());
-                request.setAttribute("search", searchParam.trim());
-
-            } else {
-               flightSchedules = serviceDao.getFlightsByPage(page, pageSize);
-               totalFlightSchedules = serviceDao.getTotalFlightsCount();
-            }
-
-            // calculate pagination info
-            int totalPages = (int) Math.ceil((double) totalFlightSchedules / pageSize);
-
-            //set Attribute
-            request.setAttribute("flightSchedules", flightSchedules);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("pageSize", pageSize);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("totalFlightSchedules",  totalFlightSchedules);
-
+        // PageSize
+        if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeParam);
+                if (pageSize < 1) pageSize = 12;
+                if (pageSize > 100) pageSize = 100;
+            } catch (NumberFormatException ignored) {}
+        }
+            
+             // ====== hiển thị danh sách toàn bộ flightSchedule có phân trang ======
+        List<FlightSchedule>  flightSchedules = serviceDao.getFlightSchedulesByPage(page, pageSize);
+        int totalFlightSchedules = serviceDao.getTotalFlightSchedulesCount();
            
-            // calculate pagination display page
-            int startPage = Math.max(1, page - 2);
-            int endPage = Math.min(totalPages, page + 2);
-            request.setAttribute("startPage", startPage);
-            request.setAttribute("endPage", endPage);
+         // ====== Pagination info ======
+        int totalPages = (int) Math.ceil((double) totalFlightSchedules / pageSize);
+        int startPage = Math.max(1, page - 2);
+        int endPage = Math.min(totalPages, page + 2);
+ 
+        // ====== Set attributes ======
+        request.setAttribute("flightSchedules", flightSchedules);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalFlights", totalFlightSchedules);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("pageTitle", "Flight Management");
+            
+     
             request.setAttribute("pageTitle", "FlightSchedules Management");
             request.getRequestDispatcher("/views/staff/flight_schedule-list.jsp").forward(request, response);
         } catch (Exception e) {
@@ -318,8 +297,32 @@ if(session != null){
         String keyword = request.getParameter("search"); 
         String flightTypeRaw = request.getParameter("flightType"); // dropdown loại chuyến bay
         String departureTimeRange = request.getParameter("departureTimeRange"); // dropdown khung giờ khởi hành
-        System.out.println("Time"+departureTimeRange);
+     
+        String pageParam = request.getParameter("page");
+        String pageSizeParam = request.getParameter("pageSize");
+          
+           int page = 1;
+        int pageSize = 12;
 
+        // Page
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // PageSize
+        if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeParam);
+                if (pageSize < 1) pageSize = 12;
+                if (pageSize > 100) pageSize = 100;
+            } catch (NumberFormatException ignored) {}
+        }
+        
+        
+        
         // Xử lý loại chuyến bay
         String flightType = null;
         if ("Một chiều".equals(flightTypeRaw)) {
@@ -339,24 +342,48 @@ if(session != null){
         departureTimeRange = null;
     }
 }
+    // ====== Kiểm tra nếu KHÔNG có filter nào (xem toàn bộ) ======
+        boolean noFilter =
+                (keyword == null || keyword.trim().isEmpty()) &&
+                ( flightType== null || flightType.trim().isEmpty()) &&
+                (departureTimeRange == null || departureTimeRange.trim().isEmpty());
+
+        if (noFilter) {
+          handleFlightScheduleList(request, response);
+            return;
+        }
+   
+     // ====== tìm chuyến bay theo filter + phân trang ======
+        List<FlightSchedule> flightSchedules = serviceDao.searchFlightSchedulesWithPagination(
+                keyword, flightType, departureTimeRange, page, pageSize);
+         int totalFlightSchedules = serviceDao.getSearchFlightSchedulesCount(keyword, flightType, departureTimeRange);
+         
+           // ====== Tính phân trang ======
+        int totalPages = (int) Math.ceil((double)  totalFlightSchedules / pageSize);
+        int startPage = Math.max(1, page - 2);
+        int endPage = Math.min(totalPages, page + 2);
+
+            // ====== Set attributes ======
+        request.setAttribute("flightSchedules", flightSchedules);
+          request.setAttribute("keyword", keyword);
+        request.setAttribute("flightType", flightType);
+        request.setAttribute("departureTimeRange", departureTimeRange);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalFlights", totalFlightSchedules);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("pageTitle", "Flight Management");
     
    
-        List<FlightSchedule> flightSchedules = serviceDao.searchFlightSchedules(keyword,  flightType, departureTimeRange);
-
-       
-        request.setAttribute("flightSchedules", flightSchedules);
-        request.setAttribute("keyword", keyword);
-       request.setAttribute("flightType", flightTypeRaw != null ? flightTypeRaw : "");
-        request.setAttribute("departureTimeRange", departureTimeRange);
-
     
         request.getRequestDispatcher("/views/staff/flight_schedule-list.jsp").forward(request, response);
 
     } catch (Exception e) {
         e.printStackTrace();
-        request.setAttribute("message", "Lỗi khi tìm lịch bay: " + e.getMessage());
-        request.setAttribute("exception", e);
-        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
+       
+         handleError(request, response, "Lỗi khi tìm lịch bay: " + e.getMessage(), e);
     }
 }
    
