@@ -3,11 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/flight/FlightTicketStaffServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/ServiceDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/dashboard.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/TourDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/IslandDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/BookingDao.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_schedule-form.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/dashboard/StaffDashboardServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/VehicleStaffServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/UserDao.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/flight_ticket-list.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/HotelStaffServlet.java</file>
         </group>
     </open-files>
 </project-private>

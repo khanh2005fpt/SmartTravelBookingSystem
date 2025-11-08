@@ -4,6 +4,7 @@
  */
 package dao;
 
+import java.security.Timestamp;
 import utils.DBContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -1128,6 +1129,39 @@ public class TourDao extends DBContext {
     }
     return total;
 }
+    
+    
+    // lay recent tour
+    
+    public List<Tour> getRecentTours() throws SQLException {
+    List<Tour> list = new ArrayList<>();
+    String sql = "SELECT TOP 5 t.tourId, t.tourName, t.price, t.tourImageUrl, "
+               + "i.islandName, MAX(ts.createdAt) AS createdAt "
+               + "FROM Tours t "
+               + "JOIN Islands i ON t.islandId = i.islandId "
+               + "LEFT JOIN TourServices ts ON ts.tourId = t.tourId "
+               + "GROUP BY t.tourId, t.tourName, t.price, t.tourImageUrl, i.islandName "
+               + "ORDER BY MAX(ts.createdAt) DESC";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Tour tour = new Tour();
+            tour.setTourId(rs.getInt("tourId"));
+            tour.setTourName(rs.getString("tourName"));
+            tour.setPrice(rs.getInt("price"));
+            tour.setTourImageUrl(rs.getString("tourImageUrl"));
+            tour.setIslandName(rs.getString("islandName"));
+            java.sql.Timestamp ts = rs.getTimestamp("createdAt");
+            tour.setCreatedAt(ts != null ? ts.toLocalDateTime() : null);
+
+
+            list.add(tour);
+        }
+    }
+    return list;
+}
+
 
     
 }

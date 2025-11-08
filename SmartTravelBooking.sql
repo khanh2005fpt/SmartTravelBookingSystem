@@ -238,6 +238,7 @@ CREATE TABLE Tours (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
+select * from TourServices 
 CREATE TABLE TourServices (
     tourServiceId INT IDENTITY(1,1) PRIMARY KEY,
     tourId INT NOT NULL,

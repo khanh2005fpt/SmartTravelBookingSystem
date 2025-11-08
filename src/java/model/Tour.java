@@ -5,6 +5,7 @@
 package model;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 
 /**
  *
@@ -20,6 +21,8 @@ public class Tour {
     private String islandName; // Added for displaying island name
     private String approvalStatus; // PENDING, APPROVED, REJECTED
     private int availableQuantity; // Số lượng tour còn lại
+    private LocalDateTime createdAt;
+
 
     public Tour() {
     }
@@ -31,6 +34,14 @@ public class Tour {
         this.description = description;
         this.price = price;
         this.tourImageUrl = tourImageUrl;
+    }
+       public Tour(int tourId,String tourName, int price, String tourImageUrl, String islandName, LocalDateTime createdAt) {
+        this.tourId = tourId; 
+        this.tourName = tourName;
+        this.price = price;
+        this.tourImageUrl = tourImageUrl;
+        this.islandName = islandName;
+        this.createdAt = createdAt;
     }
 
    
@@ -106,6 +117,16 @@ public class Tour {
     public void setAvailableQuantity(int availableQuantity) {
         this.availableQuantity = availableQuantity;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    
 
     @Override
     public String toString() {

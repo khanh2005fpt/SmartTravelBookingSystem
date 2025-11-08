@@ -15,6 +15,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import model.Tour;
 
 /**
  *
@@ -82,6 +84,10 @@ public class StaffDashboardServlet extends HttpServlet {
            // total revenue
            long totalRevenues = bookingDao.getTotalRevenue();
            request.setAttribute("totalRevenues", totalRevenues);
+           
+           // recent tour
+           List<Tour> recentTours = tourDao.getRecentTours();
+           request.setAttribute("recentTours", recentTours);
            
 
          request.getRequestDispatcher("/views/staff/dashboard.jsp").forward(request, response);
