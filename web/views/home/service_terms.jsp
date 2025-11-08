@@ -4,14 +4,83 @@
 <%@ page import="model.User" %>
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Service_TermsPage</title>
-          <%@ include file="/views/common/css.jsp" %>
-    </head>
-    
-            
-    <%
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Service Terms Page</title>
+    <%@ include file="/views/common/css.jsp" %>
+    <style>
+        /* Header ảnh responsive */
+        header {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            height: 300px; /* Có thể điều chỉnh */
+        }
+
+        header img#headerImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Giữ tỉ lệ ảnh, cover toàn bộ khung */
+            display: block;
+        }
+
+        header .header-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* Main content */
+        main.container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+        main.container h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1E90FF; /* màu xanh nổi bật */
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* H2 trong main hơi nổi hơn */
+main.container h2 {
+    color: #FF4500; /* cam đỏ nổi bật */
+    margin-top: 1.5rem;
+}
+
+        main h1, main h2, main p, main ul {
+            margin-bottom: 1rem;
+        }
+
+        main ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-info p {
+            margin: 0.3rem 0;
+        }
+
+        /* Responsive cho mobile */
+        @media (max-width: 768px) {
+            header {
+                height: 200px;
+            }
+            header .header-overlay {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<%
 User currentUser = (User) session.getAttribute("user");
 
 if (currentUser != null) {
@@ -24,10 +93,11 @@ if (currentUser != null) {
     }
 }
 %>
-    <body  class="service-page"  >
-       <%@ include file="/views/common/navbar.jsp" %>
-        <!-- KẾT THÚC nav -->
-          <header>
+
+<body class="service-page">
+    <%@ include file="/views/common/navbar.jsp" %>
+
+    <header>
         <img id="headerImage" src="${pageContext.request.contextPath}/views/home/images/Servie_Term_Pic.jpg"
              alt="Smart Island Travel Banner">
         <div class="header-overlay">
@@ -35,9 +105,9 @@ if (currentUser != null) {
         </div>
     </header>
 
-    <main >
+    <main class="container">
         <h1>Điều khoản Dịch vụ</h1>
-        
+
         <h2>1. Giới thiệu</h2>
         <p>Chào mừng bạn đến với <strong>Smart Island Travel Booking System</strong> ("Hệ thống"). Bằng việc sử dụng dịch vụ của chúng tôi, bạn đồng ý tuân thủ các điều khoản dưới đây.</p>
 
@@ -93,9 +163,15 @@ if (currentUser != null) {
         </div>
     </main>
 
-        <%@ include file="/views/common/footer.jsp" %>
+    <%@ include file="/views/common/footer.jsp" %>
 
-<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
-   <%@ include file="/views/common/script.jsp" %>
-    </body>
+    <div id="ftco-loader" class="show fullscreen">
+        <svg class="circular" width="48px" height="48px">
+            <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
+            <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/>
+        </svg>
+    </div>
+
+    <%@ include file="/views/common/script.jsp" %>
+</body>
 </html>

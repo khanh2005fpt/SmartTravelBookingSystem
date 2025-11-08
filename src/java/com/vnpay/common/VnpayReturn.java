@@ -20,6 +20,7 @@ import java.util.Map;
 import model.Bill;
 import model.HistoryBooking;
 import model.Payment;
+import model.User;
 
 /**
  *
@@ -45,6 +46,7 @@ public class VnpayReturn extends HttpServlet {
         HttpSession session = request.getSession();
         String fullname = (String) session.getAttribute("fullname");
         String email = (String) session.getAttribute("email");
+        User user = (User)session.getAttribute("user");
         String phone = (String) session.getAttribute("phone");
         Map<String, String> fields = new HashMap<>();
         for (String key : request.getParameterMap().keySet()) {
@@ -95,7 +97,7 @@ public class VnpayReturn extends HttpServlet {
                     hb.setPaymentId(paymentId);
 
                     // Nếu có người đăng nhập thì lấy userId từ session
-                    Integer userId = (Integer) request.getSession().getAttribute("userId");
+                    int userId = user.getUserId();
                     hb.setAccountUserId(userId);
                     System.out.println(userId);
 

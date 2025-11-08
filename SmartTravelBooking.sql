@@ -148,11 +148,9 @@ BEGIN
 END;
 GO
 
-<<<<<<< HEAD
 
-=======
-select * from historybooking
->>>>>>> efe358d0d2ac756fdc0c96b45c0563d8e583fa83
+	
+
 
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
@@ -926,7 +924,7 @@ CREATE TABLE Payments (
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 
-
+select * from HistoryBooking
 CREATE TABLE HistoryBooking (
     historyId INT IDENTITY(1,1) PRIMARY KEY,
     paymentId INT NOT NULL,
@@ -940,16 +938,15 @@ CREATE TABLE HistoryBooking (
     -- Cho phép null nếu user bị xóa
     FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
 );
--- Xóa các bản ghi có ID từ 1002 đến 1016
-DELETE FROM CustomTourItinerary
 
-
+/* -- xoa du lieu va reset
+DELETE FROM Notifications
 drop table CustomTourItinerary
 -- Reset IDENTITY về 10
-DBCC CHECKIDENT ('CustomTourItinerary', RESEED, 0);
+DBCC CHECKIDENT ('Notifications', RESEED, 0);
 DBCC CHECKIDENT ('CustomTourDetails', RESEED, 0);
 DBCC CHECKIDENT ('CustomTours', RESEED, 0);
-
+*/
 
 
 SELECT 
@@ -965,7 +962,7 @@ JOIN Payments p ON hb.paymentId = p.paymentId
 JOIN Bookings b ON p.bookingId = b.bookingId
 LEFT JOIN Tours t ON b.tourId = t.tourId
 LEFT JOIN Users u ON hb.accountUserId = u.userId
-WHERE hb.historyId = 1;  -- hoặc lọc theo userId nếu muốn
+WHERE hb.historyId = 1;  
 
 SELECT hb.paymentId, hb.customerName, hb.customerPhone, hb.createdAt, t.tourName, p.amount, p.status AS paymentStatus
                   FROM HistoryBooking hb
@@ -1068,14 +1065,15 @@ CREATE TABLE Reviews (
 );
 go
 -- Notification 
+select * from Notifications
+
+
 CREATE TABLE Notifications (
     notificationId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
     title NVARCHAR(100) NOT NULL,
     message NVARCHAR(500) NOT NULL,
     type VARCHAR(30) CHECK (type IN ('BOOKING','PAYMENT','PROMOTION','SYSTEM')) DEFAULT 'SYSTEM',
-    isRead BIT DEFAULT 0, -- 0: chưa đọc, 1: đã đọc
-	isDeleted BIT DEFAULT 0, -- xoa mem tren UI user thoi
     createdAt DATETIME DEFAULT GETDATE(),
 
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
@@ -1335,19 +1333,6 @@ VALUES
  N'Đi thuyền đảo, Kayak, Lặn ngắm san hô, Khám phá hang động, Island-hopping',
  N'views/home/images/islands/palawan.jpg',
  N'Thành phố Puerto Princesa, Tỉnh Palawan, Philippines');
- -- Xóa các bản ghi có ID từ 1002 đến 1016
-DELETE FROM CustomTourDetails
-WHERE detailId BETWEEN 62 AND 64;
-	
--- Reset IDENTITY về 10
-DBCC CHECKIDENT ('CustomTourDetails', RESEED, 0);
-
-DELETE FROM CustomTours
-WHERE customTourId BETWEEN 1 AND 2;
-	select * from  CustomTours
--- Reset IDENTITY về 10
-DBCC CHECKIDENT ('CustomTours', RESEED, 0);
-
 
 --3.hotel
 
@@ -1741,15 +1726,6 @@ VALUES
 (10, N'Puerto Princesa Underground River', N'Sabang, Puerto Princesa', N'Dòng sông ngầm tự nhiên dài 8km – kỳ quan thiên nhiên thế giới.', 1, 100000),
 (10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL),
 (10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL);
-
-select * from CustomTours
-/*
-delete from Flights
-DBCC CHECKIDENT ('Flights', RESEED, 0);
-*/
-
-
--- payments
 
 
 

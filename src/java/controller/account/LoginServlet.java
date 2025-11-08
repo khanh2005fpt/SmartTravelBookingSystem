@@ -85,16 +85,23 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-       
          
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
+           String code = request.getParameter("code");
+           
+           if (code == null && error == null) {
+            request.getRequestDispatcher("/views/account/login.jsp").forward(request, response);
+              return;
+          }
+
+           
         if (error != null) {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
     
-        String code = request.getParameter("code");
+     
         GoogleLogin gg = new GoogleLogin();
         String accessToken = gg.getToken(code);
         System.out.println(accessToken);
@@ -118,7 +125,7 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("user", existing);
                 session.setAttribute("loginSuccess", "oke");
            
-              System.out.println("UserId: " + existing.getUserId());
+                System.out.println("UserId: " + existing.getUserId());
                 // gui thong bang session den trang profile
                 CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
      

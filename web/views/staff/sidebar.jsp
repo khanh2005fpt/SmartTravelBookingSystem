@@ -307,13 +307,7 @@
                     <i class="bi bi-calendar2-check-fill"></i> Quản lý Booking
                 </a>
             </div>
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/staff/payments"
-                   class="nav-link <%= "payments".equals(currentPage) ? "active" : "" %>">
-                    <i class="bi bi-credit-card-2-front-fill"></i> Quản lý Thanh toán
-                </a>
-            </div>
-                    
+        
     <% } %>
 </nav>
 

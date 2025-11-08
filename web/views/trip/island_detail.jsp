@@ -151,19 +151,17 @@
                     <!------- Flights Section -------------------------------------------------------------->
 
                     <section id="flightSection"class="mb-5"  >
-                        <h2 class="h2 text-center text-primary fw-bold mb-4">
-                            Chuyến bay du lịch
+                        <h2 class="h2 text-center text-primary fw-bold mb-5">
+                            Chuyến bay du lịch  
                         </h2>
 
-
-
                         <!-- NGÀY BẮT ĐẦU & KẾT THÚC -->
-                        <div class="d-flex justify-content-center gap-4 mb-3 flex-wrap">
+                        <div class="d-flex justify-content-center gap-4 mb-3 mt-3 flex-wrap">
                             <div class="text-center">
 
                                 <div class="input-group " style="max-width: 180px;">
                                     <div>
-                                        <label for="startDateFlight" class="form-label fw-semibold">Ngày bắt đầu</label>
+                                        <label for="startDateFlight" class="form-label fw-semibold">Ngày khởi hành</label>
                                         <input type="date" class="form-control rounded-pill text-center"
                                                id="startDateFlight" name="startDateFlight"
                                                value="${param.startDateFlight}">                                    
@@ -174,7 +172,7 @@
 
                                 <div class="input-group" style="max-width: 180px;">
                                     <div>
-                                        <label for="endDateFlight" class="form-label fw-semibold">Ngày kết thúc</label>
+                                        <label for="endDateFlight" class="form-label fw-semibold">Ngày trở về</label>
                                         <input type="date" class="form-control rounded-pill text-center"
                                                id="endDateFlight" name="endDateFlight"
                                                value="${param.endDateFlight}">                                   
@@ -296,12 +294,13 @@
                                         </div>
                                     </c:forEach>
                                 </c:when>
+                               
                                 <c:otherwise>
                                     <div class="col-12 text-center text-muted py-5">
 
                                         <i class="bi bi-airplane fs-1 d-block mb-3"></i>
                                         <i class="bi bi-search me-2"></i>
-                                        Vui lòng hãy nhập  <strong>ngày khởi hành</strong> &  <strong> ngày trở về</strong> để tìm chuyến bay
+                                        Không có <strong>chuyến bay</strong> nào mà bạn vừa tìm kiếm
 
                                     </div>
 
@@ -865,48 +864,41 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- LOAD STATE ---
     const savedStart = sessionStorage.getItem("startDateFlight");
     const savedEnd = sessionStorage.getItem("endDateFlight");
-    const savedCommit = sessionStorage.getItem("commitFlightChecked") === "true";
+    // ❌ Không load trạng thái checkbox nữa
+    commitCheckbox.checked = false;
 
-    if (savedCommit) {
-        if (savedStart) startDate.value = savedStart;
-        if (savedEnd) endDate.value = savedEnd;
-        commitCheckbox.checked = true;
-    }
+    if (savedStart) startDate.value = savedStart;
+    if (savedEnd) endDate.value = savedEnd;
 
     // --- UPDATE BUTTONS ---
- function updateButtons() {
-    const startVal = startDate.value;
-    const endVal = endDate.value;
-    const isCommitted = commitCheckbox.checked;
+    function updateButtons() {
+        const startVal = startDate.value;
+        const endVal = endDate.value;
+        const isCommitted = commitCheckbox.checked;
 
-    // Kiểm tra endDate < startDate
-    if (startVal && endVal && endVal < startVal) {
-        alert("❌ Ngày kết thúc không thể trước ngày bắt đầu!");
-        endDate.value = "";
-        
-        // Xóa sessionStorage liên quan để reload sau không bị alert lại
-        sessionStorage.removeItem("endDateFlight");
+        if (startVal && endVal && endVal < startVal) {
+            alert("❌ Ngày kết thúc không thể trước ngày bắt đầu!");
+            endDate.value = "";
+            sessionStorage.removeItem("endDateFlight");
+        }
+
+        const hasStart = startVal.trim() !== '';
+        const hasEnd = endVal.trim() !== '';
+
+        oneWayLink.classList.toggle('disabled', !(hasStart && isCommitted));
+        oneWayLink.style.pointerEvents = hasStart && isCommitted ? 'auto' : 'none';
+        oneWayLink.style.opacity = hasStart && isCommitted ? '1' : '0.5';
+
+        roundTripLink.classList.toggle('disabled', !(hasStart && hasEnd && isCommitted));
+        roundTripLink.style.pointerEvents = hasStart && hasEnd && isCommitted ? 'auto' : 'none';
+        roundTripLink.style.opacity = hasStart && hasEnd && isCommitted ? '1' : '0.5';
     }
-
-    const hasStart = startDate.value.trim() !== '';
-    const hasEnd = endDate.value.trim() !== '';
-
-    oneWayLink.classList.toggle('disabled', !(hasStart && isCommitted));
-    oneWayLink.style.pointerEvents = hasStart && isCommitted ? 'auto' : 'none';
-    oneWayLink.style.opacity = hasStart && isCommitted ? '1' : '0.5';
-
-    roundTripLink.classList.toggle('disabled', !(hasStart && hasEnd && isCommitted));
-    roundTripLink.style.pointerEvents = hasStart && hasEnd && isCommitted ? 'auto' : 'none';
-    roundTripLink.style.opacity = hasStart && hasEnd && isCommitted ? '1' : '0.5';
-}
-
 
     // --- SAVE STATE ---
     function saveState() {
         if (commitCheckbox.checked) {
             sessionStorage.setItem("startDateFlight", startDate.value);
             sessionStorage.setItem("endDateFlight", endDate.value);
-            sessionStorage.setItem("commitFlightChecked", commitCheckbox.checked);
         }
     }
 
@@ -922,6 +914,12 @@ document.addEventListener('DOMContentLoaded', function () {
             saveState();
         }
         updateButtons();
+    });
+
+    // --- Xóa tick khi rời trang ---
+    window.addEventListener('beforeunload', () => {
+        commitCheckbox.checked = false;
+        sessionStorage.removeItem("commitFlightChecked");
     });
 
     updateButtons();
