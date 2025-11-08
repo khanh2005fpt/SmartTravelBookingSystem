@@ -34,6 +34,11 @@
 
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/blog.jsp" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/home/contact.jsp" class="nav-link">Liên hệ</a></li>
+
+                <%
+                    if (user == null) {
+                        // Chưa đăng nhập → Hiện nút login/register
+                %>
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
@@ -49,10 +54,6 @@
                         <a class="dropdown-item text-center" href="#">Xem tất cả</a>
                     </div>
                 </li>
-                <%
-                    if (user == null) {
-                        // Chưa đăng nhập → Hiện nút login/register
-                %>
 
                 <li class="nav-item ml-lg-5 ml-5 " ">
                     <a href="${pageContext.request.contextPath}/login" class="btn btn-login1"> 
@@ -74,6 +75,10 @@
                     } else {
                         // Đã đăng nhập → Hiện profile dropdown
                 %>
+                 <!-- đăt chỗ của tôi -->
+                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/customer/my_tour.jsp" class="nav-link">Đặt chỗ của tôi</a></li>
+                
+                      <!-- Chuông thông báo -->
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
@@ -83,7 +88,7 @@
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown04" style="maxwidth: 350px;">
-                        <h6 class="dropdown-header">Thông báo</h6>
+                        <h6 class="dropdown-header text-info">Thông báo</h6>
                         <a class="dropdown-item" href="#">✈️ Chuyến bay SGN → HAN đã được cập nhật</a>
                         <a class="dropdown-item" href="#">🕒 Lịch khởi hành thay đổi</a>
                         <a class="dropdown-item" href="#">💳 Thanh toán của bạn đã được xác nhận</a>
