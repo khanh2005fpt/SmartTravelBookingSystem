@@ -86,14 +86,7 @@ public class FlightScheduleStaffServlet extends HttpServlet {
     if (!isStaffAuthorized(session, request, response)) {
         return;
     }
-if(session != null){
-    System.out.println("Session ID: " + session.getId());
-    System.out.println("Creation time: " + new java.util.Date(session.getCreationTime()));
-    System.out.println("Last accessed: " + new java.util.Date(session.getLastAccessedTime()));
-    System.out.println("Max inactive interval: " + session.getMaxInactiveInterval() + " seconds");
-} else {
-    System.out.println("No session found");
-}
+
         
         String action = request.getParameter("action");
         if (action == null) action = "list";

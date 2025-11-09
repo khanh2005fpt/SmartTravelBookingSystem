@@ -1119,35 +1119,7 @@ public class ServiceDao extends DBContext {
         return list;
     }
 
-    public static void main(String[] args) {
-        ServiceDao dao = new ServiceDao();
-        try {
-
-            Hotel hotel = new Hotel();
-            hotel.setIslandId(1); // ID của đảo (đảm bảo có trong DB)
-            hotel.setHotelName("Phuket Paradise Resort");
-            hotel.setRoomType("Tiêu chuẩn");
-            hotel.setPricePerNight(2500000); // giá mỗi đêm (VND)
-            hotel.setRoomAvailable(20);
-            hotel.setTotalRooms(50);
-            hotel.setRating(4.7);
-            hotel.setHotelImageUrl("images/hotels/phuket_paradise.jpg");
-
-            // 3️⃣ Gọi hàm createHotel() để chèn vào DB
-            boolean success = dao.createHotel(hotel);
-
-            // 4️⃣ In kết quả
-            if (success) {
-                System.out.println("✅ Thêm khách sạn thành công!");
-            } else {
-                System.out.println("❌ Thêm khách sạn thất bại!");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+s
     // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
     // CREATE - Them phuong tien moi
     public boolean createIslandVehicle(IslandVehicle vehicle) {

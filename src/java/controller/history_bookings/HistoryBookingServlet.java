@@ -3,9 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.profile.history_bookings;
+package controller.history_bookings;
 
 import dao.CustomerDao;
+import dao.TourDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.CustomTourBookingInfo;
+import model.CustomTourDetail;
+import model.CustomTourItinerary;
+import model.FlightSchedule;
 import model.User;
 import model.HistoryBooking;
 
@@ -26,15 +31,14 @@ import model.HistoryBooking;
 @WebServlet(name="HistoryBookingServlet", urlPatterns={"/HistoryBookingServlet"})
 public class HistoryBookingServlet extends HttpServlet {
    
-        public CustomerDao customerDao;
-   
+      public TourDao tourDao;
        @Override
     public void init() throws ServletException {
         try {
-            customerDao = CustomerDao.INSTANCE;
-            System.out.println("profileDAO initialized successfully in loginServlet");
+          tourDao = TourDao.INSTANCE;
+            System.out.println("tourDao initialized successfully in HistoryBookingServlet");
         } catch (Exception e) {
-            System.out.println("Error initializingprofileDAO in loginServlet: " + e.getMessage());
+            System.out.println("Error initializing tourDaoO in HistoryBookingServletoginServlet: " + e.getMessage());
             e.printStackTrace();
             throw new ServletException("Failed to initialize information", e);
         }
@@ -67,30 +71,45 @@ public class HistoryBookingServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+       HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
+
+        if (currentUser == null) {
+            session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+            return;
+        }
+
+        int roleId = currentUser.getRoleId();
+        if (roleId != 1 && roleId != 3) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return;
+        }
+        
+
         try {
-            HttpSession session = request.getSession();
-            //lay session sau khi login thanh cong
-            User user = (User) session.getAttribute("user");
-            if (user == null) {
-                session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-                return;
-            }
-
-            Integer userId = user.getUserId();
-
-            // Lấy danh sách lịch sử booking từ DB
-//          List<HistoryBooking> historyList = customerDao.getHistoryByCustomerId(userId);
+            int userId = currentUser.getUserId();
+          CustomTourBookingInfo bookingInfo = tourDao.getLatestCustomTourAfterBookingByUser(userId);
+if (bookingInfo == null || bookingInfo.getCustomTour() == null) {
+    request.setAttribute("errorMessage", "Không tìm thấy lịch sử đặt tour nào gần đây cho tài khoản của bạn!");
+} else {
+    request.setAttribute("tour", bookingInfo.getCustomTour());
+    request.setAttribute("details", bookingInfo.getCustomTourDetails());
+    request.setAttribute("itinerary", bookingInfo.getCustomTourItineraries());
+}
+    FlightSchedule flightSchedules = tourDao.getLatestFlightScheduleByUser(userId);
           
-//          session.setAttribute("historyList", historyList);
-          response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=historyBookings#");
+  request.setAttribute("flightSchedules", flightSchedules);
+request.getRequestDispatcher("/views/customer/my_tour.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Đã xảy ra lỗi khi tải lịch sử đặt chỗ.");
-           response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=historyBookings#");
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi xem thông tin tour sau khi đặt.");
+            request.getRequestDispatcher("/views/customer/my_tour.jsp").forward(request, response);
         }
-    } 
+    }
+    
 
     
     @Override

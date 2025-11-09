@@ -76,7 +76,7 @@
                         // Đã đăng nhập → Hiện profile dropdown
                 %>
                  <!-- đăt chỗ của tôi -->
-                 <li class="nav-item"><a href="${pageContext.request.contextPath}/views/customer/my_tour.jsp" class="nav-link">Đặt chỗ của tôi</a></li>
+                 <li class="nav-item"><a href="${pageContext.request.contextPath}/HistoryBookingServlet" class="nav-link">Đặt chỗ của tôi</a></li>
                 
                       <!-- Chuông thông báo -->
                 <li class="nav-item dropdown position-relative">

@@ -130,12 +130,9 @@ public class LoginServlet extends HttpServlet {
                 CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
      
                 session.setAttribute("profile_customer", profile);
-
-                List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
                 List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(existing.getUserId());
                 List<CustomerContacts> phoneList = customerDao.getPhoneContactByUserId(existing.getUserId());
 
-                session.setAttribute("listNotification", listNotification);
                 session.setAttribute("emailList_Current", emailList);
                 session.setAttribute("phoneList_Current", phoneList);
 
@@ -248,9 +245,7 @@ public class LoginServlet extends HttpServlet {
 
             List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(user.getUserId());
             List<CustomerContacts> phoneList = customerDao.getPhoneContactByUserId(user.getUserId());
-            List<Notification> listNotification = customerDao.getNotificationByUser(user.getUserId());
 
-            session.setAttribute("listNotification", listNotification);
             session.setAttribute("emailList_Current", emailList);
             session.setAttribute("phoneList_Current", phoneList);
 

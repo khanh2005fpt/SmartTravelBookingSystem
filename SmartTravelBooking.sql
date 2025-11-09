@@ -18,7 +18,58 @@ CREATE TABLE Users (
 go
 
 
-select * from Places
+
+/*
+
+
+select * from HistoryBooking
+SELECT * FROM CustomTours
+SELECT * FROM Tours
+Select * from CustomTourDetails
+Select * from CustomTourItinerary
+SELECT * FROM Tours
+	
+select * from Payments
+
+SELECT * FROM CustomTours
+
+    SELECT ct.*, ctd.*, cti.*, hb.*
+        FROM HistoryBooking hb
+        JOIN Payments p ON hb.paymentId = p.paymentId
+        JOIN Bookings b ON p.bookingId = b.bookingId
+        JOIN CustomTours ct ON b.customTourId = ct.customTourId
+        LEFT JOIN CustomTourDetails ctd ON ct.customTourId = ctd.customTourId
+        LEFT JOIN CustomTourItinerary cti ON ct.customTourId = cti.customTourId
+        WHERE hb.accountUserId = 4
+        AND hb.historyId = (
+            SELECT MAX(historyId)
+            FROM HistoryBooking
+            WHERE accountUserId = 4
+        )
+        ORDER BY ctd.detailId, cti.dayNumber
+
+-- Lấy tour trọn gói sau khi booking 
+SELECT TOP 1 t.*, hb.*
+FROM HistoryBooking hb
+JOIN Payments p ON hb.paymentId = p.paymentId
+JOIN Bookings b ON p.bookingId = b.bookingId
+JOIN Tours t ON b.tourId = t.tourId
+WHERE hb.accountUserId = 4
+ORDER BY hb.historyId DESC;
+
+
+
+
+-- Lấy tour cá nhân / CustomTour sau khi booking 
+SELECT TOP 1 ct.*, ctd.*, hb.*
+FROM HistoryBooking hb
+JOIN Payments p ON hb.paymentId = p.paymentId
+JOIN Bookings b ON p.bookingId = b.bookingId
+JOIN CustomTours ct ON b.customTourId = ct.customTourId
+LEFT JOIN CustomTourDetails ctd ON ct.customTourId = ctd.customTourId
+WHERE hb.accountUserId = 4
+ORDER BY hb.historyId DESC;
+*/
 
 -- Add availableQuantity to Tours table
 ALTER TABLE Tours ADD availableQuantity INT DEFAULT 0 CHECK (availableQuantity >= 0);
@@ -81,8 +132,10 @@ GO
 INSERT INTO Roles (roleName)
 VALUES ('ADMIN'), ('BOOKING MANAGER'), ('CUSTOMER'), ('STAFF');
 
-SELECT DISTINCT gender FROM CustomerProfiles;
-
+SELECT * from CustomerProfiles;
+INSERT INTO CustomerProfiles (userId, fullName, dateOfBirth, gender, address, profilePicture, loyaltyPoints, membershipLevel)
+VALUES
+(4, 'David Huy', null, null, null, null, 100, 'SILVER');
 
 -- Bảng CustomerProfiles
 CREATE TABLE CustomerProfiles (

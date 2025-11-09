@@ -12,12 +12,17 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import model.CustomTour;
+import model.CustomTourBookingInfo;
 import model.CustomTourDetail;
 import model.CustomTourItinerary;
+import model.Flight;
+import model.FlightSchedule;
+import model.HistoryBooking;
 import model.Tour;
 import model.TourActivities;
 import model.TourItinerary;
@@ -200,26 +205,7 @@ public class TourDao extends DBContext {
             throw new SQLException("Lỗi khi tạo chi tiết custom tour, customTourId = " + detail.getCustomTourId(), e);
         }
     }
-    
-    public static void main(String[] args) {
-    // Tạo DAO
-    TourDao dao = new TourDao();
-    CustomTourDetail detail = new CustomTourDetail();
 
-    try {
-         int customTourId = 1; // Tour đã tồn tại trong DB
-            LocalDate startDate = LocalDate.of(2025, 12, 1);
-            LocalDate endDate = LocalDate.of(2025, 12, 3);
-
-            // Gọi phương thức tạo lịch trình mẫu
-            dao.createSampleItinerary(customTourId, startDate, endDate);
-
-            System.out.println("Tạo lịch trình mẫu thành công cho tour ID " + customTourId);
-    } catch (SQLException e) {
-        System.err.println("Lỗi khi tạo chi tiết custom tour, customTourId = " + detail.getCustomTourId());
-        e.printStackTrace();
-    }
-}
     
 
     //Tao thong tin lich trinh cua tour le
@@ -1161,7 +1147,213 @@ public class TourDao extends DBContext {
     }
     return list;
 }
+  
+ // lấy thông tin chi tiết của tour sau khi booking
+public CustomTourBookingInfo getLatestCustomTourAfterBookingByUser(int userId) throws SQLException {
+    CustomTourBookingInfo info = new CustomTourBookingInfo();
+ String sql = """
+    SELECT ct.*, ctd.*, cti.*, hb.*
+    FROM HistoryBooking hb
+    JOIN Payments p ON hb.paymentId = p.paymentId
+    JOIN Bookings b ON p.bookingId = b.bookingId
+    JOIN CustomTours ct ON b.customTourId = ct.customTourId
+    LEFT JOIN CustomTourDetails ctd ON ct.customTourId = ctd.customTourId
+    LEFT JOIN CustomTourItinerary cti ON ct.customTourId = cti.customTourId
+    WHERE hb.accountUserId = ?
+      AND b.tourId IS NULL
+      AND hb.historyId = (
+          SELECT MAX(hb2.historyId)
+          FROM HistoryBooking hb2
+          JOIN Payments p2 ON hb2.paymentId = p2.paymentId
+          JOIN Bookings b2 ON p2.bookingId = b2.bookingId
+          WHERE hb2.accountUserId = ? AND b2.tourId IS NULL
+      )
+    ORDER BY ctd.detailId, cti.dayNumber
+""";
 
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        ps.setInt(2, userId);
+        ResultSet rs = ps.executeQuery();
+
+        CustomTour ct = null;
+        HistoryBooking hb = null;
+        Set<Integer> detailIds = new HashSet<>();
+        Set<Integer> itineraryIds = new HashSet<>();
+
+        while (rs.next()) {
+            // Khởi tạo CustomTour 1 lần
+            if (ct == null) {
+                ct = new CustomTour(
+                        rs.getString("tourName"),
+                        rs.getInt("islandId"),
+                        rs.getDate("startDate").toLocalDate(),
+                        rs.getDate("endDate").toLocalDate(),
+                        rs.getInt("totalPrice")
+                );
+                ct.setCustomTourId(rs.getInt("customTourId"));
+                info.setCustomTour(ct);
+            }
+
+            // Khởi tạo HistoryBooking 1 lần
+            if (hb == null) {
+                hb = new HistoryBooking();
+                hb.setHistoryId(rs.getInt("historyId"));
+                hb.setPaymentId(rs.getInt("paymentId"));
+                hb.setAccountUserId(rs.getInt("accountUserId"));
+                hb.setCustomerName(rs.getString("customerName"));
+                hb.setCustomerEmail(rs.getString("customerEmail"));
+                hb.setCustomerPhone(rs.getString("customerPhone"));
+                hb.setCreatedAt(rs.getTimestamp("createdAt"));
+                hb.setTourStatus(rs.getString("tourStatus"));
+                info.setHistoryBooking(hb);
+            }
+
+            // Lấy CustomTourDetails nếu có và chưa add
+            int detailId = rs.getInt("detailId");
+            if (!rs.wasNull() && !detailIds.contains(detailId)) {
+                CustomTourDetail detail = new CustomTourDetail();
+                detail.setDetailId(detailId);
+                detail.setCustomTourId(rs.getInt("customTourId"));
+                detail.setServiceType(rs.getString("serviceType"));
+              
+                detail.setServiceId(rs.getInt("serviceId"));
+                    setServiceName(detail);
+                detail.setPrice(rs.getInt("price"));
+                info.addCustomTourDetail(detail);
+                detailIds.add(detailId);
+            }
+
+            // Lấy CustomTourItinerary nếu có và chưa add
+         int itineraryId = rs.getInt("itineraryId"); // lấy đúng cột ID
+if (!rs.wasNull() && !itineraryIds.contains(itineraryId)) {
+    CustomTourItinerary itinerary = new CustomTourItinerary(
+            rs.getInt("dayNumber"),
+            rs.getString("activity"),
+            rs.getString("location"),
+            rs.getString("timeOfDay")
+    );
+    info.addCustomTourItinerary(itinerary);
+    itineraryIds.add(itineraryId); // đánh dấu đã thêm
+}
+        }
+    } catch (SQLException e) {
+        throw new SQLException("Lỗi khi lấy CustomTour mới nhất của userId=" + userId, e);
+    }
+
+    return info;
+}
+
+ // Lay tat ca lich bay sau khi booking
+public FlightSchedule getLatestFlightScheduleByUser(int userId) throws SQLException {
+    String sql = """
+        SELECT TOP 1 
+            fs.scheduleId,
+            fs.departureTime,
+            fs.arrivalTime,
+            fs.returnDepartureTime,
+            fs.returnArrivalTime,
+            fs.departureAirport,
+            fs.arrivalAirport,
+            fs.transitAirport,
+            fs.transitDuration,
+            fs.notes,
+            
+            f.flightId,
+            f.flightNumber,
+            f.flightClass,
+            f.flightType,
+            f.destinationImageUrl
+
+        FROM HistoryBooking hb
+        JOIN Payments p ON hb.paymentId = p.paymentId
+        JOIN Bookings b ON p.bookingId = b.bookingId
+        JOIN CustomTours ct ON b.customTourId = ct.customTourId
+        JOIN Islands i ON ct.islandId = i.islandId
+        JOIN Flights f ON f.destinationIslandId = i.islandId
+        JOIN FlightSchedules fs ON fs.flightId = f.flightId
+        WHERE hb.accountUserId = ?
+        ORDER BY hb.historyId DESC, fs.scheduleId ASC
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                // === Tạo Flight ===
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+
+                // === Tạo FlightSchedule ===
+                FlightSchedule schedule = new FlightSchedule();
+                schedule.setScheduleId(rs.getInt("scheduleId"));
+                schedule.setFlight(flight);
+
+                // --- Thời gian ---
+                Time dep = rs.getTime("departureTime");
+                schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+                Time arr = rs.getTime("arrivalTime");
+                schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+                Time retDep = rs.getTime("returnDepartureTime");
+                schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+                Time retArr = rs.getTime("returnArrivalTime");
+                schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
+
+                // --- Thông tin chuyến bay khác ---
+                schedule.setDepartureAirport(rs.getString("departureAirport"));
+                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                schedule.setTransitAirport(rs.getString("transitAirport"));
+                schedule.setTransitDuration(rs.getString("transitDuration"));
+                schedule.setNotes(rs.getString("notes"));
+
+                // --- Cài đặt thông tin máy bay ---
+                setAircraftInfo(schedule, flight.getFlightClass());
+
+                return schedule;
+            }
+        }
+    }
+    return null; // nếu user chưa booking custom tour nào có flight
+}
 
     
+/**
+ * Helper gán planeModel, seatCapacity, seatPitch, cabinBaggage dựa trên flightClass
+ */
+private void setAircraftInfo(FlightSchedule schedule, String flightClass) {
+    if (flightClass == null) flightClass = "";
+    switch (flightClass.trim()) {
+        case "Phổ thông":
+            schedule.setPlaneModel("Airbus A319");
+            schedule.setSeatCapacity(100);
+            schedule.setSeatPitch("29 inch (ngắn hơn tiêu chuẩn)");
+            schedule.setCabinBaggage("7 kg");
+            break;
+        case "Thương gia":
+            schedule.setPlaneModel("Boeing 737 MAX 9");
+            schedule.setSeatCapacity(185);
+            schedule.setSeatPitch("30 inch (tiêu chuẩn)");
+            schedule.setCabinBaggage("10 kg");
+            break;
+        case "Hạng nhất":
+            schedule.setPlaneModel("Airbus A321neo");
+            schedule.setSeatCapacity(220);
+            schedule.setSeatPitch("32 inch (rộng hơn trung bình)");
+            schedule.setCabinBaggage("15 kg");
+            break;
+        default:
+            schedule.setPlaneModel("Boeing 737-800");
+            schedule.setSeatCapacity(189);
+            schedule.setSeatPitch("30 inch (tiêu chuẩn)");
+            schedule.setCabinBaggage("7 kg");
+            break;
+    }
 }
+
+}
+

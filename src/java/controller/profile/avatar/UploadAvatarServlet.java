@@ -83,6 +83,7 @@ public class UploadAvatarServlet extends HttpServlet {
      // Kiểm tra session
   HttpSession session = request.getSession();
 if (session == null || session.getAttribute("profile_customer") == null) {
+      session.setAttribute("errorMess", "Tài khoản này chưa có profile, vui lòng đăng ký!");
     response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
     return;
 }
