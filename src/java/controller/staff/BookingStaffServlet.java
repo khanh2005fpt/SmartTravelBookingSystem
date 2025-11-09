@@ -5,7 +5,9 @@
 package controller.staff;
 
 import dao.BookingDao;
+import dao.ServiceDao;
 import model.Booking;
+import model.Flight;
 import model.User;
 import java.io.IOException;
 import java.util.List;
@@ -181,7 +183,16 @@ public class BookingStaffServlet extends HttpServlet {
                 return;
             }
             
+            // Load flight information if available
+            Flight flight = null;
+            Integer flightId = bookingDao.getFlightIdByBookingId(bookingId);
+            if (flightId != null) {
+                ServiceDao serviceDao = new ServiceDao();
+                flight = serviceDao.getFlightById(flightId);
+            }
+            
             request.setAttribute("booking", booking);
+            request.setAttribute("flight", flight);
             request.getRequestDispatcher("/views/staff/booking-detail.jsp").forward(request, response);
             
         } catch (Exception e) {
