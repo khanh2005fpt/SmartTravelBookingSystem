@@ -107,22 +107,6 @@ GO
 
 
 
-
-
-update Users
-set fullName ='Manager'
-where userId =2
-
-select * from CustomerProfiles
-
-
-update Airlines 
-set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
-where airlineId=7
-
-select * from Flights
-select * from Airlines
-
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -132,10 +116,20 @@ GO
 INSERT INTO Roles (roleName)
 VALUES ('ADMIN'), ('BOOKING MANAGER'), ('CUSTOMER'), ('STAFF');
 
-SELECT * from CustomerProfiles;
-INSERT INTO CustomerProfiles (userId, fullName, dateOfBirth, gender, address, profilePicture, loyaltyPoints, membershipLevel)
-VALUES
-(4, 'David Huy', null, null, null, null, 100, 'SILVER');
+-- trigger tạo profile sau khi dang ky thanh cong
+CREATE OR ALTER TRIGGER trg_AfterInsertUser
+ON Users
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Tạo CustomerProfile cho mỗi user mới
+    INSERT INTO CustomerProfiles (userId, fullName)
+    SELECT userId, fullName
+    FROM inserted;
+END;
+GO
 
 -- Bảng CustomerProfiles
 CREATE TABLE CustomerProfiles (
@@ -153,8 +147,15 @@ CREATE TABLE CustomerProfiles (
 
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
-GO
+
+
+
+
+
 -- Cộng điểm khi trạng thái chuyển sang COMPLETED và  cập nhật cấp độ thành viên tự động
+DROP TRIGGER IF EXISTS trg_AddLoyaltyPoints_AfterBookingCompleted
+GO
+
 CREATE OR ALTER TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted
 ON Bookings
 AFTER UPDATE
@@ -162,48 +163,52 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Cộng điểm khi trạng thái chuyển sang COMPLETED
-    UPDATE cp
-    SET cp.loyaltyPoints = cp.loyaltyPoints + CAST((x.totalAmount * 0.05) AS INT)
-    FROM CustomerProfiles cp
-    INNER JOIN (
-        SELECT 
-            i.customerId,
-            SUM(
-                CASE 
-                    WHEN i.tourId IS NOT NULL THEN 
-                        (t.price * i.adultQuantity) + (t.price * 0.5 * i.childQuantity)
-                    WHEN i.customTourId IS NOT NULL THEN 
-                        (ct.totalPrice * i.adultQuantity) + (ct.totalPrice * 0.5 * i.childQuantity)
-                    ELSE 0
-                END
-            ) AS totalAmount
-        FROM inserted i
-        INNER JOIN Bookings b ON i.bookingId = b.bookingId
-        LEFT JOIN Tours t ON i.tourId = t.tourId
-        LEFT JOIN CustomTours ct ON i.customTourId = ct.customTourId
-        WHERE i.status = 'COMPLETED'
-        GROUP BY i.customerId
-    ) x ON cp.userId = x.customerId;
+    -- Tạo bảng tạm để lưu điểm cần cộng cho mỗi khách hàng
+    DECLARE @PointsToAdd TABLE (
+        customerId INT PRIMARY KEY,
+        points INT
+    );
 
-    --  Cập nhật cấp độ thành viên sau khi cộng điểm
+    -- Tính điểm 0,5% của totalPrice cho tất cả booking vừa COMPLETED
+    INSERT INTO @PointsToAdd (customerId, points)
+    SELECT 
+        i.customerId,
+        CAST(SUM(b.totalPrice * 0.005) AS INT) AS points
+    FROM inserted i
+    INNER JOIN deleted d ON i.bookingId = d.bookingId
+    INNER JOIN Bookings b ON i.bookingId = b.bookingId
+    WHERE i.status = 'COMPLETED' AND d.status <> 'COMPLETED'
+    GROUP BY i.customerId;
+
+    -- Cộng điểm vào CustomerProfiles
+    UPDATE cp
+    SET cp.loyaltyPoints = cp.loyaltyPoints + p.points
+    FROM CustomerProfiles cp
+    INNER JOIN @PointsToAdd p ON cp.userId = p.customerId;
+
+    -- Cập nhật cấp độ thành viên dựa trên loyaltyPoints mới
     UPDATE cp
     SET cp.membershipLevel = 
         CASE
-            WHEN cp.loyaltyPoints >= 10000 THEN 'PLATINUM'
-            WHEN cp.loyaltyPoints >= 5000 THEN 'GOLD'
-            WHEN cp.loyaltyPoints >= 1000 THEN 'SILVER'
+            WHEN cp.loyaltyPoints >= 10000000 THEN 'PLATINUM'
+            WHEN cp.loyaltyPoints >= 5000000 THEN 'GOLD'
+            WHEN cp.loyaltyPoints >= 800000 THEN 'SILVER'
             ELSE 'BRONZE'
         END
     FROM CustomerProfiles cp
-    INNER JOIN inserted i ON cp.userId = i.customerId
-    WHERE i.status = 'COMPLETED';
+    WHERE cp.userId IN (SELECT customerId FROM @PointsToAdd);
 END;
 GO
 
 
-	
+select * from CustomerProfiles
 
+select * from Bookings
+update Bookings
+set status='COMPLETED'
+where bookingId=26
+
+-- Contact of customer
 
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
@@ -942,22 +947,22 @@ GO
     ORDER BY f.basePrice ASC
 select * from tours
 
-CREATE TABLE Bookings (
-    bookingId INT IDENTITY(1,1) PRIMARY KEY,
-    customerId INT NOT NULL,
-    customTourId INT NULL,
-    tourId INT NULL,
-    departureDate DATE NOT NULL,
-    endDate DATE,
-    adultQuantity INT NOT NULL,
-    childQuantity INT NOT NULL,
-    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
-	totalPrice INT,
-    bookingDate DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (customerId) REFERENCES Users(userId),
-    FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
-    FOREIGN KEY (tourId) REFERENCES Tours(tourId)
-);
+	CREATE TABLE Bookings (
+		bookingId INT IDENTITY(1,1) PRIMARY KEY,
+		customerId INT NOT NULL,
+		customTourId INT NULL,
+		tourId INT NULL,
+		departureDate DATE NOT NULL,
+		endDate DATE,
+		adultQuantity INT NOT NULL,
+		childQuantity INT NOT NULL,
+		status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED')) DEFAULT 'PENDING',
+		totalPrice INT,
+		bookingDate DATETIME DEFAULT GETDATE(),
+		FOREIGN KEY (customerId) REFERENCES Users(userId),
+		FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
+		FOREIGN KEY (tourId) REFERENCES Tours(tourId)
+	);
 
 
 
@@ -977,7 +982,10 @@ CREATE TABLE Payments (
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
 
+
 select * from HistoryBooking
+
+
 CREATE TABLE HistoryBooking (
     historyId INT IDENTITY(1,1) PRIMARY KEY,
     paymentId INT NOT NULL,

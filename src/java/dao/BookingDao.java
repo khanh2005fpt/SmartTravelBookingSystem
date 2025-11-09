@@ -752,6 +752,36 @@ public class BookingDao extends DBContext {
     }
     return 0;
 }
+    // lay 5 historyBookings
+    
+    public List<HistoryBooking> getTop5HistoryByUser(int accountUserId) throws SQLException {
+    List<HistoryBooking> list = new ArrayList<>();
+    String sql = "SELECT TOP 5 * FROM HistoryBooking WHERE accountUserId = ? ORDER BY createdAt DESC";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, accountUserId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                HistoryBooking hb = new HistoryBooking();
+                hb.setHistoryId(rs.getInt("historyId"));
+                hb.setPaymentId(rs.getInt("paymentId"));
+
+                int userId = rs.getInt("accountUserId");
+                if (rs.wasNull()) hb.setAccountUserId(null);
+                else hb.setAccountUserId(userId);
+
+                hb.setCustomerName(rs.getString("customerName"));
+                hb.setCustomerEmail(rs.getString("customerEmail"));
+                hb.setCustomerPhone(rs.getString("customerPhone"));
+                hb.setCreatedAt(rs.getTimestamp("createdAt"));
+                hb.setTourStatus(rs.getString("tourStatus"));
+
+                list.add(hb);
+            }
+        }
+    }
+    return list;
+}
 
     
 }

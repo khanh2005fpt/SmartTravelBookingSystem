@@ -1119,7 +1119,7 @@ public class ServiceDao extends DBContext {
         return list;
     }
 
-s
+
     // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
     // CREATE - Them phuong tien moi
     public boolean createIslandVehicle(IslandVehicle vehicle) {
