@@ -175,7 +175,6 @@ CREATE TABLE TourServices (
     tourId INT NOT NULL,
     serviceType VARCHAR(20) CHECK (serviceType IN (N'Khách sạn', N'Chuyến bay', N'Phương tiện', N'Địa điểm nổi bật')),
     serviceId INT NOT NULL,
-    createdAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (tourId) REFERENCES Tours(tourId) ON DELETE CASCADE
 );
 GO
@@ -1415,7 +1414,8 @@ VALUES
 (10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL, N'views/home/images/places/elnido.jpg'),
 (10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL, N'views/home/images/places/coron.jpg');
 
-select * from CustomTours
+select * from places
+
 /*
 delete from Flights
 DBCC CHECKIDENT ('Flights', RESEED, 0);

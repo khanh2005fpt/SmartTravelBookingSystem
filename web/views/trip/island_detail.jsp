@@ -454,35 +454,25 @@
 
                     <!-- Places Section -->
                     <section class="mb-5">
-                        <h2 class="h3 mb-4 text-center fw-bold text-primary">
+                        <h2 class="h3 mb-4 text-center fw-bold text-primary border-bottom pb-2">
                             📍 Các địa điểm nổi bật tại đảo
                         </h2>
 
-                        <div class="row g-4">
-                            <c:choose>
-                                <c:when test="${empty places}">
-                                    <div class="col-12">
-                                        <div class="alert alert-warning text-center rounded-3 shadow-sm py-4">
-                                            <i class="bi bi-exclamation-circle text-warning fs-4"></i>
-                                            Hiện chưa có địa điểm nào được thêm cho đảo này.
-                                        </div>
-                                    </div>
-                                </c:when>
-
-                                <c:otherwise>
+                        <c:choose>
+                            <c:when test="${empty places}">
+                                <div class="col-12 text-center text-muted py-5">
+                                    <i class="bi bi-exclamation-circle fs-1 d-block mb-3"></i>
+                                    Hiện chưa có địa điểm nào được thêm cho đảo này.
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="place-scroll-container">
                                     <c:forEach var="p" items="${places}">
-                                        <div class="col-sm-6 col-lg-4">
+                                        <div class="place-item">
                                             <div class="card place-card border-0 shadow-lg rounded-4 h-100 overflow-hidden position-relative card-hover" data-placeid="${p.placeId}">
-
-                                                <!-- Ảnh địa điểm -->
                                                 <div class="ratio ratio-16x9">
-                                                    <img src="${pageContext.request.contextPath}/${p.placeImageUrl}"
-                                                         class="card-img-top object-fit-cover"
-                                                         alt="${p.placeName}">
+                                                    <img src="${pageContext.request.contextPath}/${p.placeImageUrl}" class="card-img-top object-fit-cover" alt="${p.placeName}">
                                                 </div>
-
-
-                                                <!-- Nội dung -->
                                                 <div class="card-body d-flex flex-column p-4">
                                                     <h5 class="card-title fw-bold text-dark mb-2">
                                                         <i class="bi bi-map text-primary me-1"></i>${p.placeName}
@@ -495,7 +485,6 @@
                                                     </p>
                                                     <div class="d-flex justify-content-between mt-3">
                                                         <p class="mb-2" style="margin-left: 2px;">
-
                                                             <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
                                                         </p>
                                                         <div class="text-end">
@@ -511,31 +500,37 @@
                                                                         Miễn phí tham quan
                                                                     </span>
                                                                 </c:otherwise>
-
                                                             </c:choose>
                                                         </div>
                                                     </div>
-
-
-                                                    <!-- Vé -->
-
-
-
-                                                    <!-- Nút chọn -->
-                                                    <button type="button"
-                                                            class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-place-btn">
+                                                    <button type="button" class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-place-btn">
                                                         <i class="bi bi-check2-circle"></i> Chọn
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                        <!-- Input ẩn để lưu ID của địa điểm được chọn -->
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+
                         <input type="hidden" id="selectedPlaceId" name="selectedPlaceId" value="">
                     </section>
+
+                    <style>
+                        .place-scroll-container {
+                            display: flex;
+                            gap: 20px;
+                            overflow-x: auto;
+                            scroll-snap-type: x mandatory;
+                            padding-bottom: 1rem;
+                        }
+                        .place-item {
+                            flex: 0 0 calc(33.333% - 20px); /* hiển thị 3 item trên 1 màn hình, điều chỉnh % nếu muốn */
+                            scroll-snap-align: start;
+                        }
+                    </style>
+
                     <section class="mb-5 text-center d-flex justify-content-center flex-column">
 
                         <h2 class="h2 mb-4 text-primary fw-bold">📅 Vui lòng hãy chọn thời gian du lịch</h2>

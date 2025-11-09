@@ -80,7 +80,7 @@ public class CustomTourDetailController extends HttpServlet {
             request.setAttribute("tour", tour);
             request.setAttribute("details", dao.getCustomTourDetails(id));
             request.setAttribute("flightType", flightTypeRaw);
-            request.setAttribute("itinerary", dao.getTourItinerary(id));
+            request.setAttribute("itineraries", dao.getTourItinerary(id));
 
             request.getRequestDispatcher("/views/trip/custom_tour_detail.jsp").forward(request, response);
 
