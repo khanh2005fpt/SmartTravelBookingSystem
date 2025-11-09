@@ -91,8 +91,7 @@ BEGIN
     WHERE i.status = 'COMPLETED';
 END;
 GO
-
-select * from historybooking
+select * from users
 
 CREATE TABLE CustomerContacts (
     contactId INT IDENTITY(1,1) PRIMARY KEY,
@@ -498,8 +497,10 @@ CREATE TABLE IslandVehicles (
     pricePerDay DECIMAL(10,3),
     capacity INT,
     availability INT,
+	vehicleImageUrl VARCHAR(255),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
+
 
 go
 select * from historybooking
@@ -1280,57 +1281,58 @@ VALUES ('VN142', 1, 'Ha Noi', 'Phu Quoc', 1, '08:30', '11:30', 2500000, 'views/h
 
 -- vehicle insland
 -- Phú Quốc (islandId = 1)
-INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability)
+INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability, vehicleImageUrl)
 VALUES
 -- Phú Quốc (islandId = 1)
-(1, N'Xe tay ga', N'Honda Air Blade', 87500, 2, 10),
-(1, N'Ô tô', N'Toyota Vios', 300000, 4, 5),
-(1, N'Xe đạp', N'Giant Escape 3', 25000, 1, 15),
+(1, N'Xe tay ga', N'Honda Air Blade', 87500, 2, 10, N'views/home/images/vehicles/honda.jpg'),
+(1, N'Ô tô', N'Toyota Vios', 300000, 4, 5, N'views/home/images/vehicles/toyota.jpg'),
+(1, N'Xe đạp', N'Giant Escape 3', 25000, 1, 15, N'views/home/images/vehicles/giant.jpg'),
 
 -- Langkawi (islandId = 2)
-(2, N'Xe máy', N'Yamaha NVX 155', 75000, 2, 8),
-(2, N'Ô tô', N'Perodua Myvi', 250000, 4, 4),
-(2, N'Xe đạp', N'Trek FX 1', 30000, 1, 12),
+(2, N'Xe máy', N'Yamaha NVX 155', 75000, 2, 8, N'views/home/images/vehicles/yamaha.jpg'),
+(2, N'Ô tô', N'Perodua Myvi', 250000, 4, 4, N'views/home/images/vehicles/perodua.jpg'),
+(2, N'Xe đạp', N'Trek FX 1', 30000, 1, 12, N'views/home/images/vehicles/trek.jpg'),
 
 -- Phuket (islandId = 3)
-(3, N'Xe tay ga', N'Honda Click 125i', 80000, 2, 9),
-(3, N'Ô tô', N'Toyota Yaris', 287500, 4, 6),
-(3, N'Xe điện', N'Eco Scooter Phuket', 50000, 2, 7),
+(3, N'Xe tay ga', N'Honda Click 125i', 80000, 2, 9, N'views/home/images/vehicles/honda.jpg'),
+(3, N'Ô tô', N'Toyota Yaris', 287500, 4, 6, N'views/home/images/vehicles/toyota.jpg'),
+(3, N'Xe điện', N'Eco Scooter Phuket', 50000, 2, 7, N'views/home/images/vehicles/scooter.jpg'),
 
 -- Bali (islandId = 4)
-(4, N'Xe máy', N'Honda Beat', 75000, 2, 10),
-(4, N'Ô tô', N'Suzuki Ertiga', 312500, 7, 4),
-(4, N'Xe đạp', N'Polygon Heist 2', 27500, 1, 15),
+(4, N'Xe máy', N'Honda Beat', 75000, 2, 10, N'views/home/images/vehicles/honda.jpg'),
+(4, N'Ô tô', N'Suzuki Ertiga', 312500, 7, 4, N'views/home/images/vehicles/suzuki.jpg'),
+(4, N'Xe đạp', N'Polygon Heist 2', 27500, 1, 15, N'views/home/images/vehicles/polygon.jpg'),
 
 -- Boracay (islandId = 5)
-(5, N'Xe điện', N'Boracay E-Bike', 55000, 2, 10),
-(5, N'Ô tô', N'Toyota Avanza', 295000, 6, 3),
-(5, N'Xe tay ga', N'Yamaha Mio i125', 75000, 2, 8),
+(5, N'Xe điện', N'Boracay E-Bike', 55000, 2, 10, N'views/home/images/vehicles/ebike.jpg'),
+(5, N'Ô tô', N'Toyota Avanza', 295000, 6, 3, N'views/home/images/vehicles/toyota.jpg'),
+(5, N'Xe tay ga', N'Yamaha Mio i125', 75000, 2, 8, N'views/home/images/vehicles/yamaha.jpg'),
 
 -- Sihanoukville (islandId = 6)
-(6, N'Xe tay ga', N'Honda Scoopy', 77500, 2, 9),
-(6, N'Ô tô', N'Toyota Camry', 325000, 5, 3),
-(6, N'Xe đạp', N'Giant ATX 2', 25000, 1, 12),
+(6, N'Xe tay ga', N'Honda Scoopy', 77500, 2, 9, N'views/home/images/vehicles/honda.jpg'),
+(6, N'Ô tô', N'Toyota Camry', 325000, 5, 3, N'views/home/images/vehicles/toyota.jpg'),
+(6, N'Xe đạp', N'Giant ATX 2', 25000, 1, 12, N'views/home/images/vehicles/giant.jpg'),
 
 -- Tioman (islandId = 7)
-(7, N'Xe máy', N'Yamaha Ego Avantiz', 70000, 2, 7),
-(7, N'Ô tô', N'Perodua Axia', 245000, 4, 3),
-(7, N'Xe điện', N'Tioman Green Scooter', 50000, 2, 8),
+(7, N'Xe máy', N'Yamaha Ego Avantiz', 70000, 2, 7, N'views/home/images/vehicles/yamaha.jpg'),
+(7, N'Ô tô', N'Perodua Axia', 245000, 4, 3, N'views/home/images/vehicles/perodua.jpg'),
+(7, N'Xe điện', N'Tioman Green Scooter', 50000, 2, 8, N'views/home/images/vehicles/scooter.jpg'),
 
 -- Koh Samui (islandId = 8)
-(8, N'Xe tay ga', N'Honda PCX 160', 87500, 2, 10),
-(8, N'Ô tô', N'Toyota Fortuner', 375000, 7, 4),
-(8, N'Xe đạp', N'Trek Marlin 5', 30000, 1, 12),
+(8, N'Xe tay ga', N'Honda PCX 160', 87500, 2, 10, N'views/home/images/vehicles/honda.jpg'),
+(8, N'Ô tô', N'Toyota Fortuner', 375000, 7, 4, N'views/home/images/vehicles/toyota.jpg'),
+(8, N'Xe đạp', N'Trek Marlin 5', 30000, 1, 12, N'views/home/images/vehicles/trek.jpg'),
 
 -- Nusa Penida (islandId = 9)
-(9, N'Xe máy', N'Honda Scoopy-i', 75000, 2, 9),
-(9, N'Ô tô', N'Toyota Innova', 320000, 7, 3),
-(9, N'Xe điện', N'Nusa E-Ride', 55000, 2, 6),
+(9, N'Xe máy', N'Honda Scoopy-i', 75000, 2, 9, N'views/home/images/vehicles/honda.jpg'),
+(9, N'Ô tô', N'Toyota Innova', 320000, 7, 3, N'views/home/images/vehicles/toyota.jpg'),
+(9, N'Xe điện', N'Nusa E-Ride', 55000, 2, 6, N'views/home/images/vehicles/ebike.jpg'),
 
 -- Palawan (islandId = 10)
-(10, N'Xe tay ga', N'Yamaha Aerox 155', 85000, 2, 10),
-(10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5),
-(10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14);
+(10, N'Xe tay ga', N'Yamaha Aerox 155', 85000, 2, 10, N'views/home/images/vehicles/yamaha.jpg'),
+(10, N'Ô tô', N'Mitsubishi Xpander', 337500, 7, 5, N'views/home/images/vehicles/mitsubishi.jpg'),
+(10, N'Xe đạp', N'Palawan Mountain Bike', 25000, 1, 14, N'views/home/images/vehicles/bike.jpg');
+
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 OUTPUT INSERTED.customTourId
 VALUES (1, 'Test Tour', '2025-11-10', '2025-11-12', 5000000);
@@ -1344,10 +1346,10 @@ CREATE TABLE Places (
     description NVARCHAR(MAX),               -- Mô tả chi tiết
     hasTicket BIT NOT NULL,                  -- Có vé hay không (true/false)
     ticketPrice INT NULL,                    -- Giá vé (nếu có)
+	placeImageUrl VARCHAR(255),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
-select * from Places
 
 
 CREATE TABLE Places (
@@ -1361,57 +1363,57 @@ CREATE TABLE Places (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
-INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice)
+INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice, placeImageUrl)
 VALUES
 -- === PHÚ QUỐC ===
-(1, N'Suối Tranh', N'Xã Dương Tơ, TP. Phú Quốc', N'Thác nước tự nhiên giữa rừng, thích hợp dã ngoại và tắm suối.', 1, 30000),
-(1, N'Bãi Sao', N'Xã An Thới, TP. Phú Quốc', N'Bãi biển nổi tiếng với cát trắng mịn và nước biển trong xanh.', 0, NULL),
-(1, N'Nhà tù Phú Quốc', N'350 Đường Nguyễn Văn Cừ, TT. An Thới', N'Di tích lịch sử ghi dấu thời kỳ chiến tranh Việt Nam.', 1, 20000),
+(1, N'Suối Tranh', N'Xã Dương Tơ, TP. Phú Quốc', N'Thác nước tự nhiên giữa rừng, thích hợp dã ngoại và tắm suối.', 1, 30000, N'views/home/images/places/suoitranh.jpg'),
+(1, N'Bãi Sao', N'Xã An Thới, TP. Phú Quốc', N'Bãi biển nổi tiếng với cát trắng mịn và nước biển trong xanh.', 0, NULL, N'views/home/images/places/baisao.jpg'),
+(1, N'Nhà tù Phú Quốc', N'350 Đường Nguyễn Văn Cừ, TT. An Thới', N'Di tích lịch sử ghi dấu thời kỳ chiến tranh Việt Nam.', 1, 20000, N'views/home/images/places/nhatuphuquoc.jpg'),
 
 -- === LANGKAWI ===
-(2, N'Langkawi Sky Bridge', N'Gunung Mat Cincang, Kedah', N'Cầu treo nổi tiếng với tầm nhìn toàn cảnh tuyệt đẹp.', 1, 40000),
-(2, N'Pantai Cenang', N'Mukim Kedawang, Langkawi', N'Bãi biển sôi động với nhiều quán bar và hoạt động thể thao nước.', 0, NULL),
-(2, N'Langkawi Cable Car', N'Oriental Village, Burau Bay', N'Cáp treo đưa du khách lên đỉnh núi ngắm cảnh đảo.', 1, 45000),
+(2, N'Langkawi Sky Bridge', N'Gunung Mat Cincang, Kedah', N'Cầu treo nổi tiếng với tầm nhìn toàn cảnh tuyệt đẹp.', 1, 40000, N'views/home/images/places/skybridge.jpg'),
+(2, N'Pantai Cenang', N'Mukim Kedawang, Langkawi', N'Bãi biển sôi động với nhiều quán bar và hoạt động thể thao nước.', 0, NULL, N'views/home/images/places/pantaicenang.jpg'),
+(2, N'Langkawi Cable Car', N'Oriental Village, Burau Bay', N'Cáp treo đưa du khách lên đỉnh núi ngắm cảnh đảo.', 1, 45000, N'views/home/images/places/cablecar.jpg'),
 
 -- === PHUKET ===
-(3, N'Patong Beach', N'Patong, Kathu District, Phuket', N'Bãi biển nổi tiếng nhất Phuket, trung tâm giải trí về đêm.', 0, NULL),
-(3, N'Big Buddha', N'Karon, Mueang Phuket District', N'Tượng Phật lớn bằng đá cẩm thạch trắng, biểu tượng của Phuket.', 0, NULL),
-(3, N'Phuket Old Town', N'Thalang Rd, Talat Yai, Mueang Phuket', N'Khu phố cổ với kiến trúc Bồ Đào Nha độc đáo và quán cà phê cổ điển.', 0, NULL),
+(3, N'Patong Beach', N'Patong, Kathu District, Phuket', N'Bãi biển nổi tiếng nhất Phuket, trung tâm giải trí về đêm.', 0, NULL, N'views/home/images/places/patongbeach.jpg'),
+(3, N'Big Buddha', N'Karon, Mueang Phuket District', N'Tượng Phật lớn bằng đá cẩm thạch trắng, biểu tượng của Phuket.', 0, NULL, N'views/home/images/places/bigbuddha.jpg'),
+(3, N'Phuket Old Town', N'Thalang Rd, Talat Yai, Mueang Phuket', N'Khu phố cổ với kiến trúc Bồ Đào Nha độc đáo và quán cà phê cổ điển.', 0, NULL, N'views/home/images/places/oldtown.jpg'),
 
 -- === BALI ===
-(4, N'Tanah Lot Temple', N'Tabanan Regency, Bali', N'Ngôi đền nổi trên biển, điểm du lịch tâm linh nổi tiếng của Bali.', 1, 50000),
-(4, N'Ubud Monkey Forest', N'Jl. Monkey Forest, Ubud, Gianyar', N'Khu rừng linh thiêng với hàng trăm con khỉ tự nhiên.', 1, 60000),
-(4, N'Tegallalang Rice Terrace', N'Tegallalang, Gianyar, Bali', N'Ruộng bậc thang xanh mướt nổi tiếng với cảnh quan ngoạn mục.', 0, NULL),
+(4, N'Tanah Lot Temple', N'Tabanan Regency, Bali', N'Ngôi đền nổi trên biển, điểm du lịch tâm linh nổi tiếng của Bali.', 1, 50000, N'views/home/images/places/tanahlot.jpg'),
+(4, N'Ubud Monkey Forest', N'Jl. Monkey Forest, Ubud, Gianyar', N'Khu rừng linh thiêng với hàng trăm con khỉ tự nhiên.', 1, 60000, N'views/home/images/places/monkeyforest.jpg'),
+(4, N'Tegallalang Rice Terrace', N'Tegallalang, Gianyar, Bali', N'Ruộng bậc thang xanh mướt nổi tiếng với cảnh quan ngoạn mục.', 0, NULL, N'views/home/images/places/riceterrace.jpg'),
 
 -- === BORACAY ===
-(5, N'White Beach', N'Station 2, Boracay Island, Aklan', N'Bãi biển chính của Boracay, nổi tiếng với cát trắng mịn và nước trong.', 0, NULL),
-(5, N'Willy’s Rock', N'Station 1, Balabag, Boracay', N'Hòn đá biểu tượng của đảo Boracay với tượng Đức Mẹ Maria.', 0, NULL),
-(5, N'Puka Shell Beach', N'Yapak, Boracay Island', N'Bãi biển yên tĩnh, nổi tiếng với vỏ sò tự nhiên.', 0, NULL),
+(5, N'White Beach', N'Station 2, Boracay Island, Aklan', N'Bãi biển chính của Boracay, nổi tiếng với cát trắng mịn và nước trong.', 0, NULL, N'views/home/images/places/whitebeach.jpg'),
+(5, N'Willy’s Rock', N'Station 1, Balabag, Boracay', N'Hòn đá biểu tượng của đảo Boracay với tượng Đức Mẹ Maria.', 0, NULL, N'views/home/images/places/willysrock.jpg'),
+(5, N'Puka Shell Beach', N'Yapak, Boracay Island', N'Bãi biển yên tĩnh, nổi tiếng với vỏ sò tự nhiên.', 0, NULL, N'views/home/images/places/pukabeach.jpg'),
 
 -- === SIHANOUKVILLE ===
-(6, N'Otres Beach', N'Sangkat 4, Sihanoukville', N'Bãi biển yên bình với quán bar nhỏ và hoàng hôn tuyệt đẹp.', 0, NULL),
-(6, N'Ream National Park', N'Ream Commune, Preah Sihanouk', N'Công viên quốc gia với rừng ngập mặn và động vật hoang dã.', 1, 25000),
-(6, N'Koh Rong Island', N'Koh Rong, Sihanoukville Province', N'Hòn đảo nổi tiếng với biển xanh và cát trắng tinh khiết.', 0, NULL),
+(6, N'Otres Beach', N'Sangkat 4, Sihanoukville', N'Bãi biển yên bình với quán bar nhỏ và hoàng hôn tuyệt đẹp.', 0, NULL, N'views/home/images/places/otresbeach.jpg'),
+(6, N'Ream National Park', N'Ream Commune, Preah Sihanouk', N'Công viên quốc gia với rừng ngập mặn và động vật hoang dã.', 1, 25000, N'views/home/images/places/reampark.jpg'),
+(6, N'Koh Rong Island', N'Koh Rong, Sihanoukville Province', N'Hòn đảo nổi tiếng với biển xanh và cát trắng tinh khiết.', 0, NULL, N'views/home/images/places/kohrong.jpg'),
 
 -- === TIOMAN ===
-(7, N'Juara Beach', N'Juara Village, Tioman Island', N'Bãi biển yên tĩnh, lý tưởng cho bơi lội và lặn ngắm san hô.', 0, NULL),
-(7, N'Asah Waterfall', N'Mukim Tioman, Pahang', N'Thác nước tự nhiên giữa rừng, điểm đến yêu thích của du khách.', 0, NULL),
-(7, N'Tekek Village', N'Kampung Tekek, Tioman Island', N'Ngôi làng lớn nhất trên đảo với cửa hàng và nhà hàng địa phương.', 0, NULL),
+(7, N'Juara Beach', N'Juara Village, Tioman Island', N'Bãi biển yên tĩnh, lý tưởng cho bơi lội và lặn ngắm san hô.', 0, NULL, N'views/home/images/places/juarabeach.jpg'),
+(7, N'Asah Waterfall', N'Mukim Tioman, Pahang', N'Thác nước tự nhiên giữa rừng, điểm đến yêu thích của du khách.', 0, NULL, N'views/home/images/places/asahwaterfall.jpg'),
+(7, N'Tekek Village', N'Kampung Tekek, Tioman Island', N'Ngôi làng lớn nhất trên đảo với cửa hàng và nhà hàng địa phương.', 0, NULL, N'views/home/images/places/tekekvillage.jpg'),
 
 -- === KOH SAMUI ===
-(8, N'Chaweng Beach', N'Bo Put, Koh Samui District', N'Bãi biển dài với khu nghỉ dưỡng và hoạt động giải trí sôi động.', 0, NULL),
-(8, N'Big Buddha Temple', N'Bang Rak, Bophut, Koh Samui', N'Tượng Phật lớn mạ vàng cao 12m, biểu tượng của Koh Samui.', 0, NULL),
-(8, N'Na Muang Waterfall', N'Maret, Koh Samui', N'Thác nước đôi hùng vĩ giữa thiên nhiên xanh mát.', 0, NULL),
+(8, N'Chaweng Beach', N'Bo Put, Koh Samui District', N'Bãi biển dài với khu nghỉ dưỡng và hoạt động giải trí sôi động.', 0, NULL, N'views/home/images/places/chawengbeach.jpg'),
+(8, N'Big Buddha Temple', N'Bang Rak, Bophut, Koh Samui', N'Tượng Phật lớn mạ vàng cao 12m, biểu tượng của Koh Samui.', 0, NULL, N'views/home/images/places/bigbuddhatemple.jpg'),
+(8, N'Na Muang Waterfall', N'Maret, Koh Samui', N'Thác nước đôi hùng vĩ giữa thiên nhiên xanh mát.', 0, NULL, N'views/home/images/places/namuang.jpg'),
 
 -- === NUSA PENIDA ===
-(9, N'Kelingking Beach', N'Bunga Mekar, Nusa Penida', N'Bãi biển nổi tiếng với vách đá hình khủng long.', 0, NULL),
-(9, N'Angel’s Billabong', N'Sompang Village, Nusa Penida', N'Hồ bơi tự nhiên tuyệt đẹp giữa đá vôi ven biển.', 0, NULL),
-(9, N'Broken Beach', N'Sompang Village, Nusa Penida', N'Vòm đá tự nhiên tạo thành khung cảnh biển độc đáo.', 0, NULL),
+(9, N'Kelingking Beach', N'Bunga Mekar, Nusa Penida', N'Bãi biển nổi tiếng với vách đá hình khủng long.', 0, NULL, N'views/home/images/places/kelingking.jpg'),
+(9, N'Angel’s Billabong', N'Sompang Village, Nusa Penida', N'Hồ bơi tự nhiên tuyệt đẹp giữa đá vôi ven biển.', 0, NULL, N'views/home/images/places/angelsbillabong.jpg'),
+(9, N'Broken Beach', N'Sompang Village, Nusa Penida', N'Vòm đá tự nhiên tạo thành khung cảnh biển độc đáo.', 0, NULL, N'views/home/images/places/brokenbeach.jpg'),
 
 -- === PALAWAN ===
-(10, N'Puerto Princesa Underground River', N'Sabang, Puerto Princesa', N'Dòng sông ngầm tự nhiên dài 8km – kỳ quan thiên nhiên thế giới.', 1, 100000),
-(10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL),
-(10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL);
+(10, N'Puerto Princesa Underground River', N'Sabang, Puerto Princesa', N'Dòng sông ngầm tự nhiên dài 8km – kỳ quan thiên nhiên thế giới.', 1, 100000, N'views/home/images/places/undergroundriver.jpg'),
+(10, N'El Nido', N'Bắc Palawan, Philippines', N'Thiên đường đảo nhỏ với nước xanh biếc và vách đá vôi dựng đứng.', 0, NULL, N'views/home/images/places/elnido.jpg'),
+(10, N'Coron Island', N'Busuanga, Palawan', N'Nổi tiếng với các hồ trong xanh và xác tàu đắm khi lặn biển.', 0, NULL, N'views/home/images/places/coron.jpg');
 
 select * from CustomTours
 /*

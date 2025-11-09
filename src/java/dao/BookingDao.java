@@ -24,6 +24,8 @@ public class BookingDao extends DBContext {
      * Tạo mới một booking (cho phép tourId hoặc customTourId)
      */
      public static BookingDao INSTANCE = new BookingDao();
+     
+     //Lay gia tri bookingId sau khi tao booking
     public int createBooking(Booking booking) throws SQLException {
         String sql = "INSERT INTO Bookings (customerId, tourId, customTourId, departureDate, endDate, adultQuantity, childQuantity, status, totalPrice) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -301,7 +303,7 @@ public class BookingDao extends DBContext {
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
+            
             ps.setInt(1, hb.getPaymentId());
 
             if (hb.getAccountUserId() != null) {

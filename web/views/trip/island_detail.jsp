@@ -412,9 +412,10 @@
                             <c:forEach var="v" items="${islandvehicles}">
                                 <div class="col-lg-4">
                                     <div class="card vehicle-card shadow-lg h-100 border-2" data-vehicleid="${v.vehicleId}">
-                                        <img src="${pageContext.request.contextPath}/views/home/images/vehicles/${v.vehicleType}.jpg"
-                                             alt="${v.vehicleType}" class="card-img-top"
+                                        <img src="${pageContext.request.contextPath}/${v.vehicleImageUrl}"
+                                             alt="${v.vehicleName}" class="card-img-top"
                                              style="height: 220px; object-fit: cover; border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
+
 
                                         <div class="card-body">
                                             <h5 class="card-title fw-bold text-dark">${v.vehicleType}</h5>
@@ -450,6 +451,7 @@
                         <!-- Input ẩn để lưu ID của phương tiện được chọn -->
                         <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
                     </section>
+
                     <!-- Places Section -->
                     <section class="mb-5">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">
@@ -474,10 +476,11 @@
 
                                                 <!-- Ảnh địa điểm -->
                                                 <div class="ratio ratio-16x9">
-                                                    <img src="${pageContext.request.contextPath}/views/home/images/places/${p.placeName}.jpg"
+                                                    <img src="${pageContext.request.contextPath}/${p.placeImageUrl}"
                                                          class="card-img-top object-fit-cover"
                                                          alt="${p.placeName}">
                                                 </div>
+
 
                                                 <!-- Nội dung -->
                                                 <div class="card-body d-flex flex-column p-4">
@@ -584,7 +587,7 @@
                             </div>
                         </div>
 
-                        <!-- Service Card 3: Hướng dẫn viên -->
+                        <!-- Service Card 3: Khu du lịch nổi tiếng -->
                         <div class="col-md-6 col-lg-3">
                             <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
                                 <div class="d-flex align-items-center mb-3">
@@ -755,7 +758,7 @@
                                 btn.classList.remove("btn-success");
                                 btn.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
                                 btn.disabled = false;
-                                btn.style.opacity = "1";
+                                btn.style.opacity = "1"; //độ mờ
                             });
 
                             // Đặt trạng thái "đã chọn"
@@ -776,17 +779,17 @@
                         const placeId = card.getAttribute("data-placeId");
 
                         if (selectedPlaces.has(placeId)) {
-                            // 👉 Bỏ chọn
+                            // Bỏ chọn
                             selectedPlaces.delete(placeId);
                             this.classList.remove("btn-success");
                             this.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
-                            this.style.opacity = "1"; // 🌟 làm nút sáng lại
+                            this.style.opacity = "1"; // ?làm nút sáng lại
                         } else {
-                            // 👉 Chọn thêm
+                            // Chọn thêm
                             selectedPlaces.add(placeId);
                             this.classList.add("btn-success");
                             this.innerHTML = '<i class="bi bi-check-lg"></i> Đã chọn';
-                            this.style.opacity = "0.6"; // 🌟 làm nút mờ đi để báo đã chọn
+                            this.style.opacity = "0.6"; // làm nút mờ đi để báo đã chọn
                         }
 
                         // Cập nhật input ẩn

@@ -45,7 +45,8 @@ public class ServiceDao extends DBContext {
                         rs.getString("modelName"),
                         rs.getDouble("pricePerDay"),
                         rs.getInt("capacity"),
-                        rs.getInt("availability")
+                        rs.getInt("availability"),
+                        rs.getString("vehicleImageUrl")
                 );
                 list.add(v);
             }
@@ -194,7 +195,8 @@ public class ServiceDao extends DBContext {
                         rs.getString("location"),
                         rs.getString("description"),
                         rs.getBoolean("hasTicket"),
-                        rs.getInt("ticketPrice")
+                        rs.getInt("ticketPrice"),
+                        rs.getString("placeImageUrl")
                 );
                 list.add(place);
             }

@@ -37,18 +37,6 @@
                             <!-- Tiêu đề tour -->
                             <h1 class="font-weight-bold mb-3 text-primary ">${tour.tourName}</h1>
 
-                            <!-- Đánh giá -->
-                            <div class="d-flex align-items-center mb-4">
-                                <span class="badge bg-primary px-3 py-2 text-white">9.4 Tuyệt vời</span>
-                                <span class="ml-2 text-muted">(18 đánh giá)</span>
-                            </div>
-
-                            <!-- Hình ảnh chính -->
-                            <div class="mb-4" style="width:100%; height:500px; overflow:hidden;">
-                                <img src="${tour.tourImageUrl}" 
-                                     alt="${tour.tourName}" 
-                                     class="img-fluid w-100 h-100 rounded shadow-sm border border-primary">
-                            </div>
 
                             <!-- Mô tả tour -->
                             <h4 class="mb-3 border-bottom pb-2 text-primary">Mô tả tour</h4>
@@ -115,16 +103,8 @@
                                     Chi phí không bao gồm: Hành lý ký gửi, ăn uống ngoài chương trình, chi phí cá nhân …
                                 </li>
                                 <li class="list-group-item">
-                                    <i class="bi bi-exclamation-triangle-fill text-primary mr-2"></i>
-                                    Điều kiện hủy & thay đổi: Chính sách hoàn/huỷ, phí đổi ngày/đổi tên …
-                                </li>
-                                <li class="list-group-item">
                                     <i class="bi bi-file-earmark-text-fill text-primary mr-2"></i>
                                     Giấy tờ & thủ tục: CMND/CCCD, hộ chiếu còn hạn, visa (nếu cần) …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-sun-fill text-primary mr-2"></i>
-                                    Lưu ý đặc biệt: Ảnh hưởng thời tiết, sức khỏe cho hoạt động biển, trẻ em/người già cần giám hộ …
                                 </li>
                             </ul>
 
@@ -139,7 +119,15 @@
 
                 <!-- Cột sidebar -->
                 <div class="col-lg-5">
+
                     <div class="card shadow-sm p-4">
+
+                        <!-- Hình ảnh chính -->
+                        <div class="mb-4" style="width:100%; height:300px; overflow:hidden;">
+                            <img src="${tour.tourImageUrl}" 
+                                 alt="${tour.tourName}" 
+                                 class="img-fluid w-100 h-100 rounded shadow-sm border border-primary">
+                        </div>
                         <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
                         <c:if test="${not empty errorMessage}">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
