@@ -122,37 +122,7 @@
                 text-decoration: none;
             }
 
-            .restaurants-container {
-                background: white;
-                border-radius: 15px;
-                overflow: hidden;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            }
-
-            .restaurants-header {
-                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                padding: 20px 25px;
-                border-bottom: 1px solid #dee2e6;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .restaurants-title {
-                font-size: 1.25em;
-                font-weight: 600;
-                color: #333;
-                margin: 0;
-            }
-
-            .restaurants-count {
-                background: #667eea;
-                color: white;
-                padding: 5px 12px;
-                border-radius: 20px;
-                font-size: 0.9em;
-                font-weight: 600;
-            }
+           
 
             .table-responsive {
                 max-height: 600px;
@@ -223,12 +193,6 @@
             .rating-value {
                 font-weight: 600;
                 color: #333;
-            }
-
-            .restaurant-price {
-                font-weight: 700;
-                color: #28a745;
-                font-size: 1.1em;
             }
 
             .action-buttons {

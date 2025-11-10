@@ -169,7 +169,7 @@ if (currentUser != null) {
 
                 <div class="profile-menu">
                     <a href="#" onclick="showMainSection(event, 'member-priority')"><i class="bi bi-award"></i> Membership Level</a>
-                    <a href="#" onclick="showMainSection(event, 'historyBookings')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'historyBookings')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
                     <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
@@ -232,9 +232,9 @@ if (currentUser != null) {
                             <div class="membership-card bronze">
                                 <div class="level-icon">🥉</div>
                                 <h5>Bronze</h5>
-                                <p>Dưới 1.000 điểm</p>
+                                <p>Dưới 800.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 5% cho mọi đơn hàng</li>
+                                    <li>• Giảm 5% cho mọi dịch vụ và gói tour</li>
                                     <li>• Nhận thông báo ưu đãi sớm</li>
                                     <li>• Cộng điểm tích lũy khi thanh toán</li>
                                 </ul>
@@ -245,9 +245,9 @@ if (currentUser != null) {
                             <div class="membership-card silver">
                                 <div class="level-icon">🥈</div>
                                 <h5>Silver</h5>
-                                <p>Từ 1.000 đến 4.999 điểm</p>
+                                <p>Từ 800.000 đến 5.000.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 10% cho mọi đơn hàng</li>
+                                    <li>• Giảm 10% cho mọi dịch vụ và gói tour</li>
                                     <li>• Miễn phí 1 lần đổi dịch vụ mỗi tháng</li>
                                     <li>• Ưu tiên hỗ trợ khách hàng</li>
                                 </ul>
@@ -258,9 +258,9 @@ if (currentUser != null) {
                             <div class="membership-card gold">
                                 <div class="level-icon">🥇</div>
                                 <h5>Gold</h5>
-                                <p>Từ 5.000 đến 9.999 điểm</p>
+                                <p>Từ  5.000.000 đến 10.000.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 15% cho mọi đơn hàng</li>
+                                    <li>• Giảm 15% cho mọi dịch vụ và gói tour</li>
                                     <li>• Tặng voucher sinh nhật trị giá 100.000đ</li>
                                     <li>• Ưu tiên đặt dịch vụ trước</li>
                                 </ul>
@@ -271,9 +271,9 @@ if (currentUser != null) {
                             <div class="membership-card platinum">
                                 <div class="level-icon">💎</div>
                                 <h5>Platinum</h5>
-                                <p>Từ 10.000 điểm trở lên</p>
+                                <p>Từ 10.000.000 điểm trở lên</p>
                                 <ul>
-                                    <li>• Giảm 20% cho mọi đơn hàng</li>
+                                    <li>• Giảm 20% cho mọi DỊCH VỤ KÈM GÓI TOUR</li>
                                     <li>• Có nhân viên chăm sóc riêng</li>
                                     <li>• Quyền truy cập sớm các chương trình VIP</li>
                                 </ul>
@@ -284,53 +284,79 @@ if (currentUser != null) {
                 </section>
             </div>
                   <!-- historyBooking content ----------------------------------------->       
+            
                   <div id="historyBookings" class="historyBookings-container main-section">
 
-                      <!-- Banner -->
-                      <div class="tab-header-historyBookings text-center mb-4 w-100">
-                          <img 
-                              src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
-                              alt="historyBookings Banner"
-                              class="img-fluid rounded-3 shadow-sm w-100">
-                      </div>
-                      <!-- Tiêu đề -->
-                      <div class="text-center mb-4 w-auto">
-                          <span class="badge bg-gradient" 
-                                style="background: linear-gradient(to right, #d97706, #b45309);
-           font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
-                              🔔 Danh sách thông báo Meland Booking
-                          </span>
-                      </div>
-                      <!-- Nút Reload đặt bên ngoài -->
-                      <div class="text-center mb-3">
-                          <a class="btn btn-primary btn-reload" href="${pageContext.request.contextPath}/HistoryBookingServlet" >Hiển thị lịch sử</a>
-                      </div>
-                      <c:if test="${empty historyList}">
-                          <p class="text-center text-muted mt-3">Không có lịch sử đặt chỗ nào.</p>
-                      </c:if>
-                      <!-- Content -->
-                      <div class="container mt-4">
-                          <c:forEach var="history" items="${historyList}">
-                              <div class="card mb-3 shadow-sm border-1 rounded-3 historyBookings-card" data-history-id="${history.historyId}">
-                                  <div class="card-body d-flex justify-content-between align-items-center">
-                                      <div>
-                                          <p class="fw-bold mb-1">${history.note}</p>
-                                          <small class="text-muted">
-                                              <span class="${history.tourStatus == 'COMPLETED' ? 'text-success' : 
-                                 (history.tourStatus == 'INCOMPLETE' ? 'text-danger' : 'text-warning')} fw-semibold">
-                                                  ${history.tourStatus}
-                                              </span>
-                                          </small>
-                                          <i class="bi bi-calendar2-check text-secondary fs-4"></i>
-                                      </div>
-                                      <button class="btn btn-danger btn-sm btn-hide">Xóa</button> 
-                                  </div>
-                              </div>
-                          </c:forEach>
+    <!-- Banner -->
+    <div class="tab-header-historyBookings text-center mb-4 w-100">
+        <img 
+            src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+            alt="historyBookings Banner"
+            class="img-fluid rounded-3 shadow-sm w-100">
+    </div>
+
+    <!-- Tiêu đề -->
+    <div class="text-center mb-4 w-auto">
+        <span class="badge bg-gradient" 
+              style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+            🔔 Lịch sử đặt tour của bạn
+        </span>
+    </div>
+
+   <!-- Tiêu đề phụ / thông báo -->
+<div class="text-center mb-3">
+    <p class="fw-bold text-success mb-0" style="font-size: 20px;">
+        Những lần <strong>Booking Tour</strong>  gần nhất của bạn
+    </p>
+</div>
+   <hr>
+ <div class="text-center mb-3">
+                          <a class="btn btn-primary btn-reload" href="${pageContext.request.contextPath}/FullHistoryBooking?section=historyBookings#" >Hiển thị lịch sử</a>
                       </div>
 
-                  </div>
-                  
+    <!-- Nếu không có lịch sử -->
+    <c:if test="${empty historyList}">
+        <p class="text-center text-muted mt-3">Không có lịch sử đặt tour nào.</p>
+    </c:if>
+
+    <!-- List nội dung -->
+    <div class="container mt-4">
+        <ul class="list-group list-group-flush">
+            <c:forEach var="history" items="${historyList}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+
+                    <!-- Thông tin khách -->
+                    <div class="d-flex flex-column flex-md-row w-100 justify-content-between align-items-md-center">
+
+                        <div class="me-md-3">
+                            <p class="mb-1 fw-semibold">👤 ${history.customerName}</p>
+                            <p class="mb-1 text-muted">📧 ${history.customerEmail}</p>
+                            <p class="mb-1 text-muted">☎️ ${history.customerPhone}</p>
+                        </div>
+
+                        <div class="me-md-3 text-md-center">
+                            <p class="mb-1 text-muted">
+                                🕓 <fmt:formatDate value="${history.createdAt}" pattern="dd/MM/yyyy HH:mm" />
+                            </p>
+                        </div>
+
+                        <div class="text-md-end mt-2 mt-md-0">
+                            <span class="badge px-3 py-2 
+                                ${history.tourStatus == 'COMPLETED' ? 'bg-success text-white' : 
+                                  (history.tourStatus == 'INCOMPLETE' ? 'bg-danger' : 'bg-warning text-dark')} fw-semibold">
+                                ${history.tourStatus}
+                            </span>
+                        </div>
+
+                    </div>
+                </li>
+            </c:forEach>
+        </ul>
+    </div>
+
+</div>
+
                  <!-- Payments content ----------------------------------------->
                  
                         <!--  content -->

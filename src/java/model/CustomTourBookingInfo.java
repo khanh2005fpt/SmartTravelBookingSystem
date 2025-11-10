@@ -21,13 +21,12 @@ public class CustomTourBookingInfo {
     public CustomTourBookingInfo() {
     }
 
-    public CustomTourBookingInfo(CustomTour customTour, List<CustomTourDetail> customTourDetails, List<CustomTourItinerary> customTourItineraries, HistoryBooking historyBooking) {
+    public CustomTourBookingInfo(CustomTour customTour, HistoryBooking historyBooking) {
         this.customTour = customTour;
-        this.customTourDetails = customTourDetails;
-        this.customTourItineraries = customTourItineraries;
         this.historyBooking = historyBooking;
     }
 
+  
     public CustomTour getCustomTour() {
         return customTour;
     }

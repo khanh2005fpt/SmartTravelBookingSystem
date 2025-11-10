@@ -49,7 +49,9 @@ public class ServiceDao extends DBContext {
                         rs.getString("modelName"),
                         rs.getDouble("pricePerDay"),
                         rs.getInt("capacity"),
-                        rs.getInt("availability")
+                        rs.getInt("availability"),
+                        rs.getString("vehicleImageUrl"),
+                        rs.getInt("totalQuantity")
                 );
                 list.add(v);
             }
@@ -199,7 +201,8 @@ public class ServiceDao extends DBContext {
                         rs.getString("location"),
                         rs.getString("description"),
                         rs.getBoolean("hasTicket"),
-                        rs.getInt("ticketPrice")
+                        rs.getInt("ticketPrice"),
+                        rs.getString("placeImageUrl")
                 );
                 list.add(place);
             }
@@ -1119,12 +1122,12 @@ public class ServiceDao extends DBContext {
         return list;
     }
 
-s
+
     // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
     // CREATE - Them phuong tien moi
     public boolean createIslandVehicle(IslandVehicle vehicle) {
-        String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability, totalQuantity) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability, totalQuantity, vehicleImageUrl) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicle.getIslandId());
@@ -1134,6 +1137,7 @@ s
             ps.setInt(5, vehicle.getCapacity());
             ps.setInt(6, vehicle.getAvailability());
             ps.setInt(7, vehicle.getTotalQuantity());
+            ps.setString(8, vehicle.getVehicleImageUrl());
 
             int result = ps.executeUpdate();
             return result > 0;
@@ -1174,7 +1178,7 @@ s
                 vehicle.setContactInfo(""); // Default empty contact info
                 vehicle.setLocation(""); // Default empty location
                 vehicle.setDescription(""); // Default empty description
-                vehicle.setVehicleImageUrl(""); // Default empty image URL
+                vehicle.setVehicleImageUrl(rs.getString("vehicleImageUrl")); // Default empty image URL
 
                 return vehicle;
             }
@@ -1269,7 +1273,7 @@ s
                 vehicle.setContactInfo(""); // Default empty contact info
                 vehicle.setLocation(""); // Default empty location
                 vehicle.setDescription(""); // Default empty description
-                vehicle.setVehicleImageUrl(""); // Default empty image URL
+                vehicle.setVehicleImageUrl(rs.getString("vehicleImageUrl")); // Default empty image URL
 
                 list.add(vehicle);
             }
@@ -1314,7 +1318,7 @@ s
                 vehicle.setContactInfo(""); // Default empty contact info
                 vehicle.setLocation(""); // Default empty location
                 vehicle.setDescription(""); // Default empty description
-                vehicle.setVehicleImageUrl(""); // Default empty image URL
+                vehicle.setVehicleImageUrl(rs.getString("vehicleImageUrl")); // Default empty image URL
 
                 list.add(vehicle);
             }
@@ -2268,7 +2272,7 @@ s
                     vehicle.setContactInfo("");
                     vehicle.setLocation("");
                     vehicle.setDescription("");
-                    vehicle.setVehicleImageUrl("");
+                    vehicle.setVehicleImageUrl(rs.getString("vehicleImageUrl"));
 
                     list.add(vehicle);
                 }
@@ -2336,7 +2340,7 @@ s
                     vehicle.setContactInfo("");
                     vehicle.setLocation("");
                     vehicle.setDescription("");
-                    vehicle.setVehicleImageUrl("");
+                    vehicle.setVehicleImageUrl(rs.getString("vehicleImageUrl"));
 
                     list.add(vehicle);
                 }

@@ -402,9 +402,10 @@ if (currentUser != null) {
                                         </td>
                                         <td>
                                             <strong class="text-success">
-                                                <fmt:formatNumber value="${booking.price}" type="currency" 
-                                                                currencySymbol="₫" groupingUsed="true" />
+                                                    <fmt:formatNumber value="${booking.totalPrice}" type="number" groupingUsed="true" /> VND /Khách
+                                           
                                             </strong>
+                                        
                                         </td>
                                         <td>
                                             <c:choose>

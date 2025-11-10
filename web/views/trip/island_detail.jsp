@@ -13,16 +13,6 @@
     <body>
         <!-- Header -->
         <%@ include file="/views/common/navbar.jsp" %>
-        <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
-            <div class="overlay"></div>
-            <div class="container">
-                <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-center">
-                    <div class="col-md-9 ftco-animate pb-5 text-center">
-                        <h1 class="mb-0 bread">Chi tiết đảo</h1>
-                    </div>
-                </div>
-            </div>
-        </section>
         <!-- Main Content -->
         <main class="container" style="max-width: 1400px;">
             <!-- Island Overview -->
@@ -294,7 +284,7 @@
                                         </div>
                                     </c:forEach>
                                 </c:when>
-                               
+
                                 <c:otherwise>
                                     <div class="col-12 text-center text-muted py-5">
 
@@ -406,79 +396,75 @@
                     <!-- Vehicles Section -->
                     <section class="mb-5">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">🚘 Chọn phương tiện di chuyển trong đảo</h2>
-                        <div class="row g-4 justify-content-center">
-
+                        <div class="vehicle-scroll-container">
                             <c:forEach var="v" items="${islandvehicles}">
-                                <div class="col-lg-4">
+                                <div class="vehicle-item">
                                     <div class="card vehicle-card shadow-lg h-100 border-2" data-vehicleid="${v.vehicleId}">
-                                        <img src="${pageContext.request.contextPath}/views/home/images/vehicles/${v.vehicleType}.jpg"
-                                             alt="${v.vehicleType}" class="card-img-top"
-                                             style="height: 220px; object-fit: cover; border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
-
+                                        <img src="${pageContext.request.contextPath}/${v.vehicleImageUrl}"
+                                             alt="${v.vehicleName}" class="card-img-top"
+                                             style="height: 220px; object-fit: cover; border-radius: .75rem .75rem 0 0;">
                                         <div class="card-body">
                                             <h5 class="card-title fw-bold text-dark">${v.vehicleType}</h5>
                                             <p class="mb-1">Tên xe: ${v.modelName}</p>
-
                                             <div class="mb-2 fs-5">
                                                 <span class="badge bg-info text-dark me-1">Sức chứa: ${v.capacity} người</span>
                                                 <span class="badge bg-success text-light">Còn ${v.availability} xe</span>
                                             </div>
                                             <div class="d-flex justify-content-between mt-3">
-                                                <p class="mb-2" style="margin-left: 2px;">
-
-                                                    <i class="bi bi-heart heart" data-vehicle-id="${v.vehicleId}" style="font-size:1.4rem;"></i>
-                                                </p>
+                                                <p class="mb-2"><i class="bi bi-heart heart" data-vehicle-id="${v.vehicleId}" style="font-size:1.4rem;"></i></p>
                                                 <h6 class="text-danger fw-bold fs-5 mb-2 text-end">
                                                     <fmt:formatNumber value="${v.pricePerDay}" type="number" /> VNĐ/ngày
                                                 </h6>
-
                                             </div>
-
-
-                                            <button type="button" 
-                                                    class="mt-2 btn btn-primary flex-fill rounded-pill w-100 fw-semibold select-btn">
+                                            <button type="button" class="mt-2 btn btn-primary flex-fill rounded-pill w-100 fw-semibold select-btn">
                                                 <i class="bi bi-check2-circle"></i> Chọn
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </c:forEach>
-
                         </div>
 
-                        <!-- Input ẩn để lưu ID của phương tiện được chọn -->
                         <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
+
                     </section>
+                    <style>
+                        .vehicle-scroll-container {
+                            display: flex;
+                            gap: 20px;
+                            overflow-x: auto;
+                            scroll-snap-type: x mandatory;
+                            padding-bottom: 1rem;
+                        }
+
+                        .vehicle-item {
+                            flex: 0 0 calc(33.333% - 20px); /* 3 items trên 1 màn hình, thay đổi % nếu muốn */
+                            scroll-snap-align: start;
+                        }
+                    </style>
+
+
                     <!-- Places Section -->
                     <section class="mb-5">
-                        <h2 class="h3 mb-4 text-center fw-bold text-primary">
+                        <h2 class="h3 mb-4 text-center fw-bold text-primary border-bottom pb-2">
                             📍 Các địa điểm nổi bật tại đảo
                         </h2>
 
-                        <div class="row g-4">
-                            <c:choose>
-                                <c:when test="${empty places}">
-                                    <div class="col-12">
-                                        <div class="alert alert-warning text-center rounded-3 shadow-sm py-4">
-                                            <i class="bi bi-exclamation-circle text-warning fs-4"></i>
-                                            Hiện chưa có địa điểm nào được thêm cho đảo này.
-                                        </div>
-                                    </div>
-                                </c:when>
-
-                                <c:otherwise>
+                        <c:choose>
+                            <c:when test="${empty places}">
+                                <div class="col-12 text-center text-muted py-5">
+                                    <i class="bi bi-exclamation-circle fs-1 d-block mb-3"></i>
+                                    Hiện chưa có địa điểm nào được thêm cho đảo này.
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="place-scroll-container">
                                     <c:forEach var="p" items="${places}">
-                                        <div class="col-sm-6 col-lg-4">
+                                        <div class="place-item">
                                             <div class="card place-card border-0 shadow-lg rounded-4 h-100 overflow-hidden position-relative card-hover" data-placeid="${p.placeId}">
-
-                                                <!-- Ảnh địa điểm -->
                                                 <div class="ratio ratio-16x9">
-                                                    <img src="${pageContext.request.contextPath}/views/home/images/places/${p.placeName}.jpg"
-                                                         class="card-img-top object-fit-cover"
-                                                         alt="${p.placeName}">
+                                                    <img src="${pageContext.request.contextPath}/${p.placeImageUrl}" class="card-img-top object-fit-cover" alt="${p.placeName}">
                                                 </div>
-
-                                                <!-- Nội dung -->
                                                 <div class="card-body d-flex flex-column p-4">
                                                     <h5 class="card-title fw-bold text-dark mb-2">
                                                         <i class="bi bi-map text-primary me-1"></i>${p.placeName}
@@ -507,31 +493,37 @@
                                                                         Miễn phí tham quan
                                                                     </span>
                                                                 </c:otherwise>
-
                                                             </c:choose>
                                                         </div>
                                                     </div>
-
-
-                                                    <!-- Vé -->
-
-
-
-                                                    <!-- Nút chọn -->
-                                                    <button type="button"
-                                                            class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-place-btn">
+                                                    <button type="button" class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-place-btn">
                                                         <i class="bi bi-check2-circle"></i> Chọn
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                        <!-- Input ẩn để lưu ID của địa điểm được chọn -->
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+
                         <input type="hidden" id="selectedPlaceId" name="selectedPlaceId" value="">
                     </section>
+
+                    <style>
+                        .place-scroll-container {
+                            display: flex;
+                            gap: 20px;
+                            overflow-x: auto;
+                            scroll-snap-type: x mandatory;
+                            padding-bottom: 1rem;
+                        }
+                        .place-item {
+                            flex: 0 0 calc(33.333% - 20px); /* hiển thị 3 item trên 1 màn hình, điều chỉnh % nếu muốn */
+                            scroll-snap-align: start;
+                        }
+                    </style>
+
                     <section class="mb-5 text-center d-flex justify-content-center flex-column">
 
                         <h2 class="h2 mb-4 text-primary fw-bold">📅 Vui lòng hãy chọn thời gian du lịch</h2>
@@ -583,7 +575,7 @@
                             </div>
                         </div>
 
-                        <!-- Service Card 3: Hướng dẫn viên -->
+                        <!-- Service Card 3: Khu du lịch nổi tiếng -->
                         <div class="col-md-6 col-lg-3">
                             <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
                                 <div class="d-flex align-items-center mb-3">
@@ -754,7 +746,7 @@
                                 btn.classList.remove("btn-success");
                                 btn.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
                                 btn.disabled = false;
-                                btn.style.opacity = "1";
+                                btn.style.opacity = "1"; //độ mờ
                             });
 
                             // Đặt trạng thái "đã chọn"
@@ -775,17 +767,17 @@
                         const placeId = card.getAttribute("data-placeId");
 
                         if (selectedPlaces.has(placeId)) {
-                            // 👉 Bỏ chọn
+                            // Bỏ chọn
                             selectedPlaces.delete(placeId);
                             this.classList.remove("btn-success");
                             this.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
-                            this.style.opacity = "1"; // 🌟 làm nút sáng lại
+                            this.style.opacity = "1"; // ?làm nút sáng lại
                         } else {
-                            // 👉 Chọn thêm
+                            // Chọn thêm
                             selectedPlaces.add(placeId);
                             this.classList.add("btn-success");
                             this.innerHTML = '<i class="bi bi-check-lg"></i> Đã chọn';
-                            this.style.opacity = "0.6"; // 🌟 làm nút mờ đi để báo đã chọn
+                            this.style.opacity = "0.6"; // làm nút mờ đi để báo đã chọn
                         }
 
                         // Cập nhật input ẩn
@@ -849,84 +841,92 @@
         </script>
 
         <!-- nhap thong tin ngay de tim chuyen bay va cam ket -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const startDate = document.getElementById('startDateFlight');
-    const endDate = document.getElementById('endDateFlight');
-    const oneWayLink = document.getElementById('oneWayLink');
-    const roundTripLink = document.getElementById('roundTripLink');
-    const commitCheckbox = document.getElementById('commitFlight');
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const startDate = document.getElementById('startDateFlight');
+                const endDate = document.getElementById('endDateFlight');
+                const oneWayLink = document.getElementById('oneWayLink');
+                const roundTripLink = document.getElementById('roundTripLink');
+                const commitCheckbox = document.getElementById('commitFlight');
 
-    const today = new Date().toISOString().split("T")[0];
-    startDate.setAttribute("min", today);
-    endDate.setAttribute("min", today);
+                const today = new Date().toISOString().split("T")[0];
+                startDate.setAttribute("min", today);
+                endDate.setAttribute("min", today);
 
-    // --- LOAD STATE ---
-    const savedStart = sessionStorage.getItem("startDateFlight");
-    const savedEnd = sessionStorage.getItem("endDateFlight");
-    // ❌ Không load trạng thái checkbox nữa
-    commitCheckbox.checked = false;
+                // --- LOAD STATE ---
+                const savedStart = sessionStorage.getItem("startDateFlight");
+                const savedEnd = sessionStorage.getItem("endDateFlight");
+                // ❌ Không load trạng thái checkbox nữa
+                commitCheckbox.checked = false;
 
-    if (savedStart) startDate.value = savedStart;
-    if (savedEnd) endDate.value = savedEnd;
+                if (savedStart)
+                    startDate.value = savedStart;
+                if (savedEnd)
+                    endDate.value = savedEnd;
 
-    // --- UPDATE BUTTONS ---
-    function updateButtons() {
-        const startVal = startDate.value;
-        const endVal = endDate.value;
-        const isCommitted = commitCheckbox.checked;
+                // --- UPDATE BUTTONS ---
+                function updateButtons() {
+                    const startVal = startDate.value;
+                    const endVal = endDate.value;
+                    const isCommitted = commitCheckbox.checked;
 
-        if (startVal && endVal && endVal < startVal) {
-            alert("❌ Ngày kết thúc không thể trước ngày bắt đầu!");
-            endDate.value = "";
-            sessionStorage.removeItem("endDateFlight");
-        }
+                    if (startVal && endVal && endVal < startVal) {
+                        alert("❌ Ngày kết thúc không thể trước ngày bắt đầu!");
+                        endDate.value = "";
+                        sessionStorage.removeItem("endDateFlight");
+                    }
 
-        const hasStart = startVal.trim() !== '';
-        const hasEnd = endVal.trim() !== '';
+                    const hasStart = startVal.trim() !== '';
+                    const hasEnd = endVal.trim() !== '';
 
-        oneWayLink.classList.toggle('disabled', !(hasStart && isCommitted));
-        oneWayLink.style.pointerEvents = hasStart && isCommitted ? 'auto' : 'none';
-        oneWayLink.style.opacity = hasStart && isCommitted ? '1' : '0.5';
+                    oneWayLink.classList.toggle('disabled', !(hasStart && isCommitted));
+                    oneWayLink.style.pointerEvents = hasStart && isCommitted ? 'auto' : 'none';
+                    oneWayLink.style.opacity = hasStart && isCommitted ? '1' : '0.5';
 
-        roundTripLink.classList.toggle('disabled', !(hasStart && hasEnd && isCommitted));
-        roundTripLink.style.pointerEvents = hasStart && hasEnd && isCommitted ? 'auto' : 'none';
-        roundTripLink.style.opacity = hasStart && hasEnd && isCommitted ? '1' : '0.5';
-    }
+                    roundTripLink.classList.toggle('disabled', !(hasStart && hasEnd && isCommitted));
+                    roundTripLink.style.pointerEvents = hasStart && hasEnd && isCommitted ? 'auto' : 'none';
+                    roundTripLink.style.opacity = hasStart && hasEnd && isCommitted ? '1' : '0.5';
+                }
 
-    // --- SAVE STATE ---
-    function saveState() {
-        if (commitCheckbox.checked) {
-            sessionStorage.setItem("startDateFlight", startDate.value);
-            sessionStorage.setItem("endDateFlight", endDate.value);
-        }
-    }
+                // --- SAVE STATE ---
+                function saveState() {
+                    if (commitCheckbox.checked) {
+                        sessionStorage.setItem("startDateFlight", startDate.value);
+                        sessionStorage.setItem("endDateFlight", endDate.value);
+                    }
+                }
 
-    // --- EVENT LISTENERS ---
-    startDate.addEventListener('change', () => { saveState(); updateButtons(); });
-    endDate.addEventListener('change', () => { saveState(); updateButtons(); });
-    commitCheckbox.addEventListener('change', () => {
-        if (!commitCheckbox.checked) {
-            sessionStorage.clear();
-            startDate.value = "";
-            endDate.value = "";
-        } else {
-            saveState();
-        }
-        updateButtons();
-    });
+                // --- EVENT LISTENERS ---
+                startDate.addEventListener('change', () => {
+                    saveState();
+                    updateButtons();
+                });
+                endDate.addEventListener('change', () => {
+                    saveState();
+                    updateButtons();
+                });
+                commitCheckbox.addEventListener('change', () => {
+                    if (!commitCheckbox.checked) {
+                        sessionStorage.clear();
+                        startDate.value = "";
+                        endDate.value = "";
+                    } else {
+                        saveState();
+                    }
+                    updateButtons();
+                });
 
-    // --- Xóa tick khi rời trang ---
-    window.addEventListener('beforeunload', () => {
-        commitCheckbox.checked = false;
-        sessionStorage.removeItem("commitFlightChecked");
-    });
+                // --- Xóa tick khi rời trang ---
+                window.addEventListener('beforeunload', () => {
+                    commitCheckbox.checked = false;
+                    sessionStorage.removeItem("commitFlightChecked");
+                });
 
-    updateButtons();
-});
-</script>
+                updateButtons();
+            });
+        </script>
 
-   <!-- add favaroutie tours ,services   -->
+        <!-- add favaroutie tours ,services   -->
         <script >
 
 

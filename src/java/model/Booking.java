@@ -20,11 +20,11 @@ public class Booking {
     private Date endDate;
     private int adultQuantity;
     private int childQuantity;
-    private int price;
+
     private double totalPrice;
     private String status;
     private Date bookingDate;
-    private int profileId;
+    
 
     // Additional fields for display purposes
     private String customerName;
@@ -163,19 +163,4 @@ public class Booking {
         this.customTourName = customTourName;
     }
 
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public int getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(int profileId) {
-        this.profileId = profileId;
-    }
 }

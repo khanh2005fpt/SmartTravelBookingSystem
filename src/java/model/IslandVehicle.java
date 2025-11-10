@@ -32,7 +32,7 @@ public class IslandVehicle {
     public IslandVehicle() {
     }
 
-    public IslandVehicle(int vehicleId, int islandId, String vehicleType, String modelName, double pricePerDay, int capacity, int availability) {
+    public IslandVehicle(int vehicleId, int islandId, String vehicleType, String modelName, double pricePerDay, int capacity, int availability, String vehicleImageUrl, int totalQuantity) {
         this.vehicleId = vehicleId;
         this.islandId = islandId;
         this.vehicleType = vehicleType;
@@ -40,6 +40,8 @@ public class IslandVehicle {
         this.pricePerDay = pricePerDay;
         this.capacity = capacity;
         this.availability = availability;
+        this.vehicleImageUrl = vehicleImageUrl;
+        this.totalQuantity = totalQuantity;
     }
     
     public IslandVehicle(int vehicleId, int islandId, String vehicleType, String modelName, double pricePerDay, int capacity, int availability,
