@@ -22,6 +22,7 @@ import model.CustomTourItinerary;
 import model.FlightSchedule;
 import model.User;
 import model.HistoryBooking;
+import model.TourBookingInfo;
 
 
 /**
@@ -86,28 +87,56 @@ public class HistoryBookingServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
             return;
         }
-        
+  try {
+        int userId = currentUser.getUserId();
 
-        try {
-            int userId = currentUser.getUserId();
-          CustomTourBookingInfo bookingInfo = tourDao.getLatestCustomTourAfterBookingByUser(userId);
-if (bookingInfo == null || bookingInfo.getCustomTour() == null) {
-    request.setAttribute("errorMessage", "Không tìm thấy lịch sử đặt tour nào gần đây cho tài khoản của bạn!");
-} else {
-    request.setAttribute("tour", bookingInfo.getCustomTour());
-    request.setAttribute("details", bookingInfo.getCustomTourDetails());
-    request.setAttribute("itinerary", bookingInfo.getCustomTourItineraries());
-}
-    FlightSchedule flightSchedules = tourDao.getLatestFlightScheduleByUser(userId);
-          
-  request.setAttribute("flightSchedules", flightSchedules);
-request.getRequestDispatcher("/views/customer/my_tour.jsp").forward(request, response);
+        // Lấy lịch sử booking mới nhất + tourType
+        HistoryBooking hb = tourDao.getLatestHistoryBookingWithTourType(userId);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "Đã xảy ra lỗi xem thông tin tour sau khi đặt.");
-            request.getRequestDispatcher("/views/customer/my_tour.jsp").forward(request, response);
+        FlightSchedule flightSchedules = null;
+
+        if (hb == null) {
+            request.setAttribute("errorMessage", "Không tìm thấy lịch sử đặt tour nào gần đây cho tài khoản của bạn!");
+       
+        } else {
+            request.setAttribute("historyBooking", hb);
+            System.out.println("type:"+hb.getTourType());
+
+            if ("Tour lẻ".equals(hb.getTourType())) {
+               // Tour lẻ
+                CustomTourBookingInfo customTourInfo = tourDao.getLatestCustomTourAfterBookingByUser(userId);
+                request.setAttribute("tour", customTourInfo.getCustomTour());
+                request.setAttribute("details", customTourInfo.getCustomTourDetails());
+                request.setAttribute("itinerary", customTourInfo.getCustomTourItineraries());
+                   // Lấy flight của tour lẻ
+             
+                flightSchedules = tourDao.geFlightScheduleOfCustomerTourByUser(userId);
+                 request.setAttribute("flightSchedulesCT", flightSchedules);
+
+            } else if ("Tour trọn gói".equals(hb.getTourType())) {
+                // Lấy flight của tour trọn gói
+                TourBookingInfo tourInfo = tourDao.getLatestTourAfterBookingByUser(userId);
+                 request.setAttribute("booking", tourInfo.getBooking());
+                request.setAttribute("tour", tourInfo.getTour());
+                request.setAttribute("services", tourInfo.getTourServices());
+                request.setAttribute("itineraries", tourInfo.getTourItineraries());
+                request.setAttribute("activities", tourInfo.getTourActivities());
+
+              // Lấy flight của tour trọn gói
+                flightSchedules = tourDao.getFlightScheduleOfTourByUser(userId);
+                 request.setAttribute("flightSchedulesT", flightSchedules);
+            }
         }
+
+
+        request.getRequestDispatcher("/views/customer/my_tour.jsp").forward(request, response);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        request.setAttribute("errorMessage", "Đã xảy ra lỗi xem thông tin tour sau khi đặt.");
+        request.getRequestDispatcher("/views/customer/my_tour.jsp").forward(request, response);
+    }
+  
     }
     
 

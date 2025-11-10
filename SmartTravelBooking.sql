@@ -17,10 +17,7 @@ CREATE TABLE Users (
 );
 go
 
-
-
 /*
-
 
 select * from HistoryBooking
 SELECT * FROM CustomTours
@@ -71,6 +68,7 @@ WHERE hb.accountUserId = 4
 ORDER BY hb.historyId DESC;
 */
 
+/*
 -- Add availableQuantity to Tours table
 ALTER TABLE Tours ADD availableQuantity INT DEFAULT 0 CHECK (availableQuantity >= 0);
 GO
@@ -105,6 +103,7 @@ ALTER TABLE TourServices
         CHECK (serviceType IN ('HOTEL','VEHICLE','PLACE','FLIGHT'));
 GO
 
+*/
 
 
 CREATE TABLE Roles (
@@ -816,7 +815,10 @@ CREATE TABLE IslandVehicles (
 );
 
 go
-select * from historybooking
+select * from Users
+update Users
+set accountUserId=5
+where historyId=5
  -- tour rieng le cho customer
 
 INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
@@ -994,11 +996,13 @@ CREATE TABLE HistoryBooking (
     customerEmail NVARCHAR(100) NOT NULL,
     customerPhone NVARCHAR(20) NOT NULL,
     createdAt DATETIME DEFAULT GETDATE(),
-    tourStatus NVARCHAR(20) CHECK (tourStatus IN ('COMPLETED', 'INCOMPLETE')) DEFAULT 'INCOMPLETE',
+    tourStatus NVARCHAR(20) NOT NULL CHECK (tourStatus IN ('COMPLETED', 'INCOMPLETE')) DEFAULT 'INCOMPLETE',
     FOREIGN KEY (paymentId) REFERENCES Payments(paymentId) ON DELETE CASCADE,
     -- Cho phép null nếu user bị xóa
     FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
 );
+
+
 
 /* -- xoa du lieu va reset
 DELETE FROM Notifications
@@ -1008,7 +1012,6 @@ DBCC CHECKIDENT ('Notifications', RESEED, 0);
 DBCC CHECKIDENT ('CustomTourDetails', RESEED, 0);
 DBCC CHECKIDENT ('CustomTours', RESEED, 0);
 */
-
 
 SELECT 
     hb.historyId,
@@ -1034,7 +1037,6 @@ SELECT hb.paymentId, hb.customerName, hb.customerPhone, hb.createdAt, t.tourName
 select * from HistoryBooking
 
 GO
-
 
 -- triger ghi lại lịch sử booking 
 

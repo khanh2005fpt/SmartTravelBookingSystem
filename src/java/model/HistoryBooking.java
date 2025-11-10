@@ -17,6 +17,8 @@ public class HistoryBooking {
     private String customerPhone;
     private Timestamp createdAt;
     private String tourStatus;
+    //k có trong bang
+    private String tourType;
 
     public HistoryBooking() {
     }
@@ -103,6 +105,16 @@ public class HistoryBooking {
     public void setTourStatus(String tourStatus) {
         this.tourStatus = tourStatus;
     }
+
+    public String getTourType() {
+        return tourType;
+    }
+
+    public void setTourType(String tourType) {
+        this.tourType = tourType;
+    }
+    
+    
 
     @Override
     public String toString() {
