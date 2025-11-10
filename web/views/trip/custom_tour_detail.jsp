@@ -42,7 +42,7 @@
                 </div>
             </div>
         </section>
-        <div class="container py-5" style="max-width: 1400px;">
+        <div class="container py-5" style="max-width: 1600px;">
             <div class="row justify-content-center">
                 <!-- Header -->
                 <div class="col-12 text-center mb-5">
@@ -51,30 +51,10 @@
 
                 <!-- Left Column: Tour Details -->
                 <div class="col-lg-8">
-                    <!-- Tour Info -->
-                    <div class="card hero-card shadow-sm mb-4 p-4">
-                        <div class="d-flex align-items-start gap-3">
-                            <div class="flex-grow-1">
-                                <h3 class="fw-bold mb-2">${tour.tourName}</h3>
-                                <p class="mb-1"><i class="bi bi-calendar-event me-2"></i>
-                                    <strong>Thời gian:</strong>
-                                    <span class="text-muted">${tour.startDate} — ${tour.endDate}</span>
-                                </p>
-                                <p class="mb-0"><strong>Tổng giá:</strong>
-                                    <span class="badge bg-primary ms-2 price-badge">
-                                        <fmt:setLocale value="vi_VN"/>
-                                        <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
-                                    </span>
-                                </p>
-                            </div>
-                            <div class="text-end d-none d-md-block">
-                                <i class="bi bi-geo-alt-fill text-primary" style="font-size:2.5rem;"></i>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Selected Services -->
                     <div class="card mb-4 shadow-sm p-3">
+                        <h1 class="font-weight-bold mb-3 text-primary ">Tour ${tour.tourName}</h1>
                         <div class="card-body">
                             <h5 class="card-title text-primary fw-bold mb-3">🧾 Dịch vụ đã chọn</h5>
                             <div class="table-responsive">
@@ -100,72 +80,81 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
+                        <div class="mb-4">
+                            <h5 class="text-primary fw-bold mb-3">🗓️ Lịch trình mẫu</h5>
+                            <div class="accordion" id="itineraryAccordion">
 
-                    <!-- Itinerary -->
-                    <div class="mb-4">
-                        <h5 class="text-primary fw-bold mb-3">🗓️ Lịch trình mẫu</h5>
-                        <div class="accordion" id="itineraryAccordion">
+                                <c:set var="currentDay" value="-1" />
+                                <c:forEach var="i" items="${itineraries}" varStatus="status">
 
-                            <c:set var="currentDay" value="-1" />
-                            <c:forEach var="i" items="${itinerary}" varStatus="status">
+                                    <c:if test="${i.dayNumber != currentDay}">
+                                        <c:if test="${currentDay != -1}">
+                                        </div> <!-- .accordion-body -->
+                                    </div> <!-- .accordion-collapse -->
+                                </div> <!-- .accordion-item -->
+                            </c:if>
 
-                                <c:if test="${i.dayNumber != currentDay}">
-                                    <c:if test="${currentDay != -1}">
+                            <div class="accordion-item border-0 shadow-sm mb-3 rounded-3">
+                                <h2 class="accordion-header" id="heading${i.dayNumber}">
+                                    <button class="accordion-button collapsed bg-light fw-semibold" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#collapse${i.dayNumber}"
+                                            aria-expanded="false"
+                                            aria-controls="collapse${i.dayNumber}">
+                                        🌅 Ngày ${i.dayNumber}
+                                    </button>
+                                </h2>
+
+                                <div id="collapse${i.dayNumber}" class="accordion-collapse collapse"
+                                     aria-labelledby="heading${i.dayNumber}">
+                                    <div class="accordion-body">
+                                    </c:if>
+
+                                    <div class="d-flex mb-2 align-items-start">
+                                        <span class="fw-semibold text-secondary me-2">
+                                            🕒 ${i.timeOfDay}:
+                                        </span>
+                                        <div>
+                                            <span class="text-primary fw-semibold">${i.activity}</span><br/>
+                                        </div>
+                                    </div>
+
+                                    <c:set var="currentDay" value="${i.dayNumber}" />
+
+                                    <c:if test="${status.last}">
                                     </div> <!-- .accordion-body -->
                                 </div> <!-- .accordion-collapse -->
                             </div> <!-- .accordion-item -->
                         </c:if>
 
-                        <div class="accordion-item border-0 shadow-sm mb-3 rounded-3">
-                            <h2 class="accordion-header" id="heading${i.dayNumber}">
-                                <button class="accordion-button collapsed bg-light fw-semibold" type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#collapse${i.dayNumber}"
-                                        aria-expanded="false"
-                                        aria-controls="collapse${i.dayNumber}">
-                                    🌅 Ngày ${i.dayNumber}
-                                </button>
-                            </h2>
-
-                            <div id="collapse${i.dayNumber}" class="accordion-collapse collapse"
-                                 aria-labelledby="heading${i.dayNumber}">
-                                <div class="accordion-body">
-                                </c:if>
-
-                                <div class="d-flex mb-2 align-items-start">
-                                    <span class="fw-semibold text-secondary me-2">
-                                        🕒 ${i.timeOfDay}:
-                                    </span>
-                                    <div>
-                                        <span class="text-primary fw-semibold">${i.activity}</span><br/>
-                                        <small></small>
-                                    </div>
-                                </div>
-
-                                <c:set var="currentDay" value="${i.dayNumber}" />
-
-                                <c:if test="${status.last}">
-                                </div> <!-- .accordion-body -->
-                            </div> <!-- .accordion-collapse -->
-                        </div> <!-- .accordion-item -->
-                    </c:if>
-
-                </c:forEach>
+                    </c:forEach>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Itinerary -->
+
+
     <!-- Right Column: Booking -->
     <div class="col-lg-4">
-        <div class="card shadow-sm mb-4 p-3">
+        <div class="card shadow-sm mb-4 p-3 ">
             <div class="card-body">
                 <h4 class="fw-bold text-primary mb-3">📅 Đặt tour</h4>
-                <p class="text-muted small">Hoàn tất thông tin và tiến hành đặt chỗ. Bạn sẽ nhận email xác nhận sau khi thanh toán.</p>
-
+                <c:if test="${not empty errorMessage}">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${errorMessage}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <c:remove var="errorMessage" scope="request"/> 
+                </c:if>
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
                         <form action="BookingCustomTourController" method="post">
+                            <p class="mb-1"><i class="bi bi-calendar-event me-2"></i>
+                                <strong>Thời gian:</strong>
+                                <span class="text-muted">${tour.startDate} — ${tour.endDate}</span>
+                            </p>
                             <input type="hidden" name="customTourId" value="${tour.customTourId}">
                             <input type="hidden" name="price" value="${tour.totalPrice}">
                             <input type="hidden" name="startDate" value="${tour.startDate}">
@@ -173,22 +162,20 @@
 
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
-                                    <label class="form-label">Người lớn</label>
+                                    <label class="form-label">Người lớn (>15 tuổi)</label>
                                     <input type="number" class="form-control" name="adultQty" min="1" value="1" required>
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label">Trẻ em</label>
+                                    <label class="form-label">Trẻ em (≤15 tuổi)</label>
                                     <input type="number" class="form-control" name="childQty" min="0" value="0" required>
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="small text-muted">Tổng giá</div>
-                                <div class="fw-bold text-primary">
-                                    <fmt:setLocale value="vi_VN"/>
-                                    <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
-                                </div>
-                            </div>
+                            <h5 class="mt-4 text-primary">Giá Tour</h5>
+                            <h4 class="text-primary fw-bold mb-3">
+                                <fmt:setLocale value="vi_VN" />
+                                <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
+                            </h4>
 
                             <button type="submit" class="btn btn-primary w-100 fw-bold">
                                 <i class="bi bi-check-circle me-2"></i> Đặt Tour Ngay

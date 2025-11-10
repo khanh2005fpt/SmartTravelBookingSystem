@@ -275,14 +275,18 @@ if (currentUser != null) {
 
                                         <!-- Nội dung -->
                                         <div class="card-body d-flex flex-column">
-                                            <h5 class="card-title fw-bold text-primary mb-2">${island.islandName}</h5>
+                                            <h2 class="card-title fw-bold text-primary mb-2">Đảo ${island.islandName}</h2>
 
-                                            <p class="card-text text-muted small mb-2">
+                                            <p class="card-text text-muted small mb-2" style="font-size: 1.05rem;">
                                                 <i class="fa fa-map-marker text-danger"></i> ${island.countryName}
                                             </p>
 
                                             <p class="card-text text-secondary small mb-2">
                                                 ${island.shortDescription}
+                                            </p>
+
+                                            <p class="card-text text-success small mb-3" style="font-size: 1.05rem;">
+                                                <strong>Nên đi vào:</strong> Mùa ${island.bestSeason}
                                             </p>
 
                                             <!-- Đẩy footer xuống cuối card -->

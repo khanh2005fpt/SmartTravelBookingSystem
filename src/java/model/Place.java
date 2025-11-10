@@ -25,7 +25,7 @@ public class Place {
     public Place() {
     }
 
-    public Place(int placeId, int islandId, String placeName, String location, String description, boolean hasTicket, int ticketPrice) {
+    public Place(int placeId, int islandId, String placeName, String location, String description, boolean hasTicket, int ticketPrice, String placeImageUrl) {
         this.placeId = placeId;
         this.islandId = islandId;
         this.placeName = placeName;
@@ -33,6 +33,7 @@ public class Place {
         this.description = description;
         this.hasTicket = hasTicket;
         this.ticketPrice = ticketPrice;
+        this.placeImageUrl = placeImageUrl;
     }
 
     public int getPlaceId() {
@@ -114,7 +115,7 @@ public class Place {
     public void setPlaceImageUrl(String placeImageUrl) {
         this.placeImageUrl = placeImageUrl;
     }
-
+    
     @Override
     public String toString() {
         return "Place{" + "placeId=" + placeId + ", islandId=" + islandId + ", placeName=" + placeName + ", location=" + location + ", description=" + description + ", hasTicket=" + hasTicket + ", ticketPrice=" + ticketPrice + ", islandName=" + islandName + ", placeImageUrl=" + placeImageUrl + '}';
