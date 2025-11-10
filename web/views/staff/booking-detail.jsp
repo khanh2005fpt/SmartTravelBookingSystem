@@ -407,7 +407,7 @@ if (currentUser != null) {
                 <div class="detail-row">
                     <span class="detail-label">Tổng tiền:</span>
                     <span class="detail-value price-highlight">
-                        <fmt:formatNumber value="${booking.price}" type="currency" 
+                        <fmt:formatNumber value="${booking.totalPrice}" type="currency" 
                                         currencySymbol="₫" groupingUsed="true" />
                     </span>
                 </div>
@@ -419,10 +419,7 @@ if (currentUser != null) {
                         <span class="info-label">Tên khách hàng:</span>
                         <span class="info-value">${booking.customerName}</span>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">ID Profile:</span>
-                        <span class="info-value">#${booking.profileId}</span>
-                    </div>
+                    
                     <div class="info-item">
                         <span class="info-label">ID Customer:</span>
                         <span class="info-value">#${booking.customerId}</span>

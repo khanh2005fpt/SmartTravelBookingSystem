@@ -90,13 +90,12 @@ public class BookingDao extends DBContext {
     /**
      * Get all bookings with customer and tour information for staff view
      */
+   
     public List<Booking> getAllBookings() {
         List<Booking> bookings = new ArrayList<>();
         String sql = """
-            SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
+            SELECT TOP 10
+                b.*,
                 u.fullName as customerName,
                 t.tourName,
                 ct.tourName as customTourName
@@ -107,7 +106,8 @@ public class BookingDao extends DBContext {
             ORDER BY b.bookingDate DESC
             """;
 
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Booking booking = mapResultSetToBooking(rs);
@@ -119,16 +119,13 @@ public class BookingDao extends DBContext {
 
         return bookings;
     }
-
     /**
      * Get booking by ID with detailed information
      */
-    public Booking getBookingById(int bookingId) {
+    public  Booking getBookingById(int bookingId) {
         String sql = """
             SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
+                b.*,
                 u.fullName as customerName, u.email, u.phone,
                 t.tourName, t.description as tourDescription,
                 ct.tourName as customTourName, NULL as customTourDescription
@@ -159,10 +156,8 @@ public class BookingDao extends DBContext {
     public List<Booking> searchBookings(String customerName, String status, String dateFrom, String dateTo) {
         List<Booking> bookings = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
-            SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
+            SELECT TOP 10
+                b.*,
                 u.fullName as customerName,
                 t.tourName,
                 ct.tourName as customTourName
@@ -278,35 +273,23 @@ public class BookingDao extends DBContext {
     public static void main(String[] args) {
         try {
             // 1. Tạo DAO (đảm bảo trong class này có connection hợp lệ)
-            BookingDao bookingDao = new BookingDao();
-            Booking booking= new Booking();
-  booking.setCustomerId(3); // ID khách hàng có sẵn trong DB
-            booking.setTourId(2);     // Tour có thật trong bảng Tours
-            booking.setCustomTourId(null); // nếu không dùng customTour, để 0
+           BookingDao bookingDao = new BookingDao();
+                // 2. Khởi tạo DAO
+            Booking b = bookingDao.getBookingById(33);
 
-            // Chuyển từ LocalDate sang java.util.Date
-            LocalDate depLocal = LocalDate.of(2025, 11, 10);
-            LocalDate endLocal = LocalDate.of(2025, 11, 15);
-            Date depDate = Date.from(depLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            Date endDate = Date.from(endLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-            booking.setDepartureDate(depDate);
-            booking.setEndDate(endDate);
-
-            booking.setAdultQuantity(2);
-            booking.setChildQuantity(1);
-            booking.setStatus("PENDING");
-
-            // 3. Gọi hàm createBooking()
-            int bookingId = bookingDao.createBooking(booking);
-
-            // 4. In kết quả ra console
-            if (bookingId > 0) {
-                System.out.println("✅ Booking created successfully with ID: " + bookingId);
+            // 4. In kết quả
+            if (b != null) {
+                System.out.println("Booking found:");
+                System.out.println("ID: " + b.getBookingId());
+                System.out.println("Customer: " + b.getCustomerName() );
+                System.out.println("Tour: " + b.getTourName() + " / Custom Tour: " + b.getCustomTourName());
+                System.out.println("Departure: " + b.getDepartureDate() + ", End: " + b.getEndDate());
+                System.out.println("Adults: " + b.getAdultQuantity() + ", Children: " + b.getChildQuantity());
+                System.out.println("Status: " + b.getStatus() + ", Total: " + b.getTotalPrice());
             } else {
-                System.out.println("❌ Failed to create booking!");
+                System.out.println("Booking with ID " + b + " not found.");
             }
-           
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -398,6 +381,7 @@ public class BookingDao extends DBContext {
         booking.setAdultQuantity(rs.getInt("adultQuantity"));
         booking.setChildQuantity(rs.getInt("childQuantity"));
         booking.setStatus(rs.getString("status"));
+        booking.setTotalPrice(rs.getInt("totalPrice"));
         booking.setBookingDate(rs.getTimestamp("bookingDate"));
         booking.setCustomerName(rs.getString("customerName"));
         booking.setTourName(rs.getString("tourName"));
@@ -447,7 +431,7 @@ public class BookingDao extends DBContext {
                     it.setProfileName(null); // Không có profileName trong DB
                     it.setCustomerName(rs.getString("customerName"));
 
-                    int p = rs.getInt("price");
+                    int p = rs.getInt("totalPrice");
                     it.setPrice(rs.wasNull() ? null : p);
 
                     String st = rs.getString("status");
