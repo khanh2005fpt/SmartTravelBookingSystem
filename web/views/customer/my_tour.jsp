@@ -317,23 +317,27 @@ if (roleId != 1 && roleId != 3) {
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed bg-light fw-semibold" type="button"
                                                 data-bs-toggle="collapse" data-bs-target="#collapse${i.dayNumber}">
-                                            Ngày ${i.dayNumber}
+                                            Ngày ${i.dayNumber} : ${i.title} 
                                         </button>
                                     </h2>
                                     <div id="collapse${i.dayNumber}" class="accordion-collapse collapse">
                                         <div class="accordion-body">
-                                            <span class="fw-bold text-secondary me-2">
-                                                <i class="bi bi-geo-alt-fill text-danger me-2"></i>${i.title}:
-                                            </span>
+                                           
                                         </c:if>
 
                                         <!-- Lặp các activity của itinerary -->
-                                        <c:forEach var="act" items="${activities}">
-                                            <div class="d-flex mb-2 align-items-start">
+                                      <c:forEach var="act" items="${i.activities}">
+                                          <span class="fw-bold me-2">
+                                           ${act.activityOrder}.${act.activityTitle} 
+                                            </span>
+                                            <div class="mt-2 mb-2"> 
+        
+        <span class="text-primary" style="font-size: 15px;">
+          ${act.description}
+        </span>
+    </div>
+</c:forEach>
 
-                                                <div><span class="text-primary" style="font-size: 15px;">${act.description}</span></div>
-                                            </div>
-                                        </c:forEach>
 
                                         <c:set var="currentDay" value="${i.dayNumber}"/>
                                         <c:if test="${status.last}">

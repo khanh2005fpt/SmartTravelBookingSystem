@@ -12,9 +12,12 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import model.Booking;
 import model.CustomTour;
@@ -1395,15 +1398,18 @@ public class TourDao extends DBContext {
     
   //-------------------TOUR TRỌN GÓI SAU BOOKING-----------------------------------------//
     // lấy thông tin chi tiết của Tour sau khi booking
-    public TourBookingInfo getLatestTourAfterBookingByUser(int userId) throws SQLException {
-        TourBookingInfo info = new TourBookingInfo();
-
-        String sql = """
+  public TourBookingInfo getLatestTourAfterBookingByUser(int userId) throws SQLException {
+    TourBookingInfo info = new TourBookingInfo();
+    String sql = """
         SELECT 
             t.*, 
             ts.*, 
             ti.*, 
-            ta.*, 
+              ta.activityId, 
+                ta.itineraryId, 
+                ta.activityOrder, 
+                ta.activityTitle, 
+                ta.description AS activityDescription, 
             hb.*,
             b.bookingId,
             b.departureDate              
@@ -1426,111 +1432,115 @@ public class TourDao extends DBContext {
         ORDER BY ts.tourServiceId, ti.dayNumber, ta.activityOrder
     """;
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, userId);
-            ResultSet rs = ps.executeQuery();
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        ps.setInt(2, userId);
+        ResultSet rs = ps.executeQuery();
 
-            Tour tour = null;
-            Booking bk =null;
-            HistoryBooking hb = null;
-            Set<Integer> serviceIds = new HashSet<>();
-            Set<Integer> itineraryIds = new HashSet<>();
-            Set<Integer> activityIds = new HashSet<>();
+        Tour tour = null;
+        Booking bk = null;
+        HistoryBooking hb = null;
 
-            while (rs.next()) {
-                // === TOUR ===
-                if (tour == null) {
-                    tour = new Tour();
-                    tour.setTourId(rs.getInt("tourId"));
-                    tour.setIslandId(rs.getInt("islandId"));
-                    tour.setTourName(rs.getString("tourName"));
-                    tour.setDescription(rs.getString("description"));
-                    tour.setPrice(rs.getInt("price"));
-                    tour.setTourImageUrl(rs.getString("tourImageUrl"));
-                    tour.setApprovalStatus(rs.getString("approvalStatus"));
-                    tour.setAvailableQuantity(rs.getInt("availableQuantity"));
-                    java.sql.Timestamp createdTs = rs.getTimestamp("createdAt");
-                    if (createdTs != null) {
-                        tour.setCreatedAt(createdTs.toLocalDateTime());
-                    }
-                    info.setTour(tour);
+        // Để tránh thêm trùng
+        Map<Integer, TourService> serviceMap = new HashMap<>();
+        Map<Integer, TourItinerary> itineraryMap = new LinkedHashMap<>();
+
+        while (rs.next()) {
+            // === TOUR ===
+            if (tour == null) {
+                tour = new Tour();
+                tour.setTourId(rs.getInt("tourId"));
+                tour.setIslandId(rs.getInt("islandId"));
+                tour.setTourName(rs.getString("tourName"));
+                tour.setDescription(rs.getString("description"));
+                tour.setPrice(rs.getInt("price"));
+                tour.setTourImageUrl(rs.getString("tourImageUrl"));
+                tour.setApprovalStatus(rs.getString("approvalStatus"));
+                tour.setAvailableQuantity(rs.getInt("availableQuantity"));
+
+                java.sql.Timestamp createdTs = rs.getTimestamp("createdAt");
+                if (createdTs != null) {
+                    tour.setCreatedAt(createdTs.toLocalDateTime());
                 }
-                    // === BOOKING ===
-                     if(bk==null){
-                       bk = new Booking();
-                         bk.setBookingId(rs.getInt("bookingId"));
-                         java.sql.Date departure = rs.getDate("departureDate"); 
-                          if (departure != null) {
-                          bk.setDepartureDate(departure); // chỉ lấy departureDate
-                                       }
-                           info.setBooking(bk);
-                     }
-                
-                 
-                
-                // === HISTORY BOOKING ===
-                if (hb == null) {
-                    hb = new HistoryBooking();
-                    hb.setHistoryId(rs.getInt("historyId"));
-                    hb.setPaymentId(rs.getInt("paymentId"));
-                    hb.setAccountUserId(rs.getInt("accountUserId"));
-                    hb.setCustomerName(rs.getString("customerName"));
-                    hb.setCustomerEmail(rs.getString("customerEmail"));
-                    hb.setCustomerPhone(rs.getString("customerPhone"));
-                    hb.setCreatedAt(rs.getTimestamp("createdAt"));
-                    hb.setTourStatus(rs.getString("tourStatus"));
-                    info.setHistoryBooking(hb);
-                }
+                info.setTour(tour);
+            }
 
-                // === TOUR SERVICES ===
-                int serviceId = rs.getInt("tourServiceId");
-                if (!rs.wasNull() && !serviceIds.contains(serviceId)) {
-                    TourService ts = new TourService();
-                    ts.setTourServiceId(serviceId);
-                    ts.setTourServiceId(rs.getInt("tourServiceId"));
-                    ts.setTourId(rs.getInt("tourId"));
-                    ts.setServiceType(rs.getString("serviceType"));
-                     
-                    ts.setServiceId(rs.getInt("serviceId"));
-                    ts.setCreatedAt(rs.getTimestamp("createdAt"));
-                    info.addTourService(ts);
-                    serviceIds.add(serviceId);
-                       setServiceNameTour(ts);
+            // === BOOKING ===
+            if (bk == null) {
+                bk = new Booking();
+                bk.setBookingId(rs.getInt("bookingId"));
+                java.sql.Date departure = rs.getDate("departureDate");
+                if (departure != null) {
+                    bk.setDepartureDate(departure);
                 }
+                info.setBooking(bk);
+            }
 
-                // === TOUR ITINERARY ===
-                int itineraryId = rs.getInt("itineraryId");
-                if (!rs.wasNull() && !itineraryIds.contains(itineraryId)) {
-                    TourItinerary ti = new TourItinerary();
+            // === HISTORY BOOKING ===
+            if (hb == null) {
+                hb = new HistoryBooking();
+                hb.setHistoryId(rs.getInt("historyId"));
+                hb.setPaymentId(rs.getInt("paymentId"));
+                hb.setAccountUserId(rs.getInt("accountUserId"));
+                hb.setCustomerName(rs.getString("customerName"));
+                hb.setCustomerEmail(rs.getString("customerEmail"));
+                hb.setCustomerPhone(rs.getString("customerPhone"));
+                hb.setCreatedAt(rs.getTimestamp("createdAt"));
+                hb.setTourStatus(rs.getString("tourStatus"));
+                info.setHistoryBooking(hb);
+            }
+
+            // === TOUR SERVICES ===
+            int serviceId = rs.getInt("tourServiceId");
+            if (!rs.wasNull() && !serviceMap.containsKey(serviceId)) {
+                TourService ts = new TourService();
+                ts.setTourServiceId(serviceId);
+                ts.setTourId(rs.getInt("tourId"));
+                ts.setServiceType(rs.getString("serviceType"));
+                ts.setServiceId(rs.getInt("serviceId"));
+                ts.setCreatedAt(rs.getTimestamp("createdAt"));
+                setServiceNameTour(ts); // gọi hàm của bạn
+                info.addTourService(ts);
+                serviceMap.put(serviceId, ts);
+            }
+
+            // === TOUR ITINERARY ===
+            int itineraryId = rs.getInt("itineraryId");
+            TourItinerary ti = null;
+            if (!rs.wasNull()) {
+                ti = itineraryMap.get(itineraryId);
+                if (ti == null) {
+                    ti = new TourItinerary();
                     ti.setItineraryId(itineraryId);
                     ti.setTourId(rs.getInt("tourId"));
                     ti.setDayNumber(rs.getInt("dayNumber"));
                     ti.setTitle(rs.getString("title"));
+                    ti.setActivities(new ArrayList<>());
                     info.addTourItinerary(ti);
-                    itineraryIds.add(itineraryId);
-                }
-
-                // === TOUR ACTIVITIES ===
-                int activityId = rs.getInt("activityId");
-                if (!rs.wasNull() && !activityIds.contains(activityId)) {
-                    TourActivities ta = new TourActivities();
-                    ta.setActivityId(activityId);
-                    ta.setItineraryId(rs.getInt("itineraryId"));
-                    ta.setActivityOrder(rs.getInt("activityOrder"));
-                    ta.setActivityTitle(rs.getString("activityTitle"));
-                    ta.setDescription(rs.getString("description"));
-                    info.addTourActivity(ta);
-                    activityIds.add(activityId);
+                    itineraryMap.put(itineraryId, ti);
                 }
             }
 
-        } catch (SQLException e) {
-            throw new SQLException("Lỗi khi lấy tour mới nhất của userId=" + userId, e);
+            // === TOUR ACTIVITIES ===
+            int activityId = rs.getInt("activityId");
+            if (!rs.wasNull() && ti != null) {
+                TourActivities ta = new TourActivities();
+                ta.setActivityId(activityId);
+                ta.setItineraryId(itineraryId);
+                ta.setActivityOrder(rs.getInt("activityOrder"));
+                ta.setActivityTitle(rs.getString("activityTitle"));
+                ta.setDescription(rs.getString("activityDescription"));
+                ti.getActivities().add(ta); // thêm vào itinerary tương ứng
+            }
         }
-
-        return info;
+    } catch (SQLException e) {
+        throw new SQLException("Lỗi khi lấy tour mới nhất của userId=" + userId, e);
     }
+
+    return info;
+}
+
+    
     // Lay tat ca lich bay sau khi booking tour trọn gói
 
     public FlightSchedule getFlightScheduleOfTourByUser(int userId) throws SQLException {
@@ -1659,20 +1669,31 @@ public class TourDao extends DBContext {
         try {
             TourDao dao = new TourDao();
       
-              int userId = 4;
-          FlightSchedule schedule = dao.getFlightScheduleOfTourByUser(userId);
+           int testUserId = 4; // <-- đổi userId để test theo dữ liệu thật trong DB
+        
+            TourBookingInfo info = dao.getLatestTourAfterBookingByUser(testUserId);
 
-            if (schedule != null) {
-                System.out.println("Flight Schedule found for user " + userId);
-                System.out.println("Flight Number: " + schedule.getFlight().getFlightNumber());
-                System.out.println("Departure Time: " + schedule.getDepartureTime());
-                System.out.println("Arrival Time: " + schedule.getArrivalTime());
-                System.out.println("Departure Airport: " + schedule.getDepartureAirport());
-                System.out.println("Arrival Airport: " + schedule.getArrivalAirport());
-                System.out.println("Transit Airport: " + schedule.getTransitAirport());
-                System.out.println("Notes: " + schedule.getNotes());
-            } else {
-                System.out.println("No flight schedule found for user " + userId);
+            System.out.println("\n===== THÔNG TIN TOUR MỚI NHẤT CỦA USER ID: " + testUserId + " =====");
+            System.out.println("📌 Tour: " + info.getTour());
+            System.out.println("📅 Booking: " + info.getBooking());
+            System.out.println("🧾 History: " + info.getHistoryBooking());
+
+            System.out.println("\n--- Các dịch vụ đi kèm ---");
+            for (TourService s : info.getTourServices()) {
+                System.out.println("  • " + s);
+            }
+
+            System.out.println("\n--- Lịch trình tour ---");
+            for (TourItinerary ti : info.getTourItineraries()) {
+                System.out.println("Ngày " + ti.getDayNumber() + ": " + ti.getTitle());
+                if (ti.getActivities() != null) {
+                    for (TourActivities act : ti.getActivities()) {
+                        System.out.println("   ↳ " + act.getActivityOrder() + ". " + act.getActivityTitle() 
+                                           + " — " + act.getDescription());
+                    }
+                } else {
+                    System.out.println("   (Không có hoạt động nào)");
+                }
             }
             
         } catch (Exception e) {

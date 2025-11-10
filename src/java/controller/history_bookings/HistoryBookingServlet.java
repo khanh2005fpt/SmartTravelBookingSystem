@@ -120,7 +120,7 @@ public class HistoryBookingServlet extends HttpServlet {
                 request.setAttribute("tour", tourInfo.getTour());
                 request.setAttribute("services", tourInfo.getTourServices());
                 request.setAttribute("itineraries", tourInfo.getTourItineraries());
-                request.setAttribute("activities", tourInfo.getTourActivities());
+                
 
               // Lấy flight của tour trọn gói
                 flightSchedules = tourDao.getFlightScheduleOfTourByUser(userId);

@@ -16,7 +16,7 @@ public class TourBookingInfo {
     private Booking booking;
     private List<TourService> tourServices = new ArrayList<>();
     private List<TourItinerary> tourItineraries = new ArrayList<>();
-    private List<TourActivities> tourActivities = new ArrayList<>();
+    
     private HistoryBooking historyBooking;
 
     public Tour getTour() {
@@ -52,13 +52,6 @@ public class TourBookingInfo {
         this.tourItineraries = tourItineraries;
     }
 
-    public List<TourActivities> getTourActivities() {
-        return tourActivities;
-    }
-
-    public void setTourActivities(List<TourActivities> tourActivities) {
-        this.tourActivities = tourActivities;
-    }
 
     public HistoryBooking getHistoryBooking() {
         return historyBooking;
@@ -79,18 +72,13 @@ public class TourBookingInfo {
         this.tourItineraries.add(ti);
     }
 
-    public void addTourActivity(TourActivities ta) {
-        if (this.tourActivities == null) this.tourActivities = new ArrayList<>();
-        this.tourActivities.add(ta);
-    }
-
     @Override
     public String toString() {
         return "TourBookingInfo{" +
                 "tour=" + tour +
                 ", tourServices=" + tourServices +
                 ", tourItineraries=" + tourItineraries +
-                ", tourActivities=" + tourActivities +
+              
                 ", historyBooking=" + historyBooking +
                 '}';
     }

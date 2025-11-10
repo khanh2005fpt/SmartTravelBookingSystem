@@ -106,6 +106,7 @@ public class VnpayReturn extends HttpServlet {
                     hb.setCustomerEmail(email);
                     hb.setCustomerPhone(phone);
                     hb.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+                    hb.setTourStatus(hb.getTourStatus());
 
                     bookingDao.createHistoryBooking(hb);
                     bill = bookingDao.getBillByHistoryBooking(paymentId);
