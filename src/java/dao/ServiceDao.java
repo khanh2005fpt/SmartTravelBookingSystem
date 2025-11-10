@@ -311,6 +311,19 @@ public class ServiceDao extends DBContext {
         }
     }
 
+    // Kiểm tra hotel đang được sử dụng
+    public boolean isHotelInUse(int hotelId) {
+        try {
+            if (isServiceReferencedInTourServices("HOTEL", hotelId)) {
+                return true;
+            }
+            return isServiceReferencedInCustomTourDetails("Khách sạn", hotelId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
     // Cap nhat so phong con trong
     public boolean updateHotelAvailability(int hotelId, int newAvailability) {
         String sql = "UPDATE Hotels SET roomsAvailable = ? WHERE hotelId = ?";
@@ -1264,6 +1277,55 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Kiểm tra vehicle đang được sử dụng
+    public boolean isVehicleInUse(int vehicleId) {
+        try {
+            if (isServiceReferencedInTourServices("VEHICLE", vehicleId)) {
+                return true;
+            }
+            return isServiceReferencedInCustomTourDetails("Phương tiện", vehicleId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
+    private boolean isServiceReferencedInTourServices(String serviceType, int serviceId) throws SQLException {
+        String sql = """
+            SELECT COUNT(*) 
+            FROM TourServices 
+            WHERE UPPER(serviceType) = ? AND serviceId = ?
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, serviceType.toUpperCase());
+            ps.setInt(2, serviceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isServiceReferencedInCustomTourDetails(String serviceType, int serviceId) throws SQLException {
+        String sql = """
+            SELECT COUNT(*) 
+            FROM CustomTourDetails 
+            WHERE serviceType = ? AND serviceId = ?
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, serviceType);
+            ps.setInt(2, serviceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 
     // Cap nhat tinh trang phuong tien
@@ -2345,6 +2407,19 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // Kiểm tra place đang được sử dụng
+    public boolean isPlaceInUse(int placeId) {
+        try {
+            if (isServiceReferencedInTourServices("PLACE", placeId)) {
+                return true;
+            }
+            return isServiceReferencedInCustomTourDetails("Địa điểm nổi bật", placeId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
     }
 
     // Tim kiem dia diem theo ten

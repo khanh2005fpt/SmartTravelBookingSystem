@@ -828,6 +828,21 @@ public class TourDao extends DBContext {
         return false;
     }
 
+    // Kiểm tra tour có đang được sử dụng (booking/custom tour)
+    public boolean isTourInUse(int tourId) throws SQLException {
+        String bookingSql = "SELECT COUNT(*) FROM Bookings WHERE tourId = ? OR customTourId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(bookingSql)) {
+            ps.setInt(1, tourId);
+            ps.setInt(2, tourId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
     //Kiem tra ten tour co trung khong (cho validation)
     public boolean tourNameExists(String tourName, int excludeTourId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM Tours WHERE tourName = ? AND tourId != ?";

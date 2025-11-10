@@ -139,6 +139,8 @@ public class PlaceStaffServlet extends HttpServlet {
     private void handlePlaceList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            applyPlaceMessages(request);
+
             // Get pagination parameters
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
@@ -434,6 +436,12 @@ public class PlaceStaffServlet extends HttpServlet {
             }
             
             int placeId = Integer.parseInt(placeIdStr);
+
+            if (serviceDao.isPlaceInUse(placeId)) {
+                response.sendRedirect(request.getContextPath() + "/staff/places?error=in_use");
+                return;
+            }
+
             boolean success = serviceDao.deletePlace(placeId);
             
             if (success) {
@@ -569,6 +577,45 @@ public class PlaceStaffServlet extends HttpServlet {
         
         String role = user.getRole();
         return "staff".equals(role) || "admin".equals(role);
+    }
+
+    private void applyPlaceMessages(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object success = session.getAttribute("successMessage");
+            if (success != null) {
+                request.setAttribute("successMessage", success);
+                session.removeAttribute("successMessage");
+            }
+            Object error = session.getAttribute("errorMessage");
+            if (error != null) {
+                request.setAttribute("errorMessage", error);
+                session.removeAttribute("errorMessage");
+            }
+        }
+
+        if (request.getAttribute("successMessage") == null) {
+            String success = request.getParameter("success");
+            if (success != null) {
+                switch (success) {
+                    case "created" -> request.setAttribute("successMessage", "Thêm địa điểm thành công.");
+                    case "updated" -> request.setAttribute("successMessage", "Cập nhật địa điểm thành công.");
+                    case "deleted" -> request.setAttribute("successMessage", "Xóa địa điểm thành công.");
+                }
+            }
+        }
+
+        if (request.getAttribute("errorMessage") == null) {
+            String error = request.getParameter("error");
+            if (error != null) {
+                switch (error) {
+                    case "invalid_id" -> request.setAttribute("errorMessage", "ID địa điểm không hợp lệ.");
+                    case "delete_failed" -> request.setAttribute("errorMessage", "Không thể xóa địa điểm. Vui lòng thử lại.");
+                    case "update_failed" -> request.setAttribute("errorMessage", "Cập nhật địa điểm thất bại.");
+                    case "in_use" -> request.setAttribute("errorMessage", "Không thể xóa địa điểm vì đang được sử dụng trong tour hoặc custom tour.");
+                }
+            }
+        }
     }
 
     /**

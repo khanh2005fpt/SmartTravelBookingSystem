@@ -161,6 +161,49 @@ public class TourStaffServlet extends HttpServlet {
     /**
      * Check if user is authorized as staff
      */
+    private void transferSessionMessages(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return;
+        }
+
+        Object success = session.getAttribute("successMessage");
+        if (success != null) {
+            request.setAttribute("successMessage", success);
+            session.removeAttribute("successMessage");
+        }
+
+        Object error = session.getAttribute("errorMessage");
+        if (error != null) {
+            request.setAttribute("errorMessage", error);
+            session.removeAttribute("errorMessage");
+        }
+    }
+
+    private void applyListFeedbackMessages(HttpServletRequest request) {
+        if (request.getAttribute("successMessage") == null) {
+            String successParam = request.getParameter("success");
+            if (successParam != null) {
+                switch (successParam) {
+                    case "created" -> request.setAttribute("successMessage", "Thêm tour thành công.");
+                    case "updated" -> request.setAttribute("successMessage", "Cập nhật tour thành công.");
+                    case "deleted" -> request.setAttribute("successMessage", "Xóa tour thành công.");
+                }
+            }
+        }
+
+        if (request.getAttribute("errorMessage") == null) {
+            String errorParam = request.getParameter("error");
+            if (errorParam != null) {
+                switch (errorParam) {
+                    case "invalid_id" -> request.setAttribute("errorMessage", "ID tour không hợp lệ.");
+                    case "delete_failed" -> request.setAttribute("errorMessage", "Xóa tour thất bại. Vui lòng thử lại.");
+                    case "in_use" -> request.setAttribute("errorMessage", "Không thể xóa tour vì đang được sử dụng.");
+                }
+            }
+        }
+    }
+
     private boolean isStaffAuthorized(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) {
@@ -182,6 +225,9 @@ public class TourStaffServlet extends HttpServlet {
     private void listTours(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         
+        transferSessionMessages(request);
+        applyListFeedbackMessages(request);
+
         // Get pagination parameters
         String pageParam = request.getParameter("page");
         String pageSizeParam = request.getParameter("pageSize");
@@ -250,6 +296,8 @@ public class TourStaffServlet extends HttpServlet {
     private void viewTour(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         
+        transferSessionMessages(request);
+
         String tourIdStr = request.getParameter("id");
         if (tourIdStr == null || tourIdStr.trim().isEmpty()) {
             request.setAttribute("error", "ID tour là bắt buộc");
@@ -473,7 +521,7 @@ public class TourStaffServlet extends HttpServlet {
             }
 
             if (success) {
-                request.setAttribute("success", "Cập nhật tour thành công");
+                request.getSession().setAttribute("successMessage", "Cập nhật tour thành công");
                 response.sendRedirect(request.getContextPath() + "/staff/tours?action=view&id=" + tourId);
             } else {
                 request.setAttribute("error", "Cập nhật tour thất bại");
@@ -530,6 +578,12 @@ public class TourStaffServlet extends HttpServlet {
             // Check if tour exists
             if (!tourDao.tourExists(tourId)) {
                 request.setAttribute("error", "Không tìm thấy tour");
+                listTours(request, response);
+                return;
+            }
+
+            if (tourDao.isTourInUse(tourId)) {
+                request.setAttribute("errorMessage", "Không thể xóa tour vì đang được sử dụng trong các booking hiện có.");
                 listTours(request, response);
                 return;
             }
@@ -857,14 +911,16 @@ public class TourStaffServlet extends HttpServlet {
                             tourImageUrl = "UploadData/Tours/" + uniqueName;
                         } catch (IOException e) {
                             request.setAttribute("error", "Lỗi khi tải lên hình ảnh: " + e.getMessage());
-                            editTour(request, response);
+                            // Load edit form with current data to preserve user input
+                            loadEditTourData(request, response, tourId);
                             return;
                         }
                     }
                     
                     // Validation
                     if (!validateTourInput(tourIdStr, tourName, description, priceStr, islandIdStr, request)) {
-                        editTour(request, response);
+                        // Load edit form with current data to preserve user input
+                        loadEditTourData(request, response, tourId);
                         return;
                     }
                     
@@ -874,7 +930,8 @@ public class TourStaffServlet extends HttpServlet {
                     // Check if tour name already exists (excluding current tour)
                     if (tourDao.tourNameExists(tourName, tourId)) {
                         request.setAttribute("error", "Tên tour đã tồn tại");
-                        editTour(request, response);
+                        // Load edit form with current data to preserve user input
+                        loadEditTourData(request, response, tourId);
                         return;
                     }
                     
@@ -928,12 +985,18 @@ public class TourStaffServlet extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/staff/tours?action=view&id=" + tourId);
                     } else {
                         request.setAttribute("error", "Cập nhật tour thất bại");
-                        editTour(request, response);
+                        // Load edit form with current data to preserve user input
+                        loadEditTourData(request, response, tourId);
                     }
                     
                 } catch (NumberFormatException e) {
                     request.setAttribute("error", "Dữ liệu không hợp lệ");
-                    editTour(request, response);
+                    try {
+                        int tourId = Integer.parseInt(tourIdStr);
+                        loadEditTourData(request, response, tourId);
+                    } catch (Exception ex) {
+                        listTours(request, response);
+                    }
                 }
 
             } else {
