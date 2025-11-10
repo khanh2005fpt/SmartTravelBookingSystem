@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 
 <html lang="vi">
@@ -84,6 +84,23 @@
 
 
         </style>
+        
+          <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 3) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
+        
 
         <!-- Welcome Modal -->
         <div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true">
@@ -137,7 +154,7 @@
             <div class="container">
                 <div class="row no-gutters slider-text js-fullheight align-items-center" data-scrollax-parent="true">
                     <div class="col-md-7 ftco-animate">
-                        <span class="subheading">Chào mừng đến với Meland</span>
+                        <span class="subheading">Chào mừng đến với Meland Travel</span>
                         <h1 class="mb-4">Khám phá điểm đến yêu thích của bạn cùng chúng tôi</h1>
                         <p class="caps">Du lịch đến bất kỳ nơi nào trên thế giới, mà không cần phải đi vòng quanh</p>
                     </div>

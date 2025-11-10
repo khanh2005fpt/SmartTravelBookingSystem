@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nfs://netbeans/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
@@ -73,19 +74,21 @@ public class UploadAvatarServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
+      request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
      // Kiểm tra session
-    HttpSession session = request.getSession(false);
-    if (session == null || session.getAttribute("profile_customer") == null) {
-        session.setAttribute("errorMessage", "Vui lòng đăng nhập để thay đổi avatar.");
-        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-        return;
-    }
+  HttpSession session = request.getSession();
+if (session == null || session.getAttribute("profile_customer") == null) {
+      session.setAttribute("errorMess", "Tài khoản này chưa có profile, vui lòng đăng ký!");
+    response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+    return;
+}
+System.out.println("Session ID: " + session.getId());
+System.out.println("Profile in session: " + session.getAttribute("profile_customer"));
 
     // Lấy profile từ session
     CustomerProfile profile = (CustomerProfile) session.getAttribute("profile_customer");
@@ -155,7 +158,8 @@ public class UploadAvatarServlet extends HttpServlet {
 
     // Cập nhật database
     try {
-        customerDao.updateProfilePicture(profile.getUserId(), avatar);
+      boolean updated = customerDao.updateProfilePicture(profile.getUserId(), avatar);
+        System.out.println("DB update result: " + updated); // ← Bạn thấy in ra false?
     } catch (Exception e) {
         // Xóa file vừa tải lên nếu cập nhật database thất bại
         if (filePart != null && filePart.getSize() > 0) {

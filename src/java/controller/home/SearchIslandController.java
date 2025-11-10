@@ -93,7 +93,6 @@ public class SearchIslandController extends HttpServlet {
         int totalIslands = 0;
         try {
             totalIslands = id.getTotalIslands(); // Lay tong so dao
-
         } catch (SQLException ex) {
             Logger.getLogger(SearchIslandController.class.getName()).log(Level.SEVERE, null, ex);
         }

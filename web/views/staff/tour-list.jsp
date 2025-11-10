@@ -11,7 +11,7 @@
 <%@ page import="model.Flight" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -35,7 +35,8 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(180deg, #0077b6, #00b4d8);
+
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -134,6 +135,14 @@
             text-decoration: none;
             transition: all 0.3s ease;
         }
+        .btn-search{
+          background-color: #00ACD4; 
+            color: white;
+        }
+        .btn-search:hover{
+             background-color: #007CB9; 
+             color: white;
+        }
         
         .btn-view {
             background: #17a2b8;
@@ -172,6 +181,7 @@
             background: #dc3545;
             color: white;
         }
+        
         
         .btn-delete:hover {
             background: #c82333;
@@ -213,18 +223,21 @@
         }
         
         .status-pending {
-            background: #ffc107;
-            color: #212529;
+           background: #00ACD4;  
+        color: #ffffff;
+        font-size: 12px;
         }
         
         .status-approved {
-            background: #28a745;
-            color: white;
+           background: #27ae60;  
+    color: #ffffff;
+    font-size: 12px;
         }
         
         .status-rejected {
-            background: #dc3545;
-            color: white;
+          background: #c0392b;  
+    color: #ffffff;
+            font-size: 12px;
         }
         
         .tour-card {
@@ -302,6 +315,26 @@
         }
     </style>
 </head>
+
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -343,7 +376,7 @@
                         <input type="text" name="search" class="form-control" 
                                placeholder="Tìm kiếm tour theo tên..." 
                                value="${param.search}" style="border-radius: 8px;">
-                        <button type="submit" class="btn btn-primary ml-2" style="border-radius: 8px;">
+                        <button type="submit" class="btn btn-search ml-2" style="border-radius: 8px;">
                             <i class="fa fa-search"></i> Tìm kiếm
                         </button>
                     </form>

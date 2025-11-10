@@ -9,7 +9,7 @@
 <%@ page import="model.Place" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -39,7 +39,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -72,13 +72,13 @@
         }
         
         .breadcrumb-item a {
-            color: #667eea;
+            color: #00ACD4;
             text-decoration: none;
             font-weight: 500;
         }
         
         .breadcrumb-item a:hover {
-            color: #764ba2;
+            color: #007CB9;
             text-decoration: underline;
         }
         
@@ -296,7 +296,7 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         
@@ -373,6 +373,25 @@
         }
     </style>
 </head>
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -402,7 +421,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="${pageContext.request.contextPath}/staff/dashboard">
+                        <a href="${pageContext.request.contextPath}/views/staff/index.jsp">
                             <i class="fa fa-home"></i> Trang chủ
                         </a>
                     </li>
@@ -571,6 +590,45 @@
                         </div>
                     </div>
 
+                    <!-- Image Upload Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fa fa-image"></i> Hình ảnh địa điểm
+                        </h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="placeImageFile" class="form-label">
+                                    Tải lên hình ảnh địa điểm
+                                </label>
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="placeImageFile" 
+                                       name="placeImageFile" 
+                                       accept="image/*"
+                                       onchange="previewImage(this, 'placeImagePreview')">
+                                <div class="form-text">Chọn file hình ảnh (JPG, PNG, GIF). Tối đa 10MB</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Xem trước</label>
+                                <div class="image-preview-container">
+                                    <img id="placeImagePreview" 
+                                         src="${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty() ? pageContext.request.contextPath.concat('/').concat(place.placeImageUrl) : ''}" 
+                                         alt="Preview" 
+                                         class="preview-image"
+                                         style="display: ${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty() ? 'block' : 'none'};">
+                                    <div id="noPlaceImageText" style="display: ${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty() ? 'none' : 'block'}; color: #6c757d; font-style: italic;">
+                                        Chưa có hình ảnh
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden field to store current image URL for edit mode -->
+                        <c:if test="${place != null && place.placeImageUrl != null && !place.placeImageUrl.isEmpty()}">
+                            <input type="hidden" name="currentImageUrl" value="${place.placeImageUrl}">
+                        </c:if>
+                    </div>
 
                 </div>
 
@@ -680,6 +738,25 @@
                 }
             });
         });
+
+        // Image preview function
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(previewId);
+                    const noImageText = document.getElementById('noPlaceImageText');
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    if (noImageText) {
+                        noImageText.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
 </body>
 </html>

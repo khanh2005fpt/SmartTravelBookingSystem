@@ -12,7 +12,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -36,7 +36,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -84,8 +84,8 @@
         
         .tab-item.active {
             background: white;
-            border-bottom-color: #667eea;
-            color: #667eea;
+            border-bottom-color: #00ACD4;
+            color: #007CB9;
         }
         
         .tab-content {
@@ -136,12 +136,12 @@
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #00ACD4;
         }
         
         .activity-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
@@ -172,7 +172,7 @@
         }
         
         .btn-add-activity {
-            background: #667eea;
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             border: none;
             padding: 8px 15px;
@@ -187,6 +187,24 @@
             padding: 5px 10px;
             border-radius: 4px;
             font-size: 0.8em;
+        }
+        .breadcrumb {
+            margin: 0;
+            background: none;
+            padding: 10px;
+        }
+        
+        .breadcrumb-item a {
+            color: #00ACD4;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb-item.active {
+            color: #6c757d;
         }
         
         /* Management tab specific styles */
@@ -209,7 +227,7 @@
         }
 
         .day-actions .btn-warning {
-            background: #f6ad55;
+       background: linear-gradient(180deg, #f59e0b, #fbbf24);;
             color: white;
         }
 
@@ -218,7 +236,7 @@
         }
 
         .day-actions .btn-danger {
-            background: #fc8181;
+            background: linear-gradient(180deg, #c0392b, #e74c3c);
             color: white;
         }
 
@@ -234,7 +252,24 @@
             display: flex;
             gap: 5px;
         }
-
+        .btn-tourList{
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
+              color: white;
+              padding: 8px 16px;
+    border-radius: 8px;
+        }
+        .btn-saveItinerary{
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
+              color: white;
+              padding: 8px 16px;
+    border-radius: 8px;
+        }
+        .btn-addActivity{
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
+              color: white;
+              padding: 8px 16px;
+    border-radius: 8px;
+        }
         .activity-actions .btn-xs {
             padding: 3px 8px;
             font-size: 11px;
@@ -244,7 +279,8 @@
         }
 
         .activity-actions .btn-info {
-            background: #63b3ed;
+               background: linear-gradient(180deg, #0077b6, #00b4d8);
+
             color: white;
         }
 
@@ -313,7 +349,25 @@
         }
     </style>
 </head>
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
 
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include sidebar -->
     <jsp:include page="sidebar.jsp" />
@@ -329,7 +383,7 @@
         <nav class="breadcrumb-nav">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="${pageContext.request.contextPath}/staff/dashboard">
+                    <a href="${pageContext.request.contextPath}/views/staff/index.jsp">
                         <i class="fa fa-home"></i> Dashboard
                     </a>
                 </li>
@@ -450,7 +504,7 @@
                         </div>
                         
                         <div class="text-center">
-                            <button type="submit" class="btn btn-success btn-lg">
+                            <button type="submit" class="btn btn-saveItinerary btn-lg">
                                 <i class="fa fa-save"></i> Lưu lịch trình
                             </button>
                             <button type="button" class="btn btn-secondary btn-lg ml-3" onclick="switchTab('overview')">
@@ -512,7 +566,7 @@
                                             </c:if>
                                             
                                             <div class="day-footer">
-                                                <button class="btn btn-sm btn-success" onclick="addActivityToDay(${itinerary.itineraryId})">
+                                                <button class="btn btn-sm btn-addActivity" onclick="addActivityToDay(${itinerary.itineraryId})">
                                                     <i class="fa fa-plus"></i> Thêm hoạt động
                                                 </button>
                                             </div>
@@ -549,7 +603,7 @@
                 <i class="fa fa-arrow-left"></i> Quay lại chi tiết tour
             </a>
             <a href="${pageContext.request.contextPath}/staff/tours?action=list" 
-               class="btn btn-primary ml-3">
+               class="btn btn-tourList ml-3">
                 <i class="fa fa-list"></i> Danh sách tour
             </a>
         </div>

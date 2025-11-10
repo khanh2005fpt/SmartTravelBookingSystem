@@ -4,7 +4,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -28,7 +28,7 @@
             }
 
             .page-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 padding: 30px;
                 border-radius: 15px;
@@ -325,6 +325,26 @@
             }
         </style>
     </head>
+    
+             <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="sidebar.jsp">
@@ -335,7 +355,7 @@
             <!-- Page Header -->
             <div class="page-header">
                 <h1>
-                    <i class="fa fa-utensils"></i> 
+                    <i class="fa fa-plane"></i>
                     ${empty  flight ? 'Thêm thông tin vé máy bay' : 'Chỉnh sửa thông tin vé máy bay '}
                 </h1>
                 <p>${empty flight ? 'Thêm những vé máy bay mới trong hệ thống' : 'Cập nhật thông tin vé máy bay'}</p>
@@ -415,7 +435,7 @@
                                         </c:if>
                                     </div>
 
-                                    <!-- input ẩn để lưu iataCode -->
+                                    <!-- input ẩn để lưu và gửi iataCode -->
                                     <input type="hidden" id="flightNumber" name="flightNumber"/>
 
 
@@ -447,14 +467,14 @@
                                                    class="form-control" 
                                                    id="departure" 
                                                    name="departure" 
-                                                   value="${flight.departure}"
+                                                   value="${flight !=null ? flight.departure:param.departure }"
                                                    placeholder="Nhập nơi khởi hành ...">
 
                                             <!-- hien thi loi khi validate o ben server -->  
                                             <c:if test="${not empty errorDeparture}">
                                                 <div class="invalid-feedback">${errorDeparture}</div>
                                             </c:if>
-                                            <div class="form-text">Khởi hành tại 2 thành phố lớn Việt Nam</div>
+                                            <div class="form-text"><i class="fa fa-map-pin"></i> Khởi hành tại 2 thành phố lớn ở Việt Nam </div> 
                                         </div>
                                         <div class="form-group">
                                             <label for="ticketAvailable">Số vé còn lại <span class="required">*</span></label>
@@ -506,7 +526,7 @@
                                             <c:if test="${not empty errorBasePrice}">
                                                 <div class="invalid-feedback">${errorBasePrice}</div>
                                             </c:if>
-                                            <div class="form-text">Giá tính bằng VNĐ, phải là số không âm và lớn hơn 0</div>
+                                            <div class="form-text"><i class="fa fa-money" aria-hidden="true"></i> Giá tính bằng VNĐ, phải là số không âm và lớn hơn 0</div>
                                         </div>
 
 
@@ -644,16 +664,22 @@
 
                     // ----- Validate departure -----
                     const departure = $('#departure').val().trim();
-                    const depNormalized = removeVietnameseTones(departure).toLowerCase();
-                    const validDepartures = ['ha noi', 'tp ho chi minh', 'ho chi minh'];
+                    const validDepartures = [
+                        'Hà Nội',
+                        'Ha Noi',
+                        'TP Hồ Chí Minh',
+                        'TP Ho Chi Minh'
+                    ];
 
                     if (!departure) {
                         showFieldError('#departure', 'Xin vui lòng nhập nơi khởi hành');
                         isValid = false;
-                    } else if (!validDepartures.includes(depNormalized)) {
-                        showFieldError('#departure', 'Chỉ chấp nhận 2 thành phố Hà Nội hoặc Tp Hồ Chí Minh (phải có khoảng cách rõ ràng)');
+                    } else if (!validDepartures.includes(departure)) {
+                        showFieldError('#departure', 'Chỉ chấp nhận: Hà Nội, Ha Noi, TP Hồ Chí Minh hoặc Tp Ho Chi Minh');
                         isValid = false;
                     }
+
+
                     // ----- Validate islandId-----
                     const destinationIslandId = $('#destinationIslandId').val();
                     if (!destinationIslandId) {

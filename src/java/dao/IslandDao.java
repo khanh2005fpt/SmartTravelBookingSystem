@@ -18,6 +18,8 @@ import model.Country;
  * @author Admin
  */
 public class IslandDao extends DBContext {
+    
+       public static IslandDao INSTANCE = new IslandDao();
 
     public List<Country> getAllCountries() throws SQLException {
         List<Country> list = new ArrayList<>();

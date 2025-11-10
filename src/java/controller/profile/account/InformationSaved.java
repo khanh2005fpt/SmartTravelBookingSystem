@@ -90,8 +90,9 @@ public class InformationSaved extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
     }
-
-    Integer userId = user.getUserId(); 
+    try{
+        
+          Integer userId = user.getUserId(); 
     
     String fullName = request.getParameter("fullname"); 
     String dobDate = request.getParameter("dob");
@@ -107,17 +108,24 @@ public class InformationSaved extends HttpServlet {
                  return;
          }
          
+         // Kiểm tra ngày sinh không được là tương lai
+if (dob != null && dob.isAfter(LocalDate.now())) {
+    session.setAttribute("errorMess", "Lỗi nhập ngày sinh!");
+    response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
+    return;
+}
+         
   
 
     //  Kiểm tra dữ liệu có thay đổi không
-    if (!customerDao.isProfileChanged(userId, fullName, dob, gender, Address)) {
-        session.setAttribute("errorMess", "Thông tin không có thay đổi nào để lưu.");
-       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-        return;
-    }
+  if (!customerDao.isProfileChanged(userId, fullName, dob, gender, Address)) {
+    session.setAttribute("errorMess", "Thông tin bạn nhập trùng với dữ liệu hiện tại — không cần lưu lại.");
+    response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
+    return;
+}
 
     //  Nếu có thay đổi → update
-    customerDao.updateInformation(userId, fullName, dob, gender, Address, null, 0, CustomerProfile.MembershipLevel.BRONZE);
+    customerDao.updateProfileInfo(userId, fullName, dob, gender, Address);
      request.setAttribute("fullname", fullName);
      //format date
      if (dob != null) {
@@ -130,6 +138,14 @@ public class InformationSaved extends HttpServlet {
     request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
     return;
        
+        
+        
+    } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(500, "Lỗi hệ thống");
+        }
+
+  
     }
 
     /** 

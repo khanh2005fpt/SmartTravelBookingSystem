@@ -23,7 +23,8 @@ public class Flight {
     private String flightType;           
     private String flightClass;        
     private String destinationImageUrl;
-
+    private boolean hasSchedule = false; 
+    
     public Flight() {
     }
 
@@ -129,12 +130,19 @@ public class Flight {
         this.destinationImageUrl = destinationImageUrl;
     }
 
-    @Override
-    public String toString() {
-        return "Flight{" + "flightId=" + flightId + ", flightNumber=" + flightNumber + ", airline=" + airline + ", departure=" + departure + ", destination=" + destination + ", destinationIsland=" + destinationIsland + ", basePrice=" + basePrice + ", ticketAvailable=" + ticketAvailable + ", flightType=" + flightType + ", flightClass=" + flightClass + ", destinationImageUrl=" + destinationImageUrl + '}';
+    public boolean isHasSchedule() {
+        return hasSchedule;
     }
 
-  
+    public void setHasSchedule(boolean hasSchedule) {
+        this.hasSchedule = hasSchedule;
+    }
+
+    @Override
+    public String toString() {
+        return "Flight{" + "flightId=" + flightId + ", flightNumber=" + flightNumber + ", airline=" + airline + ", departure=" + departure + ", destination=" + destination + ", destinationIsland=" + destinationIsland + ", basePrice=" + basePrice + ", ticketAvailable=" + ticketAvailable + ", flightType=" + flightType + ", flightClass=" + flightClass + ", destinationImageUrl=" + destinationImageUrl + ", hasSchedule=" + hasSchedule + '}';
+    }
+
     
-    
+   
 }

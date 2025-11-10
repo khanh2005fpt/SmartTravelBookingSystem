@@ -61,6 +61,8 @@
                         </script>
                         <% session.removeAttribute("errorMess"); %>
                         <% } %>
+                        
+                        
                <!-- Thông báo lỗi gui email thanh cong -->           
   <% String success = (String) session.getAttribute("successMessage"); %>
                         <% if (success != null) { %>
@@ -95,9 +97,9 @@
 
                             <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
                                 <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" name="remember" id="remember" 
-                   ${rememberedUser != null ? 'checked' : ''}>
-            <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember " required=""
+                                    ${rememberedUser != null ? 'checked' : ''}>
+                            <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
                                 </div>
                                 <a href="#" class="forgot-pass text-primary" data-toggle="modal" data-target="#forgetModal"> Quên mật khẩu?</a>
                             </div>
@@ -121,7 +123,7 @@
 
                             <div class="text-center">
                                 <p>Chưa có tài khoản? 
-                                    <a href="register.jsp" class="fw-bold text-primary">Đăng ký ngay</a>
+                                    <a href="${pageContext.request.contextPath}/register" class="fw-bold text-primary">Đăng ký ngay</a>
                                 </p>
                             </div>
                         </form>

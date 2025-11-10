@@ -50,12 +50,10 @@ public class ajaxServlet extends HttpServlet {
         Date departureDate = Date.valueOf(request.getParameter("departureDate"));
         int adultQty = Integer.parseInt(request.getParameter("adultQuantity"));
         int childQty = Integer.parseInt(request.getParameter("childQuantity"));
-        
-        
         HttpSession session = request.getSession();
-        session.setAttribute("fullname", fullName);
-        session.setAttribute("email", email);
-        session.setAttribute("phone", phone);
+        session.setAttribute("fullname", request.getParameter("fullname"));
+        session.setAttribute("email", request.getParameter("email"));
+        session.setAttribute("phone", request.getParameter("phone"));
         User user = (User) session.getAttribute("user");
 
         if (user == null) {
@@ -64,7 +62,7 @@ public class ajaxServlet extends HttpServlet {
         }
 
         int customerId = user.getUserId();
-        //System.out.println("customerId" + customerId);
+        System.out.println("customerId" + customerId);
         String tourIdParam = request.getParameter("tourId");
         String customTourIdParam = request.getParameter("customTourId");
 
@@ -78,7 +76,7 @@ public class ajaxServlet extends HttpServlet {
         if (customTourIdParam != null && !customTourIdParam.trim().isEmpty()) {
             customTourId = Integer.parseInt(customTourIdParam);
         }
-        //System.out.println(tourId);
+        System.out.println(tourId);
         String totalBill = request.getParameter("totalBill"); // số tiền tổng tour
         long amountLong = (long) (Double.parseDouble(totalBill) * 100); //số tiền hiển thị trong lúc thanh toán
 

@@ -12,7 +12,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -36,7 +36,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -144,14 +144,14 @@
         }
         
         .btn-primary-form {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         
         .btn-primary-form:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            color: white;
+              background: #00ACD4;
+      color: white;
             text-decoration: none;
         }
         
@@ -301,6 +301,25 @@
         }
     </style>
 </head>
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -438,6 +457,26 @@
                                     <div class="invalid-feedback">${errors.price}</div>
                                 </c:if>
                                 <div class="form-text">Giá tính bằng VNĐ, phải là số không âm</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="availableQuantity" class="form-label">
+                                    Số lượng tour còn lại <span class="required">*</span>
+                                </label>
+                                <input type="number" 
+                                       class="form-control ${not empty errors.availableQuantity ? 'is-invalid' : ''}" 
+                                       id="availableQuantity" 
+                                       name="availableQuantity" 
+                                       value="${tour != null ? tour.availableQuantity : param.availableQuantity}"
+                                       placeholder="0"
+                                       min="0"
+                                       required>
+                                <c:if test="${not empty errors.availableQuantity}">
+                                    <div class="invalid-feedback">${errors.availableQuantity}</div>
+                                </c:if>
+                                <div class="form-text">Số lượng tour còn lại có thể đặt</div>
                             </div>
                         </div>
                     </div>
@@ -600,6 +639,18 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Flights (Vé máy bay) -->
+                        <div class="col-md-6 mb-4">
+                            <div class="service-category">
+                                <h5><i class="fa fa-plane text-primary"></i> Vé máy bay</h5>
+                                <div class="service-list" id="flightList">
+                                    <div class="no-services">
+                                        <i class="fa fa-info-circle"></i> Chưa có vé máy bay nào. Vui lòng chọn đảo trước.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="alert alert-info">
@@ -627,6 +678,27 @@
     <jsp:include page="../common/script.jsp" />
 
     <script>
+        // Build selected services map from currentServices (for edit mode)
+        var selectedServicesMap = {};
+        <c:if test="${not empty currentServices}">
+            <c:forEach var="service" items="${currentServices}">
+                <c:choose>
+                    <c:when test="${service.serviceType == 'Hotel'}">
+                        selectedServicesMap['hotel_' + ${service.serviceId}] = true;
+                    </c:when>
+                    <c:when test="${service.serviceType == 'Place'}">
+                        selectedServicesMap['place_' + ${service.serviceId}] = true;
+                    </c:when>
+                    <c:when test="${service.serviceType == 'Vehicle'}">
+                        selectedServicesMap['vehicle_' + ${service.serviceId}] = true;
+                    </c:when>
+                    <c:when test="${service.serviceType == 'FLIGHT' || service.serviceType == 'AIRLINE'}">
+                        selectedServicesMap['flight_' + ${service.serviceId}] = true;
+                    </c:when>
+                </c:choose>
+            </c:forEach>
+        </c:if>
+        
         $(document).ready(function() {
             // Form validation
             $('#tourForm').on('submit', function(e) {
@@ -829,6 +901,7 @@
             $('#restaurantList').html(loadingHtml);
             $('#placeList').html(loadingHtml);
             $('#vehicleList').html(loadingHtml);
+            $('#flightList').html(loadingHtml);
         }
         
         // Clear all service lists
@@ -838,62 +911,84 @@
             $('#restaurantList').html(noServiceHtml.replace('dịch vụ', 'nhà hàng'));
             $('#placeList').html(noServiceHtml.replace('dịch vụ', 'địa điểm'));
             $('#vehicleList').html(noServiceHtml.replace('dịch vụ', 'phương tiện'));
+            $('#flightList').html(noServiceHtml.replace('dịch vụ', 'vé máy bay'));
         }
         
         // Update service lists with data
         function updateServiceLists(data) {
             // Update hotels
             updateServiceList('hotelList', data.hotels, 'hotel', function(hotel) {
-                return `
-                    <div class="service-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="selectedServices" 
-                                   value="hotel_\${hotel.id}" id="hotel_\${hotel.id}">
-                            <label class="form-check-label" for="hotel_\${hotel.id}">
-                                <strong>\${hotel.name}</strong>
-                                <br><small class="text-muted">\${hotel.address ? hotel.address : ''}</small>
-                                <br><span class="badge badge-success">\${hotel.price ? hotel.price : 0} VNĐ/đêm</span>
-                            </label>
-                        </div>
-                    </div>
-                `;
+                var checked = selectedServicesMap['hotel_' + hotel.id] ? 'checked' : '';
+                var html = '<div class="service-item">';
+                html += '<div class="form-check">';
+                html += '<input class="form-check-input" type="checkbox" name="selectedServices" ';
+                html += 'value="hotel_' + hotel.id + '" id="hotel_' + hotel.id + '" ' + checked + '>';
+                html += '<label class="form-check-label" for="hotel_' + hotel.id + '">';
+                html += '<strong>' + (hotel.name || '') + '</strong>';
+                html += '<br><small class="text-muted">' + (hotel.address || '') + '</small>';
+                html += '<br><span class="badge badge-success">' + (hotel.price || 0) + ' VNĐ/đêm</span>';
+                html += '</label>';
+                html += '</div>';
+                html += '</div>';
+                return html;
             }, 'khách sạn');
             
 
             
             // Update places
             updateServiceList('placeList', data.places, 'place', function(place) {
-                return `
-                    <div class="service-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="selectedServices" 
-                                   value="place_\${place.id}" id="place_\${place.id}">
-                            <label class="form-check-label" for="place_\${place.id}">
-                                <strong>\${place.name}</strong>
-                                <br><small class="text-muted">\${place.address ? place.address : ''}</small>
-                                <br><span class="badge badge-info">\${place.category ? place.category : ''}</span>
-                            </label>
-                        </div>
-                    </div>
-                `;
+                var checked = selectedServicesMap['place_' + place.id] ? 'checked' : '';
+                var html = '<div class="service-item">';
+                html += '<div class="form-check">';
+                html += '<input class="form-check-input" type="checkbox" name="selectedServices" ';
+                html += 'value="place_' + place.id + '" id="place_' + place.id + '" ' + checked + '>';
+                html += '<label class="form-check-label" for="place_' + place.id + '">';
+                html += '<strong>' + (place.name || '') + '</strong>';
+                html += '<br><small class="text-muted">' + (place.address || '') + '</small>';
+                html += '<br><span class="badge badge-info">' + (place.category || '') + '</span>';
+                html += '</label>';
+                html += '</div>';
+                html += '</div>';
+                return html;
             }, 'địa điểm');
             
             // Update vehicles
             updateServiceList('vehicleList', data.vehicles, 'vehicle', function(vehicle) {
-                return `
-                    <div class="service-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="selectedServices" 
-                                   value="vehicle_\${vehicle.id}" id="vehicle_\${vehicle.id}">
-                            <label class="form-check-label" for="vehicle_\${vehicle.id}">
-                                <strong>\${vehicle.name}</strong>
-                                <br><small class="text-muted">\${vehicle.type ? vehicle.type : ''}</small>
-                                <br><span class="badge badge-danger">\${vehicle.price ? vehicle.price : 0} VNĐ/ngày</span>
-                            </label>
-                        </div>
-                    </div>
-                `;
+                var checked = selectedServicesMap['vehicle_' + vehicle.id] ? 'checked' : '';
+                var html = '<div class="service-item">';
+                html += '<div class="form-check">';
+                html += '<input class="form-check-input" type="checkbox" name="selectedServices" ';
+                html += 'value="vehicle_' + vehicle.id + '" id="vehicle_' + vehicle.id + '" ' + checked + '>';
+                html += '<label class="form-check-label" for="vehicle_' + vehicle.id + '">';
+                html += '<strong>' + (vehicle.name || '') + '</strong>';
+                html += '<br><small class="text-muted">' + (vehicle.type || '') + '</small>';
+                html += '<br><span class="badge badge-danger">' + (vehicle.price || 0) + ' VNĐ/ngày</span>';
+                html += '</label>';
+                html += '</div>';
+                html += '</div>';
+                return html;
             }, 'phương tiện');
+
+            // Update flights (Vé máy bay)
+            updateServiceList('flightList', data.flights, 'flight', function(flight) {
+                var checked = selectedServicesMap['flight_' + flight.id] ? 'checked' : '';
+                var html = '<div class="service-item">';
+                html += '<div class="form-check">';
+                html += '<input class="form-check-input" type="checkbox" name="selectedServices" ';
+                html += 'value="flight_' + flight.id + '" id="flight_' + flight.id + '" ' + checked + '>';
+                html += '<label class="form-check-label" for="flight_' + flight.id + '">';
+                html += '<strong>' + (flight.name || '') + '</strong>';
+                if (flight.description) {
+                    html += '<br><small class="text-muted">' + flight.description + '</small>';
+                }
+                if (flight.price) {
+                    html += '<br><small class="text-success">' + formatCurrency(flight.price) + '</small>';
+                }
+                html += '</label>';
+                html += '</div>';
+                html += '</div>';
+                return html;
+            }, 'vé máy bay');
         }
         
         // Helper function to update individual service list
@@ -909,6 +1004,12 @@
             } else {
                 listElement.html(`<div class="no-services"><i class="fa fa-info-circle"></i> Chưa có ${serviceName} nào.</div>`);
             }
+        }
+        
+        // Helper function to format currency (VNĐ)
+        function formatCurrency(amount) {
+            if (!amount && amount !== 0) return '0 ₫';
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' ₫';
         }
     </script>
 </body>

@@ -1,36 +1,103 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Service_TermsPage</title>
-         <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/service_term_style.css">
-         <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Arizonia&display=swap" rel="stylesheet">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Service Terms Page</title>
+    <%@ include file="/views/common/css.jsp" %>
+    <style>
+        /* Header ảnh responsive */
+        header {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            height: 300px; /* Có thể điều chỉnh */
+        }
 
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        header img#headerImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Giữ tỉ lệ ảnh, cover toàn bộ khung */
+            display: block;
+        }
 
-        <link rel="stylesheet" href="css/animate.css">
+        header .header-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
 
-        <link rel="stylesheet" href="css/owl.carousel.min.css">
-        <link rel="stylesheet" href="css/owl.theme.default.min.css">
-        <link rel="stylesheet" href="css/magnific-popup.css">
+        /* Main content */
+        main.container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+        main.container h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1E90FF; /* màu xanh nổi bật */
+    text-align: center;
+    margin-bottom: 2rem;
+}
 
-        <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-        <link rel="stylesheet" href="css/jquery.timepicker.css">
+/* H2 trong main hơi nổi hơn */
+main.container h2 {
+    color: #FF4500; /* cam đỏ nổi bật */
+    margin-top: 1.5rem;
+}
 
+        main h1, main h2, main p, main ul {
+            margin-bottom: 1rem;
+        }
 
-        <link rel="stylesheet" href="css/flaticon.css">
-    
-         
-          <link rel="stylesheet" href="${pageContext.request.contextPath}/views/home/css/style.css">
-    </head>
-    <body  class="service-page"  >
-       <%@ include file="/views/common/navbar.jsp" %>
-        <!-- KẾT THÚC nav -->
-          <header>
+        main ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-info p {
+            margin: 0.3rem 0;
+        }
+
+        /* Responsive cho mobile */
+        @media (max-width: 768px) {
+            header {
+                height: 200px;
+            }
+            header .header-overlay {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<%
+User currentUser = (User) session.getAttribute("user");
+
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 3) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
+
+<body class="service-page">
+    <%@ include file="/views/common/navbar.jsp" %>
+
+    <header>
         <img id="headerImage" src="${pageContext.request.contextPath}/views/home/images/Servie_Term_Pic.jpg"
              alt="Smart Island Travel Banner">
         <div class="header-overlay">
@@ -38,9 +105,9 @@
         </div>
     </header>
 
-    <main >
+    <main class="container">
         <h1>Điều khoản Dịch vụ</h1>
-        
+
         <h2>1. Giới thiệu</h2>
         <p>Chào mừng bạn đến với <strong>Smart Island Travel Booking System</strong> ("Hệ thống"). Bằng việc sử dụng dịch vụ của chúng tôi, bạn đồng ý tuân thủ các điều khoản dưới đây.</p>
 
@@ -96,24 +163,15 @@
         </div>
     </main>
 
-        <%@ include file="/views/common/footer.jsp" %>
+    <%@ include file="/views/common/footer.jsp" %>
 
-<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+    <div id="ftco-loader" class="show fullscreen">
+        <svg class="circular" width="48px" height="48px">
+            <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
+            <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/>
+        </svg>
+    </div>
 
-<script src="js/jquery.min.js"></script>
-<script src="js/jquery-migrate-3.0.1.min.js"></script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/jquery.easing.1.3.js"></script>
-<script src="js/jquery.waypoints.min.js"></script>
-<script src="js/jquery.stellar.min.js"></script>
-<script src="js/owl.carousel.min.js"></script>
-<script src="js/jquery.magnific-popup.min.js"></script>
-<script src="js/jquery.animateNumber.min.js"></script>
-<script src="js/bootstrap-datepicker.js"></script>
-<script src="js/scrollax.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
-<script src="js/google-map.js"></script>
-<script src="js/main.js"></script>
-    </body>
+    <%@ include file="/views/common/script.jsp" %>
+</body>
 </html>

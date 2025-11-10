@@ -18,9 +18,9 @@ public class Place {
     private int ticketPrice;
     
     // Additional field for joins
-    private String placeImageUrl;
     private String islandName;
     private String countryName;
+    private String placeImageUrl;
 
     public Place() {
     }
@@ -118,7 +118,7 @@ public class Place {
     
     @Override
     public String toString() {
-        return "Place{" + "placeId=" + placeId + ", islandId=" + islandId + ", placeName=" + placeName + ", location=" + location + ", description=" + description + ", hasTicket=" + hasTicket + ", ticketPrice=" + ticketPrice + ", islandName=" + islandName + '}';
+        return "Place{" + "placeId=" + placeId + ", islandId=" + islandId + ", placeName=" + placeName + ", location=" + location + ", description=" + description + ", hasTicket=" + hasTicket + ", ticketPrice=" + ticketPrice + ", islandName=" + islandName + ", placeImageUrl=" + placeImageUrl + '}';
     }
     
     

@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controller.staff.flight;
 
 import dao.ServiceDao;
@@ -36,17 +35,17 @@ import model.User;
  *
  * @author nqagh
  */
-@WebServlet(name="FlightTicketStaffServlet", urlPatterns={"/staff/flight/tickets"})
+@WebServlet(name = "FlightTicketStaffServlet", urlPatterns = {"/staff/flight/tickets"})
 
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 1,  // 1MB: temporary storage in memory before writing to file
-    maxFileSize = 1024 * 1024 * 10,       // 10MB: maximum file size
-    maxRequestSize = 1024 * 1024 * 50     // 50MB: total request size
+        fileSizeThreshold = 1024 * 1024 * 1, // 1MB: temporary storage in memory before writing to file
+        maxFileSize = 1024 * 1024 * 10, // 10MB: maximum file size
+        maxRequestSize = 1024 * 1024 * 50 // 50MB: total request size
 )
 public class FlightTicketStaffServlet extends HttpServlet {
-   
-   private ServiceDao serviceDao;
- 
+
+    private ServiceDao serviceDao;
+
     @Override
     public void init() throws ServletException {
         try {
@@ -60,104 +59,94 @@ public class FlightTicketStaffServlet extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet FlightTicketStaffServlet</title>");  
+            out.println("<title>Servlet FlightTicketStaffServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet FlightTicketStaffServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet FlightTicketStaffServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    
-    
     // khai bao class flightService
-  
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-         // Check if user is logged in and has staff role
+            throws ServletException, IOException {
+        // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
-        
-  // Kiểm tra quyền staff/admin; hàm sẽ tự redirect nếu chưa login hoặc role không hợp lệ
-    if (!isStaffAuthorized(session, request, response)) {
-        return;
-    }
-if(session != null){
-    System.out.println("Session ID: " + session.getId());
-    System.out.println("Creation time: " + new java.util.Date(session.getCreationTime()));
-    System.out.println("Last accessed: " + new java.util.Date(session.getLastAccessedTime()));
-    System.out.println("Max inactive interval: " + session.getMaxInactiveInterval() + " seconds");
-} else {
-    System.out.println("No session found");
-}
-        
+
+        // Kiểm tra quyền staff/admin; hàm sẽ tự redirect nếu chưa login hoặc role không hợp lệ
+        if (!isStaffAuthorized(session, request, response)) {
+            return;
+        }
+     
         String action = request.getParameter("action");
-        if (action == null) action = "list";
-        
+        if (action == null) {
+            action = "list";
+        }
+
         try {
             switch (action) {
                 case "list":
-                   handleFlightList(request, response);
+                    handleFlightList(request, response);
                     break;
-              
+
                 case "create":
                     handleCreateForm(request, response);
                     break;
                 case "edit":
-                   handleEditForm(request, response);
+                    handleEditForm(request, response);
                     break;
                 case "search":
-                   handleFlightSearch(request, response);
+                    handleFlightSearch(request, response);
                     break;
                 default:
-                   handleFlightList(request, response);
+                    handleFlightList(request, response);
                     break;
             }
         } catch (Exception e) {
-           handleError(request, response, "Error processing flight request: " + e.getMessage(), e);
+            handleError(request, response, "Error processing flight request: " + e.getMessage(), e);
         }
-    } 
+    }
 
-   
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-           // Check if user is logged in and has staff role
+            throws ServletException, IOException {
+        // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
         if (!isStaffAuthorized(session, request, response)) {
-            
-        return;
-    }
-        
-          String action = request.getParameter("action");
-        
-    
-            if (action == null) {
-                response.sendRedirect(request.getContextPath() + "/staff/flight/tickets");
-                return;
-            }
+
+            return;
+        }
+
+        String action = request.getParameter("action");
+
+        if (action == null) {
+            response.sendRedirect(request.getContextPath() + "/staff/flight/tickets");
+            return;
+        }
         try {
             switch (action) {
                 case "create":
                     handleCreateFlight(request, response);
                     break;
-           
+
                 case "update":
                     handleUpdateFlight(request, response);
                     break;
@@ -168,7 +157,7 @@ if(session != null){
                     handleUpdateAvailability(request, response);
                     break;
                 default:
-                   handleFlightList(request, response);
+                    handleFlightList(request, response);
                     break;
             }
         } catch (Exception e) {
@@ -176,34 +165,68 @@ if(session != null){
         }
     }
 
-       /**
-     * Layer flights service
-     */
-    
-
-         /**
+  
+    /**
      * Display list of all flights
      */
-    private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-           HttpSession session = request.getSession();
-        try {
-            List<Flight> flights = serviceDao.getAllFlights();
-            List<Airlines> airlines = serviceDao.getAllAirlineNames();
-            session.setAttribute("airlineNames", airlines); 
-   
-            request.setAttribute("flights", flights);
-            request.setAttribute("pageTitle", "Flight Management");
-            request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
-        } catch (Exception e) {
-            handleError(request, response, "Error loading flight list: " + e.getMessage(), e);
-        }
-    }
+  private void handleFlightList(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    try {
+        String pageParam = request.getParameter("page");
+        String pageSizeParam = request.getParameter("pageSize");
 
-    /**
-     * Display flight details
-     */
-  
+        int page = 1;
+        int pageSize = 12;
+
+        // Page
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // PageSize
+        if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeParam);
+                if (pageSize < 1) pageSize = 12;
+                if (pageSize > 100) pageSize = 100;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // ====== hiển thị danh sách toàn bộ flight có phân trang ======
+        List<Flight> flights = serviceDao.getFlightsByPageWithAirlineNames(page, pageSize);
+        int totalFlights = serviceDao.getTotalFlightsCount();
+
+        // ====== Pagination info ======
+        int totalPages = (int) Math.ceil((double) totalFlights / pageSize);
+        int startPage = Math.max(1, page - 2);
+        int endPage = Math.min(totalPages, page + 2);
+
+        // ====== Set attributes ======
+        request.setAttribute("flights", flights);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalFlights", totalFlights);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("pageTitle", "Flight Management");
+
+        // ====== Load danh sách hãng bay ======
+        List<Airlines> airlines = serviceDao.getAllAirlineNames();
+        session.setAttribute("airlineNames", airlines);
+
+        request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
+
+    } catch (Exception e) {
+        handleError(request, response, "Error loading flight list: " + e.getMessage(), e);
+    }
+}
+
+
     /**
      * Display create flight form
      */
@@ -234,20 +257,20 @@ if(session != null){
                 handleFlightList(request, response);
                 return;
             }
-            
+
             int flightId = Integer.parseInt(flightIdStr);
             Flight flight = serviceDao.getFlightById(flightId);
-            
+
             if (flight == null) {
                 request.setAttribute("errorMessage", "Flight not found");
                 handleFlightList(request, response);
                 return;
             }
-            
+
             // Load airlines and islands for dropdowns
             List<Airlines> airlines = serviceDao.getAllAirlines();
             List<Island> islands = serviceDao.getAllIslands();
-            
+
             request.setAttribute("flight", flight);
             request.setAttribute("airlines", airlines);
             request.setAttribute("islands", islands);
@@ -266,55 +289,102 @@ if(session != null){
     /**
      * Handle flight search
      */
-  public void handleFlightSearch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void handleFlightSearch(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
     try {
-        // Lấy tham số từ form
+        // ====== Lấy tham số từ form ======
         String keyword = request.getParameter("search");
         String airlineIdStr = request.getParameter("airlineId");
         String priceRange = request.getParameter("priceRange");
 
-        // Chuyển airlineId sang Integer nếu hợp lệ, null nếu rỗng
+        String pageParam = request.getParameter("page");
+        String pageSizeParam = request.getParameter("pageSize");
+
+        int page = 1;
+        int pageSize = 12;
+
+        // Page
+        if (pageParam != null && !pageParam.trim().isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // PageSize
+        if (pageSizeParam != null && !pageSizeParam.trim().isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeParam);
+                if (pageSize < 1) pageSize = 12;
+                if (pageSize > 100) pageSize = 100;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // ====== Chuyển airlineId sang Integer ======
         Integer airlineId = null;
         if (airlineIdStr != null && !airlineIdStr.isEmpty()) {
             try {
                 airlineId = Integer.parseInt(airlineIdStr);
             } catch (NumberFormatException e) {
-                
-                request.setAttribute("errorMessage", "Hãng bay không hợp lệ, bỏ qua filter.");
+                request.setAttribute("errorMessage", "Hãng bay không hợp lệ.");
                 request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
+                return;
             }
         }
 
-        // Kiểm tra priceRange hợp lệ, null hoặc rỗng cũng được
+        // ====== Kiểm tra khoảng giá ======
         if (priceRange != null && !priceRange.isEmpty() && !priceRange.matches("\\d+-\\d+|\\d+\\+")) {
-            request.setAttribute("errorMessage", "Khoảng giá không hợp lệ, bỏ qua filter.");
+            request.setAttribute("errorMessage", "Khoảng giá không hợp lệ.");
             priceRange = null;
         }
 
-        // Gọi DAO / service để tìm chuyến bay theo filter
-        List<Flight> flights = serviceDao.searchFlightTickets(keyword, airlineId, priceRange);
+        // ====== Kiểm tra nếu KHÔNG có filter nào (xem toàn bộ) ======
+        boolean noFilter =
+                (keyword == null || keyword.trim().isEmpty()) &&
+                (airlineId == null) &&
+                (priceRange == null || priceRange.trim().isEmpty());
 
-        // Truyền dữ liệu sang JSP
+        if (noFilter) {
+            handleFlightList(request, response);
+            return;
+        }
+
+        // ====== tìm chuyến bay theo filter + phân trang ======
+        List<Flight> flights = serviceDao.searchFlightTicketsWithPagination(
+                keyword, airlineId, priceRange, page, pageSize
+        );
+
+        int totalFlights = serviceDao.getSearchFlightTicketsCount(
+                keyword, airlineId, priceRange
+        );
+
+        // ====== Tính phân trang ======
+        int totalPages = (int) Math.ceil((double) totalFlights / pageSize);
+        int startPage = Math.max(1, page - 2);
+        int endPage = Math.min(totalPages, page + 2);
+
+        // ====== Gửi dữ liệu sang JSP ======
         request.setAttribute("flights", flights);
         request.setAttribute("keyword", keyword);
         request.setAttribute("airlineId", airlineIdStr);
         request.setAttribute("priceRange", priceRange);
-    
-        // Forward sang JSP danh sách chuyến bay
+        request.setAttribute("currentPage", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalFlights", totalFlights);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+
         request.getRequestDispatcher("/views/staff/flight_ticket-list.jsp").forward(request, response);
 
     } catch (Exception e) {
-      
         e.printStackTrace();
-        // Forward sang trang error
         request.setAttribute("message", "Lỗi khi tìm chuyến bay: " + e.getMessage());
         request.setAttribute("exception", e);
         request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
     }
 }
-        
-        
-    
+
 
     /**
      * Handle create flight
@@ -329,7 +399,7 @@ if(session != null){
                 request.setAttribute("airlines", airlines);
                 request.setAttribute("islands", islands);
                 request.setAttribute("pageTitle", "Create New Flight");
-                request.setAttribute(   "errorMessage", "Failed to create flight. Please try again.");
+                request.setAttribute("errorMessage", "Failed to create flight. Please try again.");
                 request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
                 return;
             }
@@ -368,6 +438,7 @@ if(session != null){
             handleError(request, response, "Error creating flight: " + e.getMessage(), e);
         }
     }
+
     /**
      * Create flight object from request parameters
      */
@@ -419,113 +490,111 @@ if(session != null){
 
         return flight;
     }
-    
-      /**
+
+    /**
      * Validate flight input
-     * 
-     * 
+     *
+     *
      */
     private boolean validateFlightInput(HttpServletRequest request) {
-       boolean isValid = true;
+        boolean isValid = true;
 
-    String flightNumber = request.getParameter("flightNumber");
-    System.out.println("FlightNumber nhận được: " + request.getParameter("flightNumber"));
+        String flightNumber = request.getParameter("flightNumber");
+        System.out.println("FlightNumber nhận được: " + request.getParameter("flightNumber"));
 
-    if (flightNumber == null || flightNumber.trim().isEmpty()) {
-        request.setAttribute("errorFlightNumber", "Flight number is required");
-        isValid = false;
-    }
-
-    String airlineIdStr = request.getParameter("airlineId");
-    if (airlineIdStr == null || airlineIdStr.trim().isEmpty()) {
-        request.setAttribute("errorAirlineId", "Airline is required");
-        isValid = false;
-    } else {
-        try {
-            Integer.parseInt(airlineIdStr);
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorAirlineId", "Invalid airline selection");
+        if (flightNumber == null || flightNumber.trim().isEmpty()) {
+            request.setAttribute("errorFlightNumber", "Flight number is required");
             isValid = false;
         }
-    }
 
-    String departure = request.getParameter("departure");
-    if (departure == null || departure.trim().isEmpty()) {
-        request.setAttribute("errorDeparture", "Departure location is required");
-        isValid = false;
-    }
-
-    String destinationIslandIdStr = request.getParameter("destinationIslandId");
-    if (destinationIslandIdStr == null || destinationIslandIdStr.trim().isEmpty()) {
-        request.setAttribute("errorDestinationIslandId", "Destination island is required");
-        isValid = false;
-    } else {
-        try {
-            Integer.parseInt(destinationIslandIdStr);
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorDestinationIslandId", "Invalid destination island selection");
+        String airlineIdStr = request.getParameter("airlineId");
+        if (airlineIdStr == null || airlineIdStr.trim().isEmpty()) {
+            request.setAttribute("errorAirlineId", "Airline is required");
             isValid = false;
-        }
-    }
-
-    String basePriceStr = request.getParameter("basePrice");
-    if (basePriceStr == null || basePriceStr.trim().isEmpty()) {
-        request.setAttribute("errorBasePrice", "Base price is required");
-        isValid = false;
-    } else {
-        try {
-            int basePrice = Integer.parseInt(basePriceStr);
-            if (basePrice <= 0) {
-                request.setAttribute("errorBasePrice", "Base price must be greater than 0");
+        } else {
+            try {
+                Integer.parseInt(airlineIdStr);
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorAirlineId", "Invalid airline selection");
                 isValid = false;
             }
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorBasePrice", "Invalid base price format");
+        }
+
+        String departure = request.getParameter("departure");
+        if (departure == null || departure.trim().isEmpty()) {
+            request.setAttribute("errorDeparture", "Departure location is required");
             isValid = false;
         }
-    }
 
-    String ticketAvailableStr = request.getParameter("ticketAvailable");
-    if (ticketAvailableStr == null || ticketAvailableStr.trim().isEmpty()) {
-        request.setAttribute("errorTicketAvailable", "Ticket availability is required");
-        isValid = false;
-    } else {
-        try {
-            int ticketAvailable = Integer.parseInt(ticketAvailableStr);
-            if (ticketAvailable < 0) {
-                request.setAttribute("errorTicketAvailable", "Ticket availability cannot be negative");
+        String destinationIslandIdStr = request.getParameter("destinationIslandId");
+        if (destinationIslandIdStr == null || destinationIslandIdStr.trim().isEmpty()) {
+            request.setAttribute("errorDestinationIslandId", "Destination island is required");
+            isValid = false;
+        } else {
+            try {
+                Integer.parseInt(destinationIslandIdStr);
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorDestinationIslandId", "Invalid destination island selection");
                 isValid = false;
             }
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorTicketAvailable", "Invalid ticket availability format");
+        }
+
+        String basePriceStr = request.getParameter("basePrice");
+        if (basePriceStr == null || basePriceStr.trim().isEmpty()) {
+            request.setAttribute("errorBasePrice", "Base price is required");
+            isValid = false;
+        } else {
+            try {
+                int basePrice = Integer.parseInt(basePriceStr);
+                if (basePrice <= 0) {
+                    request.setAttribute("errorBasePrice", "Base price must be greater than 0");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorBasePrice", "Invalid base price format");
+                isValid = false;
+            }
+        }
+
+        String ticketAvailableStr = request.getParameter("ticketAvailable");
+        if (ticketAvailableStr == null || ticketAvailableStr.trim().isEmpty()) {
+            request.setAttribute("errorTicketAvailable", "Ticket availability is required");
+            isValid = false;
+        } else {
+            try {
+                int ticketAvailable = Integer.parseInt(ticketAvailableStr);
+                if (ticketAvailable < 0) {
+                    request.setAttribute("errorTicketAvailable", "Ticket availability cannot be negative");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorTicketAvailable", "Invalid ticket availability format");
+                isValid = false;
+            }
+        }
+
+        String flightType = request.getParameter("flightType");
+        if (flightType == null || flightType.trim().isEmpty()) {
+            request.setAttribute("errorFlightType", "Flight type is required");
             isValid = false;
         }
-    }
 
-    String flightType = request.getParameter("flightType");
-    if (flightType == null || flightType.trim().isEmpty()) {
-        request.setAttribute("errorFlightType", "Flight type is required");
-        isValid = false;
-    }
+        String flightClass = request.getParameter("flightClass");
+        if (flightClass == null || flightClass.trim().isEmpty()) {
+            request.setAttribute("errorFlightClass", "Flight class is required");
+            isValid = false;
+        }
 
-    String flightClass = request.getParameter("flightClass");
-    if (flightClass == null || flightClass.trim().isEmpty()) {
-        request.setAttribute("errorFlightClass", "Flight class is required");
-        isValid = false;
+        return isValid;
     }
-   
-    return isValid;
-    }
-
 
     /**
      * Handle update flight
      */
-    
     private void handleUpdateFlight(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-              
+
             // Validate input
             if (!validateFlightInput(request)) {
                 String flightIdStr = request.getParameter("flightId");
@@ -541,13 +610,13 @@ if(session != null){
                 request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
                 return;
             }
-            
+
             // Create flight object
             Flight flight = createFlightFromRequest(request);
             flight.setFlightId(Integer.parseInt(request.getParameter("flightId")));
-            
+
             // Update flight
-           int updateFlightId = serviceDao.updateFlight(flight);
+            int updateFlightId = serviceDao.updateFlight(flight);
 
             if (updateFlightId > 0) {
 
@@ -562,7 +631,7 @@ if(session != null){
                 request.setAttribute("pageTitle", "Edit Flight");
                 request.getRequestDispatcher("/views/staff/flight_ticket-form.jsp").forward(request, response);
             }
-            
+
         } catch (Exception e) {
             handleError(request, response, "Error updating flight: " + e.getMessage(), e);
         }
@@ -579,11 +648,11 @@ if(session != null){
                 response.sendRedirect(request.getContextPath() + "/staff/flights?error=invalid_id");
                 return;
             }
-            
+
             int flightId = Integer.parseInt(flightIdStr);
-   
-             // Delete flight
-           int deleteFlightId = serviceDao.deleteFlight(flightId);
+
+            // Delete flight
+            int deleteFlightId = serviceDao.deleteFlight(flightId);
 
             if (deleteFlightId > 0) {
 
@@ -591,7 +660,7 @@ if(session != null){
             } else {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?error=delete_failed");
             }
-            
+
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/staff/flights?error=invalid_id");
         } catch (Exception e) {
@@ -607,23 +676,23 @@ if(session != null){
         try {
             String flightIdStr = request.getParameter("flightId");
             String availabilityStr = request.getParameter("availability");
-            
+
             if (flightIdStr == null || availabilityStr == null) {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?error=invalid_params");
                 return;
             }
-            
+
             int flightId = Integer.parseInt(flightIdStr);
             int availability = Integer.parseInt(availabilityStr);
-            
+
             boolean success = serviceDao.updateFlightAvailability(flightId, availability);
-            
+
             if (success) {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?success=availability_updated");
             } else {
                 response.sendRedirect(request.getContextPath() + "/staff/flights?error=update_failed");
             }
-            
+
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/staff/flights?error=invalid_params");
         } catch (Exception e) {
@@ -631,26 +700,24 @@ if(session != null){
         }
     }
 
-   
     /**
      * Check if user is authorized staff member
      */
+    private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (session == null) {
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+            return false;
+        }
 
-private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
-    if (session == null) {
-        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-        return false;
-    }
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+            return false;
+        }
 
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-        return false;
-    }
-
-    // Map roleId -> roleName
- String role;
+        // Map roleId -> roleName
+        String role;
         switch (user.getRoleId()) {
             case 1:
                 role = "ADMIN";
@@ -674,39 +741,37 @@ private boolean isStaffAuthorized(HttpSession session, HttpServletRequest reques
 
         return true;
     }
+
     /**
      * Handle errors
      */
 
+    private void handleError(HttpServletRequest request, HttpServletResponse response,
+            String message, Exception e) throws ServletException, IOException {
+        System.err.println("FlightStaffServlet Error: " + message);
+        if (e != null) {
+            e.printStackTrace();
+        }
 
-   private void handleError(HttpServletRequest request, HttpServletResponse response,
-                         String message, Exception e) throws ServletException, IOException {
-    System.err.println("FlightStaffServlet Error: " + message);
-    if (e != null) e.printStackTrace();
+        int statusCode = 500;
+        if (message.toLowerCase().contains("not found")) {
+            statusCode = 404;
+        } else if (message.toLowerCase().contains("unauthorized")) {
+            statusCode = 401;
+        }
 
-    int statusCode = 500;
-    if (message.toLowerCase().contains("not found")) {
-        statusCode = 404;
-    } else if (message.toLowerCase().contains("unauthorized")) {
-        statusCode = 401;
+        response.setStatus(statusCode);
+        request.setAttribute("statusCode", statusCode);
+        request.setAttribute("errorMessage", message);
+        request.setAttribute("exception", e);
+        request.setAttribute("pageTitle", "Error");
+
+        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
     }
-
-    response.setStatus(statusCode);
-    request.setAttribute("statusCode", statusCode);
-    request.setAttribute("errorMessage", message);
-    request.setAttribute("exception", e);
-    request.setAttribute("pageTitle", "Error");
-
-    request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
-    }
-   
-
 
     @Override
     public String getServletInfo() {
         return "FlightStaffServlet - Handles flight management operations for staff";
     }
-    
-    
 
 }

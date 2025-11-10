@@ -10,7 +10,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -34,7 +34,8 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
+
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -92,7 +93,7 @@
         }
         
         .btn-search {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             border: none;
             padding: 10px 25px;
@@ -153,7 +154,7 @@
         }
         
         .places-count {
-            background: #667eea;
+            background: #00ACD4;
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
@@ -342,19 +343,19 @@
             border-radius: 8px;
             margin: 0 2px;
             border: 2px solid #e9ecef;
-            color: #667eea;
+            color: #00ACD4;
             font-weight: 600;
         }
         
         .page-link:hover {
-            background-color: #667eea;
+            background-color:  #007CB9;
             border-color: #667eea;
             color: white;
         }
         
         .page-item.active .page-link {
-            background-color: #667eea;
-            border-color: #667eea;
+            background-color: #00ACD4;
+            border-color:  #007CB9;
         }
         
         .empty-state {
@@ -410,6 +411,26 @@
         }
     </style>
 </head>
+
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -471,7 +492,8 @@
                     <select class="form-control" id="islandId" name="islandId">
                         <option value="">Tất cả đảo</option>
                         <c:forEach var="island" items="${islands}">
-                            <option value="${island.islandId}" ${param.islandId != null && param.islandId == island.islandId ? 'selected' : ''}>
+                            <c:set var="islandIdStr" value="${island.islandId}" />
+                            <option value="${island.islandId}" ${param.islandId != null && param.islandId != '' && param.islandId == islandIdStr ? 'selected' : ''}>
                                 ${island.islandName}
                             </option>
                         </c:forEach>
