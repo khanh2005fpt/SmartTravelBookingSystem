@@ -13,16 +13,6 @@
     <body>
         <!-- Header -->
         <%@ include file="/views/common/navbar.jsp" %>
-        <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
-            <div class="overlay"></div>
-            <div class="container">
-                <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-center">
-                    <div class="col-md-9 ftco-animate pb-5 text-center">
-                        <h1 class="mb-0 bread">Chi tiết đảo</h1>
-                    </div>
-                </div>
-            </div>
-        </section>
         <!-- Main Content -->
         <main class="container" style="max-width: 1400px;">
             <!-- Island Overview -->

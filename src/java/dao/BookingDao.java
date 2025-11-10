@@ -265,7 +265,7 @@ public class BookingDao extends DBContext {
             ps.setString(3, hb.getCustomerName());
             ps.setString(4, hb.getCustomerEmail());
             ps.setString(5, hb.getCustomerPhone());
-            ps.setString(6, hb.getTourStatus());
+            ps.setString(6, "INCOMPLETE");
             ps.setTimestamp(7, hb.getCreatedAt());
 
             ps.executeUpdate();
