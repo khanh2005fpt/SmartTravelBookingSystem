@@ -282,22 +282,22 @@ public class UserDao extends DBContext {
     }
 
     // update password
-    public void updatePassword(String email, String password) {
-        try {
-            String sqlPass = "UPDATE Users\n"
-                    + "SET Password = ?\n"
-                    + "WHERE Email = ?";
-            try (PreparedStatement ps = connection.prepareStatement(sqlPass)) {
-                ps.setString(1, email);
-                ps.setString(2, password);
+   public void updatePassword(String email, String password) {
+    try {
+        // Hash mật khẩu trước khi lưu
+        String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
+        String sqlPass = "UPDATE Users SET Password = ? WHERE Email = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sqlPass)) {
+            ps.setString(1, passwordHash);  // Password đã hash
+            ps.setString(2, email);         // Email để xác định user
+            ps.executeUpdate();
         }
-
+    } catch (SQLException e) {
+        System.out.println(e);
     }
+}
+    
     // update status
 
     public void updateStatus(Token tokenForget) {

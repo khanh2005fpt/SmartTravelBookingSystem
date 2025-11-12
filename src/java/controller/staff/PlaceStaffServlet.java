@@ -279,7 +279,7 @@ public class PlaceStaffServlet extends HttpServlet {
     /**
      * Handle place search
      */
-    private void handlePlaceSearch(HttpServletRequest request, HttpServletResponse response)
+        private void handlePlaceSearch(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             String keyword = request.getParameter("keyword");

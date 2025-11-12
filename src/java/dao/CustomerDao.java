@@ -357,7 +357,7 @@ System.out.println("Session set done!");
 
     return list;
 }
-      // check ton tai contact
+      // check ton tai contact 
    public boolean isContactExist(int userId, String contactValue) throws SQLException{
     String sql = "SELECT COUNT(*) FROM CustomerContacts WHERE userId = ? AND contactValue = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -372,6 +372,22 @@ System.out.println("Session set done!");
         e.printStackTrace();
     }
     return false; 
+}
+   
+         // check ton tai primary contact 
+public boolean isPEmailExist(String email) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM Users WHERE email = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setString(1, email);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0; 
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false; // false nếu không tồn tại
 }
 
     

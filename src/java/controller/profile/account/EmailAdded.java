@@ -108,9 +108,9 @@ public class EmailAdded extends HttpServlet {
              // check mail ton tai
         
         Boolean existAddedPhone = customerDao.isContactExist(userId, email);
-        
-        if(existAddedPhone || email.equals(user.getEmail())){
-           session.setAttribute("errorEmail", "Email này đã tồn tại!");
+        Boolean emailDuplicatedSystem = customerDao.isPEmailExist(email);
+        if(existAddedPhone || email.equals(user.getEmail()) ||emailDuplicatedSystem ){
+           session.setAttribute("errorEmail", "Email này đã tồn tại trong hệ thống!");
             response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }

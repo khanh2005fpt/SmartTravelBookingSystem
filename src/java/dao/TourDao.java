@@ -1412,6 +1412,7 @@ public class TourDao extends DBContext {
                 ta.description AS activityDescription, 
             hb.*,
             b.bookingId,
+            b.totalPrice,
             b.departureDate              
         FROM HistoryBooking hb
         JOIN Payments p ON hb.paymentId = p.paymentId
@@ -1444,7 +1445,7 @@ public class TourDao extends DBContext {
         // Để tránh thêm trùng
         Map<Integer, TourService> serviceMap = new HashMap<>();
         Map<Integer, TourItinerary> itineraryMap = new LinkedHashMap<>();
-
+        Map<Integer, Set<Integer>> activityMap = new HashMap<>();
         while (rs.next()) {
             // === TOUR ===
             if (tour == null) {
@@ -1469,6 +1470,7 @@ public class TourDao extends DBContext {
             if (bk == null) {
                 bk = new Booking();
                 bk.setBookingId(rs.getInt("bookingId"));
+                bk.setTotalPrice(rs.getDouble("totalPrice"));
                 java.sql.Date departure = rs.getDate("departureDate");
                 if (departure != null) {
                     bk.setDepartureDate(departure);
@@ -1505,6 +1507,7 @@ public class TourDao extends DBContext {
             }
 
             // === TOUR ITINERARY ===
+        
             int itineraryId = rs.getInt("itineraryId");
             TourItinerary ti = null;
             if (!rs.wasNull()) {
@@ -1522,16 +1525,21 @@ public class TourDao extends DBContext {
             }
 
             // === TOUR ACTIVITIES ===
-            int activityId = rs.getInt("activityId");
-            if (!rs.wasNull() && ti != null) {
-                TourActivities ta = new TourActivities();
-                ta.setActivityId(activityId);
-                ta.setItineraryId(itineraryId);
-                ta.setActivityOrder(rs.getInt("activityOrder"));
-                ta.setActivityTitle(rs.getString("activityTitle"));
-                ta.setDescription(rs.getString("activityDescription"));
-                ti.getActivities().add(ta); // thêm vào itinerary tương ứng
-            }
+            
+          int activityId = rs.getInt("activityId");
+if (!rs.wasNull() && ti != null) {
+    Set<Integer> activitySet = activityMap.computeIfAbsent(itineraryId, k -> new HashSet<>());
+    if (!activitySet.contains(activityId)) {
+        TourActivities ta = new TourActivities();
+        ta.setActivityId(activityId);
+        ta.setItineraryId(itineraryId);
+        ta.setActivityOrder(rs.getInt("activityOrder"));
+        ta.setActivityTitle(rs.getString("activityTitle"));
+        ta.setDescription(rs.getString("activityDescription"));
+        ti.getActivities().add(ta);
+        activitySet.add(activityId);
+    }
+}
         }
     } catch (SQLException e) {
         throw new SQLException("Lỗi khi lấy tour mới nhất của userId=" + userId, e);
@@ -1675,7 +1683,8 @@ public class TourDao extends DBContext {
 
             System.out.println("\n===== THÔNG TIN TOUR MỚI NHẤT CỦA USER ID: " + testUserId + " =====");
             System.out.println("📌 Tour: " + info.getTour());
-            System.out.println("📅 Booking: " + info.getBooking());
+            System.out.println("📅 Booking: " + info.getBooking().getBookingId());
+             System.out.println("📅 Booking: " + info.getBooking().getTotalPrice());
             System.out.println("🧾 History: " + info.getHistoryBooking());
 
             System.out.println("\n--- Các dịch vụ đi kèm ---");
