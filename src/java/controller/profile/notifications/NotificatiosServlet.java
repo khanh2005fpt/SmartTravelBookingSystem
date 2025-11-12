@@ -23,7 +23,7 @@ import model.User;
  *
  * @author nqagh
  */
-@WebServlet(name="notificatios_servlet", urlPatterns={"/notificatios_servlet"})
+@WebServlet(name="notifications_servlet", urlPatterns={"/notifications_servlet"})
 public class NotificatiosServlet extends HttpServlet {
    
        public CustomerDao customerDao;
@@ -69,7 +69,39 @@ public class NotificatiosServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-     
+          HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
+
+        if (currentUser == null) {
+            session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+            return;
+        }
+
+        int roleId = currentUser.getRoleId();
+        if (roleId != 1 && roleId != 3) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return;
+        }
+           // Lấy section từ navbar
+    String section = request.getParameter("section");
+    if (section == null || section.isEmpty()) {
+        section = "account"; // mặc định
+    }
+
+    try {
+        int userId = currentUser.getUserId();
+        boolean isDeleted = customerDao.deleteAllNotificationsByUserId(userId);
+        
+        // Forward JSP (không redirect nữa)
+        request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
+        
+         } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi xem thông tin tour sau khi đặt.");
+         request.getRequestDispatcher("/views/customer_profile/profile.jsp?section=historyBookings#").forward(request, response);
+        }
     } 
 
     /** 
@@ -83,51 +115,7 @@ public class NotificatiosServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
            HttpSession session = request.getSession();
-      //lay session sau khi login thanh cong
-    User user = (User) session.getAttribute("user"); 
-    if (user == null) {
-        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-        return;
-    }
-
-    Integer userId = user.getUserId(); 
-    
-      String action = request.getParameter("action");
-      
-
-    
-    
-    try {
-        switch (action) {
-            case "markAll":
-                customerDao.markAllRead(userId);
-                break;
-
-            case "deleteAll":
-                List<Integer> unreadIds = customerDao.getUnreadNotificationIds(userId);
-              if (!unreadIds.isEmpty()) {
-    session.setAttribute("errorNoti_Deleted", "Bạn còn thông báo chưa đọc, không thể xóa được!");
-       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
-       return ;
-             } else {
-    customerDao.softDeleteAllByUser(userId);
-             }
-              break;
-        }
-
-       
-        List<Notification> listNotification = customerDao.getNotificationByUser(userId);
-        session.setAttribute("listNotification", listNotification);
-
-   
-         response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        session.setAttribute("errorMess", "Đã xảy ra lỗi khi xử lý thông báo!");
-        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=notifications#");
-    }
+  
     }
 
     /** 

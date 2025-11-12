@@ -275,20 +275,27 @@ public class BookingDao extends DBContext {
             // 1. Tạo DAO (đảm bảo trong class này có connection hợp lệ)
            BookingDao bookingDao = new BookingDao();
                 // 2. Khởi tạo DAO
-            Booking b = bookingDao.getBookingById(33);
+       // 2. Tạo Payment test
+            Payment payment = new Payment();
+            payment.setBookingId(1); // chắc chắn bookingId này tồn tại trong Bookings
+            payment.setAmount(1500);
+            payment.setStatus("PENDING");
 
-            // 4. In kết quả
-            if (b != null) {
-                System.out.println("Booking found:");
-                System.out.println("ID: " + b.getBookingId());
-                System.out.println("Customer: " + b.getCustomerName() );
-                System.out.println("Tour: " + b.getTourName() + " / Custom Tour: " + b.getCustomTourName());
-                System.out.println("Departure: " + b.getDepartureDate() + ", End: " + b.getEndDate());
-                System.out.println("Adults: " + b.getAdultQuantity() + ", Children: " + b.getChildQuantity());
-                System.out.println("Status: " + b.getStatus() + ", Total: " + b.getTotalPrice());
-            } else {
-                System.out.println("Booking with ID " + b + " not found.");
-            }
+            int paymentId = bookingDao.createPayment(payment);
+            System.out.println("Payment vừa tạo ID = " + paymentId);
+
+            // 3. Tạo HistoryBooking test
+            HistoryBooking hb = new HistoryBooking();
+            hb.setPaymentId(paymentId);
+            hb.setAccountUserId(2); // có thể null
+            hb.setCustomerName("Nguyen Van A");
+            hb.setCustomerEmail("a.nguyen@email.com");
+            hb.setCustomerPhone("0909123456");
+            hb.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+
+          bookingDao.createHistoryBooking(hb);
+            System.out.println("Tạo HistoryBooking thành công với PaymentId = " + paymentId);
+
 
         } catch (Exception e) {
             e.printStackTrace();

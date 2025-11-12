@@ -19,7 +19,6 @@ go
 
 /*
 
-
 SELECT * FROM CustomTours
 SELECT * FROM Tours
 Select * from CustomTourDetails
@@ -27,6 +26,8 @@ Select * from CustomTourItinerary
 SELECT * FROM Tours
 select * from HistoryBooking	
 select * from Payments
+SELECT * FROM Islands
+SELECT * FROM Tours
 select * from bookings
 SELECT * FROM CustomTours
 
@@ -146,10 +147,6 @@ CREATE TABLE CustomerProfiles (
 
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
-
-
-
-
 
 -- Cộng điểm khi trạng thái chuyển sang COMPLETED và  cập nhật cấp độ thành viên tự động
 CREATE OR ALTER TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted
@@ -694,9 +691,6 @@ CREATE TABLE Payments (
 );
 
 
-select * from HistoryBooking
-
-
 CREATE TABLE HistoryBooking (
     historyId INT IDENTITY(1,1) PRIMARY KEY,
     paymentId INT NOT NULL,
@@ -711,13 +705,15 @@ CREATE TABLE HistoryBooking (
     FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
 );
 
+select * from HistoryBooking
+select * from Payments
 
 
 /* -- xoa du lieu va reset
-DELETE FROM Notifications
+DELETE FROM Payments
 drop table CustomTourItinerary
 -- Reset IDENTITY về 10
-DBCC CHECKIDENT ('Notifications', RESEED, 0);
+DBCC CHECKIDENT ('Payments', RESEED, 0);
 DBCC CHECKIDENT ('CustomTourDetails', RESEED, 0);
 DBCC CHECKIDENT ('CustomTours', RESEED, 0);
 */
@@ -815,15 +811,15 @@ CREATE TABLE Reviews (
 );
 go
 
+
 -- Notification 
-SELECT * FROM dbo.Notifications
 
 CREATE TABLE Notifications (
     notificationId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
     title NVARCHAR(100) NOT NULL,
     message NVARCHAR(500) NOT NULL,
-    type VARCHAR(30) CHECK (type IN ('BOOKING','PAYMENT','SYSTEM','TOUR')) DEFAULT 'SYSTEM',
+    type VARCHAR(30) CHECK (type IN ('BOOKING','SYSTEM','TOUR')) DEFAULT 'SYSTEM',
     createdAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
@@ -851,6 +847,10 @@ IF OBJECT_ID('trg_Booking_Insert_Notification', 'TR') IS NOT NULL
     DROP TRIGGER trg_Booking_Insert_Notification;
 GO
 */
+-- Xem chi tiết constraint
+SELECT definition
+FROM sys.check_constraints
+WHERE name = 'CK__Payments__status__7C3A67EB';
 
 
 --- trigger khi thông báo khi người dùng đặt chỗ "chạy khi thêm bản ghi mới vào Bookings"
@@ -894,44 +894,9 @@ WHEN i.customTourId IS NOT NULL THEN
     LEFT JOIN CustomTours ct ON i.customTourId = ct.customTourId;
 END;
 GO
+DROP TRIGGER IF EXISTS trg_Payment_Insert_Notification;
 
---- triger khi thông báo customer thanh toán "chạy khi cập nhật trạng thái Payments"
-CREATE TRIGGER trg_Payment_Insert_Notification
-ON Payments
-AFTER INSERT
-AS
-BEGIN
-    SET NOCOUNT ON;
 
-    INSERT INTO Notifications (userId, title, message, type)
-    SELECT 
-        b.customerId,
-        N'Thanh toán ' + i.status,  -- tiêu đề thông báo: SUCCESS / FAILED / PENDING
-        CASE 
-            WHEN i.status = 'SUCCESS' AND b.tourId IS NOT NULL THEN 
-                N'Thanh toán cho tour trọn gói "' + ISNULL(t.tourName, N'') + N'" khởi hành ngày ' 
-                + CONVERT(NVARCHAR(10), b.departureDate, 120)
-                + N' đã thành công. Số tiền: ' + CONVERT(NVARCHAR(20), i.amount)
-            
-            WHEN i.status = 'SUCCESS' AND b.customTourId IS NOT NULL THEN 
-                N'Thanh toán cho tour riêng "' + ISNULL(ct.tourName, N'') + N'" khởi hành ngày ' 
-                + CONVERT(NVARCHAR(10), b.departureDate, 120)
-                + N', kết thúc ngày ' + CONVERT(NVARCHAR(10), ISNULL(b.endDate, b.departureDate), 120)
-                + N' đã thành công. Số tiền: ' + CONVERT(NVARCHAR(20), i.amount)
-            
-            WHEN i.status = 'FAILED' THEN 
-                N'Thanh toán cho đặt chỗ #' + CONVERT(NVARCHAR(10), i.bookingId) + N' thất bại. Vui lòng thử lại.'
-            
-            ELSE
-                N'Thanh toán cho đặt chỗ #' + CONVERT(NVARCHAR(10), i.bookingId) + N' đang chờ xử lý.'
-        END AS message,
-        'PAYMENT'
-    FROM inserted i
-    INNER JOIN Bookings b ON i.bookingId = b.bookingId
-    LEFT JOIN Tours t ON b.tourId = t.tourId
-    LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId;
-END;
-GO
 
 --- triger khi thông báo customer những tour mới "chạy khi cập nhật trạng thái Tours"
 CREATE TRIGGER trg_Tour_Approved_Notification
@@ -1475,6 +1440,7 @@ CREATE TABLE Places (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
+select * from HistoryBookings
 
 
 INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice, placeImageUrl)

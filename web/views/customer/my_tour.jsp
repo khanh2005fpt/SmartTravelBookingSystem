@@ -91,7 +91,7 @@ if (roleId != 1 && roleId != 3) {
                                                     </p>
                                                     <p class="mb-0"><strong>Tổng giá:</strong>
                                                         <span class="badge bg-primary text-white ms-2 price-badge">
-                                                            <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VND
+                                                            <fmt:formatNumber value="${booking.totalPrice}" type="number" groupingUsed="true"/> VND
                                                         </span>
                                                     </p>
                                                 </div>

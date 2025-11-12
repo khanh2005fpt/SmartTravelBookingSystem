@@ -85,23 +85,21 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-         
+
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
-           String code = request.getParameter("code");
-           
-           if (code == null && error == null) {
-            request.getRequestDispatcher("/views/account/login.jsp").forward(request, response);
-              return;
-          }
+        String code = request.getParameter("code");
 
-           
+        if (code == null && error == null) {
+            request.getRequestDispatcher("/views/account/login.jsp").forward(request, response);
+            return;
+        }
+
         if (error != null) {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
-    
-     
+
         GoogleLogin gg = new GoogleLogin();
         String accessToken = gg.getToken(code);
         System.out.println(accessToken);
@@ -112,23 +110,21 @@ public class LoginServlet extends HttpServlet {
         User existing = userDAO.getUserByEmail(acc.getEmail());
         try {
             if (existing != null) {
-                   if ("LOCKED".equalsIgnoreCase(existing.getStatus())) {
-        // nếu tài khoản bị khóa, gửi thông báo và redirect về login
-        session.setAttribute("errorMess", "Tài khoản của bạn đã bị khóa!");
-        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-        return; // quan trọng: dừng tiếp tục xử lý
-    }
+                if ("LOCKED".equalsIgnoreCase(existing.getStatus())) {
+                    // nếu tài khoản bị khóa, gửi thông báo và redirect về login
+                    session.setAttribute("errorMess", "Tài khoản của bạn đã bị khóa!");
+                    response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                    return; // quan trọng: dừng tiếp tục xử lý
+                }
 
-                
-                
                 // user ton tai -> login
                 session.setAttribute("user", existing);
                 session.setAttribute("loginSuccess", "oke");
-           
+
                 System.out.println("UserId: " + existing.getUserId());
-                // gui thong bang session den trang profile
+                // gui thong tin ve profile customer
                 CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
-     
+
                 session.setAttribute("profile_customer", profile);
                 List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(existing.getUserId());
                 List<CustomerContacts> phoneList = customerDao.getPhoneContactByUserId(existing.getUserId());
@@ -136,19 +132,22 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("emailList_Current", emailList);
                 session.setAttribute("phoneList_Current", phoneList);
 
-               int roleId = existing != null ? existing.getRoleId() : existing.getRoleId();
-                    if (roleId == 1) {
-                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
-                    }else if(roleId == 2 ){
-                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
-                    }else if( roleId == 4){
-                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
-                    }
-                     else if (roleId == 3) {
-                        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-                    } else {
-                        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-                    }
+                // gui thong bao cua customer sau khi login 
+                List<Notification> notifications = customerDao.getLatestNotificationsByUser(existing.getUserId());
+                session.setAttribute("notifications", notifications);
+
+                int roleId = existing != null ? existing.getRoleId() : existing.getRoleId();
+                if (roleId == 1) {
+                    response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                } else if (roleId == 2) {
+                    response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                } else if (roleId == 4) {
+                    response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+                } else if (roleId == 3) {
+                    response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                }
                 return;
             } else {
                 // user chua co acc --> dky luon cho user
@@ -168,14 +167,13 @@ public class LoginServlet extends HttpServlet {
 
                     // redirect theo roleId
                     int roleId = existing != null ? existing.getRoleId() : newUser.getRoleId();
-                   if (roleId == 1) {
-                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
-                    }else if(roleId == 2 ){
+                    if (roleId == 1) {
+                        response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                    } else if (roleId == 2) {
                         response.sendRedirect(request.getContextPath() + "/manager/dashboard");
-                    }else if( roleId == 4){
+                    } else if (roleId == 4) {
                         response.sendRedirect(request.getContextPath() + "/staff/dashboard");
-                    }
-                     else if (roleId == 3) {
+                    } else if (roleId == 3) {
                         response.sendRedirect(request.getContextPath() + "/SearchIslandController");
                     } else {
                         response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
@@ -191,7 +189,7 @@ public class LoginServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
             session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi login or register bằng google. Vui lòng thử lại!");
-               response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         }
 
         //insertAccout , tao password ham random tu dong
@@ -249,22 +247,25 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("emailList_Current", emailList);
             session.setAttribute("phoneList_Current", phoneList);
 
+            // gui thong bao cua customer sau khi login 
+            List<Notification> notifications = customerDao.getLatestNotificationsByUser(user.getUserId());
+            session.setAttribute("notifications", notifications);
+
             session.setAttribute("loginSuccess", "oke");
 
             // redirect theo roleId
             int roleId = user.getRoleId();
-                    if (roleId == 1) {
-                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
-                    }else if(roleId == 2 ){
-                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
-                    }else if( roleId == 4){
-                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
-                    }
-                     else if (roleId == 3) {
-                        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-                    } else {
-                        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-                    }
+            if (roleId == 1) {
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+            } else if (roleId == 2) {
+                response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+            } else if (roleId == 4) {
+                response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+            } else if (roleId == 3) {
+                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa or đặt lại email. Vui lòng thử lại!");

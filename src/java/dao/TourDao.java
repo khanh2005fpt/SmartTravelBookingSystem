@@ -1191,7 +1191,7 @@ public class TourDao extends DBContext {
     public CustomTourBookingInfo getLatestCustomTourAfterBookingByUser(int userId) throws SQLException {
         CustomTourBookingInfo info = new CustomTourBookingInfo();
         String sql = """
-    SELECT ct.*, ctd.*, cti.*, hb.*
+    SELECT ct.*, ctd.*, cti.*, hb.*,b.bookingId , b.totalPrice
     FROM HistoryBooking hb
     JOIN Payments p ON hb.paymentId = p.paymentId
     JOIN Bookings b ON p.bookingId = b.bookingId
@@ -1216,6 +1216,7 @@ public class TourDao extends DBContext {
             ResultSet rs = ps.executeQuery();
 
             CustomTour ct = null;
+            Booking bk = null;
             HistoryBooking hb = null;
             Set<Integer> detailIds = new HashSet<>();
             Set<Integer> itineraryIds = new HashSet<>();
@@ -1233,7 +1234,20 @@ public class TourDao extends DBContext {
                     ct.setCustomTourId(rs.getInt("customTourId"));
                     info.setCustomTour(ct);
                 }
+                
+                
 
+            // === BOOKING ===
+            if (bk == null) {
+                bk = new Booking();
+                bk.setBookingId(rs.getInt("bookingId"));
+                bk.setTotalPrice(rs.getDouble("totalPrice"));
+                java.sql.Date departure = rs.getDate("departureDate");
+                if (departure != null) {
+                    bk.setDepartureDate(departure);
+                }
+                info.setBooking(bk);
+            }
                 // Khởi tạo HistoryBooking 1 lần
                 if (hb == null) {
                     hb = new HistoryBooking();

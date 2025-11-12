@@ -84,22 +84,7 @@ public class CustomerDao extends DBContext {
      
        public static void main(String[] args) {
  
-          // 2. Thông tin người dùng nhập
-          try{
-              CustomerDao dao = new CustomerDao();
-              int testUserId = 7; // Thay bằng userId thực tế có trong bảng CustomerProfiles
-            String testAvatar = "test_avatar_123.jpg";
-
-
-           CustomerProfile profile = dao.getProfileByUserId(2);
-            System.out.println("Profile after query: " + profile);
-  System.out.println("profile_customer"+ profile);
-System.out.println("Session set done!");
-
-          }catch(SQLException e){
-              e.printStackTrace();
-          }
-       
+        
     }
 
      
@@ -152,146 +137,61 @@ System.out.println("Session set done!");
     }
     
      // lay list thong bao 
-    
-    public List<Notification> getNotificationByUser(int userId){
-        
-        List <Notification> list = new ArrayList<>();
-                
-        try{
-            
-                   String sql = "SELECT * FROM Notifications WHERE userId = ? AND isDeleted = 0 ORDER BY createdAt DESC";
-                   try (PreparedStatement ps = connection.prepareStatement(sql)){
-                       ps.setInt(1, userId);
-                        ResultSet rs = ps.executeQuery();
-                        while(rs.next()){
-                            Notification n = new Notification();
-                              n.setNotificationId(rs.getInt("notificationId"));
-                n.setUserId(rs.getInt("userId"));
-                n.setTitle(rs.getString("title"));
-                n.setMessage(rs.getString("message"));
-                n.setType(rs.getString("type"));
-                n.setIsRead(rs.getBoolean("isRead"));
-                n.setCreatedAt(rs.getTimestamp("createdAt"));
-                n.setIsDeleted(rs.getBoolean("isDeleted"));
-                list.add(n);
-                        }
-                   }
-        
-        }catch (SQLException e) {
-            e.printStackTrace();
-    }
-      return list;
-}
-    
-     // danh dau la da doc 
-       public boolean markAllRead (int userId){
-           try{
-                String sql ="UPDATE Notifications SET isRead =1 WHERE userId=?";
-                try (PreparedStatement ps = connection.prepareStatement(sql)){
-                       ps.setInt(1, userId);
-                       return ps.executeUpdate() >0;
-                }
-               
-               }catch (SQLException e) {
-            e.printStackTrace();
-           }
-           return false;
-       }
-       
-       // xoa mem tren UI user thoi
-         public void softDeleteAllByUser(int userId) {
-        String sql = "UPDATE Notifications SET isDeleted = 1 WHERE userId = ?";
+
+
+
+    public List<Notification> getLatestNotificationsByUser(int userId) throws SQLException{
+        List<Notification> list = new ArrayList<>();
+        String sql = """
+            SELECT TOP 10 
+                notificationId, 
+                userId, 
+                title, 
+                message, 
+                type, 
+                createdAt
+            FROM Notifications
+            WHERE userId = ?
+            ORDER BY createdAt DESC
+        """;
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-         // Trả về danh sách notificationId chưa đọc
-    public List<Integer> getUnreadNotificationIds(int userId)  {
-    List<Integer> unreadIds = new ArrayList<>();
-
-    String sql = "SELECT notificationId FROM Notifications WHERE userId = ? AND isRead=0 AND isDeleted=0";
-    
-     try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        
-        ps.setInt(1, userId);
-        ResultSet rs = ps.executeQuery();
-        
-        while (rs.next()) {
-            unreadIds.add(rs.getInt("notificationId"));
-        }
-    }catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    return unreadIds;
-}
-
-    /*
-      // Lấy danh sách lịch sử theo customerId
-    public List<HistoryBooking> getHistoryByCustomerId(int customerId) throws SQLException {
-    List<HistoryBooking> list = new ArrayList<>();
-    String sql = "SELECT * FROM HistoryBooking WHERE customerId = ?";
-
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, customerId);
-
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                HistoryBooking h = new HistoryBooking(
-                    rs.getInt("historyId"),
-                    rs.getInt("customerId"),
-                    rs.getInt("paymentId"),
-                    rs.getString("note"),
-                    rs.getString("tourStatus")
-                );
-                list.add(h);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Notification n = new Notification();
+                    n.setNotificationId(rs.getInt("notificationId"));
+                    n.setUserId(rs.getInt("userId"));
+                    n.setTitle(rs.getString("title"));
+                    n.setMessage(rs.getString("message"));
+                    n.setType(rs.getString("type"));
+                    n.setCreatedAt(rs.getTimestamp("createdAt"));
+                    list.add(n);
+                }
             }
+        } catch (SQLException e) {
+            System.out.println("Error at getTop10NotificationsByUser: " + e.getMessage());
         }
 
-    } catch (SQLException e) {
-         throw new SQLException("Lỗi khi lấy lịch sử booking theo customerId: " + customerId, e);
-    
-  
+        return list;
     }
 
-
-
-    return list;
+    
+    // xoa thong bao 
+    
+    public boolean deleteAllNotificationsByUserId(int userId) {
+    String sql = "DELETE FROM Notifications WHERE userId = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+       return ps.executeUpdate()>0;
+    } catch (SQLException e) {
+        System.out.println("Error deleting notifications: " + e.getMessage());
+    }
+    return false;
 }
-*/
-     // them contact cho profile
-//    public List<HistoryBooking> getHistoryByCustomerId(int customerId) throws SQLException {
-//    List<HistoryBooking> list = new ArrayList<>();
-//    String sql = "SELECT * FROM HistoryBooking WHERE customerId = ?";
-//
-//    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-//        ps.setInt(1, customerId);
-//
-//        try (ResultSet rs = ps.executeQuery()) {
-//            while (rs.next()) {
-//                HistoryBooking h = new HistoryBooking(
-//                    rs.getInt("historyId"),
-//                    rs.getInt("customerId"),
-//                    rs.getInt("paymentId"),
-//                    rs.getString("note"),
-//                    rs.getString("tourStatus")
-//                );
-//                list.add(h);
-//            }
-//        }
-//
-//    } catch (SQLException e) {
-//         throw new SQLException("Lỗi khi lấy lịch sử booking theo customerId: " + customerId, e);
-//    
-//  
-//    }
-//
-//    return list;
-//}
+
+
+
     
     public boolean addContact(int userId, String contactValue) throws SQLException {
         // Xác định contactType dựa vào value
