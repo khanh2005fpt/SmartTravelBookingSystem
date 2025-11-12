@@ -2011,227 +2011,10 @@ public class ServiceDao extends DBContext {
         return list;
     }
 
-    // ==================== RESTAURANT CRUD OPERATIONS ====================
-    // Lay tat ca nha hang
-    public List<model.Restaurant> getRestaurants() {
-        List<model.Restaurant> list = new ArrayList<>();
-        String sql = "SELECT r.*, i.islandName, c.countryName "
-                + "FROM Restaurants r "
-                + "JOIN Islands i ON r.islandId = i.islandId "
-                + "JOIN Countries c ON i.countryId = c.countryId "
-                + "ORDER BY r.restaurantName";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                model.Restaurant restaurant = new model.Restaurant();
-                restaurant.setRestaurantId(rs.getInt("restaurantId"));
-                restaurant.setIslandId(rs.getInt("islandId"));
-                restaurant.setRestaurantName(rs.getString("restaurantName"));
-                restaurant.setCuisineType(rs.getString("cuisineType"));
-                restaurant.setPriceRange(rs.getString("priceRange"));
-                restaurant.setRating(rs.getDouble("rating"));
-                restaurant.setAddress(rs.getString("address"));
-                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
-                restaurant.setOpeningHours(rs.getString("openingHours"));
-                restaurant.setCapacity(rs.getInt("capacity"));
-                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
-                restaurant.setDescription(rs.getString("description"));
-                restaurant.setSpecialties(rs.getString("specialties"));
-                restaurant.setIslandName(rs.getString("islandName"));
-                restaurant.setCountryName(rs.getString("countryName"));
-                list.add(restaurant);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
 
-    // Lay nha hang theo ID
-    public model.Restaurant getRestaurantById(int restaurantId) {
-        String sql = "SELECT r.*, i.islandName, c.countryName "
-                + "FROM Restaurants r "
-                + "JOIN Islands i ON r.islandId = i.islandId "
-                + "JOIN Countries c ON i.countryId = c.countryId "
-                + "WHERE r.restaurantId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, restaurantId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                model.Restaurant restaurant = new model.Restaurant();
-                restaurant.setRestaurantId(rs.getInt("restaurantId"));
-                restaurant.setIslandId(rs.getInt("islandId"));
-                restaurant.setRestaurantName(rs.getString("restaurantName"));
-                restaurant.setCuisineType(rs.getString("cuisineType"));
-                restaurant.setPriceRange(rs.getString("priceRange"));
-                restaurant.setRating(rs.getDouble("rating"));
-                restaurant.setAddress(rs.getString("address"));
-                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
-                restaurant.setOpeningHours(rs.getString("openingHours"));
-                restaurant.setCapacity(rs.getInt("capacity"));
-                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
-                restaurant.setDescription(rs.getString("description"));
-                restaurant.setSpecialties(rs.getString("specialties"));
-                restaurant.setIslandName(rs.getString("islandName"));
-                restaurant.setCountryName(rs.getString("countryName"));
-                return restaurant;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
-    // CREATE - Them nha hang moi
-    public boolean createRestaurant(model.Restaurant restaurant) {
-        String sql = "INSERT INTO Restaurants (islandId, restaurantName, cuisineType, priceRange, rating, address, phoneNumber, openingHours, capacity, restaurantImageUrl, description, specialties) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, restaurant.getIslandId());
-            ps.setString(2, restaurant.getRestaurantName());
-            ps.setString(3, restaurant.getCuisineType());
-            ps.setString(4, restaurant.getPriceRange());
-            ps.setDouble(5, restaurant.getRating());
-            ps.setString(6, restaurant.getAddress());
-            ps.setString(7, restaurant.getPhoneNumber());
-            ps.setString(8, restaurant.getOpeningHours());
-            ps.setInt(9, restaurant.getCapacity());
-            ps.setString(10, restaurant.getRestaurantImageUrl());
-            ps.setString(11, restaurant.getDescription());
-            ps.setString(12, restaurant.getSpecialties());
+  
 
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // UPDATE - Cap nhat thong tin nha hang
-    public boolean updateRestaurant(model.Restaurant restaurant) {
-        String sql = "UPDATE Restaurants SET islandId = ?, restaurantName = ?, cuisineType = ?, priceRange = ?, rating = ?, address = ?, phoneNumber = ?, openingHours = ?, capacity = ?, restaurantImageUrl = ?, description = ?, specialties = ? WHERE restaurantId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, restaurant.getIslandId());
-            ps.setString(2, restaurant.getRestaurantName());
-            ps.setString(3, restaurant.getCuisineType());
-            ps.setString(4, restaurant.getPriceRange());
-            ps.setDouble(5, restaurant.getRating());
-            ps.setString(6, restaurant.getAddress());
-            ps.setString(7, restaurant.getPhoneNumber());
-            ps.setString(8, restaurant.getOpeningHours());
-            ps.setInt(9, restaurant.getCapacity());
-            ps.setString(10, restaurant.getRestaurantImageUrl());
-            ps.setString(11, restaurant.getDescription());
-            ps.setString(12, restaurant.getSpecialties());
-            ps.setInt(13, restaurant.getRestaurantId());
-
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // DELETE - Xoa nha hang
-    public boolean deleteRestaurant(int restaurantId) {
-        String sql = "DELETE FROM Restaurants WHERE restaurantId = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, restaurantId);
-
-            int result = ps.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Tim kiem nha hang theo ten
-    public List<model.Restaurant> searchRestaurants(String searchTerm) {
-        List<model.Restaurant> list = new ArrayList<>();
-        String sql = "SELECT r.*, i.islandName, c.countryName "
-                + "FROM Restaurants r "
-                + "JOIN Islands i ON r.islandId = i.islandId "
-                + "JOIN Countries c ON i.countryId = c.countryId "
-                + "WHERE r.restaurantName LIKE ? OR r.cuisineType LIKE ? OR r.address LIKE ? "
-                + "ORDER BY r.restaurantName";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            String searchPattern = "%" + searchTerm + "%";
-            ps.setString(1, searchPattern);
-            ps.setString(2, searchPattern);
-            ps.setString(3, searchPattern);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                model.Restaurant restaurant = new model.Restaurant();
-                restaurant.setRestaurantId(rs.getInt("restaurantId"));
-                restaurant.setIslandId(rs.getInt("islandId"));
-                restaurant.setRestaurantName(rs.getString("restaurantName"));
-                restaurant.setCuisineType(rs.getString("cuisineType"));
-                restaurant.setPriceRange(rs.getString("priceRange"));
-                restaurant.setRating(rs.getDouble("rating"));
-                restaurant.setAddress(rs.getString("address"));
-                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
-                restaurant.setOpeningHours(rs.getString("openingHours"));
-                restaurant.setCapacity(rs.getInt("capacity"));
-                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
-                restaurant.setDescription(rs.getString("description"));
-                restaurant.setSpecialties(rs.getString("specialties"));
-                restaurant.setIslandName(rs.getString("islandName"));
-                restaurant.setCountryName(rs.getString("countryName"));
-                list.add(restaurant);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    // Lay danh sach nha hang theo dao
-    public List<model.Restaurant> getRestaurantsByIslandId(int islandId) {
-        List<model.Restaurant> list = new ArrayList<>();
-        String sql = "SELECT r.*, i.islandName, c.countryName "
-                + "FROM Restaurants r "
-                + "JOIN Islands i ON r.islandId = i.islandId "
-                + "JOIN Countries c ON i.countryId = c.countryId "
-                + "WHERE r.islandId = ? "
-                + "ORDER BY r.restaurantName";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, islandId);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                model.Restaurant restaurant = new model.Restaurant();
-                restaurant.setRestaurantId(rs.getInt("restaurantId"));
-                restaurant.setIslandId(rs.getInt("islandId"));
-                restaurant.setRestaurantName(rs.getString("restaurantName"));
-                restaurant.setCuisineType(rs.getString("cuisineType"));
-                restaurant.setPriceRange(rs.getString("priceRange"));
-                restaurant.setRating(rs.getDouble("rating"));
-                restaurant.setAddress(rs.getString("address"));
-                restaurant.setPhoneNumber(rs.getString("phoneNumber"));
-                restaurant.setOpeningHours(rs.getString("openingHours"));
-                restaurant.setCapacity(rs.getInt("capacity"));
-                restaurant.setRestaurantImageUrl(rs.getString("restaurantImageUrl"));
-                restaurant.setDescription(rs.getString("description"));
-                restaurant.setSpecialties(rs.getString("specialties"));
-                restaurant.setIslandName(rs.getString("islandName"));
-                restaurant.setCountryName(rs.getString("countryName"));
-                list.add(restaurant);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
 
     // ==================== VEHICLE PAGINATION METHODS ====================
     /**
@@ -2834,19 +2617,6 @@ public class ServiceDao extends DBContext {
             e.printStackTrace();
         }
 
-        // Get Restaurants
-        List<model.Restaurant> restaurants = getRestaurantsByIslandId(islandId);
-        for (model.Restaurant restaurant : restaurants) {
-            TourService service = new TourService();
-            service.setServiceType("Restaurant");
-            service.setServiceId(restaurant.getRestaurantId());
-            service.setServiceName(restaurant.getRestaurantName());
-            service.setServiceDescription(restaurant.getCuisineType() + " - " + restaurant.getPriceRange());
-            service.setServicePrice(0); // Restaurants don't have fixed price
-            service.setServiceImageUrl(restaurant.getRestaurantImageUrl());
-            services.add(service);
-        }
-
         // Get Places
         List<Place> places = getPlacesByIslandId(islandId);
         for (Place place : places) {
@@ -2937,6 +2707,7 @@ public class ServiceDao extends DBContext {
             return false;
         }
     }
+    
 
     // Lay tat ca services cua mot tour
     public List<TourService> getServicesByTourId(int tourId) {
@@ -2944,13 +2715,11 @@ public class ServiceDao extends DBContext {
         String sql = "SELECT ts.*, "
                 + "CASE "
                 + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelName "
-                + "WHEN UPPER(ts.serviceType) = 'RESTAURANT' THEN r.restaurantName "
                 + "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.placeName "
                 + "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN CONCAT(v.vehicleType, ' - ', v.modelName) "
                 + "END as serviceName, "
                 + "CASE "
                 + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelImageUrl "
-                + "WHEN UPPER(ts.serviceType) = 'RESTAURANT' THEN r.restaurantImageUrl "
                 + "ELSE '' "
                 + "END as serviceImageUrl, "
                 + "CASE "
@@ -2961,7 +2730,6 @@ public class ServiceDao extends DBContext {
                 + "END as servicePrice "
                 + "FROM TourServices ts "
                 + "LEFT JOIN Hotels h ON UPPER(ts.serviceType) = 'HOTEL' AND ts.serviceId = h.hotelId "
-                + "LEFT JOIN Restaurants r ON UPPER(ts.serviceType) = 'RESTAURANT' AND ts.serviceId = r.restaurantId "
                 + "LEFT JOIN Places p ON UPPER(ts.serviceType) = 'PLACE' AND ts.serviceId = p.placeId "
                 + "LEFT JOIN IslandVehicles v ON UPPER(ts.serviceType) = 'VEHICLE' AND ts.serviceId = v.vehicleId "
                 + "WHERE ts.tourId = ? "

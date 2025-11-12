@@ -11,10 +11,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import model.Tour;
 import model.TourActivities;
 import model.TourItinerary;
+import model.TourService;
 
 /**
  *
@@ -68,9 +71,16 @@ public class TourDetailController extends HttpServlet {
             TourDao tourDao = new TourDao();
             Tour tour = tourDao.getTourDetailById(tourId);
             List<TourItinerary> itineraries = tourDao.getListTourItineriesById(tourId);
+            List<TourService> services = tourDao.getServicesByTourId(tourId);
             // Gửi dữ liệu sang JSP
+            Set<String> uniqueTypes = new HashSet<>();
+            for (TourService s : services) {
+                uniqueTypes.add(s.getServiceType());
+            }
+            request.setAttribute("uniqueServiceTypes", uniqueTypes);
             request.setAttribute("tour", tour);
             request.setAttribute("itineraries", itineraries);
+            request.setAttribute("services", services);
             request.setAttribute("tourId", tourIdRaw);
             request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
 
