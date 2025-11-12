@@ -102,7 +102,7 @@ update Users
 set fullName ='Manager'
 where userId =2
 
-select * from CustomerProfiles
+select * from users
 
 
 update Airlines 
@@ -110,7 +110,6 @@ set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
 where airlineId=7
 
 select * from Flights
-select * from Airlines
 
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
@@ -1705,7 +1704,7 @@ INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 OUTPUT INSERTED.customTourId
 VALUES (1, 'Test Tour', '2025-11-10', '2025-11-12', 5000000);
 
-
+select * from users
 CREATE TABLE Places (
     placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
     islandId INT NOT NULL,                   -- Mã đảo (liên kết đến bảng Islands)

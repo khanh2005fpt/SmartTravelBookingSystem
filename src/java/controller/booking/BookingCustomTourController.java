@@ -80,7 +80,7 @@ public class BookingCustomTourController extends HttpServlet {
             throws ServletException, IOException {
         try {
             int customTourId = Integer.parseInt(request.getParameter("customTourId"));
-            int price = Integer.parseInt(request.getParameter("price"));
+            double price = Double.parseDouble(request.getParameter("discountedPrice"));
             String startDateStr = request.getParameter("startDate");
             Date departureDate = null;
 

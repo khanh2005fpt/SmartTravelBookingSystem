@@ -171,11 +171,47 @@
                                 </div>
                             </div>
 
+
+                            <c:set var="discountedPrice" value="${tour.totalPrice}" />
+
+                            <c:choose>
+                                <c:when test="${sessionScope.profile_customer.membershipLevel == 'BRONZE'}">
+                                    <c:set var="discountedPrice" value="${tour.totalPrice}" />
+                                </c:when>
+                                <c:when test="${sessionScope.profile_customer.membershipLevel == 'SILVER'}">
+                                    <c:set var="discountedPrice" value="${tour.totalPrice * 0.90}" />
+                                </c:when>
+                                <c:when test="${sessionScope.profile_customer.membershipLevel == 'GOLD'}">
+                                    <c:set var="discountedPrice" value="${tour.totalPrice * 0.85}" />
+                                </c:when>
+                                <c:when test="${sessionScope.profile_customer.membershipLevel == 'PLATINUM'}">
+                                    <c:set var="discountedPrice" value="${tour.totalPrice * 0.80}" />
+                                </c:when>
+                            </c:choose>
+
+                            <!-- ===== HIỂN THỊ GIÁ TOUR ===== -->
                             <h5 class="mt-4 text-primary">Giá Tour</h5>
                             <h4 class="text-primary fw-bold mb-3">
                                 <fmt:setLocale value="vi_VN" />
-                                <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
+
+                                <!-- Nếu có giảm giá thì hiển thị 2 dòng (lt: "<")-->
+                                <c:if test="${discountedPrice lt tour.totalPrice}"> 
+                                    <span style="text-decoration: line-through; color: #888; font-size: 20px" >
+                                        <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
+                                    </span><br>
+                                    <span style="color: #d97706; font-weight: bold;">
+                                        <fmt:formatNumber value="${discountedPrice}" type="number" groupingUsed="true"/> VNĐ
+                                    </span>
+                                    <small style="color: #d97706;">(Ưu đãi hạng ${sessionScope.profile_customer.membershipLevel})</small>
+                                </c:if>
+
+                                <!-- Nếu không có giảm giá -->
+                                <c:if test="${discountedPrice eq tour.totalPrice}">
+                                    <fmt:formatNumber value="${tour.totalPrice}" type="number" groupingUsed="true"/> VNĐ
+                                </c:if>
                             </h4>
+                            <input type="hidden" name="discountedPrice" value="${discountedPrice}">
+
 
                             <button type="submit" class="btn btn-primary w-100 fw-bold">
                                 <i class="bi bi-check-circle me-2"></i> Đặt Tour Ngay

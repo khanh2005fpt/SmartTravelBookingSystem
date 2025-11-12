@@ -82,7 +82,7 @@ public class BookingController extends HttpServlet {
             throws ServletException, IOException {
         try {
             int tourId = Integer.parseInt(request.getParameter("tourId"));
-            int price = Integer.parseInt(request.getParameter("price"));
+            double price = Double.parseDouble(request.getParameter("discountedPrice"));
             Date departureDate = Date.valueOf(request.getParameter("departureDate"));
             int adultQty = Integer.parseInt(request.getParameter("adultQty"));
             int childQty = Integer.parseInt(request.getParameter("childQty"));

@@ -112,7 +112,8 @@
                             <c:when test="${not empty sessionScope.user}">
                                 <form action="BookingController" method="post">
                                     <input type="hidden" name="tourId" value="${tour.tourId}">
-                                    <input type="hidden" name="price" value="${tour.price}">
+                                    <!-- Gửi giá gốc về Controller -->
+
 
                                     <div class="mb-3">
                                         <label class="form-label">Ngày khởi hành</label>
@@ -130,17 +131,53 @@
                                         </div>
                                     </div>
 
+                                    <!-- Tính giá sau khi giảm -->
+                                    <c:set var="discountedPrice" value="${tour.price}" />
+
+                                    <c:choose>
+                                        <c:when test="${sessionScope.profile_customer.membershipLevel == 'BRONZE'}">
+                                            <c:set var="discountedPrice" value="${tour.price}" />
+                                        </c:when>
+                                        <c:when test="${sessionScope.profile_customer.membershipLevel == 'SILVER'}">
+                                            <c:set var="discountedPrice" value="${tour.price * 0.90}" />
+                                        </c:when>
+                                        <c:when test="${sessionScope.profile_customer.membershipLevel == 'GOLD'}">
+                                            <c:set var="discountedPrice" value="${tour.price * 0.85}" />
+                                        </c:when>
+                                        <c:when test="${sessionScope.profile_customer.membershipLevel == 'PLATINUM'}">
+                                            <c:set var="discountedPrice" value="${tour.price * 0.80}" />
+                                        </c:when>
+                                    </c:choose>
+
+                                    <!-- ===== HIỂN THỊ GIÁ TOUR ===== -->
                                     <h5 class="mt-4 text-primary">Giá Tour</h5>
                                     <h4 class="text-primary fw-bold mb-3">
                                         <fmt:setLocale value="vi_VN" />
-                                        <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
+
+                                        <!-- Nếu có giảm giá thì hiển thị 2 dòng (lt: "<")-->
+                                        <c:if test="${discountedPrice lt tour.price}"> 
+                                            <span style="text-decoration: line-through; color: #888; font-size: 20px" >
+                                                <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
+                                            </span><br>
+                                            <span style="color: #d97706; font-weight: bold;">
+                                                <fmt:formatNumber value="${discountedPrice}" type="number" groupingUsed="true"/> VNĐ
+                                            </span>
+                                            <small style="color: #d97706;">(Ưu đãi hạng ${sessionScope.profile_customer.membershipLevel})</small>
+                                        </c:if>
+
+                                        <!-- Nếu không có giảm giá -->
+                                        <c:if test="${discountedPrice eq tour.price}">
+                                            <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VNĐ
+                                        </c:if>
                                     </h4>
+                                    <input type="hidden" name="discountedPrice" value="${discountedPrice}">
 
                                     <button type="submit" class="btn btn-primary btn-block fw-bold">
                                         <i class="bi bi-check-circle"></i> Đặt Tour Ngay
                                     </button>
                                 </form>
                             </c:when>
+
 
                             <c:otherwise>
                                 <div class="alert alert-warning">
