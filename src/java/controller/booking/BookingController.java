@@ -112,8 +112,8 @@ public class BookingController extends HttpServlet {
             }
 
             int totalPeople = adultQty + childQty;
-            if (totalPeople > 50) {
-                request.setAttribute("errorMessage", "❌ Tổng số người không được vượt quá 50 người!");
+            if (totalPeople > 40) {
+                request.setAttribute("errorMessage", "❌ Tổng số người không được vượt quá 40 người!");
                 request.setAttribute("tour", tour);
                 request.setAttribute("itineraries", itineraries);
                 request.getRequestDispatcher("/views/trip/tour_detail.jsp").forward(request, response);
