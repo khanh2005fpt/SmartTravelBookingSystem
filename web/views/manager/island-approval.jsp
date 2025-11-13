@@ -1,16 +1,17 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.util.List" %>
-<%@ page import="model.Tour" %>
+<%@ page import="model.Island" %> // Đã đổi từ model.Tour sang model.Island
 
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Duyệt Tour - Manager Panel</title>
+        <title>Duyệt Đảo - Manager Panel</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
         <style>
+            /* === CSS ĐÃ ĐỒNG BỘ TỪ tour-approval.jsp === */
             body {
                 background-color: #f5f7fa;
                 font-family: 'Segoe UI', sans-serif;
@@ -51,45 +52,41 @@
                 opacity: 0.9;
             }
 
-            .container {
-                margin-left: 270px;
+            .container-fluid {
                 padding: 30px;
                 max-width: 100%;
                 margin-right: auto;
-                margin-top: 80px;
                 background-color: #ffffffb3;
                 border-radius: 20px;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
             }
-
         </style>
     </head>
 
     <body>
-        <!-- ✅ Import sidebar chung dành cho Manager -->
-        <!-- Include Sidebar -->
         <%@ include file="/views/staff/sidebar.jsp" %>
 
-        <!-- Main Content -->
         <div class="main-content">
 
             <div class="page-header ">
-                <h1>  <i class="bi bi-calendar-check"></i> Quản lý trạng thái tour</h1>
+                <h1> <i class="bi bi-globe"></i> Quản lý trạng thái Đảo</h1>
                 <p class="flights-title text-white">
-                    Danh sách duyệt tour: <span class="flights-count text-white small">
+                    Danh sách duyệt Đảo: <span class="flights-count text-white small">
 
                     </span>
                 </p>
             </div>
+
             <div class="container-fluid">
-                <h2 class="mb-4 text-primary"><i class="bi bi-check2-circle"></i> Duyệt Tour Du Lịch</h2>
+                <h2 class="mb-4 text-primary"><i class="bi bi-check2-circle"></i> Duyệt Đảo Du Lịch</h2>
 
                 <%
-                    List<Tour> tours = (List<Tour>) request.getAttribute("tours");
-                    if (tours == null || tours.isEmpty()) {
+                    // Lấy danh sách Đảo
+                    List<Island> islands = (List<Island>) request.getAttribute("islands");
+                    if (islands == null || islands.isEmpty()) {
                 %>
                 <div class="alert alert-info text-center">
-                    Hiện không có tour nào đang chờ duyệt.
+                    Hiện không có Đảo nào đang chờ duyệt.
                 </div>
                 <%
                     } else {
@@ -98,37 +95,40 @@
                     <thead>
                         <tr class="text-center">
                             <th>ID</th>
-                            <th>Tên tour</th>
-                            <th>Đảo</th>
-                            <th>Mô tả</th>
-                            <th>Giá (VNĐ)</th>
+                            <th>Tên Đảo</th>
+                            <th>Quốc gia</th>
+                            <th>Mô tả Ngắn</th>
+                            <th>Vị trí</th>
                             <th>Trạng thái</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         <%
-                            for (Tour t : tours) {
+                            for (Island i : islands) { // Đổi t thành i và tours thành islands
                         %>
                         <tr>
-                            <td class="text-center"><%= t.getTourId() %></td>
-                            <td><%= t.getTourName() %></td>
-                            <td><%= t.getIslandName() != null ? t.getIslandName() : "N/A" %></td>
-                            <td><%= t.getDescription() %></td>
-                            <td class="text-end"><%= String.format("%,d", t.getPrice()) %></td>
+                            <td class="text-center"><%= i.getIslandId() %></td>
+                            <td><%= i.getIslandName() %></td>
+                            <td><%= i.getCountryName() != null ? i.getCountryName() : "N/A" %></td>
+                            
+                            <td><%= i.getShortDescription() %></td>
+                            
+                            <td class="text-center"><%= i.getLocation() %></td>
+                            
                             <td class="text-center">
-                                <% if ("APPROVED".equalsIgnoreCase(t.getApprovalStatus())) { %>
+                                <% if ("APPROVED".equalsIgnoreCase(i.getApprovalStatus())) { %>
                                 <span class="badge badge-approved">APPROVED</span>
-                                <% } else if ("REJECTED".equalsIgnoreCase(t.getApprovalStatus())) { %>
+                                <% } else if ("REJECTED".equalsIgnoreCase(i.getApprovalStatus())) { %>
                                 <span class="badge badge-rejected">REJECTED</span>
                                 <% } else { %>
                                 <span class="badge badge-pending">PENDING</span>
                                 <% } %>
                             </td>
                             <td class="text-center">
-                                <a href="${pageContext.request.contextPath}/manager/tour-approval?action=approve&id=<%=t.getTourId()%>"
+                                <a href="${pageContext.request.contextPath}/manager/island-approval?action=approve&id=<%=i.getIslandId()%>"
                                    class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Duyệt</a>
-                                <a href="${pageContext.request.contextPath}/manager/tour-approval?action=reject&id=<%=t.getTourId()%>"
+                                <a href="${pageContext.request.contextPath}/manager/island-approval?action=reject&id=<%=i.getIslandId()%>"
                                    class="btn btn-danger btn-sm"><i class="bi bi-x-lg"></i> Từ chối</a>
                             </td>
                         </tr>
