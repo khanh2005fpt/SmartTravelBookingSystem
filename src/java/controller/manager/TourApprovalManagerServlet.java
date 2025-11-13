@@ -27,16 +27,7 @@ public class TourApprovalManagerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-//        HttpSession session = request.getSession();
-//        String role = (String) session.getAttribute("role");
-//
-//        // ✅ Chỉ cho phép role = MANAGER
-//        if (role == null || !"MANAGER".equalsIgnoreCase(role)) {
-//            response.sendRedirect(request.getContextPath() + "/access-denied.jsp");
-//            return;
-//        }
-
-       // ... (code kiểm tra role nếu cần) ...
+        // ... (code kiểm tra role nếu cần) ...
 
         // Giữ doGet chỉ để list (hiển thị trang duyệt)
         try {
@@ -48,15 +39,7 @@ public class TourApprovalManagerServlet extends HttpServlet {
         }
     }
 
-
-    private void updateTourStatus(HttpServletRequest request, HttpServletResponse response, String status)
-            throws SQLException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        tourDao.updateTourStatus(id, status);
-        response.sendRedirect(request.getContextPath() + "/manager/tour-approval");
-    }
-    
-      // <--- THÊM PHƯƠNG THỨC doPost ĐỂ XỬ LÝ VIỆC DUYỆT/TỪ CHỐI
+    // <--- THÊM PHƯƠNG THỨC doPost ĐỂ XỬ LÝ VIỆC DUYỆT/TỪ CHỐI
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -78,8 +61,7 @@ public class TourApprovalManagerServlet extends HttpServlet {
             }
         }
     }
-    
-     // THÊM PHƯƠNG THỨC doPost ĐỂ XỬ LÝ VIỆC DUYỆT/TỪ CHỐI --->
+    // THÊM PHƯƠNG THỨC doPost ĐỂ XỬ LÝ VIỆC DUYỆT/TỪ CHỐI --->
 
     private void listPendingTours(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
@@ -109,7 +91,7 @@ public class TourApprovalManagerServlet extends HttpServlet {
 
         if (statusToUpdate != null) {
             // Gọi DAO với 3 tham số
-           // tourDao.updateTourStatus(id, statusToUpdate, reasonToSave);
+            tourDao.updateTourStatus(id, statusToUpdate, reasonToSave);
         }
         
         // Chuyển hướng về trang danh sách sau khi hoàn tất
@@ -117,5 +99,3 @@ public class TourApprovalManagerServlet extends HttpServlet {
     }
     // CẬP NHẬT PHƯƠNG THỨC updateTourStatus --->
 }
-    
-

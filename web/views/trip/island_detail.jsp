@@ -394,6 +394,9 @@
                             flex: 0 0 calc(33.333% - 20px);
                             scroll-snap-align: start;
                         }
+                        .heart.favorited {
+                            color: red !important;
+                        }
                     </style>
                     <!-- Vehicles Section -->
                     <section class="mb-5">
@@ -808,11 +811,6 @@
 
 // ==================== HÀM HỖ TRỢ  ====================
 
-            function setText(selector, text) {
-                const el = document.querySelector(selector);
-                if (el)
-                    el.textContent = text || '-';
-            }
 
             function set(selector, attr, value) {
                 const el = document.querySelector(selector);
@@ -929,27 +927,104 @@
         </script>
 
         <!-- add favaroutie tours ,services   -->
+          <!-- add favaroutie tours ,services   -->
         <script >
-
-
+            // Load initial favorite states
             document.addEventListener("DOMContentLoaded", () => {
+                // Collect all items to check
+                const itemsToCheck = [];
                 document.querySelectorAll(".heart").forEach(heart => {
-                    heart.addEventListener("click", () => {
-                        heart.classList.toggle("full");
-                        heart.classList.toggle("bi-heart");       // bi-heart: trống
-                        heart.classList.toggle("bi-heart-fill");  // bi-heart-fill: đầy
+                    let serviceType = "";
+                    let refId = "";
+                    if (heart.dataset.tourId) {
+                        serviceType = "tour";
+                        refId = heart.dataset.tourId;
+                    } else if (heart.dataset.flightId) {
+                        serviceType = "flight";
+                        refId = heart.dataset.flightId;
+                    } else if (heart.dataset.hotelId) {
+                        serviceType = "hotel";
+                        refId = heart.dataset.hotelId;
+                    } else if (heart.dataset.vehicleId) {
+                        serviceType = "vehicle";
+                        refId = heart.dataset.vehicleId;
+                    } else if (heart.dataset.placeId) {
+                        serviceType = "place";
+                        refId = heart.dataset.placeId;
+                    }
+                    if (serviceType && refId) {
+                        itemsToCheck.push({ heart, serviceType, refId });
+                    }
+                });
 
-                        const flightId = heart.dataset.flightId;
-                        const liked = heart.classList.contains("full");
-
-                        // Gửi lên server  lưu trạng thái like
-                        console.log("Flight ID:", flightId, "Liked:", liked);
-                    });
+                // Check each item
+                itemsToCheck.forEach(({ heart, serviceType, refId }) => {
+                    fetch('${pageContext.request.contextPath}/favorite?action=check&serviceType=' + serviceType + '&refId=' + refId)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.isFavorite) {
+                            heart.classList.add("favorited");
+                        }
+                    })
+                    .catch(error => console.error('Error checking favorite:', error));
                 });
             });
 
-        </script>
+            // Handle clicks
+            document.addEventListener("DOMContentLoaded", () => {
+                document.querySelectorAll(".heart").forEach(heart => {
+                    heart.addEventListener("click", () => {
+                        // Determine serviceType and refId
+                        let serviceType = "";
+                        let refId = "";
+                        if (heart.dataset.tourId) {
+                            serviceType = "tour";
+                            refId = heart.dataset.tourId;
+                        } else if (heart.dataset.flightId) {
+                            serviceType = "flight";
+                            refId = heart.dataset.flightId;
+                        } else if (heart.dataset.hotelId) {
+                            serviceType = "hotel";
+                            refId = heart.dataset.hotelId;
+                        } else if (heart.dataset.vehicleId) {
+                            serviceType = "vehicle";
+                            refId = heart.dataset.vehicleId;
+                        } else if (heart.dataset.placeId) {
+                            serviceType = "place";
+                            refId = heart.dataset.placeId;
+                        }
 
+                        if (!serviceType || !refId) return;
+
+                        // Send AJAX request
+                        fetch('${pageContext.request.contextPath}/favorite', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                action: 'toggle',
+                                serviceType: serviceType,
+                                refId: refId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Toggle the heart
+                                heart.classList.toggle("favorited");
+                            } else {
+                                alert("Error: " + (data.message || "Failed to update favorite"));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert("An error occurred while updating favorite");
+                        });
+                    });
+                });
+            });
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 

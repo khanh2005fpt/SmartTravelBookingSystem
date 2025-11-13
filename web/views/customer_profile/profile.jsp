@@ -359,28 +359,86 @@ if (currentUser != null) {
 
      
           <!-- favorites content ----------------------------------------->
-                 <div id="favorites" class=" favorites-container main-section" style="display:none;">
-                 
-                       <!-- Banner -->
-          <div class="tab-header-favorites text-center mb-4 w-100">
-              <img 
-                  src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
-                  alt="favorites Banner"
-                  class="img-fluid rounded-3 shadow-sm w-100">
-          </div>
-               <!-- Tiêu đề -->
-          <div class="text-center mb-4 w-auto">
-              <span class="badge bg-gradient" 
-                    style="background: linear-gradient(to right, #d97706, #b45309);
-                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
-                         🔔 Danh sách thông báo Meland Booking
-              </span>
-          </div>
+  
+                <div id="favorites" class="favorites-container main-section" style="display:none;">
 
-                 
-                 
-                 
-                 </div>
+                    <!-- Banner -->
+                    <div class="tab-header-favorites text-center mb-4 w-100">
+                        <img 
+                            src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                            alt="favorites Banner"
+                            class="img-fluid rounded-3 shadow-sm w-100">
+                    </div>
+
+                    <!-- Tiêu đề -->
+                    <div class="text-center mb-4 w-auto">
+                        <span class="badge bg-gradient" 
+                              style="background: linear-gradient(to right, #d97706, #b45309);
+                              font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                            ❤️ Danh sách yêu thích của tôi
+                        </span>
+                    </div>
+
+                    <!-- Nút reload -->
+                    <div class="text-center mb-3">
+                        <a class="btn btn-primary btn-reload" 
+                           href="${pageContext.request.contextPath}/customer/favorites">
+                            🔄 Hiển thị danh sách yêu thích
+                        </a>
+                    </div>
+
+                    <!-- Nếu danh sách trống -->
+                    <c:if test="${empty favoriteList}">
+                        <p class="text-center text-muted mt-3">Bạn chưa có dịch vụ nào được thêm vào yêu thích.</p>
+                    </c:if>
+
+                    <!-- Hiển thị danh sách yêu thích -->
+                    <div class="container mt-4">
+                        <c:forEach var="fav" items="${favoriteList}">
+                            <div class="card mb-3 shadow-sm border-1 rounded-3 favorites-card" 
+                                 data-fav-id="${fav.refId}" data-service="${fav.serviceType}">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="fw-bold mb-1">${fav.serviceType}</p>
+                                        <small class="text-muted">
+                                            Ngày thêm: 
+                                            <fmt:formatDate value="${fav.createdAt}" pattern="dd/MM/yyyy HH:mm" />
+                                        </small>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm btn-remove-fav">
+                                        💔 Bỏ thích
+                                    </button>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
+
+                <!-- Script xử lý bỏ thích -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        document.querySelectorAll('.btn-remove-fav').forEach(btn => {
+                            btn.addEventListener('click', function () {
+                                const card = this.closest('.favorites-card');
+                                const refId = card.dataset.favId;
+                                const serviceType = card.dataset.service;
+                                const contextPath = '<%= request.getContextPath() %>';
+
+                                fetch(`${contextPath}/favorite?action=remove&refId=${refId}&serviceType=${serviceType}`, {
+                                                    method: 'POST'
+                                                }).then(response => {
+                                                    if (response.ok) {
+                                                        // ✅ Xóa khỏi giao diện
+                                                        card.remove();
+                                                    } else {
+                                                        alert("Không thể bỏ thích. Vui lòng thử lại!");
+                                                    }
+                                                }).catch(err => console.error("Lỗi:", err));
+                                            });
+                                        });
+                                    });
+                </script>
+                
             
             <!-- account and securit content --------------------------------------------------------> 
             <div id="account" class="account-container main-section " >

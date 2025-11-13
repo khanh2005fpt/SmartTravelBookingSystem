@@ -275,6 +275,7 @@ CREATE TABLE Islands (
 );
 
 go
+select * from tours
 CREATE TABLE Tours (
     tourId INT PRIMARY KEY IDENTITY(1,1),
     islandId INT NOT NULL,
@@ -284,10 +285,12 @@ CREATE TABLE Tours (
     availableQuantity INT CHECK (availableQuantity >= 0) DEFAULT 0,
     approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED')),
     tourImageUrl NVARCHAR(500),
+	rejectionReason NVARCHAR(255),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-select * from users
-
+update Tours
+set approvalStatus ='PENDING'
+WHERE tourId=19;
 
 
 select * from TourServices 
@@ -763,14 +766,12 @@ go
 
 -- bảng logs
 CREATE TABLE Logs (
-    LogId INT PRIMARY KEY IDENTITY(1,1),
-    UserId INT NOT NULL,
-    Action NVARCHAR(100) NOT NULL,
-	Method NVARCHAR(20) NULL,    
+    LogId   INT PRIMARY KEY IDENTITY(1,1),
+    UserId  INT NOT NULL,                 -- không cho NULL
+    Action  NVARCHAR(100) NOT NULL,
     Timestamp DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES Users(UserId)
+    CONSTRAINT FK_Logs_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
-go
 
 
 -- Tokens
@@ -1907,20 +1908,4 @@ CREATE TABLE TourServices (
 );
 GO
 
-
-
-select * from hotels
--- Add totalQuantity to IslandVehicles table
-
-
-
--- Update TourServices serviceType CHECK constraint to include FLIGHT and AIRLINE
--- Drop the existing constraint (using the constraint name from error message)
--- If the constraint name is different, you may need to find it first using:
--- SELECT name FROM sys.check_constraints WHERE parent_object_id = OBJECT_ID('TourServices')
-
-select * from Tours
-update Tours
-set approvalStatus ='APPROVED'
-WHERE tourId BETWEEN 1 AND 10 
-
+-------------------------------------- Log systen

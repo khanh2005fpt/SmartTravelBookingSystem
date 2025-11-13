@@ -1143,6 +1143,26 @@ public class TourDao extends DBContext {
         return list;
     }
 
+    // -------------------- CẬP NHẬT TRẠNG THÁI DUYỆT CỦA TOUR --------------------
+    // <--- THAY ĐỔI CHỮ KÝ PHƯƠNG THỨC
+    public void updateTourStatus(int id, String status, String rejectionReason) throws SQLException {
+        // Cập nhật cả approvalStatus và rejectionReason
+        String sql = "UPDATE Tours SET approvalStatus = ?, rejectionReason = ? WHERE tourId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+
+            // Logic để set rejectionReason: chỉ lưu lý do nếu status là REJECTED
+            if ("REJECTED".equalsIgnoreCase(status)) {
+                ps.setString(2, rejectionReason);
+            } else {
+                ps.setNull(2, java.sql.Types.NVARCHAR); // Đặt NULL cho các trạng thái khác
+            }
+
+            ps.setInt(3, id);
+            ps.executeUpdate();
+        }
+    }
     // -------------------- Dashboard  tour --------------------
     public int getTotalTours() throws SQLException {
         int total = 0;
@@ -1686,6 +1706,11 @@ if (!rs.wasNull() && ti != null) {
         }
         return hb;
     }
+
+
+
+
+
 
     public static void main(String[] args) {
         try {

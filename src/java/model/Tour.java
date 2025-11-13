@@ -24,6 +24,7 @@ public class Tour {
     private LocalDateTime createdAt;
 
 
+private String rejectionReason;
     public Tour() {
     }
 
@@ -126,6 +127,14 @@ public class Tour {
         this.createdAt = createdAt;
     }
     
+    
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
     
 
     @Override

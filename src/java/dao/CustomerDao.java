@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import model.CustomerContacts;
 import model.CustomerProfile;
+import model.Favorite;
 import model.HistoryBooking;
 import model.Notification;
 import utils.DBContext;
@@ -381,7 +382,68 @@ public boolean isPEmailExist(String email) throws SQLException {
 }
 
      
+    // FAVORITE METHODS
+    // Add favorite
+    public boolean addFavorite(int userId, String serviceType, int refId) throws SQLException {
+        String sql = "INSERT INTO Favorites (userId, serviceType, refId, createdAt) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, serviceType);
+            ps.setInt(3, refId);
+            ps.setTimestamp(4, new java.sql.Timestamp(System.currentTimeMillis()));
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // Remove favorite
+    public boolean removeFavorite(int userId, String serviceType, int refId) throws SQLException {
+        String sql = "DELETE FROM Favorites WHERE userId = ? AND serviceType = ? AND refId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, serviceType);
+            ps.setInt(3, refId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // Check if favorite exists
+    public boolean isFavorite(int userId, String serviceType, int refId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Favorites WHERE userId = ? AND serviceType = ? AND refId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, serviceType);
+            ps.setInt(3, refId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+    // Lấy danh sách yêu thích theo user
+
+    public List<Favorite> getFavoritesByUser(int userId) throws SQLException {
+        List<Favorite> list = new ArrayList<>();
+        String sql = "SELECT favoriteId, userId, serviceType, refId, createdAt FROM Favorites WHERE userId = ? ORDER BY createdAt DESC";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Favorite f = new Favorite();
+                    f.setFavoriteId(rs.getInt("favoriteId"));
+                    f.setUserId(rs.getInt("userId"));
+                    f.setServiceType(rs.getString("serviceType"));
+                    f.setRefId(rs.getInt("refId"));
+                    f.setCreatedAt(rs.getTimestamp("createdAt"));
+                    list.add(f);
+                }
+            }
+        }
+        return list;
+    }
+
     
      
     }
-

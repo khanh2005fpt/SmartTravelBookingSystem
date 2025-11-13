@@ -92,7 +92,7 @@ public class TourStaffServlet extends HttpServlet {
                 case "view":
                     viewTour(request, response);
                     break;
-                case "create":
+                case "Tour":
                     createTour(request, response);
                     break;
                 case "edit":

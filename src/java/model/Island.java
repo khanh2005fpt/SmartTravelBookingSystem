@@ -19,7 +19,10 @@ public class Island {
     private String activities;
     private String imageUrl;
     private String location;
+    private String approvalStatus;
 
+    private String rejectionReason;
+    
     public Island() {
     }
 
@@ -106,6 +109,22 @@ public class Island {
     public void setLocation(String location) {
         this.location = location;
     }
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+    
 
     @Override
     public String toString() {
