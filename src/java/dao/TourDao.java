@@ -67,6 +67,31 @@ public class TourDao extends DBContext {
         return list;
     }
 
+    public List<TourService> getServicesByTourId(int tourId) throws SQLException{
+        List<TourService> services = new ArrayList<>();
+        String sql = "SELECT * FROM TourServices WHERE tourId = ?";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                TourService service = new TourService();
+                service.setTourServiceId(rs.getInt("tourServiceId"));
+                service.setTourId(rs.getInt("tourId"));
+                service.setServiceType(rs.getString("serviceType"));
+                service.setServiceId(rs.getInt("serviceId"));
+                service.setCreatedAt(rs.getTimestamp("createdAt"));
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy dịch vụ của tour: " + tourId, e);
+        }
+
+        return services;
+    }
+
     //Lay thong tin chi tiet cua tour tron goi
     public Tour getTourDetailById(int id) throws SQLException {
         String sql = "select * from tours where tourId = ?";

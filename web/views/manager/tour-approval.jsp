@@ -138,8 +138,7 @@
                                         data-description="<%=t.getDescription()%>"
                                         data-price="<%= String.format("%,d", t.getPrice()) %>"
                                         data-island-name="<%=t.getIslandName() != null ? t.getIslandName() : "N/A"%>"
-                                       data-image-url="<%=t.getTourImageUrl() != null ? request.getContextPath() + "/" + t.getTourImageUrl() : request.getContextPath() + "/images/default-tour.jpg" %>"
-
+                                        data-image-url="<%=t.getTourImageUrl() != null ? t.getTourImageUrl() : ""%>">
                                     <i class="bi bi-eye"></i> Xem chi tiết
                                 </button>
                             </td>
@@ -233,8 +232,7 @@
                     document.getElementById('modalDescription').textContent = description;
                     document.getElementById('modalPrice').textContent = price; 
                     document.getElementById('modalIslandName').textContent = islandName;
-                  document.getElementById('modalTourImage').src = imageUrl ? imageUrl : 'path/to/default-image.jpg';
-// Dùng hình ảnh mặc định nếu null
+                    document.getElementById('modalTourImage').src = imageUrl || 'url_den_hinh_mac_dinh.jpg'; // Dùng hình ảnh mặc định nếu null
 
                     // Đặt lại trạng thái mặc định của form và nút
                     rejectionReasonGroup.style.display = 'none';
@@ -284,6 +282,6 @@
                     rejectionReasonTextarea.required = false;
                 });
             });
-        </script>   
+        </script>
     </body>
 </html>

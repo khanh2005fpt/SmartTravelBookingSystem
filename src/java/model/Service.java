@@ -10,6 +10,8 @@ public class Service {
 
     public Service() {
     }
+    
+    
 
     public Service(int serviceId, String name, String type, double price, String status) {
         this.serviceId = serviceId;

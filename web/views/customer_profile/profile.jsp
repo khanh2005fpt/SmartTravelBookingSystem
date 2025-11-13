@@ -234,7 +234,7 @@ if (currentUser != null) {
                                 <h5>Bronze</h5>
                                 <p>Dưới 800.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 5% cho mọi dịch vụ và gói tour</li>
+                                    <li>• Nhận quà sinh nhật hoặc sự kiện đặc biệt</li>
                                     <li>• Nhận thông báo ưu đãi sớm</li>
                                     <li>• Cộng điểm tích lũy khi thanh toán</li>
                                 </ul>

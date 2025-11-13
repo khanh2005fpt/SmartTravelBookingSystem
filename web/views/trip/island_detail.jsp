@@ -253,10 +253,6 @@
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </h5>
-                                                        <p class="mb-1 ticket_available" style="margin-left: 2px;">
-                                                            <strong>Số lượng vé:</strong>
-                                                            <span class="text-success">${f.ticketAvailable}</span>
-                                                        </p>
                                                         <p class="card-text">
                                                             <span class="badge bg-success text-white px-2 py-1 fs-6">${f.flightClass}</span>
                                                         </p>
@@ -325,7 +321,6 @@
 
                                                 <div class="card-body d-flex flex-column">
                                                     <h5 class="card-title fw-bold text-dark">${hotel.hotelName}</h5>
-                                                    <p class="mb-1"><strong>Phòng trống:</strong> <span class="text-success">${hotel.roomAvailable}</span></p>
                                                     <p class="mb-1">
                                                         <strong>Đánh giá:</strong>
                                                         <c:forEach begin="1" end="5" var="i">
@@ -413,7 +408,6 @@
                                             <p class="mb-1">Tên xe: ${v.modelName}</p>
                                             <div class="mb-2 fs-5">
                                                 <span class="badge bg-info text-dark me-1">Sức chứa: ${v.capacity} người</span>
-                                                <span class="badge bg-success text-light">Còn ${v.availability} xe</span>
                                             </div>
                                             <div class="d-flex justify-content-between mt-3">
                                                 <p class="mb-2"><i class="bi bi-heart heart" data-vehicle-id="${v.vehicleId}" style="font-size:1.4rem;"></i></p>

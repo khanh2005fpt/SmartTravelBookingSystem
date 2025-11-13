@@ -15,7 +15,7 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
 public class ContactMailService {
-     private final String from = "nqaghuyyy6969@gmail.com";
+    private final String from = "nqaghuyyy6969@gmail.com";
     private final String password = "hcfj ldgb yyhh ssyc"; // App password Gmail
 
     public boolean sendFeedback(String to, String subject, String htmlContent) {

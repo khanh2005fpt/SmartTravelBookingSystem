@@ -76,7 +76,12 @@ public class RequestPassword extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
+            HttpSession session = request.getSession(false);
+    
+
+        
+         request.getRequestDispatcher("/views/account/requestPassword.jsp").forward(request, response);
+      
     }
 
     /**
@@ -145,11 +150,7 @@ public class RequestPassword extends HttpServlet {
 
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
+  
     @Override
     public String getServletInfo() {
         return "Short description";
