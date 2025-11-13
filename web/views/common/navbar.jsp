@@ -39,21 +39,7 @@
                     if (user == null) {
                         // Chưa đăng nhập → Hiện nút login/register
                 %>
-                <li class="nav-item dropdown position-relative">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        <i class="fa-solid fa-bell"></i>
-                        <span class="badge badge-danger position-absolute" 
-                              style="top: 5px; right: 5px; font-size: 0.7rem;">1</span>
-                    </a>
 
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown04" style="maxwidth: 350px;">
-                        <h6 class="dropdown-header">Thông báo</h6>
-                        <a class="dropdown-item" href="#">Hệ thống đang bảo trì, Vui lòng quay lại sau</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-center" href="#">Xem tất cả</a>
-                    </div>
-                </li>
 
                 <li class="nav-item ml-lg-5 ml-5 " ">
                     <a href="${pageContext.request.contextPath}/login" class="btn btn-login1"> 
@@ -62,8 +48,6 @@
 
 
                 </li>
-
-
 
 
                 <li class="nav-item ml-lg-3">

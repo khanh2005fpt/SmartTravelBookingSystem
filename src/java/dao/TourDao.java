@@ -1691,7 +1691,7 @@ if (!rs.wasNull() && ti != null) {
         try {
             TourDao dao = new TourDao();
       
-           int testUserId = 4; // <-- đổi userId để test theo dữ liệu thật trong DB
+           int testUserId = 10; // <-- đổi userId để test theo dữ liệu thật trong DB
         
             TourBookingInfo info = dao.getLatestTourAfterBookingByUser(testUserId);
 

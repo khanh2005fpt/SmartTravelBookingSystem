@@ -10,6 +10,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="model.User" %>
+<%@ page import="model.Flight" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -466,40 +467,68 @@ if (currentUser != null) {
                         </c:otherwise>
                     </c:choose>
                 </div>
+                
+                <!-- Flight Information -->
+                <c:if test="${not empty flight}">
+                    <div class="flight-info" style="background: #fff3e0; border-radius: 10px; padding: 20px; margin: 15px 0;">
+                        <h6><i class="fa fa-plane"></i> Thông tin Vé Bay</h6>
+                        <div class="info-item">
+                            <span class="info-label">ID Flight:</span>
+                            <span class="info-value"><strong>#${flight.flightId}</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mã chuyến bay:</span>
+                            <span class="info-value"><strong>${flight.flightNumber}</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hãng hàng không:</span>
+                            <span class="info-value">
+                                <c:if test="${not empty flight.airline}">
+                                    ${flight.airline.airlineName}
+                                    <c:if test="${not empty flight.airline.iataCode}">
+                                        (${flight.airline.iataCode})
+                                    </c:if>
+                                </c:if>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Điểm khởi hành:</span>
+                            <span class="info-value">${flight.departure}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Điểm đến:</span>
+                            <span class="info-value">${flight.destination}</span>
+                        </div>
+                        <c:if test="${not empty flight.destinationIsland}">
+                            <div class="info-item">
+                                <span class="info-label">Đảo đến:</span>
+                                <span class="info-value">${flight.destinationIsland.islandName}</span>
+                            </div>
+                        </c:if>
+                        <div class="info-item">
+                            <span class="info-label">Loại chuyến bay:</span>
+                            <span class="info-value">${flight.flightType}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hạng vé:</span>
+                            <span class="info-value">${flight.flightClass}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Giá cơ bản:</span>
+                            <span class="info-value">
+                                <fmt:formatNumber value="${flight.basePrice}" type="currency" 
+                                                currencySymbol="₫" groupingUsed="true" />
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Vé còn lại:</span>
+                            <span class="info-value">${flight.ticketAvailable} vé</span>
+                        </div>
+                    </div>
+                </c:if>
+                
             </div>
 
-<%--            <!-- Status Management -->--%>
-<%--            <div class="status-management">--%>
-<%--                <h5><i class="fa fa-cogs"></i> Quản lý trạng thái</h5>--%>
-<%--                --%>
-<%--                <form action="${pageContext.request.contextPath}/staff/bookings" method="post" class="status-form">--%>
-<%--                    <input type="hidden" name="action" value="updateStatus">--%>
-<%--                    <input type="hidden" name="bookingId" value="${booking.bookingId}">--%>
-<%--                    --%>
-<%--                    <div class="form-group">--%>
-<%--                        <label for="newStatus">Trạng thái mới:</label>--%>
-<%--                        <select class="form-control" id="newStatus" name="newStatus" required>--%>
-<%--                            <option value="">-- Chọn trạng thái --</option>--%>
-<%--                            <option value="PENDING" ${booking.status == 'PENDING' ? 'selected' : ''}>Chờ xử lý</option>--%>
-<%--                            <option value="CONFIRMED" ${booking.status == 'CONFIRMED' ? 'selected' : ''}>Đã xác nhận</option>--%>
-<%--                            <option value="COMPLETED" ${booking.status == 'COMPLETED' ? 'selected' : ''}>Hoàn thành</option>--%>
-<%--                            <option value="CANCELLED" ${booking.status == 'CANCELLED' ? 'selected' : ''}>Đã hủy</option>--%>
-<%--                        </select>--%>
-<%--                    </div>--%>
-<%--                    --%>
-<%--                    <button type="submit" class="btn btn-update" onclick="return confirmStatusUpdate()">--%>
-<%--                        <i class="fa fa-save"></i> Cập nhật trạng thái--%>
-<%--                    </button>--%>
-<%--                </form>--%>
-<%--                --%>
-<%--                <hr class="my-4">--%>
-<%--                --%>
-<%--                <div class="text-center">--%>
-<%--                    <a href="${pageContext.request.contextPath}/staff/bookings" class="btn-back">--%>
-<%--                        <i class="fa fa-arrow-left mr-2"></i> Quay lại danh sách--%>
-<%--                    </a>--%>
-<%--                </div>--%>
-<%--            </div>--%>
         </div>
     </div>
 

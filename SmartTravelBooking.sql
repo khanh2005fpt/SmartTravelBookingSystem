@@ -718,7 +718,6 @@ DBCC CHECKIDENT ('CustomTourDetails', RESEED, 0);
 DBCC CHECKIDENT ('CustomTours', RESEED, 0);
 */
 
-
 -- triger ghi lại lịch sử booking 
 
 CREATE TRIGGER trg_Payments_StatusChange
@@ -748,14 +747,6 @@ END;
 GO
 
 
-
-
-
-
-
-
-
-
 -- Bảng Recommendations
 CREATE TABLE Recommendations (
     recId INT IDENTITY(1,1) PRIMARY KEY,
@@ -768,6 +759,7 @@ CREATE TABLE Recommendations (
 );
 
 go
+
 
 -- bảng logs
 CREATE TABLE Logs (
@@ -855,12 +847,8 @@ WHERE name = 'CK__Payments__status__7C3A67EB';
 
 --- trigger khi thông báo khi người dùng đặt chỗ "chạy khi thêm bản ghi mới vào Bookings"
 
-UPDATE Users
-SET password = '123456new'
-WHERE userId = 4;
 
-select * from users
-CREATE TRIGGER trg_Booking_Insert_Notification
+CREATE OR ALTER TRIGGER trg_Booking_Insert_Notification
 ON Bookings
 AFTER INSERT
 AS
@@ -868,34 +856,29 @@ BEGIN
     SET NOCOUNT ON;
 
     INSERT INTO Notifications (userId, title, message, type)
-    SELECT 
+    SELECT
         i.customerId,
-        N'Đặt chỗ thành công',
-        CASE 
-            -- Nếu là tour trọn gói
-            WHEN i.tourId IS NOT NULL THEN 
-                N'Bạn vừa đặt tour trọn gói: "' + ISNULL(t.tourName, N'') + N'" khởi hành ngày ' 
-                + CONVERT(NVARCHAR(10), i.departureDate, 120)
-            
-   -- Nếu là tour riêng lẻ (custom tour)
-WHEN i.customTourId IS NOT NULL THEN 
-    N'Bạn vừa đặt tour riêng: "' + ISNULL(ct.tourName, N'') + N'" khởi hành ngày ' 
-    + CONVERT(NVARCHAR(10), i.departureDate, 120)
-    + N', kết thúc ngày ' + CONVERT(NVARCHAR(10), ISNULL(i.endDate, i.departureDate), 120)--nếu endDate NULL, sẽ hiển thị departureDate để tránh lỗi.
-
-            
-            -- Trường hợp không xác định 
-            ELSE 
-                N'Bạn vừa tạo đặt chỗ thành công.' 
-        END AS message,
+        N'🎉 Đặt chỗ thành công!',
+        CASE
+            WHEN i.tourId IS NOT NULL THEN
+                N'🎫 Bạn vừa đặt tour trọn gói: "' + ISNULL(t.tourName, N'') + 
+                N'" ✈️ Khởi hành ngày ' + CONVERT(NVARCHAR(10), i.departureDate, 120) + N'. Chúc bạn có chuyến đi tuyệt vời!'
+           
+            WHEN i.customTourId IS NOT NULL THEN
+                N'🧳 Bạn vừa đặt tour riêng: "' + ISNULL(ct.tourName, N'') + 
+                N'" ✈️ Khởi hành ngày ' + CONVERT(NVARCHAR(10), i.departureDate, 120) +
+                N', kết thúc ngày ' + CONVERT(NVARCHAR(10), ISNULL(i.endDate, i.departureDate), 120) + 
+                N'. Chúc bạn có chuyến đi đáng nhớ!'
+           
+            ELSE
+                N'🎉 Bạn vừa tạo đặt chỗ thành công! Cảm ơn bạn đã tin tưởng dịch vụ của chúng tôi ❤️'
+        END,
         'BOOKING'
     FROM inserted i
     LEFT JOIN Tours t ON i.tourId = t.tourId
     LEFT JOIN CustomTours ct ON i.customTourId = ct.customTourId;
 END;
 GO
-DROP TRIGGER IF EXISTS trg_Payment_Insert_Notification;
-
 
 
 --- triger khi thông báo customer những tour mới "chạy khi cập nhật trạng thái Tours"
