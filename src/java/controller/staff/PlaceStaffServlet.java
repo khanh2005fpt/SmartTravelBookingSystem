@@ -8,7 +8,9 @@ import dao.ServiceDao;
 import model.Place;
 import model.Island;
 import model.User;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -17,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 /**
  * Servlet for managing place operations for staff members
@@ -136,26 +139,25 @@ public class PlaceStaffServlet extends HttpServlet {
     private void handlePlaceList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            applyPlaceMessages(request);
+
             // Get pagination parameters
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
             String search = request.getParameter("search");
+            String hasTicket = request.getParameter("hasTicket");
+            String islandId = request.getParameter("islandId");
             
             int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
             int pageSize = (pageSizeParam != null) ? Integer.parseInt(pageSizeParam) : 10;
             
-            List<Place> places;
-            int totalPlaces;
+            // Load islands for dropdown
+            List<Island> islands = serviceDao.getAllIslands();
+            request.setAttribute("islands", islands);
             
-            // Handle search or normal listing
-            if (search != null && !search.trim().isEmpty()) {
-                places = serviceDao.searchPlacesByNameWithPaginationAndIslandNames(search.trim(), page, pageSize);
-                totalPlaces = serviceDao.getSearchPlacesCount(search.trim());
-                request.setAttribute("search", search);
-            } else {
-                places = serviceDao.getPlacesByPageWithIslandNames(page, pageSize);
-                totalPlaces = serviceDao.getTotalPlacesCount();
-            }
+            // Get places with filters
+            List<Place> places = serviceDao.getPlacesWithFilters(search, hasTicket, islandId, page, pageSize);
+            int totalPlaces = serviceDao.getPlacesCountWithFilters(search, hasTicket, islandId);
             
             // Calculate pagination info
             int totalPages = (int) Math.ceil((double) totalPlaces / pageSize);
@@ -171,6 +173,17 @@ public class PlaceStaffServlet extends HttpServlet {
             request.setAttribute("startPage", startPage);
             request.setAttribute("endPage", endPage);
             request.setAttribute("pageTitle", "Place Management");
+            
+            // Preserve filter parameters for form
+            if (search != null) {
+                request.setAttribute("search", search);
+            }
+            if (hasTicket != null) {
+                request.setAttribute("hasTicket", hasTicket);
+            }
+            if (islandId != null) {
+                request.setAttribute("islandId", islandId);
+            }
             
             request.getRequestDispatcher("/views/staff/place-list.jsp").forward(request, response);
         } catch (Exception e) {
@@ -423,6 +436,12 @@ public class PlaceStaffServlet extends HttpServlet {
             }
             
             int placeId = Integer.parseInt(placeIdStr);
+
+            if (serviceDao.isPlaceInUse(placeId)) {
+                response.sendRedirect(request.getContextPath() + "/staff/places?error=in_use");
+                return;
+            }
+
             boolean success = serviceDao.deletePlace(placeId);
             
             if (success) {
@@ -441,13 +460,49 @@ public class PlaceStaffServlet extends HttpServlet {
     /**
      * Create place object from request parameters
      */
-    private Place createPlaceFromRequest(HttpServletRequest request) {
+    private Place createPlaceFromRequest(HttpServletRequest request) throws ServletException, IOException {
         Place place = new Place();
         
         // Set basic fields
         place.setPlaceName(request.getParameter("placeName"));
         place.setLocation(request.getParameter("location"));
         place.setDescription(request.getParameter("description"));
+        
+        // Handle image URL - check for file upload first, then fallback to current URL
+        String imageUrl = request.getParameter("currentImageUrl"); // Default to existing image
+        
+        try {
+            Part filePart = request.getPart("placeImageFile");
+            if (filePart != null && filePart.getSize() > 0) {
+                // Get original filename
+                String originalName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
+                
+                // Generate unique filename
+                String fileExtension = originalName.substring(originalName.lastIndexOf("."));
+                String uniqueFileName = "place_" + System.currentTimeMillis() + "_" + 
+                                      (int)(Math.random() * 1000) + fileExtension;
+                
+                // Create upload directory if it doesn't exist
+                String uploadDir = getServletContext().getRealPath("/") + "UploadData" + File.separator + "Places";
+                File uploadDirFile = new File(uploadDir);
+                if (!uploadDirFile.exists()) {
+                    uploadDirFile.mkdirs();
+                }
+                
+                // Save the file
+                String filePath = uploadDir + File.separator + uniqueFileName;
+                filePart.write(filePath);
+                
+                // Set the relative path for database storage
+                imageUrl = "UploadData/Places/" + uniqueFileName;
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling file upload: " + e.getMessage());
+            e.printStackTrace();
+            // Continue with existing image URL if file upload fails
+        }
+        
+        place.setPlaceImageUrl(imageUrl);
         
         // Set boolean field
         String hasTicketStr = request.getParameter("hasTicket");
@@ -522,6 +577,45 @@ public class PlaceStaffServlet extends HttpServlet {
         
         String role = user.getRole();
         return "staff".equals(role) || "admin".equals(role);
+    }
+
+    private void applyPlaceMessages(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object success = session.getAttribute("successMessage");
+            if (success != null) {
+                request.setAttribute("successMessage", success);
+                session.removeAttribute("successMessage");
+            }
+            Object error = session.getAttribute("errorMessage");
+            if (error != null) {
+                request.setAttribute("errorMessage", error);
+                session.removeAttribute("errorMessage");
+            }
+        }
+
+        if (request.getAttribute("successMessage") == null) {
+            String success = request.getParameter("success");
+            if (success != null) {
+                switch (success) {
+                    case "created" -> request.setAttribute("successMessage", "Thêm địa điểm thành công.");
+                    case "updated" -> request.setAttribute("successMessage", "Cập nhật địa điểm thành công.");
+                    case "deleted" -> request.setAttribute("successMessage", "Xóa địa điểm thành công.");
+                }
+            }
+        }
+
+        if (request.getAttribute("errorMessage") == null) {
+            String error = request.getParameter("error");
+            if (error != null) {
+                switch (error) {
+                    case "invalid_id" -> request.setAttribute("errorMessage", "ID địa điểm không hợp lệ.");
+                    case "delete_failed" -> request.setAttribute("errorMessage", "Không thể xóa địa điểm. Vui lòng thử lại.");
+                    case "update_failed" -> request.setAttribute("errorMessage", "Cập nhật địa điểm thất bại.");
+                    case "in_use" -> request.setAttribute("errorMessage", "Không thể xóa địa điểm vì đang được sử dụng trong tour hoặc custom tour.");
+                }
+            }
+        }
     }
 
     /**

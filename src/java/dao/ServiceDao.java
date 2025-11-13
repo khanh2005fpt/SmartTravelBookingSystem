@@ -74,6 +74,7 @@ public class ServiceDao extends DBContext {
                 h.setRoomType(rs.getString("roomType"));
                 h.setPricePerNight(rs.getInt("pricePerNight"));
                 h.setRoomAvailable(rs.getInt("roomsAvailable"));
+                h.setTotalRooms(rs.getInt("totalRooms"));
                 h.setRating(rs.getDouble("rating"));
                 list.add(h);
             }
@@ -220,7 +221,7 @@ public class ServiceDao extends DBContext {
     // ==================== HOTEL CRUD OPERATIONS ====================
     // CREATE - Them khach san moi
     public boolean createHotel(Hotel hotel) {
-        String sql = "INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, rating, hotelImageUrl, area) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Hotels (islandId, hotelName, roomType, pricePerNight, roomsAvailable, totalRooms, rating, hotelImageUrl, area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, hotel.getIslandId());
@@ -228,9 +229,10 @@ public class ServiceDao extends DBContext {
             ps.setString(3, hotel.getRoomType());
             ps.setInt(4, hotel.getPricePerNight());
             ps.setInt(5, hotel.getRoomAvailable());
-            ps.setDouble(6, hotel.getRating());
-            ps.setString(7, hotel.getHotelImageUrl());
-            ps.setInt(8, 50); // Default area value
+            ps.setInt(6, hotel.getTotalRooms());
+            ps.setDouble(7, hotel.getRating());
+            ps.setString(8, hotel.getHotelImageUrl());
+            ps.setInt(9, 50); // Default area value
 
             int result = ps.executeUpdate();
             return result > 0;
@@ -261,6 +263,7 @@ public class ServiceDao extends DBContext {
                 hotel.setRoomType(rs.getString("roomType"));
                 hotel.setPricePerNight(rs.getInt("pricePerNight"));
                 hotel.setRoomAvailable(rs.getInt("roomsAvailable"));
+                hotel.setTotalRooms(rs.getInt("totalRooms"));
                 hotel.setRating(rs.getDouble("rating"));
                 return hotel;
             }
@@ -272,7 +275,7 @@ public class ServiceDao extends DBContext {
 
     // UPDATE - Cap nhat thong tin khach san
     public boolean updateHotel(Hotel hotel) {
-        String sql = "UPDATE Hotels SET islandId = ?, hotelName = ?, roomType = ?, pricePerNight = ?, roomsAvailable = ?, rating = ?, hotelImageUrl = ? WHERE hotelId = ?";
+        String sql = "UPDATE Hotels SET islandId = ?, hotelName = ?, roomType = ?, pricePerNight = ?, roomsAvailable = ?, totalRooms = ?, rating = ?, hotelImageUrl = ? WHERE hotelId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, hotel.getIslandId());
@@ -280,9 +283,10 @@ public class ServiceDao extends DBContext {
             ps.setString(3, hotel.getRoomType());
             ps.setInt(4, hotel.getPricePerNight());
             ps.setInt(5, hotel.getRoomAvailable());
-            ps.setDouble(6, hotel.getRating());
-            ps.setString(7, hotel.getHotelImageUrl());
-            ps.setInt(8, hotel.getHotelId());
+            ps.setInt(6, hotel.getTotalRooms());
+            ps.setDouble(7, hotel.getRating());
+            ps.setString(8, hotel.getHotelImageUrl());
+            ps.setInt(9, hotel.getHotelId());
 
             int result = ps.executeUpdate();
             return result > 0;
@@ -304,6 +308,19 @@ public class ServiceDao extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    // Kiểm tra hotel đang được sử dụng
+    public boolean isHotelInUse(int hotelId) {
+        try {
+            if (isServiceReferencedInTourServices("HOTEL", hotelId)) {
+                return true;
+            }
+            return isServiceReferencedInCustomTourDetails("Khách sạn", hotelId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
         }
     }
 
@@ -1163,8 +1180,8 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
     // ==================== ISLAND VEHICLE CRUD OPERATIONS ====================
     // CREATE - Them phuong tien moi
     public boolean createIslandVehicle(IslandVehicle vehicle) {
-        String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO IslandVehicles (islandId, vehicleType, modelName, pricePerDay, capacity, availability, totalQuantity) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicle.getIslandId());
@@ -1173,6 +1190,7 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
             ps.setDouble(4, vehicle.getPricePerDay());
             ps.setInt(5, vehicle.getCapacity());
             ps.setInt(6, vehicle.getAvailability());
+            ps.setInt(7, vehicle.getTotalQuantity());
 
             int result = ps.executeUpdate();
             return result > 0;
@@ -1201,6 +1219,7 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
+                vehicle.setTotalQuantity(rs.getInt("totalQuantity"));
 
                 // Set island name from JOIN
                 vehicle.setIslandName(rs.getString("islandName"));
@@ -1225,7 +1244,7 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
     // UPDATE - Cap nhat thong tin phuong tien
     public boolean updateIslandVehicle(IslandVehicle vehicle) {
         String sql = "UPDATE IslandVehicles SET islandId = ?, vehicleType = ?, modelName = ?, "
-                + "pricePerDay = ?, capacity = ?, availability = ? WHERE vehicleId = ?";
+                + "pricePerDay = ?, capacity = ?, availability = ?, totalQuantity = ? WHERE vehicleId = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, vehicle.getIslandId());
@@ -1234,7 +1253,8 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
             ps.setDouble(4, vehicle.getPricePerDay());
             ps.setInt(5, vehicle.getCapacity());
             ps.setInt(6, vehicle.getAvailability());
-            ps.setInt(7, vehicle.getVehicleId());
+            ps.setInt(7, vehicle.getTotalQuantity());
+            ps.setInt(8, vehicle.getVehicleId());
 
             int result = ps.executeUpdate();
             return result > 0;
@@ -1257,6 +1277,55 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Kiểm tra vehicle đang được sử dụng
+    public boolean isVehicleInUse(int vehicleId) {
+        try {
+            if (isServiceReferencedInTourServices("VEHICLE", vehicleId)) {
+                return true;
+            }
+            return isServiceReferencedInCustomTourDetails("Phương tiện", vehicleId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
+    private boolean isServiceReferencedInTourServices(String serviceType, int serviceId) throws SQLException {
+        String sql = """
+            SELECT COUNT(*) 
+            FROM TourServices 
+            WHERE UPPER(serviceType) = ? AND serviceId = ?
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, serviceType.toUpperCase());
+            ps.setInt(2, serviceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isServiceReferencedInCustomTourDetails(String serviceType, int serviceId) throws SQLException {
+        String sql = """
+            SELECT COUNT(*) 
+            FROM CustomTourDetails 
+            WHERE serviceType = ? AND serviceId = ?
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, serviceType);
+            ps.setInt(2, serviceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 
     // Cap nhat tinh trang phuong tien
@@ -1294,6 +1363,7 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
+                vehicle.setTotalQuantity(rs.getInt("totalQuantity"));
 
                 // Set island name from JOIN
                 vehicle.setIslandName(rs.getString("islandName"));
@@ -1338,6 +1408,7 @@ if (departureTimeRange != null && !departureTimeRange.isEmpty()) {
                 vehicle.setPricePerDay(rs.getDouble("pricePerDay"));
                 vehicle.setCapacity(rs.getInt("capacity"));
                 vehicle.setAvailability(rs.getInt("availability"));
+                vehicle.setTotalQuantity(rs.getInt("totalQuantity"));
 
                 // Set island name from JOIN
                 vehicle.setIslandName(rs.getString("islandName"));
@@ -2338,6 +2409,19 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
         return false;
     }
 
+    // Kiểm tra place đang được sử dụng
+    public boolean isPlaceInUse(int placeId) {
+        try {
+            if (isServiceReferencedInTourServices("PLACE", placeId)) {
+                return true;
+            }
+            return isServiceReferencedInCustomTourDetails("Địa điểm nổi bật", placeId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
     // Tim kiem dia diem theo ten
     public List<Place> searchPlaces(String searchTerm) {
         List<Place> list = new ArrayList<>();
@@ -2531,6 +2615,143 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
         return 0;
     }
 
+    /**
+     * Get places with pagination, island names, and filters (hasTicket, islandId, search)
+     */
+    public List<Place> getPlacesWithFilters(String search, String hasTicket, String islandId, int page, int pageSize) {
+        List<Place> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT p.*, i.islandName, c.countryName " +
+                    "FROM Places p " +
+                    "JOIN Islands i ON p.islandId = i.islandId " +
+                    "JOIN Countries c ON i.countryId = c.countryId " +
+                    "WHERE 1=1 ");
+        
+        List<Object> params = new ArrayList<>();
+        
+        // Add search filter
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ?) ");
+            String searchPattern = "%" + search.trim() + "%";
+            params.add(searchPattern);
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+        
+        // Add hasTicket filter
+        if (hasTicket != null && !hasTicket.trim().isEmpty()) {
+            boolean ticketValue = "true".equals(hasTicket.trim());
+            sql.append("AND p.hasTicket = ? ");
+            params.add(ticketValue);
+        }
+        
+        // Add islandId filter
+        if (islandId != null && !islandId.trim().isEmpty()) {
+            try {
+                int islandIdValue = Integer.parseInt(islandId.trim());
+                sql.append("AND p.islandId = ? ");
+                params.add(islandIdValue);
+            } catch (NumberFormatException e) {
+                // Invalid islandId, ignore
+            }
+        }
+        
+        sql.append("ORDER BY p.placeName OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add((page - 1) * pageSize);
+        params.add(pageSize);
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                if (param instanceof String) {
+                    ps.setString(i + 1, (String) param);
+                } else if (param instanceof Boolean) {
+                    ps.setBoolean(i + 1, (Boolean) param);
+                } else if (param instanceof Integer) {
+                    ps.setInt(i + 1, (Integer) param);
+                }
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Place place = new Place();
+                    place.setPlaceId(rs.getInt("placeId"));
+                    place.setIslandId(rs.getInt("islandId"));
+                    place.setPlaceName(rs.getString("placeName"));
+                    place.setLocation(rs.getString("location"));
+                    place.setDescription(rs.getString("description"));
+                    place.setHasTicket(rs.getBoolean("hasTicket"));
+                    place.setTicketPrice(rs.getInt("ticketPrice"));
+                    
+                    // Set island and country names
+                    place.setIslandName(rs.getString("islandName"));
+                    place.setCountryName(rs.getString("countryName"));
+                    
+                    list.add(place);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Get count of places matching filters (hasTicket, islandId, search)
+     */
+    public int getPlacesCountWithFilters(String search, String hasTicket, String islandId) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Places p WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+        
+        // Add search filter
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (p.placeName LIKE ? OR p.location LIKE ? OR p.description LIKE ?) ");
+            String searchPattern = "%" + search.trim() + "%";
+            params.add(searchPattern);
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+        
+        // Add hasTicket filter
+        if (hasTicket != null && !hasTicket.trim().isEmpty()) {
+            boolean ticketValue = "true".equals(hasTicket.trim());
+            sql.append("AND p.hasTicket = ? ");
+            params.add(ticketValue);
+        }
+        
+        // Add islandId filter
+        if (islandId != null && !islandId.trim().isEmpty()) {
+            try {
+                int islandIdValue = Integer.parseInt(islandId.trim());
+                sql.append("AND p.islandId = ? ");
+                params.add(islandIdValue);
+            } catch (NumberFormatException e) {
+                // Invalid islandId, ignore
+            }
+        }
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                if (param instanceof String) {
+                    ps.setString(i + 1, (String) param);
+                } else if (param instanceof Boolean) {
+                    ps.setBoolean(i + 1, (Boolean) param);
+                } else if (param instanceof Integer) {
+                    ps.setInt(i + 1, (Integer) param);
+                }
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     // ==================== TOUR SERVICE OPERATIONS ====================
 
     // Lay tat ca services theo islandId (Hotels, Restaurants, Places, Vehicles)
@@ -2597,6 +2818,32 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
             e.printStackTrace();
         }
 
+        // Get Flights (Vé máy bay)
+        try {
+            List<Flight> flights = getFlightsByIslandId(islandId);
+            for (Flight flight : flights) {
+                TourService service = new TourService();
+                service.setServiceType("FLIGHT");
+                service.setServiceId(flight.getFlightId());
+                String flightName = flight.getFlightNumber();
+                if (flight.getAirline() != null && flight.getAirline().getAirlineName() != null) {
+                    flightName = flight.getAirline().getAirlineName() + " - " + flight.getFlightNumber();
+                }
+                service.setServiceName(flightName);
+                service.setServiceDescription(flight.getDeparture() + " → " + flight.getDestination() + 
+                    " | " + flight.getFlightType() + " | " + flight.getFlightClass());
+                service.setServicePrice(flight.getBasePrice());
+                if (flight.getAirline() != null && flight.getAirline().getLogoUrl() != null) {
+                    service.setServiceImageUrl(flight.getAirline().getLogoUrl());
+                } else {
+                    service.setServiceImageUrl("");
+                }
+                services.add(service);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return services;
     }
 
@@ -2641,16 +2888,23 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
                     "WHEN UPPER(ts.serviceType) = 'RESTAURANT' THEN r.restaurantName " +
                     "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.placeName " +
                     "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN CONCAT(v.vehicleType, ' - ', v.modelName) " +
+                    "WHEN UPPER(ts.serviceType) IN ('FLIGHT', 'AIRLINE') THEN " +
+                    "    CASE " +
+                    "    WHEN f.flightNumber IS NOT NULL THEN CONCAT(COALESCE(a.airlineName, ''), ' - ', f.flightNumber) " +
+                    "    ELSE COALESCE(a.airlineName, 'Flight ID: ' + CAST(f.flightId AS VARCHAR)) " +
+                    "    END " +
                     "END as serviceName, " +
                     "CASE " +
                     "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelImageUrl " +
                     "WHEN UPPER(ts.serviceType) = 'RESTAURANT' THEN r.restaurantImageUrl " +
+                    "WHEN UPPER(ts.serviceType) IN ('FLIGHT', 'AIRLINE') THEN COALESCE(a.logoUrl, '') " +
                     "ELSE '' " +
                     "END as serviceImageUrl, " +
                     "CASE " +
                     "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.pricePerNight " +
                     "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.ticketPrice " +
                     "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN v.pricePerDay " +
+                    "WHEN UPPER(ts.serviceType) IN ('FLIGHT', 'AIRLINE') THEN f.basePrice " +
                     "ELSE 0 " +
                     "END as servicePrice " +
                     "FROM TourServices ts " +
@@ -2658,6 +2912,8 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
                     "LEFT JOIN Restaurants r ON UPPER(ts.serviceType) = 'RESTAURANT' AND ts.serviceId = r.restaurantId " +
                     "LEFT JOIN Places p ON UPPER(ts.serviceType) = 'PLACE' AND ts.serviceId = p.placeId " +
                     "LEFT JOIN IslandVehicles v ON UPPER(ts.serviceType) = 'VEHICLE' AND ts.serviceId = v.vehicleId " +
+                    "LEFT JOIN Flights f ON (UPPER(ts.serviceType) = 'FLIGHT' OR UPPER(ts.serviceType) = 'AIRLINE') AND ts.serviceId = f.flightId " +
+                    "LEFT JOIN Airlines a ON f.airlineId = a.airlineId " +
                     "WHERE ts.tourId = ? " +
                     "ORDER BY ts.createdAt";
 
@@ -2687,12 +2943,22 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
 
     // Kiem tra xem service da duoc them vao tour chua
     public boolean isServiceInTour(int tourId, String serviceType, int serviceId) {
-        String sql = "SELECT COUNT(*) FROM TourServices WHERE tourId = ? AND serviceType = ? AND serviceId = ?";
+        // For FLIGHT, also check AIRLINE (backward compatibility)
+        String sql;
+        if ("FLIGHT".equalsIgnoreCase(serviceType)) {
+            sql = "SELECT COUNT(*) FROM TourServices WHERE tourId = ? AND (UPPER(serviceType) = 'FLIGHT' OR UPPER(serviceType) = 'AIRLINE') AND serviceId = ?";
+        } else {
+            sql = "SELECT COUNT(*) FROM TourServices WHERE tourId = ? AND UPPER(serviceType) = ? AND serviceId = ?";
+        }
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, tourId);
-            ps.setString(2, serviceType);
-            ps.setInt(3, serviceId);
+            if ("FLIGHT".equalsIgnoreCase(serviceType)) {
+                ps.setInt(2, serviceId);
+            } else {
+                ps.setString(2, serviceType.toUpperCase());
+                ps.setInt(3, serviceId);
+            }
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -2721,3 +2987,5 @@ public List<Flight> getFlightsWithoutSchedule() throws SQLException {
 
 
 }
+    
+

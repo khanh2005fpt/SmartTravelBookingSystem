@@ -471,7 +471,8 @@
                     <select class="form-control" id="islandId" name="islandId">
                         <option value="">Tất cả đảo</option>
                         <c:forEach var="island" items="${islands}">
-                            <option value="${island.islandId}" ${param.islandId != null && param.islandId == island.islandId ? 'selected' : ''}>
+                            <c:set var="islandIdStr" value="${island.islandId}" />
+                            <option value="${island.islandId}" ${param.islandId != null && param.islandId != '' && param.islandId == islandIdStr ? 'selected' : ''}>
                                 ${island.islandName}
                             </option>
                         </c:forEach>

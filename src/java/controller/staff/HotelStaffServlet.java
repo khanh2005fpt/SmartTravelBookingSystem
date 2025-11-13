@@ -143,6 +143,8 @@ public class HotelStaffServlet extends HttpServlet {
     private void handleHotelList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            applyHotelMessages(request);
+
             // Get pagination parameters
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
@@ -434,6 +436,12 @@ public class HotelStaffServlet extends HttpServlet {
             }
             
             int hotelId = Integer.parseInt(hotelIdStr);
+
+            if (serviceDao.isHotelInUse(hotelId)) {
+                response.sendRedirect(request.getContextPath() + "/staff/hotels?error=in_use");
+                return;
+            }
+
             boolean success = serviceDao.deleteHotel(hotelId);
             
             if (success) {
@@ -547,6 +555,11 @@ public class HotelStaffServlet extends HttpServlet {
             hotel.setRoomAvailable(Integer.parseInt(roomAvailableStr));
         }
         
+        String totalRoomsStr = request.getParameter("totalRooms");
+        if (totalRoomsStr != null && !totalRoomsStr.trim().isEmpty()) {
+            hotel.setTotalRooms(Integer.parseInt(totalRoomsStr));
+        }
+        
         // Set island ID
         String islandIdStr = request.getParameter("islandId");
         if (islandIdStr != null && !islandIdStr.trim().isEmpty()) {
@@ -658,6 +671,47 @@ public class HotelStaffServlet extends HttpServlet {
         
         String role = user.getRole();
         return "staff".equals(role) || "admin".equals(role);
+    }
+
+    private void applyHotelMessages(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object success = session.getAttribute("successMessage");
+            if (success != null) {
+                request.setAttribute("successMessage", success);
+                session.removeAttribute("successMessage");
+            }
+            Object error = session.getAttribute("errorMessage");
+            if (error != null) {
+                request.setAttribute("errorMessage", error);
+                session.removeAttribute("errorMessage");
+            }
+        }
+
+        if (request.getAttribute("successMessage") == null) {
+            String success = request.getParameter("success");
+            if (success != null) {
+                switch (success) {
+                    case "created" -> request.setAttribute("successMessage", "Thêm khách sạn thành công.");
+                    case "updated" -> request.setAttribute("successMessage", "Cập nhật khách sạn thành công.");
+                    case "deleted" -> request.setAttribute("successMessage", "Xóa khách sạn thành công.");
+                    case "availability_updated" -> request.setAttribute("successMessage", "Đã cập nhật số phòng còn lại.");
+                }
+            }
+        }
+
+        if (request.getAttribute("errorMessage") == null) {
+            String error = request.getParameter("error");
+            if (error != null) {
+                switch (error) {
+                    case "invalid_id" -> request.setAttribute("errorMessage", "ID khách sạn không hợp lệ.");
+                    case "delete_failed" -> request.setAttribute("errorMessage", "Không thể xóa khách sạn. Vui lòng thử lại.");
+                    case "update_failed" -> request.setAttribute("errorMessage", "Cập nhật khách sạn thất bại.");
+                    case "invalid_params" -> request.setAttribute("errorMessage", "Thiếu tham số bắt buộc.");
+                    case "in_use" -> request.setAttribute("errorMessage", "Không thể xóa khách sạn vì đang được sử dụng trong tour hoặc custom tour.");
+                }
+            }
+        }
     }
 
     /**

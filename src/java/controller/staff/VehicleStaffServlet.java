@@ -8,7 +8,9 @@ import dao.ServiceDao;
 import model.IslandVehicle;
 import model.Island;
 import model.User;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -17,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 /**
  * Servlet for managing island vehicle operations for staff members
@@ -139,6 +142,8 @@ public class VehicleStaffServlet extends HttpServlet {
     private void handleVehicleList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            applyVehicleMessages(request);
+
             // Get pagination parameters
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
@@ -428,13 +433,22 @@ public class VehicleStaffServlet extends HttpServlet {
     private void handleDeleteVehicle(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String vehicleIdStr = request.getParameter("vehicleId");
+            String vehicleIdStr = request.getParameter("id");
+            if ((vehicleIdStr == null || vehicleIdStr.trim().isEmpty())) {
+                vehicleIdStr = request.getParameter("vehicleId");
+            }
             if (vehicleIdStr == null || vehicleIdStr.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/staff/vehicles?error=invalid_id");
                 return;
             }
             
             int vehicleId = Integer.parseInt(vehicleIdStr);
+
+            if (serviceDao.isVehicleInUse(vehicleId)) {
+                response.sendRedirect(request.getContextPath() + "/staff/vehicles?error=in_use");
+                return;
+            }
+
             boolean success = serviceDao.deleteIslandVehicle(vehicleId);
             
             if (success) {
@@ -485,12 +499,48 @@ public class VehicleStaffServlet extends HttpServlet {
     /**
      * Create vehicle object from request parameters
      */
-    private IslandVehicle createVehicleFromRequest(HttpServletRequest request) {
+    private IslandVehicle createVehicleFromRequest(HttpServletRequest request) throws ServletException, IOException {
         IslandVehicle vehicle = new IslandVehicle();
         
         // Set basic fields that exist in database
         vehicle.setVehicleType(request.getParameter("vehicleType"));
         vehicle.setModelName(request.getParameter("modelName"));
+        
+        // Handle image URL - check for file upload first, then fallback to current URL
+        String imageUrl = request.getParameter("currentImageUrl"); // Default to existing image
+        
+        try {
+            Part filePart = request.getPart("vehicleImageFile");
+            if (filePart != null && filePart.getSize() > 0) {
+                // Get original filename
+                String originalName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
+                
+                // Generate unique filename
+                String fileExtension = originalName.substring(originalName.lastIndexOf("."));
+                String uniqueFileName = "vehicle_" + System.currentTimeMillis() + "_" + 
+                                      (int)(Math.random() * 1000) + fileExtension;
+                
+                // Create upload directory if it doesn't exist
+                String uploadDir = getServletContext().getRealPath("/") + "UploadData" + File.separator + "Vehicles";
+                File uploadDirFile = new File(uploadDir);
+                if (!uploadDirFile.exists()) {
+                    uploadDirFile.mkdirs();
+                }
+                
+                // Save the file
+                String filePath = uploadDir + File.separator + uniqueFileName;
+                filePart.write(filePath);
+                
+                // Set the relative path for database storage
+                imageUrl = "UploadData/Vehicles/" + uniqueFileName;
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling file upload: " + e.getMessage());
+            e.printStackTrace();
+            // Continue with existing image URL if file upload fails
+        }
+        
+        vehicle.setVehicleImageUrl(imageUrl);
         
         // Set numeric fields
         String pricePerDayStr = request.getParameter("pricePerDay");
@@ -506,6 +556,11 @@ public class VehicleStaffServlet extends HttpServlet {
         String availabilityStr = request.getParameter("availability");
         if (availabilityStr != null && !availabilityStr.trim().isEmpty()) {
             vehicle.setAvailability(Integer.parseInt(availabilityStr));
+        }
+        
+        String totalQuantityStr = request.getParameter("totalQuantity");
+        if (totalQuantityStr != null && !totalQuantityStr.trim().isEmpty()) {
+            vehicle.setTotalQuantity(Integer.parseInt(totalQuantityStr));
         }
         
         // Set island ID
@@ -611,6 +666,47 @@ public class VehicleStaffServlet extends HttpServlet {
         
         String role = user.getRole();
         return "staff".equals(role) || "admin".equals(role);
+    }
+
+    private void applyVehicleMessages(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object success = session.getAttribute("successMessage");
+            if (success != null) {
+                request.setAttribute("successMessage", success);
+                session.removeAttribute("successMessage");
+            }
+            Object error = session.getAttribute("errorMessage");
+            if (error != null) {
+                request.setAttribute("errorMessage", error);
+                session.removeAttribute("errorMessage");
+            }
+        }
+
+        if (request.getAttribute("successMessage") == null) {
+            String success = request.getParameter("success");
+            if (success != null) {
+                switch (success) {
+                    case "created" -> request.setAttribute("successMessage", "Thêm phương tiện thành công.");
+                    case "updated" -> request.setAttribute("successMessage", "Cập nhật phương tiện thành công.");
+                    case "deleted" -> request.setAttribute("successMessage", "Xóa phương tiện thành công.");
+                    case "availability_updated" -> request.setAttribute("successMessage", "Đã cập nhật số lượng phương tiện.");
+                }
+            }
+        }
+
+        if (request.getAttribute("errorMessage") == null) {
+            String error = request.getParameter("error");
+            if (error != null) {
+                switch (error) {
+                    case "invalid_id" -> request.setAttribute("errorMessage", "ID phương tiện không hợp lệ.");
+                    case "delete_failed" -> request.setAttribute("errorMessage", "Không thể xóa phương tiện. Vui lòng thử lại.");
+                    case "update_failed" -> request.setAttribute("errorMessage", "Cập nhật phương tiện thất bại.");
+                    case "invalid_params" -> request.setAttribute("errorMessage", "Thiếu tham số yêu cầu.");
+                    case "in_use" -> request.setAttribute("errorMessage", "Không thể xóa phương tiện vì đang được sử dụng trong tour hoặc custom tour.");
+                }
+            }
+        }
     }
 
     /**

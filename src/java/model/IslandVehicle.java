@@ -16,6 +16,7 @@ public class IslandVehicle {
     private double pricePerDay;
     private int capacity;
     private int availability;
+    private int totalQuantity; // Tổng số lượng phương tiện
     
     // Additional properties for JSP compatibility
     private String vehicleImageUrl;
@@ -116,6 +117,14 @@ public class IslandVehicle {
         this.availability = availability;
     }
 
+    public int getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(int totalQuantity) {
+        this.totalQuantity = totalQuantity;
+    }
+
     public String getVehicleImageUrl() {
         return vehicleImageUrl;
     }
@@ -198,6 +207,7 @@ public class IslandVehicle {
                 ", pricePerDay=" + pricePerDay +
                 ", capacity=" + capacity +
                 ", availability=" + availability +
+                ", totalQuantity=" + totalQuantity +
                 ", vehicleImageUrl='" + vehicleImageUrl + '\'' +
                 ", vehicleName='" + vehicleName + '\'' +
                 ", brand='" + brand + '\'' +

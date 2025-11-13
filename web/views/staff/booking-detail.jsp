@@ -7,6 +7,7 @@
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.Booking" %>
+<%@ page import="model.Flight" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -446,6 +447,73 @@
                         </c:otherwise>
                     </c:choose>
                 </div>
+
+                <!-- Flight Information -->
+                <c:if test="${not empty flight}">
+                    <div class="flight-info" style="background: #fff3e0; border-radius: 10px; padding: 20px; margin: 15px 0;">
+                        <h6><i class="fa fa-plane"></i> Thông tin Vé Bay</h6>
+                        <div class="info-item">
+                            <span class="info-label">ID Flight:</span>
+                            <span class="info-value"><strong>#${flight.flightId}</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mã chuyến bay:</span>
+                            <span class="info-value"><strong>${flight.flightNumber}</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hãng hàng không:</span>
+                            <span class="info-value">
+                                <c:if test="${not empty flight.airline}">
+                                    ${flight.airline.airlineName}
+                                    <c:if test="${not empty flight.airline.iataCode}">
+                                        (${flight.airline.iataCode})
+                                    </c:if>
+                                </c:if>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Điểm khởi hành:</span>
+                            <span class="info-value">${flight.departure}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Điểm đến:</span>
+                            <span class="info-value">${flight.destination}</span>
+                        </div>
+                        <c:if test="${not empty flight.destinationIsland}">
+                            <div class="info-item">
+                                <span class="info-label">Đảo đến:</span>
+                                <span class="info-value">${flight.destinationIsland.islandName}</span>
+                            </div>
+                        </c:if>
+                        <div class="info-item">
+                            <span class="info-label">Loại chuyến bay:</span>
+                            <span class="info-value">${flight.flightType}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hạng vé:</span>
+                            <span class="info-value">${flight.flightClass}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Giá cơ bản:</span>
+                            <span class="info-value">
+                                <fmt:formatNumber value="${flight.basePrice}" type="currency" 
+                                                currencySymbol="₫" groupingUsed="true" />
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Vé còn lại:</span>
+                            <span class="info-value">${flight.ticketAvailable} vé</span>
+                        </div>
+                        <c:if test="${flight.hasSchedule}">
+                            <div class="info-item">
+                                <span class="info-label">Lịch trình:</span>
+                                <span class="info-value" style="color: #28a745;">
+                                    <i class="fa fa-check-circle"></i> Đã có lịch trình
+                                </span>
+                            </div>
+                        </c:if>
+                    </div>
+                </c:if>
             </div>
 
 <%--            <!-- Status Management -->--%>

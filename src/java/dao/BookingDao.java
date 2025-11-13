@@ -151,8 +151,20 @@ public class BookingDao extends DBContext {
         }
 
         if (status != null && !status.trim().isEmpty()) {
-            sql.append(" AND b.status = ?");
-            parameters.add(status);
+            // Handle multiple statuses separated by comma (e.g., "PENDING,CONFIRMED")
+            if (status.contains(",")) {
+                String[] statuses = status.split(",");
+                sql.append(" AND b.status IN (");
+                for (int i = 0; i < statuses.length; i++) {
+                    if (i > 0) sql.append(",");
+                    sql.append("?");
+                    parameters.add(statuses[i].trim());
+                }
+                sql.append(")");
+            } else {
+                sql.append(" AND b.status = ?");
+                parameters.add(status);
+            }
         }
 
         if (dateFrom != null && !dateFrom.trim().isEmpty()) {
@@ -221,6 +233,88 @@ public class BookingDao extends DBContext {
         }
 
         return 0;
+    }
+
+    /**
+     * Get flight ID from TourServices for a given booking
+     * Flight is associated with tour through TourServices table
+     */
+    public Integer getFlightIdByBookingId(int bookingId) {
+        // First get the tourId from booking
+        String sqlBooking = "SELECT tourId, customTourId FROM Bookings WHERE bookingId = ?";
+        Integer tourId = null;
+        Integer customTourId = null;
+        
+        try (PreparedStatement ps = connection.prepareStatement(sqlBooking)) {
+            ps.setInt(1, bookingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int tid = rs.getInt("tourId");
+                    if (!rs.wasNull()) {
+                        tourId = tid;
+                    }
+                    int ctid = rs.getInt("customTourId");
+                    if (!rs.wasNull()) {
+                        customTourId = ctid;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        
+        // If booking has a tour, get flight from TourServices
+        if (tourId != null && tourId > 0) {
+            String sqlFlight = """
+                SELECT TOP 1 ts.serviceId 
+                FROM TourServices ts 
+                WHERE ts.tourId = ? 
+                AND (UPPER(ts.serviceType) = 'FLIGHT' OR UPPER(ts.serviceType) = 'AIRLINE')
+                ORDER BY ts.createdAt
+                """;
+            
+            try (PreparedStatement ps = connection.prepareStatement(sqlFlight)) {
+                ps.setInt(1, tourId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int flightId = rs.getInt("serviceId");
+                        if (!rs.wasNull()) {
+                            return flightId;
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        // If booking has a customTour, get flight from CustomTourDetails
+        if (customTourId != null && customTourId > 0) {
+            String sqlCustomFlight = """
+                SELECT TOP 1 serviceId 
+                FROM CustomTourDetails 
+                WHERE customTourId = ? 
+                AND serviceType = N'Chuyến bay'
+                ORDER BY detailId
+                """;
+            
+            try (PreparedStatement ps = connection.prepareStatement(sqlCustomFlight)) {
+                ps.setInt(1, customTourId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int flightId = rs.getInt("serviceId");
+                        if (!rs.wasNull()) {
+                            return flightId;
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return null;
     }
 
     /**
