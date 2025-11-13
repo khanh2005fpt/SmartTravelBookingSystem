@@ -65,62 +65,64 @@
                 </section>
 
                 <!-- Tours Section -->
-                <section id="toursSection" class="mb-5">
-                    <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Các tour du lịch</h2>
-                    <div class="row g-4">
-                        <c:choose>
-                            <c:when test="${empty tours}">
-                                <div class="col-12">
-                                    <div class="alert alert-warning text-center rounded-3 shadow-sm py-4">
-                                        <h5 class="mb-1">😥 Hiện chưa có tour nào</h5>
-                                        <p class="mb-0">Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>
+             <section id="toursSection" class="mb-5 scrolled">
+    <h2 class="h2 mb-4 text-center fw-bold text-primary">Các tour du lịch</h2>
+
+    <!-- Container cho phép scroll ngang -->
+    <div class="overflow-x-auto pb-3">
+        <div class="row g-4 flex-nowrap" style="min-width: max-content;">
+            <c:choose>
+                <c:when test="${empty tours}">
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center rounded-3 shadow-sm py-4">
+                            <h5 class="mb-1">Hiện chưa có tour nào</h5>
+                            <p class="mb-0">Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>
+                        </div>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <c:forEach var="tour" items="${tours}">
+                        <div class="col-sm-6 col-lg-4 flex-shrink-0" style="width: 320px;">
+                            <div class="card h-100 border-0 shadow-lg rounded-3 overflow-hidden">
+                                <!-- Ảnh tour -->
+                                <div class="ratio ratio-16x9">
+                                    <img src="${pageContext.request.contextPath}/${tour.tourImageUrl}"
+                                         alt="${tour.tourName}"
+                                         class="card-img-top object-fit-cover">
+                                </div>
+                                <!-- Nội dung -->
+                                <div class="card-body d-flex flex-column">
+                                    <h3 class="h5 card-title fw-semibold text-dark">
+                                        ${tour.tourName}
+                                    </h3>
+                                    <p class="card-text text-muted small mb-3 flex-grow-1">
+                                        ${tour.description}
+                                    </p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <p class="mb-0">
+                                                <i class="bi bi-heart heart" data-tour-id="${tour.tourId}" style="font-size:1.4rem; cursor:pointer;"></i>
+                                            </p>
+                                            <p class="text-primary fw-bold fs-5 mb-0 text-end">
+                                                <fmt:setLocale value="vi_VN" />
+                                                <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
+                                            </p>
+                                        </div>
+                                        <form action="TourDetailController" method="post" class="mt-3">
+                                            <button type="submit" class="btn btn-primary w-100 rounded-pill" name="tourid" value="${tour.tourId}">
+                                                Xem chi tiết
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
-                            </c:when>
-                            <c:otherwise>
-                                <c:forEach var="tour" items="${tours}">
-                                    <div class="col-sm-6 col-lg-4 mb-4">
-                                        <div class="card h-100 border-0 shadow-lg rounded-3 overflow-hidden">
-                                            <!-- Ảnh tour -->
-                                            <div class="ratio ratio-16x9">
-                                                <img src="${pageContext.request.contextPath}/${tour.tourImageUrl}" 
-                                                     alt="${tour.tourName}" 
-                                                     class="card-img-top object-fit-cover">
-                                            </div>
-
-                                            <!-- Nội dung -->
-                                            <div class="card-body d-flex flex-column">
-                                                <h3 class="h5 card-title fw-semibold text-dark">
-                                                    ${tour.tourName}
-                                                </h3>
-                                                <p class="card-text text-muted small mb-3">
-                                                    ${tour.description}
-                                                </p>
-                                                <div class="mt-auto">
-                                                    <div class="d-flex justify-content-between mt-3">
-                                                        <p class="mb-2" style="margin-left: 2px;">
-
-                                                            <i class="bi bi-heart heart" data-tour-id="${tour.tourId}" style="font-size:1.4rem;"></i>
-                                                        </p>
-                                                        <p class="text-primary fw-bold fs-5 mb-2 text-end">
-                                                            Giá tour: 
-                                                            <fmt:setLocale value="vi_VN" />
-
-                                                            <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
-                                                        </p>
-                                                    </div>
-                                                    <form action="TourDetailController" method="post" class="search-property-1">
-                                                        <button type="submit" class="btn btn-primary w-100 rounded-pill" name="tourid" value="${tour.tourId}">Xem chi tiết</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                </section>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+</section>
 
                 <!-- Tour riêng le Section -->
                 <form action="CreateCustomTourController" method="post" id="customTourForm">

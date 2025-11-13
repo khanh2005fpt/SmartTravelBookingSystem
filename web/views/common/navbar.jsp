@@ -95,7 +95,7 @@
     <h6 class="dropdown-header text-info d-flex align-items-center mb-2">
         <i class="fa-solid fa-bell me-2"></i> Thông báo
     </h6>
-
+        <hr>
     <div class="notification-list">
         <c:forEach var="n" items="${notifications}" varStatus="status">
             <c:if test="${status.index < 10}">
@@ -226,7 +226,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                        <form id="deleteForm" method="post" style="display: inline;" action="${pageContext.request.contextPath}/notifications_servlet">
-    <!-- Không cần input flightId nữa -->
+   
     <input type="hidden" name="action" value="deleteAll">
     <button type="submit" class="btn btn-danger">Xóa</button>
 </form>

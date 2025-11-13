@@ -159,6 +159,13 @@ public class InformationSaved extends HttpServlet {
 
             //  Nếu có thay đổi → update
             customerDao.updateProfileInfo(userId, fullName, dob, gender, Address);
+            // Cập nhật luôn trong session
+
+if (user != null) {
+    user.setFullName(fullName);
+    session.setAttribute("user", user);
+}
+
             request.setAttribute("fullname", fullName);
             //format date
             if (dob != null) {

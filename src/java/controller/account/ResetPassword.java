@@ -163,16 +163,18 @@ public class ResetPassword extends HttpServlet {
             //  tiếp tục xử lý password
         }
 
-        // kiểm tra password
+        // Kiểm tra password và rePassword
         if (password == null || password.trim().isEmpty()
                 || rePassword == null || rePassword.trim().isEmpty()) {
             session.setAttribute("errorPass", "Vui lòng nhập mật khẩu và xác nhận!");
-            response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
-            return;
+        } else if (!password.equals(rePassword)) {
+            session.setAttribute("errorPass", "Mật khẩu xác nhận không khớp!");
+        } else if (!password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,20}$")) {
+            session.setAttribute("errorPass", "Mật khẩu phải 8-20 ký tự, ít nhất 1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt!");
         }
 
-        if (!password.equals(rePassword)) {
-            session.setAttribute("errorPass", "Mật khẩu xác nhận không khớp!");
+// Nếu có lỗi thì redirect
+        if (session.getAttribute("errorPass") != null) {
             response.sendRedirect(request.getContextPath() + "/views/account/reset_password.jsp");
             return;
         }
