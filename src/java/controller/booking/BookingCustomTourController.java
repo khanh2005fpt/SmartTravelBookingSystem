@@ -12,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import java.util.List;
 import model.Booking;
@@ -64,6 +65,10 @@ public class BookingCustomTourController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+               HttpSession session = request.getSession(false);
+           if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         processRequest(request, response);
     }
 
@@ -80,7 +85,7 @@ public class BookingCustomTourController extends HttpServlet {
             throws ServletException, IOException {
         try {
             int customTourId = Integer.parseInt(request.getParameter("customTourId"));
-            int price = Integer.parseInt(request.getParameter("price"));
+            double price = Double.parseDouble(request.getParameter("discountedPrice"));
             String startDateStr = request.getParameter("startDate");
             Date departureDate = null;
 
@@ -103,8 +108,8 @@ public class BookingCustomTourController extends HttpServlet {
             // Kiểm tra ngày khởi hành phải >= hôm nay
 
             int totalPeople = adultQty + childQty;
-            if (totalPeople > 50) {
-                request.setAttribute("errorMessage", "❌ Tổng số người không được vượt quá 50 người!");
+            if (totalPeople > 40) {
+                request.setAttribute("errorMessage", "❌ Tổng số người không được vượt quá 40 người!");
                 request.setAttribute("tour", tour);
                 request.setAttribute("details", details);
                 request.setAttribute("itineraries", itineraries);
@@ -157,12 +162,44 @@ public class BookingCustomTourController extends HttpServlet {
         }
 
     }
+private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    if (session == null) {
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    // Map roleId -> roleName
+ String role;
+        switch (user.getRoleId()) {
+            case 1:
+                role = "ADMIN";
+                break;
+            case 2:
+                role = "BOOKING MANAGER";
+                break;
+            case 3:
+                role = "CUSTOMER";
+                break;
+            default:
+                role = "STAFF";
+                break;
+        }
+
+        if (!"CUSTOMER".equals(role) && !"ADMIN".equals(role)) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return false;
+        }
+
+        return true;
+    }
     @Override
     public String getServletInfo() {
         return "Short description";

@@ -22,6 +22,7 @@
         </style>
     </head>
     <body>
+           <%@ include file="/views/staff/sidebar.jsp" %>
         <h2>Thông tin khách hàng</h2>
         <table>
             <tr><th>ID</th><td>${customer.userId}</td></tr>

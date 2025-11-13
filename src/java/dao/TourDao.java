@@ -67,6 +67,31 @@ public class TourDao extends DBContext {
         return list;
     }
 
+    public List<TourService> getServicesByTourId(int tourId) throws SQLException{
+        List<TourService> services = new ArrayList<>();
+        String sql = "SELECT * FROM TourServices WHERE tourId = ?";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                TourService service = new TourService();
+                service.setTourServiceId(rs.getInt("tourServiceId"));
+                service.setTourId(rs.getInt("tourId"));
+                service.setServiceType(rs.getString("serviceType"));
+                service.setServiceId(rs.getInt("serviceId"));
+                service.setCreatedAt(rs.getTimestamp("createdAt"));
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy dịch vụ của tour: " + tourId, e);
+        }
+
+        return services;
+    }
+
     //Lay thong tin chi tiet cua tour tron goi
     public Tour getTourDetailById(int id) throws SQLException {
         String sql = "select * from tours where tourId = ?";
@@ -1143,6 +1168,26 @@ public class TourDao extends DBContext {
         return list;
     }
 
+    // -------------------- CẬP NHẬT TRẠNG THÁI DUYỆT CỦA TOUR --------------------
+    // <--- THAY ĐỔI CHỮ KÝ PHƯƠNG THỨC
+    public void updateTourStatus(int id, String status, String rejectionReason) throws SQLException {
+        // Cập nhật cả approvalStatus và rejectionReason
+        String sql = "UPDATE Tours SET approvalStatus = ?, rejectionReason = ? WHERE tourId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+
+            // Logic để set rejectionReason: chỉ lưu lý do nếu status là REJECTED
+            if ("REJECTED".equalsIgnoreCase(status)) {
+                ps.setString(2, rejectionReason);
+            } else {
+                ps.setNull(2, java.sql.Types.NVARCHAR); // Đặt NULL cho các trạng thái khác
+            }
+
+            ps.setInt(3, id);
+            ps.executeUpdate();
+        }
+    }
     // -------------------- Dashboard  tour --------------------
     public int getTotalTours() throws SQLException {
         int total = 0;
@@ -1191,7 +1236,7 @@ public class TourDao extends DBContext {
     public CustomTourBookingInfo getLatestCustomTourAfterBookingByUser(int userId) throws SQLException {
         CustomTourBookingInfo info = new CustomTourBookingInfo();
         String sql = """
-    SELECT ct.*, ctd.*, cti.*, hb.*
+    SELECT ct.*, ctd.*, cti.*, hb.*,b.bookingId , b.totalPrice
     FROM HistoryBooking hb
     JOIN Payments p ON hb.paymentId = p.paymentId
     JOIN Bookings b ON p.bookingId = b.bookingId
@@ -1216,6 +1261,7 @@ public class TourDao extends DBContext {
             ResultSet rs = ps.executeQuery();
 
             CustomTour ct = null;
+            Booking bk = null;
             HistoryBooking hb = null;
             Set<Integer> detailIds = new HashSet<>();
             Set<Integer> itineraryIds = new HashSet<>();
@@ -1233,7 +1279,20 @@ public class TourDao extends DBContext {
                     ct.setCustomTourId(rs.getInt("customTourId"));
                     info.setCustomTour(ct);
                 }
+                
+                
 
+            // === BOOKING ===
+            if (bk == null) {
+                bk = new Booking();
+                bk.setBookingId(rs.getInt("bookingId"));
+                bk.setTotalPrice(rs.getDouble("totalPrice"));
+                java.sql.Date departure = rs.getDate("departureDate");
+                if (departure != null) {
+                    bk.setDepartureDate(departure);
+                }
+                info.setBooking(bk);
+            }
                 // Khởi tạo HistoryBooking 1 lần
                 if (hb == null) {
                     hb = new HistoryBooking();
@@ -1412,6 +1471,7 @@ public class TourDao extends DBContext {
                 ta.description AS activityDescription, 
             hb.*,
             b.bookingId,
+            b.totalPrice,
             b.departureDate              
         FROM HistoryBooking hb
         JOIN Payments p ON hb.paymentId = p.paymentId
@@ -1444,7 +1504,7 @@ public class TourDao extends DBContext {
         // Để tránh thêm trùng
         Map<Integer, TourService> serviceMap = new HashMap<>();
         Map<Integer, TourItinerary> itineraryMap = new LinkedHashMap<>();
-
+        Map<Integer, Set<Integer>> activityMap = new HashMap<>();
         while (rs.next()) {
             // === TOUR ===
             if (tour == null) {
@@ -1469,6 +1529,7 @@ public class TourDao extends DBContext {
             if (bk == null) {
                 bk = new Booking();
                 bk.setBookingId(rs.getInt("bookingId"));
+                bk.setTotalPrice(rs.getDouble("totalPrice"));
                 java.sql.Date departure = rs.getDate("departureDate");
                 if (departure != null) {
                     bk.setDepartureDate(departure);
@@ -1505,6 +1566,7 @@ public class TourDao extends DBContext {
             }
 
             // === TOUR ITINERARY ===
+        
             int itineraryId = rs.getInt("itineraryId");
             TourItinerary ti = null;
             if (!rs.wasNull()) {
@@ -1522,16 +1584,21 @@ public class TourDao extends DBContext {
             }
 
             // === TOUR ACTIVITIES ===
-            int activityId = rs.getInt("activityId");
-            if (!rs.wasNull() && ti != null) {
-                TourActivities ta = new TourActivities();
-                ta.setActivityId(activityId);
-                ta.setItineraryId(itineraryId);
-                ta.setActivityOrder(rs.getInt("activityOrder"));
-                ta.setActivityTitle(rs.getString("activityTitle"));
-                ta.setDescription(rs.getString("activityDescription"));
-                ti.getActivities().add(ta); // thêm vào itinerary tương ứng
-            }
+            
+          int activityId = rs.getInt("activityId");
+if (!rs.wasNull() && ti != null) {
+    Set<Integer> activitySet = activityMap.computeIfAbsent(itineraryId, k -> new HashSet<>());
+    if (!activitySet.contains(activityId)) {
+        TourActivities ta = new TourActivities();
+        ta.setActivityId(activityId);
+        ta.setItineraryId(itineraryId);
+        ta.setActivityOrder(rs.getInt("activityOrder"));
+        ta.setActivityTitle(rs.getString("activityTitle"));
+        ta.setDescription(rs.getString("activityDescription"));
+        ti.getActivities().add(ta);
+        activitySet.add(activityId);
+    }
+}
         }
     } catch (SQLException e) {
         throw new SQLException("Lỗi khi lấy tour mới nhất của userId=" + userId, e);
@@ -1665,17 +1732,23 @@ public class TourDao extends DBContext {
         return hb;
     }
 
+
+
+
+
+
     public static void main(String[] args) {
         try {
             TourDao dao = new TourDao();
       
-           int testUserId = 4; // <-- đổi userId để test theo dữ liệu thật trong DB
+           int testUserId = 10; // <-- đổi userId để test theo dữ liệu thật trong DB
         
             TourBookingInfo info = dao.getLatestTourAfterBookingByUser(testUserId);
 
             System.out.println("\n===== THÔNG TIN TOUR MỚI NHẤT CỦA USER ID: " + testUserId + " =====");
             System.out.println("📌 Tour: " + info.getTour());
-            System.out.println("📅 Booking: " + info.getBooking());
+            System.out.println("📅 Booking: " + info.getBooking().getBookingId());
+             System.out.println("📅 Booking: " + info.getBooking().getTotalPrice());
             System.out.println("🧾 History: " + info.getHistoryBooking());
 
             System.out.println("\n--- Các dịch vụ đi kèm ---");

@@ -275,20 +275,20 @@ public class BookingDao extends DBContext {
             // 1. Tạo DAO (đảm bảo trong class này có connection hợp lệ)
            BookingDao bookingDao = new BookingDao();
                 // 2. Khởi tạo DAO
-            Booking b = bookingDao.getBookingById(33);
+          
+     // 3️⃣ Nhập bookingId muốn test
+            int bookingId = 71; // <-- thay bằng bookingId thật có trong DB
 
-            // 4. In kết quả
-            if (b != null) {
-                System.out.println("Booking found:");
-                System.out.println("ID: " + b.getBookingId());
-                System.out.println("Customer: " + b.getCustomerName() );
-                System.out.println("Tour: " + b.getTourName() + " / Custom Tour: " + b.getCustomTourName());
-                System.out.println("Departure: " + b.getDepartureDate() + ", End: " + b.getEndDate());
-                System.out.println("Adults: " + b.getAdultQuantity() + ", Children: " + b.getChildQuantity());
-                System.out.println("Status: " + b.getStatus() + ", Total: " + b.getTotalPrice());
+            // 4️⃣ Gọi hàm test
+            Integer flightId = bookingDao.getFlightIdByBookingId(bookingId);
+
+            // 5️⃣ In kết quả
+            if (flightId != null) {
+                System.out.println("✅ Flight ID for booking " + bookingId + " = " + flightId);
             } else {
-                System.out.println("Booking with ID " + b + " not found.");
+                System.out.println("❌ No flight found for booking " + bookingId);
             }
+       
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -767,6 +767,88 @@ public class BookingDao extends DBContext {
     return list;
 }
 
+     /**
+     * Get flight ID from TourServices for a given booking
+     * Flight is associated with tour through TourServices table
+     */
+    public Integer getFlightIdByBookingId(int bookingId) {
+        // First get the tourId from booking
+        String sqlBooking = "SELECT tourId, customTourId FROM Bookings WHERE bookingId = ?";
+        Integer tourId = null;
+        Integer customTourId = null;
+        
+        try (PreparedStatement ps = connection.prepareStatement(sqlBooking)) {
+            ps.setInt(1, bookingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int tid = rs.getInt("tourId");
+                    if (!rs.wasNull()) {
+                        tourId = tid;
+                    }
+                    int ctid = rs.getInt("customTourId");
+                    if (!rs.wasNull()) {
+                        customTourId = ctid;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        
+        // If booking has a tour, get flight from TourServices
+        if (tourId != null && tourId > 0) {
+            String sqlFlight = """
+                SELECT TOP 1 ts.serviceId 
+                FROM TourServices ts 
+                WHERE ts.tourId = ? 
+                AND (UPPER(ts.serviceType) = 'FLIGHT' OR UPPER(ts.serviceType) = 'AIRLINE')
+                ORDER BY ts.createdAt
+                """;
+            
+            try (PreparedStatement ps = connection.prepareStatement(sqlFlight)) {
+                ps.setInt(1, tourId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int flightId = rs.getInt("serviceId");
+                        if (!rs.wasNull()) {
+                            return flightId;
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        // If booking has a customTour, get flight from CustomTourDetails
+        if (customTourId != null && customTourId > 0) {
+            String sqlCustomFlight = """
+                SELECT TOP 1 serviceId 
+                FROM CustomTourDetails 
+                WHERE customTourId = ? 
+                AND serviceType = N'Chuyến bay'
+                ORDER BY detailId
+                """;
+            
+            try (PreparedStatement ps = connection.prepareStatement(sqlCustomFlight)) {
+                ps.setInt(1, customTourId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int flightId = rs.getInt("serviceId");
+                        if (!rs.wasNull()) {
+                            return flightId;
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return null;
+    }
+    
     
 }
 

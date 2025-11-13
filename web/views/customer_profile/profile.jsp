@@ -170,12 +170,12 @@ if (currentUser != null) {
                 <div class="profile-menu">
                     <a href="#" onclick="showMainSection(event, 'member-priority')"><i class="bi bi-award"></i> Membership Level</a>
                     <a href="#" onclick="showMainSection(event, 'historyBookings')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ</a>
-                    <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
-                    <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
                     <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
                     <a href="#" onclick="showMainSection(event, 'account')"><i class="bi bi-gear"></i> Tài khoản</a>
-                    <a  href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
-
+                    <a href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+                     <a href="${pageContext.request.contextPath}/SearchIslandController" class="back-link" style="color:#007BFF">
+    <i class="fa fa-arrow-left"></i> Quay lại trang chủ
+  </a>
                 </div>
                                 
             </div>
@@ -234,7 +234,7 @@ if (currentUser != null) {
                                 <h5>Bronze</h5>
                                 <p>Dưới 800.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 5% cho mọi dịch vụ và gói tour</li>
+                                    <li>• Nhận quà sinh nhật hoặc sự kiện đặc biệt</li>
                                     <li>• Nhận thông báo ưu đãi sớm</li>
                                     <li>• Cộng điểm tích lũy khi thanh toán</li>
                                 </ul>
@@ -357,180 +357,90 @@ if (currentUser != null) {
 
 </div>
 
-                 <!-- Payments content ----------------------------------------->
-                 
-                        <!--  content -->
-                        <div id="transactions" class=" transactions-container main-section" style="display:none;">
-                            <!-- Banner -->
-                            <div class="tab-header-transactions text-center mb-4 w-100">
-                                <img 
-                                    src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
-                                    alt="transactions Banner"
-                                    class="img-fluid rounded-3 shadow-sm w-100">
-                            </div>
-                            <!-- Tiêu đề -->
-                            <div class="text-center mb-4 w-auto">
-                                <span class="badge bg-gradient" 
-                                      style="background: linear-gradient(to right, #d97706, #b45309);
-                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
-                                    🔔 Danh sách thông báo Meland Booking
-                                </span>
-                            </div>
-
-
-                                  
-                              </div>
-             
-      <!-- Notifications content ----------------------------------------->
-      <div id="notifications" class="notifications-container main-section p-3">
-
-          <!-- Banner -->
-          <div class="tab-header-notifications text-center mb-4 w-100">
-              <img 
-                  src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
-                  alt="notifications Banner"
-                  class="img-fluid rounded-3 shadow-sm w-100">
-          </div>
-
-          <!-- Tiêu đề -->
-          <div class="text-center mb-4 w-auto">
-              <span class="badge bg-gradient" 
-                    style="background: linear-gradient(to right, #d97706, #b45309);
-                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
-                  🔔 Danh sách thông báo Meland Booking
-              </span>
-          </div>
-
-          <!-- Grid card thông báo dọc -->
-          <section class="d-flex flex-column gap-2" style="max-height: 500px; overflow-y: auto; padding-right: 5px;">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-
-                  <c:if test="${not empty listNotification}">
-
-                      <!-- danh dau thong bao -->
-                      <form action="${pageContext.request.contextPath}/notificatios_servlet" method="post">
-                          <input type="hidden" name="action" value="markAll">
-                          <input type="hidden" name="userId" value="${sessionScope.user.userId}">
-                          <button type="submit" class="btn btn-outline-success btn-sm">
-                              <i class="bi bi-check-all me-1"></i> Đánh dấu đã đọc
-                          </button>
-                      </form>
-                      <!-- xoa mem thong bao -->
-                      <form action="${pageContext.request.contextPath}/notificatios_servlet" method="post">
-                          <input type="hidden" name="action" value="deleteAll">
-                          <input type="hidden" name="userId" value="${sessionScope.user.userId}">
-                          <button type="submit" class="btn btn-outline-danger btn-sm btn-hide">
-                              <i class="bi bi-trash"></i> Xóa tất cả
-                          </button>
-                      </form>
-                  </c:if>
-
-              </div>
-              
-                 <!--display thong bao loi -->
-               <% String errorNoti_Deleted = (String) session.getAttribute("errorNoti_Deleted"); %>
-                        <% if (errorNoti_Deleted != null) { %>
-                        <div id="errorNoti_Deleted" class="alert alert-danger alert_style" role="alert">
-                            <%= errorNoti_Deleted %>
-                        </div>
-              
-              
-                 <!-- set time thong bao loi -->
-                        <script>
-                            setTimeout(function () {
-                                var alertBox = document.getElementById("errorNoti_Deleted");
-                                if (alertBox) {
-                                    alertBox.style.display = "none";
-                                }
-                            }, 3000);
-                        </script>
-                        <% session.removeAttribute("errorNoti_Deleted"); %>
-                        <% } %>
-
-              <!-- Kiểm tra danh sách trống -->
-              <c:if test="${empty listNotification}">
-                  <p class="text-center text-muted mt-3">Không có thông báo nào.</p>
-              </c:if>
-
-              <!-- Danh sách thông báo -->
-              <c:forEach var="noti" items="${listNotification}">
-                  <div class="card shadow-sm border-0 rounded-3 notification-card" 
-                       data-id="${noti.notificationId}" style="padding: 10px;">
-                      <div class="card-body p-2">
-
-                          <!-- Tiêu đề -->
-                          <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 0.95rem;">
-                              <c:choose>
-                                  <c:when test="${noti.type == 'BOOKING'}">
-                                      <i class="bi bi-calendar2-check mr-2" style="color:#28A745;"></i>
-                                      <c:out value="${noti.title}"/>
-                                  </c:when>
-
-                                  <c:when test="${noti.type == 'PAYMENT'}">
-                                      <i class="bi bi-wallet2 mr-2" style="color:#28A745;"></i>
-                                      <c:out value="${noti.title}"/>
-                                  </c:when>
-
-                                  <c:when test="${noti.type == 'PROMOTION'}">
-                                      🎉 <c:out value="${noti.title}"/>
-                                  </c:when>
-
-                                  <c:otherwise>
-                                      ⚙️ <c:out value="${noti.title}"/>
-                                  </c:otherwise>
-                              </c:choose>
-                          </h6>
-
-                          <!-- Nội dung -->
-                          <p class="card-text text-secondary mb-1" 
-                             style="font-size: 0.9rem; white-space: normal; word-wrap: break-word;">
-                              ${noti.message}
-                          </p>
-
-                          <!-- Thông tin phụ -->
-                          <div class="d-flex justify-content-between align-items-center mt-2">
-                              <small class="text-muted" style="font-size: 0.75rem;">
-                                  <i class="bi bi-clock me-1"></i>
-                                  <fmt:formatDate value="${noti.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
-                              </small>
-
-                              <!-- Badge trạng thái -->
-                              <span class="badge ${noti.isRead ? 'bg-success text-white' : 'bg-danger text-white'}" 
-                                    style="font-size: 0.75rem;">
-                                  ${noti.isRead ? 'Đã đọc' : 'Chưa đọc'}
-                              </span>
-                          </div>
-                      </div>
-                  </div>
-
-              </c:forEach>
-          </section>
-      </div>
+     
           <!-- favorites content ----------------------------------------->
-                 <div id="favorites" class=" favorites-container main-section" style="display:none;">
-                 
-                       <!-- Banner -->
-          <div class="tab-header-favorites text-center mb-4 w-100">
-              <img 
-                  src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
-                  alt="favorites Banner"
-                  class="img-fluid rounded-3 shadow-sm w-100">
-          </div>
-               <!-- Tiêu đề -->
-          <div class="text-center mb-4 w-auto">
-              <span class="badge bg-gradient" 
-                    style="background: linear-gradient(to right, #d97706, #b45309);
-                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
-                         🔔 Danh sách thông báo Meland Booking
-              </span>
-          </div>
+  
+                <div id="favorites" class="favorites-container main-section" style="display:none;">
 
-                 
-                 
-                 
-                 </div>
+                    <!-- Banner -->
+                    <div class="tab-header-favorites text-center mb-4 w-100">
+                        <img 
+                            src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                            alt="favorites Banner"
+                            class="img-fluid rounded-3 shadow-sm w-100">
+                    </div>
+
+                    <!-- Tiêu đề -->
+                    <div class="text-center mb-4 w-auto">
+                        <span class="badge bg-gradient" 
+                              style="background: linear-gradient(to right, #d97706, #b45309);
+                              font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                            ❤️ Danh sách yêu thích của tôi
+                        </span>
+                    </div>
+
+                    <!-- Nút reload -->
+                    <div class="text-center mb-3">
+                        <a class="btn btn-primary btn-reload" 
+                           href="${pageContext.request.contextPath}/customer/favorites">
+                            🔄 Hiển thị danh sách yêu thích
+                        </a>
+                    </div>
+
+                    <!-- Nếu danh sách trống -->
+                    <c:if test="${empty favoriteList}">
+                        <p class="text-center text-muted mt-3">Bạn chưa có dịch vụ nào được thêm vào yêu thích.</p>
+                    </c:if>
+
+                    <!-- Hiển thị danh sách yêu thích -->
+                    <div class="container mt-4">
+                        <c:forEach var="fav" items="${favoriteList}">
+                            <div class="card mb-3 shadow-sm border-1 rounded-3 favorites-card" 
+                                 data-fav-id="${fav.refId}" data-service="${fav.serviceType}">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="fw-bold mb-1">${fav.serviceType}</p>
+                                        <small class="text-muted">
+                                            Ngày thêm: 
+                                            <fmt:formatDate value="${fav.createdAt}" pattern="dd/MM/yyyy HH:mm" />
+                                        </small>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm btn-remove-fav">
+                                        💔 Bỏ thích
+                                    </button>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
+
+                <!-- Script xử lý bỏ thích -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        document.querySelectorAll('.btn-remove-fav').forEach(btn => {
+                            btn.addEventListener('click', function () {
+                                const card = this.closest('.favorites-card');
+                                const refId = card.dataset.favId;
+                                const serviceType = card.dataset.service;
+                                const contextPath = '<%= request.getContextPath() %>';
+
+                                fetch(`${contextPath}/favorite?action=remove&refId=${refId}&serviceType=${serviceType}`, {
+                                                    method: 'POST'
+                                                }).then(response => {
+                                                    if (response.ok) {
+                                                        // ✅ Xóa khỏi giao diện
+                                                        card.remove();
+                                                    } else {
+                                                        alert("Không thể bỏ thích. Vui lòng thử lại!");
+                                                    }
+                                                }).catch(err => console.error("Lỗi:", err));
+                                            });
+                                        });
+                                    });
+                </script>
+                
             
-            <!-- account and securit content --> 
+            <!-- account and securit content --------------------------------------------------------> 
             <div id="account" class="account-container main-section " >
                 <div class="tab-header-account">
                     <span class="active w-auto text-primary font-weight-bold mb-2" >Thông tin tài khoản</span>
@@ -614,7 +524,7 @@ if (currentUser != null) {
                                 </div>
                             </div>
                             <div class="actions">
-                                <button class="btn-secondary">Để sau</button>
+                                <button class="btn-secondary" >Để sau</button>
                                 <button class="btn-primary" >Lưu</button>
                             </div>
 
@@ -830,7 +740,7 @@ if (currentUser != null) {
                                     </button>
                                 </div>
 
-                                <!-- Body -->S
+                                <!-- Body -->
                                 <div class="modal-body">
                                     <!-- Thông báo lỗi -->
                                     <% String errorEmail = (String) session.getAttribute("errorEmail"); %>

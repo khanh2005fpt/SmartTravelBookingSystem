@@ -39,21 +39,7 @@
                     if (user == null) {
                         // Chưa đăng nhập → Hiện nút login/register
                 %>
-                <li class="nav-item dropdown position-relative">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        <i class="fa-solid fa-bell"></i>
-                        <span class="badge badge-danger position-absolute" 
-                              style="top: 5px; right: 5px; font-size: 0.7rem;">1</span>
-                    </a>
 
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown04" style="maxwidth: 350px;">
-                        <h6 class="dropdown-header">Thông báo</h6>
-                        <a class="dropdown-item" href="#">Hệ thống đang bảo trì, Vui lòng quay lại sau</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-center" href="#">Xem tất cả</a>
-                    </div>
-                </li>
 
                 <li class="nav-item ml-lg-5 ml-5 " ">
                     <a href="${pageContext.request.contextPath}/login" class="btn btn-login1"> 
@@ -62,9 +48,6 @@
 
 
                 </li>
-
-
-
 
                 <li class="nav-item ml-lg-3">
                     <a href="${pageContext.request.contextPath}/register" class="btn btn-register1 ">Đăng ký</a>
@@ -79,23 +62,71 @@
                  <li class="nav-item"><a href="${pageContext.request.contextPath}/HistoryBookingServlet" class="nav-link">Đặt chỗ của tôi</a></li>
                 
                       <!-- Chuông thông báo -->
-                <li class="nav-item dropdown position-relative">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        <i class="fa-solid fa-bell"></i>
-                        <span class="badge badge-danger position-absolute" 
-                              style="top: 5px; right: 5px; font-size: 0.7rem;">3</span>
-                    </a>
+              <li class="nav-item dropdown position-relative">
+    <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        <i class="fa-solid fa-bell"></i>
+        <c:if test="${not empty notifications}">
+            <span class="badge badge-danger position-absolute" 
+                  style="top: 5px; right: 5px; font-size: 0.7rem;">
+                ${notifications.size()}
+            </span>
+        </c:if>
+    </a>
 
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown04" style="maxwidth: 350px;">
-                        <h6 class="dropdown-header text-info">Thông báo</h6>
-                        <a class="dropdown-item" href="#">✈️ Chuyến bay SGN → HAN đã được cập nhật</a>
-                        <a class="dropdown-item" href="#">🕒 Lịch khởi hành thay đổi</a>
-                        <a class="dropdown-item" href="#">💳 Thanh toán của bạn đã được xác nhận</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-center" href="#">Xem tất cả</a>
+    <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="dropdown04" style="max-height: 300px; overflow-y: auto;">
+    <h6 class="dropdown-header text-info d-flex align-items-center mb-2">
+        <i class="fa-solid fa-bell me-2"></i> Thông báo
+    </h6>
+        <hr>
+    <div class="notification-list">
+        <c:forEach var="n" items="${notifications}" varStatus="status">
+            <c:if test="${status.index < 10}">
+                <div class="notification-item">
+                    <div class="notification-icon">
+                        <c:choose>
+                            <c:when test="${n.type == 'BOOKING'}">
+                                <i class="fa-solid fa-ticket-alt text-primary"></i>
+                            </c:when>
+                            <c:when test="${n.type == 'PAYMENT'}">
+                                <i class="fa-solid fa-credit-card text-success"></i>
+                            </c:when>
+                            <c:when test="${n.type == 'SYSTEM'}">
+                                <i class="fa-solid fa-gear text-warning"></i>
+                            </c:when>
+                            <c:when test="${n.type == 'TOUR'}">
+                                <i class="fa-solid fa-map-marked-alt text-info"></i>
+                            </c:when>
+                            <c:otherwise>
+                                <i class="fa-solid fa-info-circle text-muted"></i>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-                </li>
+                    <div class="notification-content">
+                        <strong>${n.title}</strong>
+                        <p class="text-muted mb-0">${n.message}</p>
+                    </div>
+                </div>
+            </c:if>
+        </c:forEach>
+
+        <c:if test="${empty notifications}">
+            <div class="text-center text-muted py-3">Không có thông báo mới nào</div>
+        </c:if>
+    </div>
+
+    <div class="dropdown-divider my-2"></div>
+
+    <div class="text-center pb-2">
+    <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal">
+    🗑 Xóa tất cả
+</button>
+   
+</div>
+
+</div>
+</li>
+
 
 
                 <li class="nav-item dropdown ml-lg-5 w-auto">
@@ -114,7 +145,7 @@
 
                     <!-- Menu xổ xuống -->
                     <div class="dropdown-menu dropdown-menu-right shadow w-auto" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=account#"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/information?section=account#"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=member-priority#"><i class="bi bi-award"></i> Membership Level</a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/FullHistoryBooking?section=historyBookings#"><i class="bi bi-calendar2-check"></i>Lịch sử đặt chỗ của tôi</a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
@@ -160,8 +191,41 @@
         </div>
     </div>
 </div>
+                               
+    <!-- Delete Confirmation Modal ----------------------------------------->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">⚠️ Xác nhận xóa thông báo</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <strong>Bạn có chắc chắn muốn xóa những thông báo này không? </strong>
+                        <p class="text-danger"><small>Hành động này không thể hoàn tác.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                       <form id="deleteForm" method="post" style="display: inline;" action="${pageContext.request.contextPath}/notifications_servlet">
+   
+    <input type="hidden" name="action" value="deleteAll">
+    <button type="submit" class="btn btn-danger">Xóa</button>
+</form>
 
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <script>
+         function confirmDelete(notificationId) {
+    document.getElementById('notificationIdToDelete').value = notificationId;
+    $('#deleteModal').modal('show');
+}
 
+        </script>
 
 <style>
 

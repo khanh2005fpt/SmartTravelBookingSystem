@@ -328,7 +328,104 @@ if (currentUser != null) {
         <div class="main-content">
             <!-- Welcome Header -->
             <div class="welcome-header">
-                <h1><i class="fa fa-tachometer-alt"></i> Dashboard</h1>
+                
+     <div class="dashboard-header d-flex align-items-center justify-content-between">
+    <h1><i class="fa fa-tachometer-alt me-2"></i> Dashboard</h1>
+
+    <!-- Chuông thông báo tồn kho -->
+    <li class="nav-item dropdown position-relative list-unstyled m-0">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            <i class="fa-solid fa-bell"></i>
+            <c:if test="${not empty notifications}">
+                <span class="badge badge-danger position-absolute" 
+                      style="top: 5px; right: 5px; font-size: 0.8rem;">
+                    ${notifications.size()}
+                </span>
+            </c:if>
+        </a>
+
+        <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="dropdown04" style="max-height: 300px; overflow-y: auto;">
+            <h6 class="dropdown-header text-info d-flex align-items-center mb-2">
+                <i class="fa-solid fa-bell me-2"></i> Thông báo
+            </h6>
+
+            <div class="notification-list">
+                <c:forEach var="n" items="${notifications}" varStatus="status">
+                    <c:if test="${status.index < 10}">
+                        <div class="notification-item d-flex">
+                            <div class="notification-icon me-2">
+                                <c:choose>
+                                    <c:when test="${n.type == 'SYSTEM'}">
+                                        <i class="fa-solid fa-gear text-warning"></i>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <i class="fa-solid fa-info-circle text-muted"></i>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <div class="notification-content">
+                                <strong>${n.title}</strong>
+                                <p class="text-muted mb-0">${n.message}</p>
+                            </div>
+                        </div>
+                    </c:if>
+                </c:forEach>
+
+                <c:if test="${empty notifications}">
+                    <div class="text-center text-muted py-3">Không có thông báo mới nào</div>
+                </c:if>
+            </div>
+
+            <div class="dropdown-divider my-2"></div>
+
+            <div class="text-center pb-2">
+                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal">
+                    🗑 Xóa tất cả
+                </button>
+            </div>
+        </div>
+    </li>
+</div>
+                
+                                               
+    <!-- Delete Confirmation Modal ----------------------------------------->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">⚠️ Xác nhận xóa thông báo</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <strong>Bạn có chắc chắn muốn xóa những thông báo này không? </strong>
+                        <p class="text-danger"><small>Hành động này không thể hoàn tác.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                       <form id="deleteForm" method="post" style="display: inline;" action="${pageContext.request.contextPath}/notifications_servlet">
+   
+    <input type="hidden" name="action" value="deleteAll">
+    <button type="submit" class="btn btn-danger">Xóa</button>
+</form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <script>
+         function confirmDelete(notificationId) {
+    document.getElementById('notificationIdToDelete').value = notificationId;
+    $('#deleteModal').modal('show');
+}
+
+        </script>
+                
+                
+
                 <p>Chào mừng bạn đến với hệ thống quản lý<strong> Meland Travel Booking</strong> </p>
                 <p><i class="fa fa-clock"></i> Hôm nay: <fmt:formatDate value="<%= new java.util.Date() %>" pattern="EEEE, dd/MM/yyyy"/></p>
             </div>

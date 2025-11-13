@@ -591,3 +591,88 @@ input::placeholder {
 .heart.full {
   color: red; /* khi click → tô đỏ */
 }
+
+/* ==========Notifications ========== */
+
+/* Container dropdown */
+.notification-dropdown {
+    width: 420px;
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 16px;
+    padding: 10px 0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* Thanh cuộn gọn đẹp */
+.notification-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+.notification-dropdown::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+.notification-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Item */
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 16px;
+    transition: background 0.2s;
+    gap: 12px;
+}
+
+.notification-item:hover {
+    background: #f7f9fb;
+}
+
+/* Icon */
+.notification-icon i {
+    font-size: 18px;
+    margin-top: 4px;
+}
+
+/* Nội dung */
+.notification-content {
+    flex: 1;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.notification-content strong {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 3px;
+}
+
+.notification-content p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+/* Header */
+.dropdown-header {
+    font-weight: 700;
+    font-size: 16px;
+    padding: 8px 16px;
+}
+
+/* Nút xóa tất cả */
+.btn-outline-danger {
+    border-radius: 8px;
+    padding: 5px 12px;
+    transition: all 0.2s;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+}
+
+

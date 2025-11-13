@@ -19,15 +19,16 @@ go
 
 /*
 
-select * from HistoryBooking
 SELECT * FROM CustomTours
 SELECT * FROM Tours
 Select * from CustomTourDetails
 Select * from CustomTourItinerary
 SELECT * FROM Tours
-	
+select * from HistoryBooking	
 select * from Payments
-
+SELECT * FROM Islands
+SELECT * FROM Tours
+select * from bookings
 SELECT * FROM CustomTours
 
     SELECT ct.*, ctd.*, cti.*, hb.*
@@ -106,6 +107,24 @@ GO
 */
 
 
+<<<<<<< HEAD
+=======
+
+
+update Users
+set fullName ='Manager'
+where userId =2
+
+select * from users
+
+
+update Airlines 
+set logoUrl='views/home/images/flights/Garuda_Indonesia-Logo.png'
+where airlineId=7
+
+select * from Flights
+
+>>>>>>> a98e559f8a08f1942fd2b5d03e4ecdc73c00f758
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -147,14 +166,7 @@ CREATE TABLE CustomerProfiles (
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 
-
-
-
-
 -- Cộng điểm khi trạng thái chuyển sang COMPLETED và  cập nhật cấp độ thành viên tự động
-DROP TRIGGER IF EXISTS trg_AddLoyaltyPoints_AfterBookingCompleted
-GO
-
 CREATE OR ALTER TRIGGER trg_AddLoyaltyPoints_AfterBookingCompleted
 ON Bookings
 AFTER UPDATE
@@ -281,6 +293,7 @@ CREATE TABLE Islands (
 );
 
 go
+select * from tours
 CREATE TABLE Tours (
     tourId INT PRIMARY KEY IDENTITY(1,1),
     islandId INT NOT NULL,
@@ -290,10 +303,12 @@ CREATE TABLE Tours (
     availableQuantity INT CHECK (availableQuantity >= 0) DEFAULT 0,
     approvalStatus VARCHAR(20) DEFAULT 'PENDING' CHECK (approvalStatus IN ('PENDING','APPROVED','REJECTED')),
     tourImageUrl NVARCHAR(500),
+	rejectionReason NVARCHAR(255),
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
-select * from users
-
+update Tours
+set approvalStatus ='PENDING'
+WHERE tourId=19;
 
 
 select * from TourServices 
@@ -388,18 +403,6 @@ CREATE TABLE Hotels (
 );
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 -- bảng Arlines : các hãng bay
 CREATE TABLE Airlines (
     airlineId INT IDENTITY(1,1) PRIMARY KEY,
@@ -430,19 +433,6 @@ CREATE TABLE Flights (
     FOREIGN KEY (destinationIslandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 GO
-
-SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
-                u.fullName as customerName,
-                t.tourName,
-                ct.tourName as customTourName
-            FROM Bookings b
-            LEFT JOIN Users u ON b.customerId = u.userId
-            LEFT JOIN Tours t ON b.tourId = t.tourId
-            LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
-            ORDER BY b.bookingDate DESC
 
 
 INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
@@ -488,7 +478,6 @@ VALUES
 CREATE TABLE FlightSchedules (
     scheduleId INT IDENTITY(1,1) PRIMARY KEY,
     flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
-    planeModel NVARCHAR(100) NULL,           -- loại máy bay
     departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
     arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
     departureTime TIME NOT NULL,             -- giờ khởi hành
@@ -617,190 +606,11 @@ FROM Flights f
 JOIN Airlines a ON f.airlineId = a.airlineId;
 
 
-
-
-
 */
 GO
 
 
-INSERT INTO Flights (flightNumber, airlineId, departure, destination, destinationIslandId, 
-                     basePrice, ticketAvailable, flightType, flightClass, destinationImageUrl)
-VALUES
--- Từ Hà Nội đến Phú Quốc
-(N'VN101', 1, N'Hà Nội', N'Phú Quốc', 1, 2200000, 50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/phuquoc.jpg'),
-(N'VJ301', 2, N'Hà Nội', N'Phú Quốc', 1, 1100000, 50, N'Một chiều', N'Thương gia', N'views/home/images/islands/phuquoc.jpg'),
-(N'QH210', 3, N'Hà Nội', N'Phú Quốc', 1, 1530000, 50, N'Một chiều', N'Thương gia', N'views/home/images/islands/phuquoc.jpg'),
-(N'VN101', 1, N'TP.HCM', N'Phú Quốc', 1, 1322000, 50, N'Một chiều', N'Phổ thông', N'views/home/images/islands/phuquoc.jpg'),
-(N'QH210', 3, N'Hà Nội', N'Phú Quốc', 1, 3530000, 50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/phuquoc.jpg'),
-(N'VJ301', 2, N'TP.HCM', N'Phú Quốc', 1, 3530000, 50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/phuquoc.jpg'),
 
--- Từ TP.HCM đến Langkawi
-(N'VN205', 1, N'TP.HCM', N'Langkawi', 2, 3200000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/langkawi.jpg'),
-(N'QH505', 3, N'TP.HCM', N'Langkawi', 2, 1800000,50, N'Một chiều', N'Thương gia', N'views/home/images/islands/langkawi.jpg'),
-
--- Từ Hà Nội đến Phuket
-(N'VN307', 1, N'Hà Nội', N'Phuket', 3,3500000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/phuket.jpg'),
-
--- Từ TP.HCM đến Bali
-(N'VJ407', 2, N'TP.HCM', N'Bali', 4, 4000000,50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/bali.jpg'),
-(N'QH509', 3, N'TP.HCM', N'Bali', 4, 2100000,50, N'Một chiều', N'Phổ thông', N'views/home/images/islands/bali.jpg'),
-
--- Từ Hà Nội đến Boracay
-(N'VN321', 1, N'Hà Nội', N'Boracay', 5, 3700000, 50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/boracay.jpg'),
-
--- Từ TP.HCM đến Sihanoukville
-(N'VJ215', 2, N'TP.HCM', N'Sihanoukville', 6, 2500000,50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/sihanoukville.jpg'),
-
--- Từ Hà Nội đến Tioman
-(N'VN333', 1, N'Hà Nội', N'Tioman', 7, 3200000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/tioman.jpg'),
-
--- Từ TP.HCM đến Koh Samui
-(N'QH601', 3, N'TP.HCM', N'Koh Samui', 8,3300000,50, N'Một chiều', N'Phổ thông', N'views/home/images/islands/kohsamui.jpg'),
-
--- Từ Hà Nội đến Nusa Penida
-(N'VN901', 1, N'Hà Nội', N'Nusa Penida', 9, 4100000,50, N'Khứ hồi', N'Thương gia', N'views/home/images/islands/nusapenida.jpg'),
-
--- Từ TP.HCM đến Palawan
-(N'VJ701', 2, N'TP.HCM', N'Palawan', 10, 3900000,50, N'Khứ hồi', N'Phổ thông', N'views/home/images/islands/palawan.jpg');
-
-CREATE TABLE FlightSchedules (
-    scheduleId INT IDENTITY(1,1) PRIMARY KEY,
-    flightId INT NOT NULL FOREIGN KEY REFERENCES Flights(flightId),
-    planeModel NVARCHAR(100) NULL,           -- loại máy bay
-    departureAirport NVARCHAR(100) NOT NULL, -- sân bay khởi hành
-    arrivalAirport NVARCHAR(100) NOT NULL,   -- sân bay đến
-    departureTime TIME NOT NULL,             -- giờ khởi hành
-    arrivalTime TIME NOT NULL,               -- giờ đến
-    returnDepartureTime TIME NULL,           -- giờ khởi hành chiều về
-    returnArrivalTime TIME NULL,             -- giờ hạ cánh chiều về
-    transitAirport NVARCHAR(100) NULL,       -- sân bay trung chuyển (nếu có)
-    transitDuration NVARCHAR(50) NULL,       -- thời gian dừng (VD: '7h30', '45 phút')
-    notes NVARCHAR(255) NULL                 -- ghi chú
-);
-
-
-
-INSERT INTO FlightSchedules 
-(flightId, planeModel, departureAirport, arrivalAirport, departureTime, arrivalTime,returnDepartureTime, returnArrivalTime, transitAirport, transitDuration, notes)
-VALUES
--- 1. Hà Nội → Phú Quốc
-(1, N'Airbus A321neo', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '07:30', '09:45', '16:00', '18:15', NULL, NULL, 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 2. Hà Nội → Phú Quốc
-(2, N'Airbus A320', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '12:00', '14:10', NULL, NULL, NULL, NULL, 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 3. Hà Nội → Phú Quốc
-(3, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Phú Quốc (PQC)', '11:34', '13:10', NULL, NULL,  NULL, NULL, 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 4. TP.HCM → Phú Quốc
-(4, N'Airbus A321', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)', '09:00', '10:35', NULL, NULL,NULL, NULL, 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 5. Hà Nội → Phú Quốc (Khứ hồi)
-(5, N'Airbus A321', N'Nội Bài (HAN)', N'Phú Quốc (PQC)','07:50', '10:00', '21:30', '00:15', NULL, NULL, 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 6. TP.HCM → Phú Quốc (Khứ hồi)
-(6, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Phú Quốc (PQC)',  '08:25', '9:55', '20:45', '21:50',NULL, NULL, 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 7. TP.HCM → Langkawi (Malaysia)
-(7, N'Boeing 737-800', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)', '08:00', '10:30', '17:00', '19:30', N'Kuala Lumpur (KUL)', N'1h20', 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 8. TP.HCM → Langkawi
-(8, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Langkawi (LGK)','09:15', '11:45', NULL, NULL, N'Kuala Lumpur (KUL)', N'1h15', 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 9. Hà Nội → Phuket (Thái Lan)
-(9, N'Airbus A321', N'Nội Bài (HAN)', N'Phuket (HKT)','06:45', '09:00', '15:30', '17:45', N'Bangkok (BKK)', N'1h05', 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 10. TP.HCM → Bali (Indonesia)
-(10, N'Boeing 737 MAX 9', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)',   '08:15', '12:00', '18:00', '21:45', N'Jakarta (CGK)', N'1h30',
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 11. TP.HCM → Bali (1 chiều)
-(11, N'Airbus A320', N'Tân Sơn Nhất (SGN)', N'Bali (DPS)','09:15', '11:45', NULL, NULL, N'Jakarta (CGK)', N'1h20',
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 12. Hà Nội → Boracay (Philippines)
-(12, N'Airbus A321neo', N'Nội Bài (HAN)', N'Boracay (MPH)', '09:00', '12:15', '19:00', '22:15', N'Manila (MNL)', N'1h10', 
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 13. TP.HCM → Sihanoukville (Campuchia)
-(13, N'ATR 72-600', N'Tân Sơn Nhất (SGN)', N'Sihanoukville (KOS)','10:00', '12:30', '17:45', '19:15', N'Phnom Penh (PNH)', NULL,
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 14. Hà Nội → Tioman (Malaysia)
-(14, N'Airbus A320', N'Nội Bài (HAN)', N'Tioman (TOD)','07:00', '10:30', '15:00', '18:30', N'Kuala Lumpur (KUL)', N'1h25',
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 15. TP.HCM → Koh Samui (Thái Lan)
-(15, N'Airbus A319', N'Tân Sơn Nhất (SGN)', N'Koh Samui (USM)',  '13:30', '17:15', NULL, NULL, N'Bangkok (BKK)', N'50 phút',
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 16. Hà Nội → Nusa Penida (Indonesia)
-(16, N'Boeing 737 MAX 8', N'Nội Bài (HAN)', N'Nusa Penida (NDP)','06:30', '10:15', '17:00', '20:45', N'Denpasar (DPS)', N'1h10',
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.'),
-
--- 17. TP.HCM → Palawan (Philippines)
-(17, N'Airbus A321neo', N'Tân Sơn Nhất (SGN)', N'Palawan (PPS)',  '09:00', '12:30', '18:00', '21:30',N'Manila (MNL)', N'1h00',
- N'Hành khách không cần nhận lại hành lý, đã bao gồm trong dịch vụ tour.');
-
- select * from hotels
-/* lenh join lay lich trinh bay chi tiet
-SELECT 
-    fs.scheduleId,
-	fs.flightId,
-    a.airlineName AS airlineName,
-    f.flightNumber AS flightNumber,
-	fs.planeModel AS planeModel,
-	f.flightType   AS flightType,
-    fs.departureAirport AS DiemDi,
-    fs.arrivalAirport AS DiemDen,
-    f.departureTime AS GioKhoiHanh,
-    f.arrivalTime AS GioDen,
-	f.returnDepartureTime AS GioKhoiHanhVe,
-	f.returnArrivalTime AS GioDenVe,
-    fs.transitAirport AS SanBayQuaCanh,
-    fs.transitDuration AS ThoiGianDung,
-    fs.notes AS GhiChu
-FROM FlightSchedules fs
-JOIN Flights f ON fs.flightId = f.flightId
-JOIN Airlines a ON f.airlineId = a.airlineId
-ORDER BY fs.scheduleId;
-
-*/
-
-/* lenh join lay thong tin chuyen bay
-SELECT 
-    f.flightId,
-    f.flightNumber,
-    f.departure,
-    f.destination,
-    f.departureTime,
-    f.arrivalTime,
-    f.basePrice,
-    f.flightType,
-    f.flightClass,
-    f.destinationImageUrl,
-    a.airlineName,
-    a.iataCode,
-    a.logoUrl
-FROM Flights f
-JOIN Airlines a ON f.airlineId = a.airlineId;
-
-
-
-
-
-*/
-GO
 
 
 -- Bảng phương tiện cho thuê trong đảo
@@ -837,17 +647,6 @@ VALUES
 (8, N'Tour Văn hóa Koh Samui 5N4Đ', '2025-9-3', '2025-9-10', 12900000);
 
 
-
-
--- Xem tất cả ràng buộc CHECK trong bảng
-SELECT 
-    cc.name AS ConstraintName,
-    cc.definition AS Definition
-FROM sys.check_constraints cc
-JOIN sys.tables t ON cc.parent_object_id = t.object_id
-WHERE t.name = 'CustomTourDetails';
-
-
  -- detail tour rieng le cho customer
 
 CREATE TABLE CustomTourDetails (
@@ -880,80 +679,7 @@ CREATE TABLE CustomTourItinerary (
     FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId) ON DELETE CASCADE
 );
 
-
--- trigger check role customer mới đc booking 
-CREATE TRIGGER trg_Booking_CheckCustomer
-ON Bookings
-INSTEAD OF INSERT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Chỉ cho phép user có roleId = 3 (CUSTOMER)
-    IF EXISTS (
-        SELECT 1
-        FROM inserted i
-        JOIN Users u ON i.customerId = u.userId
-        WHERE u.roleId <> 3
-    )
-    BEGIN
-        RAISERROR('Only users with roleId = 3 (CUSTOMER) can create bookings.', 16, 1);
-        ROLLBACK TRANSACTION;
-        RETURN;
-    END
-
-    --  Nếu hợp lệ, insert dữ liệu vào Bookings
-    INSERT INTO Bookings (
-        profileId,
-        customerId,
-        tourId,
-        customTourId,
-        price,
-        departureDate,
-        endDate,
-        adultQuantity,
-        childQuantity,
-        status,
-        bookingDate
-    )
-    SELECT 
-        profileId,
-        customerId,
-        tourId,
-        customTourId,
-        price,
-        departureDate,
-        endDate,
-        adultQuantity,
-        childQuantity,
-        status,
-        bookingDate
-    FROM inserted;
-END;
-select * from bookings
-GO
- SELECT 
-        f.flightId,
-        f.flightNumber,
-        f.departure,
-        f.destinationIslandId,   
-        f.destination,
-        f.basePrice,
-        f.ticketAvailable,
-        f.flightClass,
-        f.destinationImageUrl,
-        f.flightType,
-        -- Airline
-        a.airlineId,
-        a.airlineName,
-        a.iataCode,
-        a.logoUrl
-    FROM Flights f
-    JOIN Airlines a ON f.airlineId = a.airlineId
-    WHERE f.destinationIslandId = 1 AND f.flightType = 'Một chiều'
-    ORDER BY f.basePrice ASC
-select * from tours
-
+-- Bảng bookings
 	CREATE TABLE Bookings (
 		bookingId INT IDENTITY(1,1) PRIMARY KEY,
 		customerId INT NOT NULL,
@@ -970,15 +696,8 @@ select * from tours
 		FOREIGN KEY (customTourId) REFERENCES CustomTours(customTourId),
 		FOREIGN KEY (tourId) REFERENCES Tours(tourId)
 	);
+	go
 
-
-
-	ALTER TABLE IslandVehicles
-ADD vehicleImageUrl VARCHAR(255) NULL;
-
-
-
-	
 
 -- Bảng Payments
   
@@ -991,9 +710,6 @@ CREATE TABLE Payments (
     status VARCHAR(20) CHECK (status IN ('SUCCESS','FAILED','PENDING')) DEFAULT 'PENDING',
     FOREIGN KEY (bookingId) REFERENCES Bookings(bookingId) ON DELETE CASCADE
 );
-
-
-select * from HistoryBooking
 
 
 CREATE TABLE HistoryBooking (
@@ -1010,41 +726,18 @@ CREATE TABLE HistoryBooking (
     FOREIGN KEY (accountUserId) REFERENCES Users(userId) ON DELETE SET NULL
 );
 
+select * from HistoryBooking
+select * from Payments
 
 
 /* -- xoa du lieu va reset
-DELETE FROM Notifications
+DELETE FROM Payments
 drop table CustomTourItinerary
 -- Reset IDENTITY về 10
-DBCC CHECKIDENT ('Notifications', RESEED, 0);
+DBCC CHECKIDENT ('Payments', RESEED, 0);
 DBCC CHECKIDENT ('CustomTourDetails', RESEED, 0);
 DBCC CHECKIDENT ('CustomTours', RESEED, 0);
 */
-
-SELECT 
-    hb.historyId,
-    hb.customerName AS fullname,
-    hb.customerPhone AS phone,
-    hb.createdAt,
-    t.tourName,
-    p.amount,
-    p.status AS paymentStatus
-FROM HistoryBooking hb
-JOIN Payments p ON hb.paymentId = p.paymentId
-JOIN Bookings b ON p.bookingId = b.bookingId
-LEFT JOIN Tours t ON b.tourId = t.tourId
-LEFT JOIN Users u ON hb.accountUserId = u.userId
-WHERE hb.historyId = 1;  
-
-SELECT hb.paymentId, hb.customerName, hb.customerPhone, hb.createdAt, t.tourName, p.amount, p.status AS paymentStatus
-                  FROM HistoryBooking hb
-                  JOIN Payments p ON hb.paymentId = p.paymentId
-                  JOIN Bookings b ON p.bookingId = b.bookingId
-                  LEFT JOIN Tours t ON b.tourId = t.tourId
-                  WHERE hb.paymentId = 29
-select * from HistoryBooking
-
-GO
 
 -- triger ghi lại lịch sử booking 
 
@@ -1075,14 +768,6 @@ END;
 GO
 
 
-
-
-
-
-
-
-
-
 -- Bảng Recommendations
 CREATE TABLE Recommendations (
     recId INT IDENTITY(1,1) PRIMARY KEY,
@@ -1096,16 +781,15 @@ CREATE TABLE Recommendations (
 
 go
 
+
 -- bảng logs
 CREATE TABLE Logs (
-    LogId INT PRIMARY KEY IDENTITY(1,1),
-    UserId INT NOT NULL,
-    Action NVARCHAR(100) NOT NULL,
-	Method NVARCHAR(20) NULL,    
+    LogId   INT PRIMARY KEY IDENTITY(1,1),
+    UserId  INT NOT NULL,                 -- không cho NULL
+    Action  NVARCHAR(100) NOT NULL,
     Timestamp DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES Users(UserId)
+    CONSTRAINT FK_Logs_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
-go
 
 
 -- Tokens
@@ -1122,7 +806,9 @@ CREATE TABLE Tokens (
 );
 go
 
-
+SELECT name, is_disabled
+FROM sys.triggers
+WHERE parent_id = OBJECT_ID('Users');
 -- review
 CREATE TABLE Reviews (
     reviewId INT IDENTITY(1,1) PRIMARY KEY,
@@ -1135,21 +821,21 @@ CREATE TABLE Reviews (
     FOREIGN KEY (userId) REFERENCES Users(userId) 
 );
 go
--- Notification 
-select * from Notifications
 
+
+-- Notification 
 
 CREATE TABLE Notifications (
     notificationId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
     title NVARCHAR(100) NOT NULL,
     message NVARCHAR(500) NOT NULL,
-    type VARCHAR(30) CHECK (type IN ('BOOKING','PAYMENT','PROMOTION','SYSTEM')) DEFAULT 'SYSTEM',
+    type VARCHAR(30) CHECK (type IN ('BOOKING','SYSTEM','TOUR')) DEFAULT 'SYSTEM',
     createdAt DATETIME DEFAULT GETDATE(),
-
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 GO
+
 -- reset thông báo 
 /*
 UPDATE Notifications 
@@ -1161,12 +847,27 @@ SET  isDeleted = 0
 WHERE userId = 2;
 */
 
+/*
+-- Xem danh sách trigger trên bảng Bookings
+SELECT name, object_id
+FROM sys.triggers
+WHERE parent_id = OBJECT_ID('Bookings');
 
+-- Xóa trigger trên bảng Bookings
+IF OBJECT_ID('trg_Booking_Insert_Notification', 'TR') IS NOT NULL
+    DROP TRIGGER trg_Booking_Insert_Notification;
+GO
+*/
+-- Xem chi tiết constraint
+SELECT definition
+FROM sys.check_constraints
+WHERE name = 'CK__Payments__status__7C3A67EB';
 
 
 --- trigger khi thông báo khi người dùng đặt chỗ "chạy khi thêm bản ghi mới vào Bookings"
 
-CREATE TRIGGER trg_Booking_Insert_Notification
+
+CREATE OR ALTER TRIGGER trg_Booking_Insert_Notification
 ON Bookings
 AFTER INSERT
 AS
@@ -1174,80 +875,345 @@ BEGIN
     SET NOCOUNT ON;
 
     INSERT INTO Notifications (userId, title, message, type)
-    SELECT 
+    SELECT
         i.customerId,
-        N'Đặt chỗ thành công',
-        CASE 
-            --  Nếu là tour trọn gói
-            WHEN i.tourId IS NOT NULL THEN 
-                N'Bạn vừa đặt tour trọn gói."' + t.tourName 
-            
-            -- Nếu là tour riêng lẻ (custom tour)
-            WHEN i.customTourId IS NOT NULL THEN 
-                N'Bạn vừa đặt tour riêng. "' + ct. tourName 
-               
-            
-            -- Trường hợp không xác định 
-            ELSE 
-                N'Bạn vừa tạo đặt chỗ thành công.' 
-        END AS message,
+        N'🎉 Đặt chỗ thành công!',
+        CASE
+            WHEN i.tourId IS NOT NULL THEN
+                N'🎫 Bạn vừa đặt tour trọn gói: "' + ISNULL(t.tourName, N'') + 
+                N'" ✈️ Khởi hành ngày ' + CONVERT(NVARCHAR(10), i.departureDate, 120) + N'. Chúc bạn có chuyến đi tuyệt vời!'
+           
+            WHEN i.customTourId IS NOT NULL THEN
+                N'🧳 Bạn vừa đặt tour riêng: "' + ISNULL(ct.tourName, N'') + 
+                N'" ✈️ Khởi hành ngày ' + CONVERT(NVARCHAR(10), i.departureDate, 120) +
+                N', kết thúc ngày ' + CONVERT(NVARCHAR(10), ISNULL(i.endDate, i.departureDate), 120) + 
+                N'. Chúc bạn có chuyến đi đáng nhớ!'
+           
+            ELSE
+                N'🎉 Bạn vừa tạo đặt chỗ thành công! Cảm ơn bạn đã tin tưởng dịch vụ của chúng tôi ❤️'
+        END,
         'BOOKING'
     FROM inserted i
-	--Dùng LEFT JOIN để tránh lỗi nếu 1 trong 2 trường NULL
     LEFT JOIN Tours t ON i.tourId = t.tourId
     LEFT JOIN CustomTours ct ON i.customTourId = ct.customTourId;
 END;
 GO
 
 
+--- triger khi thông báo customer những tour mới "chạy khi cập nhật trạng thái Tours"
 
-
-
-
---- triger khi thông báo customer thanh toán "chạy khi cập nhật trạng thái Payments"
-CREATE TRIGGER trg_Payment_Success
-ON Payments
+CREATE TRIGGER trg_Tour_Approved_Notification
+ON Tours
 AFTER UPDATE
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    IF NOT EXISTS (
+        SELECT 1 FROM inserted i
+        INNER JOIN deleted d ON i.tourId = d.tourId
+        WHERE i.approvalStatus = 'APPROVED' 
+          AND d.approvalStatus <> 'APPROVED'
+    )
+        RETURN;
+
+    BEGIN TRY
+        INSERT INTO Notifications (userId, title, message, type, createdAt)
+        SELECT
+            u.userId,
+            N'Tour mới hấp dẫn!',
+             N'🎉 ' + N'Vừa có gói tour mới vô cùng thú vị tại ' + ISNULL(isl.islandName, N'Đảo') +
+            N'! Tên: "' + i.tourName +
+            N'", Giá chỉ với: ' + 
+            REPLACE(FORMAT(ISNULL(i.price, 0), 'N0'), ',', '.') + 
+            N' VND',
+            'TOUR',
+            GETDATE()
+        FROM inserted i
+        INNER JOIN deleted d ON i.tourId = d.tourId
+        INNER JOIN Islands isl ON i.islandId = isl.islandId
+        CROSS JOIN Users u
+        WHERE i.approvalStatus = 'APPROVED'
+          AND d.approvalStatus <> 'APPROVED'
+          AND u.roleId = 3;
+    END TRY
+    BEGIN CATCH
+        PRINT 'Lỗi: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+
+---------------- triger khi thông báo customer về system "sau khi đổi mật khẩu "chạy khi cập nhật trạng thái Users"--------------------
+
+CREATE TRIGGER trg_User_Update_Password_Notification
+ON Users
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+	    
+    -- Chỉ tạo notification nếu mật khẩu thực sự thay đổi
     INSERT INTO Notifications (userId, title, message, type)
     SELECT 
-        b.customerId AS userId,
-        N'Thanh toán thành công',
-        CASE 
-            -- Nếu là tour trọn gói
-            WHEN b.tourId IS NOT NULL THEN
-                N'Giao dịch thanh toán cho tour. "'
-              
+        i.userId,
+        N'Cập nhật mật khẩu thành công',
+        N'Mật khẩu của bạn vừa được thay đổi. Nếu không phải bạn, vui lòng liên hệ bộ phận hỗ trợ ngay.',
+        'SYSTEM'
+    FROM inserted i
+    INNER JOIN deleted d ON i.userId = d.userId
+    WHERE i.password <> d.password;
+END;
+GO
 
-            --  Nếu là tour riêng lẻ 
-            WHEN b.customTourId IS NOT NULL THEN
-                N'Giao dịch thanh toán cho tour riêng. "' + ct.tourName 
-              
+-------------------------------------------- stored procedure trừ số lượng và triger khi thông báo cho staff , khi cảnh báo tồn kho của dịch vụ----------------------------------------------
 
-            -- Trường hợp không xác định
-            ELSE
-                N'Giao dịch thanh toán đã được xác nhận thành công.'
-        END AS message,
-        'PAYMENT'
-    FROM inserted p
-    JOIN Bookings b ON p.bookingId = b.bookingId
-    LEFT JOIN Tours t ON b.tourId = t.tourId
-    LEFT JOIN CustomTours ct ON b.customTourId = ct.customTourId
-    WHERE p.status = 'SUCCESS';
+-- 1. PROCEDURE: Trừ tồn kho khi booking hoàn tất
+
+CREATE OR ALTER PROCEDURE sp_UpdateInventory_OnBookingCompleted
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra có booking nào chuyển sang COMPLETED không
+    IF NOT EXISTS (
+        SELECT 1 FROM inserted i
+        INNER JOIN deleted d ON i.bookingId = d.bookingId
+        WHERE i.status = 'COMPLETED' AND d.status <> 'COMPLETED'
+    )
+        RETURN;
+
+    -- Bảng tạm lưu booking hoàn tất
+    IF OBJECT_ID('tempdb..#CompletedBookings') IS NOT NULL
+        DROP TABLE #CompletedBookings;
+
+    SELECT
+        b.bookingId,
+        ISNULL(b.tourId, 0) AS tourId,
+        ISNULL(b.customTourId, 0) AS customTourId,
+        ISNULL(b.adultQuantity, 0) + ISNULL(b.childQuantity, 0) AS totalPeople
+    INTO #CompletedBookings
+    FROM inserted b
+    INNER JOIN deleted d ON b.bookingId = d.bookingId
+    WHERE b.status = 'COMPLETED' AND d.status <> 'COMPLETED';
+
+    IF NOT EXISTS (SELECT 1 FROM #CompletedBookings)
+        RETURN;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- FLIGHTS (Tour)
+        UPDATE f
+        SET f.ticketAvailable = CASE
+                                    WHEN f.ticketAvailable - cb.totalPeople < 0 THEN 0
+                                    ELSE f.ticketAvailable - cb.totalPeople
+                                END
+        FROM Flights f
+        INNER JOIN Tours t ON t.islandId = f.destinationIslandId
+        INNER JOIN #CompletedBookings cb ON cb.tourId = t.tourId;
+
+        -- FLIGHTS (CustomTour)
+        UPDATE f
+        SET f.ticketAvailable = CASE
+                                    WHEN f.ticketAvailable - cb.totalPeople < 0 THEN 0
+                                    ELSE f.ticketAvailable - cb.totalPeople
+                                END
+        FROM Flights f
+        INNER JOIN CustomTours ct ON ct.islandId = f.destinationIslandId
+        INNER JOIN #CompletedBookings cb ON cb.customTourId = ct.customTourId;
+
+        -- HOTELS (Tour)
+        UPDATE h
+        SET h.roomsAvailable = CASE
+                                   WHEN h.roomsAvailable - cb.totalPeople < 0 THEN 0
+                                   ELSE h.roomsAvailable - cb.totalPeople
+                               END
+        FROM Hotels h
+        INNER JOIN Tours t ON t.islandId = h.islandId
+        INNER JOIN #CompletedBookings cb ON cb.tourId = t.tourId;
+
+        -- HOTELS (CustomTour)
+        UPDATE h
+        SET h.roomsAvailable = CASE
+                                   WHEN h.roomsAvailable - cb.totalPeople < 0 THEN 0
+                                   ELSE h.roomsAvailable - cb.totalPeople
+                               END
+        FROM Hotels h
+        INNER JOIN CustomTours ct ON ct.islandId = h.islandId
+        INNER JOIN #CompletedBookings cb ON cb.customTourId = ct.customTourId;
+
+        -- VEHICLES (Tour)
+        UPDATE v
+        SET v.availability = CASE
+                                 WHEN v.availability - cb.totalPeople < 0 THEN 0
+                                 ELSE v.availability - cb.totalPeople
+                             END
+        FROM IslandVehicles v
+        INNER JOIN Tours t ON t.islandId = v.islandId
+        INNER JOIN #CompletedBookings cb ON cb.tourId = t.tourId;
+
+        -- VEHICLES (CustomTour)
+        UPDATE v
+        SET v.availability = CASE
+                                 WHEN v.availability - cb.totalPeople < 0 THEN 0
+                                 ELSE v.availability - cb.totalPeople
+                             END
+        FROM IslandVehicles v
+        INNER JOIN CustomTours ct ON ct.islandId = v.islandId
+        INNER JOIN #CompletedBookings cb ON cb.customTourId = ct.customTourId;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+
+-- 2. PROCEDURE: Gửi cảnh báo khi tồn kho <= 5
+CREATE OR ALTER PROCEDURE sp_SendLowInventoryNotifications
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @staffId INT;
+    SELECT TOP 1 @staffId = userId FROM Users WHERE roleId = 4;
+
+    IF @staffId IS NULL
+        RETURN;
+
+    -- Flights (Tour)
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT
+        @staffId,
+        N'Cảnh báo vé máy bay sắp hết (Tour)',
+        N'Tour ID: ' + CAST(t.tourId AS NVARCHAR(10)) +
+        N' – Flight ID: ' + CAST(f.flightId AS NVARCHAR(10)) +
+        N' – Vé bay đến đảo ' + i.islandName +
+        N' chỉ còn ' + CAST(f.ticketAvailable AS NVARCHAR(10)) + N' vé.',
+        'SYSTEM'
+    FROM Flights f
+    INNER JOIN Islands i ON f.destinationIslandId = i.islandId
+    INNER JOIN Tours t ON t.islandId = f.destinationIslandId
+    WHERE f.ticketAvailable <= 5;
+
+    -- Flights (CustomTour)
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT
+        @staffId,
+        N'Cảnh báo vé máy bay sắp hết (Custom Tour)',
+        N'CustomTour ID: ' + CAST(ct.customTourId AS NVARCHAR(10)) +
+        N' – Flight ID: ' + CAST(f.flightId AS NVARCHAR(10)) +
+        N' – Vé bay đến đảo ' + i.islandName +
+        N' chỉ còn ' + CAST(f.ticketAvailable AS NVARCHAR(10)) + N' vé.',
+        'SYSTEM'
+    FROM Flights f
+    INNER JOIN Islands i ON f.destinationIslandId = i.islandId
+    INNER JOIN CustomTours ct ON ct.islandId = f.destinationIslandId
+    WHERE f.ticketAvailable <= 5;
+
+    -- Hotels (Tour)
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT
+        @staffId,
+        N'Cảnh báo phòng khách sạn sắp hết (Tour)',
+        N'Tour ID: ' + CAST(t.tourId AS NVARCHAR(10)) +
+        N' – Hotel ID: ' + CAST(h.hotelId AS NVARCHAR(10)) +
+        N' – Số phòng còn lại tại đảo ' + i.islandName +
+        N' chỉ còn ' + CAST(h.roomsAvailable AS NVARCHAR(10)) + N' phòng.',
+        'SYSTEM'
+    FROM Hotels h
+    INNER JOIN Islands i ON h.islandId = i.islandId
+    INNER JOIN Tours t ON t.islandId = h.islandId
+    WHERE h.roomsAvailable <= 5;
+
+    -- Hotels (CustomTour)
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT
+        @staffId,
+        N'Cảnh báo phòng khách sạn sắp hết (Custom Tour)',
+        N'CustomTour ID: ' + CAST(ct.customTourId AS NVARCHAR(10)) +
+        N' – Hotel ID: ' + CAST(h.hotelId AS NVARCHAR(10)) +
+        N' – Số phòng còn lại tại đảo ' + i.islandName +
+        N' chỉ còn ' + CAST(h.roomsAvailable AS NVARCHAR(10)) + N' phòng.',
+        'SYSTEM'
+    FROM Hotels h
+    INNER JOIN Islands i ON h.islandId = i.islandId
+    INNER JOIN CustomTours ct ON ct.islandId = h.islandId
+    WHERE h.roomsAvailable <= 5;
+
+    -- Vehicles (Tour)
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT
+        @staffId,
+        N'Cảnh báo phương tiện sắp hết (Tour)',
+        N'Tour ID: ' + CAST(t.tourId AS NVARCHAR(10)) +
+        N' – Vehicle ID: ' + CAST(v.vehicleId AS NVARCHAR(10)) +
+        N' – Xe tại đảo ' + i.islandName +
+        N' chỉ còn ' + CAST(v.availability AS NVARCHAR(10)) + N' chiếc.',
+        'SYSTEM'
+    FROM IslandVehicles v
+    INNER JOIN Islands i ON v.islandId = i.islandId
+    INNER JOIN Tours t ON t.islandId = v.islandId
+    WHERE v.availability <= 5;
+
+    -- Vehicles (CustomTour)
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT
+        @staffId,
+        N'Cảnh báo phương tiện sắp hết (Custom Tour)',
+        N'CustomTour ID: ' + CAST(ct.customTourId AS NVARCHAR(10)) +
+        N' – Vehicle ID: ' + CAST(v.vehicleId AS NVARCHAR(10)) +
+        N' – Xe tại đảo ' + i.islandName +
+        N' chỉ còn ' + CAST(v.availability AS NVARCHAR(10)) + N' chiếc.',
+        'SYSTEM'
+    FROM IslandVehicles v
+    INNER JOIN Islands i ON v.islandId = i.islandId
+    INNER JOIN CustomTours ct ON ct.islandId = v.islandId
+    WHERE v.availability <= 5;
+END;
+GO
+
+
+-- 3. TRIGGER: Gọi 2 procedure trên
+
+CREATE TRIGGER trg_UpdateInventory_AndNotify
+ON dbo.Bookings
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra có booking nào chuyển sang COMPLETED không
+    IF NOT EXISTS (
+        SELECT 1 FROM inserted i
+        INNER JOIN deleted d ON i.bookingId = d.bookingId
+        WHERE i.status = 'COMPLETED' AND d.status <> 'COMPLETED'
+    )
+        RETURN;
+
+    BEGIN TRY
+        -- 1. Trừ tồn kho
+        EXEC sp_UpdateInventory_OnBookingCompleted;
+
+        -- 2. Gửi cảnh báo (chỉ khi tồn kho thấp)
+        EXEC sp_SendLowInventoryNotifications;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
 END;
 GO
 
 
 
-
--- Users
-
+-------------------------------------------------------------------------------------------
 
 
--- favourite services
+
+-- ----favourite services
 CREATE TABLE Favorites (
     favoriteId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
@@ -1258,31 +1224,10 @@ CREATE TABLE Favorites (
 );
 go
 
--- promotion
-CREATE TABLE Promotions (
-    promoId INT IDENTITY(1,1) PRIMARY KEY,
-    code VARCHAR(50) UNIQUE NOT NULL,
-    description NVARCHAR(255),
-    discountType VARCHAR(20) CHECK (discountType IN ('PERCENT','AMOUNT')) NOT NULL,
-    discountValue DECIMAL(10,3) NOT NULL,
-    startDate DATE NOT NULL,
-    endDate DATE NOT NULL,
-    usageLimit INT DEFAULT 0, -- số lần tối đa được dùng (0 = không giới hạn)
-    createdAt DATETIME DEFAULT GETDATE()
-);
-go
-
--- use promotions
-
-CREATE TABLE UserPromotions (
-    userPromoId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    promoId INT NOT NULL,
-    usedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
-    FOREIGN KEY (promoId) REFERENCES Promotions(promoId) ON DELETE CASCADE
-);
-
+-- Kiểm tra bảng Bookings có tồn tại không
+SELECT * 
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME = 'Bookings';
 
 -----------------------------------------------------------------
 -- INSERT DATA
@@ -1732,7 +1677,7 @@ INSERT INTO CustomTours (islandId, tourName, startDate, endDate, totalPrice)
 OUTPUT INSERTED.customTourId
 VALUES (1, 'Test Tour', '2025-11-10', '2025-11-12', 5000000);
 
-
+select * from users
 CREATE TABLE Places (
     placeId INT IDENTITY(1,1) PRIMARY KEY,   -- Khóa chính tự tăng
     islandId INT NOT NULL,                   -- Mã đảo (liên kết đến bảng Islands)
@@ -1745,6 +1690,7 @@ CREATE TABLE Places (
     FOREIGN KEY (islandId) REFERENCES Islands(islandId) ON DELETE CASCADE
 );
 
+select * from HistoryBookings
 
 
 INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice, placeImageUrl)
@@ -1805,8 +1751,8 @@ set accountUserId=5
 where historyId=8
 updatte
 /*
-delete from Flights
-DBCC CHECKIDENT ('Flights', RESEED, 0);
+delete from Notifications
+DBCC CHECKIDENT ('Notifications', RESEED, 0);
 */
 
 
@@ -1980,20 +1926,4 @@ CREATE TABLE TourServices (
 );
 GO
 
-
-
-select * from hotels
--- Add totalQuantity to IslandVehicles table
-
-
-
--- Update TourServices serviceType CHECK constraint to include FLIGHT and AIRLINE
--- Drop the existing constraint (using the constraint name from error message)
--- If the constraint name is different, you may need to find it first using:
--- SELECT name FROM sys.check_constraints WHERE parent_object_id = OBJECT_ID('TourServices')
-
-select * from Tours
-update Tours
-set approvalStatus ='APPROVED'
-WHERE tourId BETWEEN 1 AND 10 
-
+-------------------------------------- Log systen

@@ -14,6 +14,7 @@ import java.util.List;
 public class CustomTourBookingInfo {
     //Tour lẻ customer tạo 
     private CustomTour customTour; // 1 tour
+     private Booking booking;
     private List<CustomTourDetail> customTourDetails = new ArrayList<>();      // nhiều dịch vụ
     private List<CustomTourItinerary> customTourItineraries = new ArrayList<>(); // nhiều lịch trình
     private HistoryBooking historyBooking; // 1 booking
@@ -25,6 +26,15 @@ public class CustomTourBookingInfo {
         this.customTour = customTour;
         this.historyBooking = historyBooking;
     }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+    
 
   
     public CustomTour getCustomTour() {

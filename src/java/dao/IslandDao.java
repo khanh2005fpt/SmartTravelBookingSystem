@@ -164,5 +164,47 @@ public class IslandDao extends DBContext {
             e.printStackTrace();
         }
     }
+    
+    
+   
 
+    // Lấy danh sách Đảo đang chờ duyệt
+   public List<Island> getPendingIslands() throws SQLException {
+    List<Island> list = new ArrayList<>();
+    // ⭐ SỬA: Thay description bằng shortDescription hoặc longDescription
+    String sql = "SELECT islandId, islandName, shortDescription, longDescription, islandImageUrl, approvalStatus FROM Islands WHERE approvalStatus = 'PENDING' ORDER BY islandId DESC";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            Island island = new Island();
+            island.setIslandId(rs.getInt("islandId"));
+            island.setIslandName(rs.getString("islandName"));
+
+            // ⭐ SỬA: Dùng setter tương ứng với cột SQL mới
+            island.setShortDescription(rs.getString("shortDescription"));
+            // Hoặc island.setLongDescription(rs.getString("longDescription"));
+
+            island.setImageUrl(rs.getString("islandImageUrl")); // Tên này cũng cần được kiểm tra lại (bạn dùng imageUrl trong model)
+            island.setApprovalStatus(rs.getString("approvalStatus"));
+            list.add(island);
+        }
+    }
+    return list;
 }
+
+    // Cập nhật trạng thái duyệt của Đảo
+    public void updateIslandStatus(int islandId, String status) throws SQLException {
+        // Cập nhật trạng thái duyệt (APPROVED/REJECTED) cho Đảo
+        String sql = "UPDATE Islands SET approvalStatus = ? WHERE islandId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, islandId);
+            ps.executeUpdate();
+        }
+    }
+}
+    
+

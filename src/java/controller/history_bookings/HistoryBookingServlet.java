@@ -106,6 +106,7 @@ public class HistoryBookingServlet extends HttpServlet {
                // Tour lẻ
                 CustomTourBookingInfo customTourInfo = tourDao.getLatestCustomTourAfterBookingByUser(userId);
                 request.setAttribute("tour", customTourInfo.getCustomTour());
+                request.setAttribute("booking", customTourInfo.getBooking());
                 request.setAttribute("details", customTourInfo.getCustomTourDetails());
                 request.setAttribute("itinerary", customTourInfo.getCustomTourItineraries());
                    // Lấy flight của tour lẻ
