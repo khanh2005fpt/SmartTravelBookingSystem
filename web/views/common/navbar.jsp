@@ -91,7 +91,7 @@
         </c:if>
     </a>
 
-    <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="dropdown04">
+    <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="dropdown04" style="max-height: 300px; overflow-y: auto;">
     <h6 class="dropdown-header text-info d-flex align-items-center mb-2">
         <i class="fa-solid fa-bell me-2"></i> Thông báo
     </h6>
@@ -135,9 +135,10 @@
     <div class="dropdown-divider my-2"></div>
 
     <div class="text-center pb-2">
-    <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteNotificationModal">
-        🗑 Xóa tất cả
-    </button>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal">
+    🗑 Xóa tất cả
+</button>
+   
 </div>
 
 </div>
@@ -224,28 +225,23 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                        <form id="deleteForm" method="post" style="display: inline;">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="flightId" id="flightlIdToDelete">
-                            <button type="submit" class="btn btn-danger">Xóa</button>
-                        </form>
+                       <form id="deleteForm" method="post" style="display: inline;" action="${pageContext.request.contextPath}/notifications_servlet">
+    <!-- Không cần input flightId nữa -->
+    <input type="hidden" name="action" value="deleteAll">
+    <button type="submit" class="btn btn-danger">Xóa</button>
+</form>
+
                     </div>
                 </div>
             </div>
         </div>
     
         <script>
-            function confirmDelete(flightlId, flightNumber) {
-                document.getElementById('flightlIdToDelete').value = flightlId;
-                document.getElementById('flightNumberToDelete').textContent = flightNumber;
-                document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/tickets';
-                $('#deleteModal').modal('show');
-            }
+         function confirmDelete(notificationId) {
+    document.getElementById('notificationIdToDelete').value = notificationId;
+    $('#deleteModal').modal('show');
+}
 
-            // Auto-hide alerts after 5 seconds
-            setTimeout(function () {
-                $('.alert').fadeOut('slow');
-            }, 5000);
         </script>
 
 <style>

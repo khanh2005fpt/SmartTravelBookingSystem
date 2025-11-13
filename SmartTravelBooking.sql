@@ -943,7 +943,7 @@ BEGIN
 END;
 GO
 
---- triger khi thông báo customer về system "sau khi đổi mật khẩu "chạy khi cập nhật trạng thái Users"
+---------------- triger khi thông báo customer về system "sau khi đổi mật khẩu "chạy khi cập nhật trạng thái Users"--------------------
 
 CREATE TRIGGER trg_User_Update_Password_Notification
 ON Users
@@ -951,7 +951,7 @@ AFTER UPDATE
 AS
 BEGIN
     SET NOCOUNT ON;
-
+	    
     -- Chỉ tạo notification nếu mật khẩu thực sự thay đổi
     INSERT INTO Notifications (userId, title, message, type)
     SELECT 
@@ -965,6 +965,101 @@ BEGIN
 END;
 GO
 
+-------------------------------------------- triger khi thông báo cho staff , khi cảnh báo tồn kho của dịch vụ----------------------------------------------
+CREATE TRIGGER trg_NotifyLowInventory
+ON Bookings
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Chỉ lấy những booking vừa chuyển sang COMPLETED
+    ;WITH CompletedBookings AS (
+        SELECT bookingId, tourId, customTourId, (adultQuantity + childQuantity) AS totalPeople
+        FROM inserted
+        WHERE status = 'COMPLETED'
+    )
+    ----------------------------
+    -- Lấy Staff userId (roleId = 4)
+    ----------------------------
+    DECLARE @staffId INT;
+    SELECT TOP 1 @staffId = userId FROM Users WHERE roleId = 4;
+
+    ----------------------------
+    -- Kiểm tra Flights (cho Tour)
+    ----------------------------
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT 
+        @staffId,
+        N'Cảnh báo vé máy bay sắp hết',
+        N'Số lượng vé máy bay đến đảo ' + i.islandName + N' chỉ còn ' + CAST(f.ticketAvailable AS NVARCHAR(10)),
+        'SYSTEM'
+    FROM Flights f
+    JOIN Islands i ON f.destinationIslandId = i.islandId
+    JOIN Tours t ON t.islandId = f.destinationIslandId
+    JOIN CompletedBookings cb ON cb.tourId = t.tourId
+    WHERE f.ticketAvailable <= 5;
+
+    ----------------------------
+    -- Flights (cho CustomTour)
+    ----------------------------
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT 
+        @staffId,
+        N'Cảnh báo vé máy bay sắp hết',
+        N'Số lượng vé máy bay đến đảo ' + i.islandName + N' chỉ còn ' + CAST(f.ticketAvailable AS NVARCHAR(10)),
+        'SYSTEM'
+    FROM Flights f
+    JOIN Islands i ON f.destinationIslandId = i.islandId
+    JOIN CustomTours ct ON ct.islandId = f.destinationIslandId
+    JOIN CompletedBookings cb ON cb.customTourId = ct.customTourId
+    WHERE f.ticketAvailable <= 5;
+
+    ----------------------------
+    -- Hotels
+    ----------------------------
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT 
+        @staffId,
+        N'Cảnh báo phòng khách sạn sắp hết',
+        N'Số lượng phòng tại đảo ' + i.islandName + N' chỉ còn ' + CAST(h.roomsAvailable AS NVARCHAR(10)),
+        'SYSTEM'
+    FROM Hotels h
+    JOIN Islands i ON h.islandId = i.islandId
+    LEFT JOIN Tours t ON t.islandId = i.islandId
+    LEFT JOIN CustomTours ct ON ct.islandId = i.islandId
+    WHERE h.roomsAvailable <= 5;
+
+    ----------------------------
+    -- Vehicles
+    ----------------------------
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT 
+        @staffId,
+        N'Cảnh báo xe du lịch sắp hết',
+        N'Số lượng xe tại đảo ' + i.islandName + N' chỉ còn ' + CAST(v.availability AS NVARCHAR(10)),
+        'SYSTEM'
+    FROM IslandVehicles v
+    JOIN Islands i ON v.islandId = i.islandId
+    LEFT JOIN Tours t ON t.islandId = i.islandId
+    LEFT JOIN CustomTours ct ON ct.islandId = i.islandId
+    WHERE v.availability <= 5;
+
+    ----------------------------
+    -- Places
+    ----------------------------
+    INSERT INTO Notifications (userId, title, message, type)
+    SELECT 
+        @staffId,
+        N'Cảnh báo vé tham quan sắp hết',
+        N'Số lượng vé tham quan "' + p.placeName + N'" tại đảo ' + i.islandName + N' chỉ còn ' + CAST(p.ticketAvailable AS NVARCHAR(10)),
+        'SYSTEM'
+    FROM Places p
+    JOIN Islands i ON p.islandId = i.islandId
+    LEFT JOIN Tours t ON t.islandId = i.islandId
+    LEFT JOIN CustomTours ct ON ct.islandId = i.islandId
+    WHERE p.hasTicket = 1 AND p.ticketAvailable <= 5;
+END;
 
 
 -- favourite services

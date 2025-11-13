@@ -173,7 +173,9 @@ if (currentUser != null) {
                     <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
                     <a href="#" onclick="showMainSection(event, 'account')"><i class="bi bi-gear"></i> Tài khoản</a>
                     <a href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
-
+                     <a href="${pageContext.request.contextPath}/SearchIslandController" class="back-link" style="color:#007BFF">
+    <i class="fa fa-arrow-left"></i> Quay lại trang chủ
+  </a>
                 </div>
                                 
             </div>

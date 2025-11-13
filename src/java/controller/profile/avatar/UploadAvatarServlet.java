@@ -113,6 +113,7 @@ System.out.println("Profile in session: " + session.getAttribute("profile_custom
                 } else {
                     // Thư mục lưu file
                     String uploadDir = getServletContext().getRealPath("/web/views/UploadData/Avatars");
+                
                     File uploadPath = new File(uploadDir);
                     if (!uploadPath.exists()) {
                         uploadPath.mkdirs();

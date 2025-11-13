@@ -69,7 +69,20 @@ public class NotificatiosServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-          HttpSession session = request.getSession();
+           request.getRequestDispatcher("/views/common/navbar.jsp").forward(request, response);
+    } 
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
 
         if (currentUser == null) {
@@ -84,37 +97,27 @@ public class NotificatiosServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
             return;
         }
-           // Lấy section từ navbar
-    String section = request.getParameter("section");
-    if (section == null || section.isEmpty()) {
-        section = "account"; // mặc định
-    }
-
+       
     try {
-        int userId = currentUser.getUserId();
-        boolean isDeleted = customerDao.deleteAllNotificationsByUserId(userId);
+      int userId = currentUser.getUserId();
         
-        // Forward JSP (không redirect nữa)
-        request.getRequestDispatcher("/views/customer_profile/profile.jsp").forward(request, response);
+   boolean isDeleted = customerDao.deleteAllNotificationsByUserId(userId);
+
+// Load lại danh sách notifications mới
+List<Notification> notifications = customerDao.getLatestNotificationsByUser(userId);
+request.setAttribute("notifications", notifications);
+
+request.getRequestDispatcher("/SearchIslandController").forward(request, response);
         
+    
+
+   
          } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Đã xảy ra lỗi xem thông tin tour sau khi đặt.");
-         request.getRequestDispatcher("/views/customer_profile/profile.jsp?section=historyBookings#").forward(request, response);
+            request.getRequestDispatcher("/SearchIslandController").forward(request, response);
+        
         }
-    } 
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-           HttpSession session = request.getSession();
   
     }
 

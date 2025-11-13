@@ -32,7 +32,7 @@ background-size: cover;
       text-align: center;
       margin-bottom: 25px;
       font-size: 30px;
-      font-weight: 500;
+      max-width: 100%;
       color: #222;
       margin-right: 20px;
       height: 40px;
