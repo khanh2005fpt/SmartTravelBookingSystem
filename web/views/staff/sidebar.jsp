@@ -237,7 +237,20 @@
         <i class="bi bi-bar-chart-line"></i> Báo cáo
     </a>
 </div>
-
+<div class="nav-item">
+    <a href="${pageContext.request.contextPath}/manager/user"
+       class="nav-link <%= "customers".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-bar-chart-line"></i> Danh sách khách hàng
+    </a>
+</div>
+       
+        <div class="nav-item">
+    <a href="${pageContext.request.contextPath}/manager/island-approval"
+       class="nav-link <%= "customers".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-bar-chart-line"></i> Quản lí đảo
+    </a>
+</div>
+        
     <% } else if (roleId == 4) { %>
         <!-- Staff riêng ------------------------------------------------------------->
          <div class="nav-item nav-parent" id="servicesParent">

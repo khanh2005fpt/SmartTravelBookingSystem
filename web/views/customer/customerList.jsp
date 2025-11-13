@@ -3,13 +3,15 @@
 <head>
     <title>Customer List</title>
     <style>
-        table { border-collapse: collapse; margin: 20px auto; width: 80%; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        h2 { text-align: center; }
-    </style>
+        table { border-collapse: collapse; margin: 20px auto; width: 80%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        h2 { text-align: center; }
+        /* B?n có th? c?n thêm CSS cho sidebar ? ?ây */
+    </style>
 </head>
 <body>
+       <%@ include file="/views/staff/sidebar.jsp" %>
 <h2>Danh sách khách hàng</h2>
 
 <table>

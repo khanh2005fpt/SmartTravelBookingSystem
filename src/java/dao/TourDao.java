@@ -1038,53 +1038,11 @@ public class TourDao extends DBContext {
         }
     }
 
-    // -------------------- LẤY DANH SÁCH TOUR PENDING --------------------
-    public List<Tour> getPendingTours() throws SQLException {
-        List<Tour> list = new ArrayList<>();
-
-        String sql = """
-            SELECT t.tourId, t.islandId, t.tourName, t.description, t.price, 
-                   t.tourImageUrl, t.approvalStatus, i.islandName
-            FROM Tours t
-            JOIN Islands i ON t.islandId = i.islandId
-            WHERE t.approvalStatus = 'PENDING'
-            ORDER BY t.tourId DESC
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Tour t = new Tour();
-                t.setTourId(rs.getInt("tourId"));
-                t.setIslandId(rs.getInt("islandId"));
-                t.setTourName(rs.getString("tourName"));
-                t.setDescription(rs.getString("description"));
-                t.setPrice(rs.getInt("price"));
-                t.setTourImageUrl(rs.getString("tourImageUrl"));
-                t.setApprovalStatus(rs.getString("approvalStatus"));
-                t.setIslandName(rs.getString("islandName"));
-                list.add(t);
-            }
-        }
-        return list;
-    }
-
-    // -------------------- CẬP NHẬT TRẠNG THÁI DUYỆT TOUR --------------------
-    public void updateTourStatus(int tourId, String status) throws SQLException {
-        String sql = "UPDATE Tours SET approvalStatus = ? WHERE tourId = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, status);
-            ps.setInt(2, tourId);
-            ps.executeUpdate();
-        }
-    }
-
-    // -------------------- LẤY TOÀN BỘ TOUR (THEO TRẠNG THÁI TUỲ CHỌN) --------------------
     public List<Tour> getToursByStatus(String status) throws SQLException {
         List<Tour> list = new ArrayList<>();
         String sql = """
             SELECT t.tourId, t.islandId, t.tourName, t.description, t.price, 
-                   t.tourImageUrl, t.approvalStatus, i.islandName
+                   t.tourImageUrl, t.approvalStatus, t.rejectionReason, i.islandName  -- <--- THÊM rejectionReason
             FROM Tours t
             JOIN Islands i ON t.islandId = i.islandId
             WHERE (? IS NULL OR t.approvalStatus = ?)
@@ -1105,13 +1063,42 @@ public class TourDao extends DBContext {
                 t.setPrice(rs.getInt("price"));
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
+                t.setRejectionReason(rs.getString("rejectionReason")); // <--- THÊM DÒNG NÀY
                 t.setIslandName(rs.getString("islandName"));
                 list.add(t);
             }
         }
         return list;
     }
-
-    // -------------------- TEST CHẠY --------------------
     
+    public List<Tour> getPendingTours() throws SQLException {
+        return getToursByStatus("PENDING");
+    }
+
+    // -------------------- CẬP NHẬT TRẠNG THÁI DUYỆT CỦA TOUR --------------------
+    // <--- THAY ĐỔI CHỮ KÝ PHƯƠNG THỨC
+    public void updateTourStatus(int id, String status, String rejectionReason) throws SQLException {
+        // Cập nhật cả approvalStatus và rejectionReason
+        String sql = "UPDATE Tours SET approvalStatus = ?, rejectionReason = ? WHERE tourId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+
+            // Logic để set rejectionReason: chỉ lưu lý do nếu status là REJECTED
+            if ("REJECTED".equalsIgnoreCase(status)) {
+                ps.setString(2, rejectionReason);
+            } else {
+                ps.setNull(2, java.sql.Types.NVARCHAR); // Đặt NULL cho các trạng thái khác
+            }
+
+            ps.setInt(3, id);
+            ps.executeUpdate();
+        }
+    }
+    // THAY ĐỔI CHỮ KÝ PHƯƠNG THỨC --->
+    
+    // ... (các phương thức khác không thay đổi) ...
+
 }
+
+

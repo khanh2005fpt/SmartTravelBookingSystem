@@ -51,30 +51,34 @@
                 opacity: 0.9;
             }
 
-            .container {
-                margin-left: 270px;
+            .container-fluid {
+                /* Đã chỉnh từ .container để giữ phong cách cũ, nhưng thêm margin-top */
                 padding: 30px;
                 max-width: 100%;
                 margin-right: auto;
-                margin-top: 80px;
-                background-color: #ffffffb3;
+                margin-top: 20px; /* Giảm margin-top để hợp lý hơn */
+                background-color: #ffffff;
                 border-radius: 20px;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            }
+            
+            /* Thêm style cho hình ảnh trong modal */
+            #modalTourImage {
+                max-height: 250px;
+                width: 100%;
+                object-fit: cover;
             }
 
         </style>
     </head>
 
     <body>
-        <!-- ✅ Import sidebar chung dành cho Manager -->
-        <!-- Include Sidebar -->
         <%@ include file="/views/staff/sidebar.jsp" %>
 
-        <!-- Main Content -->
         <div class="main-content">
 
             <div class="page-header ">
-                <h1>  <i class="bi bi-calendar-check"></i> Quản lý trạng thái tour</h1>
+                <h1> <i class="bi bi-calendar-check"></i> Quản lý trạng thái tour</h1>
                 <p class="flights-title text-white">
                     Danh sách duyệt tour: <span class="flights-count text-white small">
 
@@ -126,10 +130,17 @@
                                 <% } %>
                             </td>
                             <td class="text-center">
-                                <a href="${pageContext.request.contextPath}/manager/tour-approval?action=approve&id=<%=t.getTourId()%>"
-                                   class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Duyệt</a>
-                                <a href="${pageContext.request.contextPath}/manager/tour-approval?action=reject&id=<%=t.getTourId()%>"
-                                   class="btn btn-danger btn-sm"><i class="bi bi-x-lg"></i> Từ chối</a>
+                                <button type="button" class="btn btn-info btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#tourDetailModal"
+                                        data-tour-id="<%=t.getTourId()%>"
+                                        data-tour-name="<%=t.getTourName()%>"
+                                        data-description="<%=t.getDescription()%>"
+                                        data-price="<%= String.format("%,d", t.getPrice()) %>"
+                                        data-island-name="<%=t.getIslandName() != null ? t.getIslandName() : "N/A"%>"
+                                        data-image-url="<%=t.getTourImageUrl() != null ? t.getTourImageUrl() : ""%>">
+                                    <i class="bi bi-eye"></i> Xem/Duyệt
+                                </button>
                             </td>
                         </tr>
                         <% } %>
@@ -140,7 +151,134 @@
                 %>
             </div>
         </div>
+                <%--Tourdetail--%>
+        <div class="modal fade" id="tourDetailModal" tabindex="-1" aria-labelledby="tourDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="tourDetailModalLabel">Chi tiết Tour: <span id="modalTourName"></span></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
 
+                    <form id="tourApprovalForm" method="POST" action="${pageContext.request.contextPath}/manager/tour-approval">
+                        <input type="hidden" name="id" id="modalTourId">
+                        <input type="hidden" name="action" id="modalAction">
+
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <img id="modalTourImage" src="" class="img-fluid rounded shadow-sm border" alt="Hình ảnh Tour">
+                                </div>
+                                <div class="col-md-7">
+                                    <h4 class="text-primary"><span id="modalTourNameDetail"></span></h4>
+                                    <p><strong>Đảo:</strong> <span id="modalIslandName"></span></p>
+                                    <p><strong>Giá:</strong> <span id="modalPrice"></span> VND</p>
+
+                                    <hr>
+
+                                    <h6>Mô tả Tour</h6>
+                                    <p id="modalDescription" class="text-muted small"></p>
+
+                                    <hr>
+
+                                    <div id="rejectionReasonGroup" class="mb-3" style="display:none;">
+                                        <label for="rejectionReason" class="form-label"><strong>Lý do Từ chối:</strong></label>
+                                        <textarea class="form-control" id="rejectionReason" name="rejectionReason" rows="3" placeholder="Nhập lý do từ chối tour (bắt buộc)" required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <button type="button" class="btn btn-danger" id="btnReject">
+                                <i class="bi bi-x-lg"></i> Từ chối
+                            </button>
+                            <button type="button" class="btn btn-success" id="btnApprove">
+                                <i class="bi bi-check-lg"></i> Duyệt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var tourDetailModal = document.getElementById('tourDetailModal');
+                var rejectionReasonGroup = document.getElementById('rejectionReasonGroup');
+                var rejectionReasonTextarea = document.getElementById('rejectionReason');
+                var btnApprove = document.getElementById('btnApprove');
+                var btnReject = document.getElementById('btnReject');
+                var tourApprovalForm = document.getElementById('tourApprovalForm');
+
+                // 1. Xử lý khi Modal được mở (lấy dữ liệu tour)
+                tourDetailModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    
+                    // Lấy thông tin từ các data-* attributes của nút
+                    var tourId = button.getAttribute('data-tour-id');
+                    var tourName = button.getAttribute('data-tour-name');
+                    var description = button.getAttribute('data-description');
+                    var price = button.getAttribute('data-price');
+                    var islandName = button.getAttribute('data-island-name');
+                    var imageUrl = button.getAttribute('data-image-url');
+
+                    // Cập nhật nội dung modal
+                    document.getElementById('modalTourId').value = tourId;
+                    document.getElementById('modalTourName').textContent = tourName;
+                    document.getElementById('modalTourNameDetail').textContent = tourName;
+                    document.getElementById('modalDescription').textContent = description;
+                    document.getElementById('modalPrice').textContent = price; 
+                    document.getElementById('modalIslandName').textContent = islandName;
+                    document.getElementById('modalTourImage').src = imageUrl || 'url_den_hinh_mac_dinh.jpg'; // Dùng hình ảnh mặc định nếu null
+
+                    // Đặt lại trạng thái mặc định của form và nút
+                    rejectionReasonGroup.style.display = 'none';
+                    rejectionReasonTextarea.required = false;
+                    btnReject.textContent = ' Từ chối';
+                    btnReject.prepend(document.createElement('i')).className = 'bi bi-x-lg'; // Thêm icon lại
+                    
+                    // Xóa giá trị cũ trong form
+                    document.getElementById('modalAction').value = '';
+                    rejectionReasonTextarea.value = '';
+                });
+
+                // 2. Xử lý khi nhấn nút Duyệt
+                btnApprove.addEventListener('click', function() {
+                    document.getElementById('modalAction').value = 'approve';
+                    rejectionReasonTextarea.required = false; 
+                    tourApprovalForm.submit();
+                });
+
+                // 3. Xử lý logic 2 bước cho nút Từ chối
+                btnReject.addEventListener('click', function() {
+                    // Bước 1: Nếu nhóm lý do đang ẩn, hiển thị nó
+                    if (rejectionReasonGroup.style.display === 'none') {
+                        rejectionReasonGroup.style.display = 'block';
+                        rejectionReasonTextarea.required = true;
+                        btnReject.innerHTML = '<i class="bi bi-x-circle-fill"></i> Xác nhận Từ chối'; // Đổi text và icon
+                        document.getElementById('modalAction').value = 'reject'; 
+                    } else {
+                        // Bước 2: Nếu nhóm lý do đang hiện, kiểm tra và gửi form
+                        if (rejectionReasonTextarea.checkValidity()) {
+                            document.getElementById('modalAction').value = 'reject';
+                            tourApprovalForm.submit();
+                        } else {
+                            // Bắt buộc trình duyệt hiển thị lỗi validation
+                            rejectionReasonTextarea.reportValidity();
+                        }
+                    }
+                });
+                
+                // 4. Reset nút Từ chối khi Modal đóng
+                tourDetailModal.addEventListener('hidden.bs.modal', function () {
+                    btnReject.innerHTML = '<i class="bi bi-x-lg"></i> Từ chối';
+                    rejectionReasonGroup.style.display = 'none';
+                    rejectionReasonTextarea.required = false;
+                });
+            });
+        </script>
     </body>
 </html>

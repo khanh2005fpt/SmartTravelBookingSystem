@@ -20,7 +20,7 @@ public class Tour {
     private String islandName; // Added for displaying island name
     private String approvalStatus; // PENDING, APPROVED, REJECTED
     private int availableQuantity; // Số lượng tour còn lại
-
+private String rejectionReason;
     public Tour() {
     }
 
@@ -106,6 +106,15 @@ public class Tour {
     public void setAvailableQuantity(int availableQuantity) {
         this.availableQuantity = availableQuantity;
     }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+    
 
     @Override
     public String toString() {
