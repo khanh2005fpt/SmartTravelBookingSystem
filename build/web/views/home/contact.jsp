@@ -32,6 +32,17 @@ if (currentUser != null) {
       <div class="col-md-9 ftco-animate pb-5 text-center">
        <p class="breadcrumbs"><span class="mr-2"><a href="index.jsp">Trang chủ <i class="fa fa-chevron-right"></i></a></span> <span>Liên hệ với chúng tôi <i class="fa fa-chevron-right"></i></span></p>
        <h1 class="mb-0 bread">Liên hệ với chúng tôi</h1>
+       
+          <!-- Hiển thị thông báo -->
+        <c:if test="${not empty successMess}">
+            <div class="alert alert-success">${successMess}</div>
+        </c:if>
+        <c:if test="${not empty errorMess}">
+            <div class="alert alert-danger">${errorMess}</div>
+        </c:if>
+       
+       
+       
      </div>
    </div>
  </div>
@@ -84,18 +95,18 @@ if (currentUser != null) {
   <div class="container">
     <div class="row block-9">
       <div class="col-md-6 order-md-last d-flex">
-        <form action="#" class="bg-light p-5 contact-form">
+          <form action="${pageContext.request.contextPath}/SendContact" method="POST" class="bg-light p-5 contact-form">
           <div class="form-group">
-            <input type="text" class="form-control" placeholder="Tên của bạn">
+              <input type="text" name="name" class="form-control" placeholder="Tên của bạn">
           </div>
           <div class="form-group">
-            <input type="text" class="form-control" placeholder="Email của bạn">
+            <input type="text" name="email" class="form-control" placeholder="Email của bạn">
           </div>
           <div class="form-group">
-            <input type="text" class="form-control" placeholder="Chủ đề">
+              <input type="text" name="subject" class="form-control" placeholder="Chủ đề">
           </div>
           <div class="form-group">
-            <textarea name="" id="" cols="30" rows="7" class="form-control" placeholder="Tin nhắn"></textarea>
+            <textarea name="message" id="mess" cols="30" rows="7" class="form-control" placeholder="Tin nhắn"></textarea>
           </div>
           <div class="form-group">
             <input type="submit" value="Gửi Tin nhắn" class="btn btn-primary py-3 px-5">
