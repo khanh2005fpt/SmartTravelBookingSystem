@@ -49,7 +49,6 @@
 
                 </li>
 
-
                 <li class="nav-item ml-lg-3">
                     <a href="${pageContext.request.contextPath}/register" class="btn btn-register1 ">Đăng ký</a>
                 </li> 

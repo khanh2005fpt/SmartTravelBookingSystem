@@ -36,29 +36,50 @@ public class TourApprovalManagerServlet extends HttpServlet {
 //            return;
 //        }
 
-        String action = request.getParameter("action");
-        if (action == null) {
-            action = "list";
-        }
+       // ... (code kiểm tra role nếu cần) ...
 
+        // Giữ doGet chỉ để list (hiển thị trang duyệt)
         try {
-            switch (action) {
-                case "approve":
-                    updateTourStatus(request, response, "APPROVED");
-                    break;
-                case "reject":
-                    updateTourStatus(request, response, "REJECTED");
-                    break;
-                default:
-                    listPendingTours(request, response);
-                    break;
-            }
+            listPendingTours(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Đã xảy ra lỗi: " + e.getMessage());
             request.getRequestDispatcher("/views/manager/tour-approval.jsp").forward(request, response);
         }
     }
+
+
+    private void updateTourStatus(HttpServletRequest request, HttpServletResponse response, String status)
+            throws SQLException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        tourDao.updateTourStatus(id, status);
+        response.sendRedirect(request.getContextPath() + "/manager/tour-approval");
+    }
+    
+      // <--- THÊM PHƯƠNG THỨC doPost ĐỂ XỬ LÝ VIỆC DUYỆT/TỪ CHỐI
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        // Cần đảm bảo encoding là UTF-8 để nhận ký tự tiếng Việt
+        request.setCharacterEncoding("UTF-8"); 
+        
+        // Gọi updateStatus trong doPost
+        try {
+            updateTourStatus(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi: " + e.getMessage());
+            // Nếu có lỗi, chuyển hướng về trang list
+            try {
+                listPendingTours(request, response);
+            } catch (SQLException ex) {
+                throw new ServletException(ex);
+            }
+        }
+    }
+    
+     // THÊM PHƯƠNG THỨC doPost ĐỂ XỬ LÝ VIỆC DUYỆT/TỪ CHỐI --->
 
     private void listPendingTours(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
@@ -67,10 +88,34 @@ public class TourApprovalManagerServlet extends HttpServlet {
         request.getRequestDispatcher("/views/manager/tour-approval.jsp").forward(request, response);
     }
 
-    private void updateTourStatus(HttpServletRequest request, HttpServletResponse response, String status)
+    // <--- CẬP NHẬT PHƯƠNG THỨC updateTourStatus
+    private void updateTourStatus(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        tourDao.updateTourStatus(id, status);
+        String action = request.getParameter("action"); // action là 'approve' hoặc 'reject'
+        String rejectionReason = request.getParameter("rejectionReason"); // Lý do từ chối
+
+        String statusToUpdate = null;
+        String reasonToSave = null;
+
+        if ("approve".equalsIgnoreCase(action)) {
+            statusToUpdate = "APPROVED";
+            reasonToSave = null; // Không cần lý do khi duyệt
+        } else if ("reject".equalsIgnoreCase(action)) {
+            statusToUpdate = "REJECTED";
+            // Đảm bảo lý do không null, nếu user không nhập thì có thể là chuỗi rỗng
+            reasonToSave = rejectionReason != null ? rejectionReason.trim() : "Không có lý do cụ thể."; 
+        }
+
+        if (statusToUpdate != null) {
+            // Gọi DAO với 3 tham số
+           // tourDao.updateTourStatus(id, statusToUpdate, reasonToSave);
+        }
+        
+        // Chuyển hướng về trang danh sách sau khi hoàn tất
         response.sendRedirect(request.getContextPath() + "/manager/tour-approval");
     }
+    // CẬP NHẬT PHƯƠNG THỨC updateTourStatus --->
 }
+    
+
