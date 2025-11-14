@@ -227,6 +227,16 @@
             color: white;
         }
         
+        .rejection-reason-label {
+            cursor: pointer;
+            opacity: 0.9;
+        }
+        
+        .rejection-reason-label:hover {
+            opacity: 1;
+            text-decoration: underline !important;
+        }
+        
         .tour-card {
             position: relative;
         }
@@ -377,6 +387,15 @@
                                         </c:when>
                                         <c:when test="${tour.approvalStatus == 'REJECTED'}">
                                             <span class="badge status-rejected">Từ chối</span>
+                                            <c:if test="${not empty tour.rejectionReason}">
+                                                <span class="rejection-reason-label" 
+                                                      data-reason="<c:out value='${tour.rejectionReason}'/>"
+                                                      style="cursor: pointer; margin-left: 5px; font-size: 0.7em; text-decoration: underline;"
+                                                      title="Xem lý do từ chối"
+                                                      onclick="showRejectionReasonFromData(this)">
+                                                    <i class="fa fa-info-circle"></i> Lý do
+                                                </span>
+                                            </c:if>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="badge status-pending">Chờ duyệt</span>
@@ -505,6 +524,28 @@
     <!-- Include common scripts -->
     <jsp:include page="../common/script.jsp" />
 
+    <!-- Rejection Reason Modal -->
+    <div class="modal fade" id="rejectionReasonModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #dc3545; color: white;">
+                    <h5 class="modal-title">
+                        <i class="fa fa-exclamation-triangle"></i> Lý do từ chối
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" style="color: white;">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p style="white-space: pre-wrap; word-wrap: break-word; font-size: 1.1em; line-height: 1.6;" id="rejectionReasonText"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
@@ -541,7 +582,16 @@
             $('#deleteModal').modal('show');
         }
 
-
+        function showRejectionReason(reason) {
+            document.getElementById('rejectionReasonText').textContent = reason;
+            $('#rejectionReasonModal').modal('show');
+        }
+        
+        function showRejectionReasonFromData(element) {
+            var reason = element.getAttribute('data-reason');
+            document.getElementById('rejectionReasonText').textContent = reason;
+            $('#rejectionReasonModal').modal('show');
+        }
 
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

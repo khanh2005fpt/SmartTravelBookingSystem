@@ -501,6 +501,21 @@ public class TourStaffServlet extends HttpServlet {
                 System.out.println("selectedServices is null!");
             }
             
+            // Validate: Only one hotel and one flight allowed
+            if (hotelIds.size() > 1) {
+                request.setAttribute("error", "Chỉ có thể chọn một khách sạn cho tour");
+                request.setAttribute("action", "edit");
+                loadEditTourData(request, response, Integer.parseInt(tourIdStr));
+                return;
+            }
+            
+            if (flightIds.size() > 1) {
+                request.setAttribute("error", "Chỉ có thể chọn một vé máy bay cho tour");
+                request.setAttribute("action", "edit");
+                loadEditTourData(request, response, Integer.parseInt(tourIdStr));
+                return;
+            }
+            
             System.out.println("Parsed services - Hotels: " + hotelIds.size() + ", Places: " + placeIds.size() + 
                              ", Vehicles: " + vehicleIds.size() + ", Flights: " + flightIds.size());
             
@@ -822,22 +837,41 @@ public class TourStaffServlet extends HttpServlet {
                     List<String> vehicleIds = new ArrayList<>();
                     List<String> flightIds = new ArrayList<>();
 
-                    if (selectedServices != null) {
-                        for (String service : selectedServices) {
-                            if (service.startsWith("hotel_")) {
-                                hotelIds.add(service.substring(6));
-                            } else if (service.startsWith("place_")) {
-                                placeIds.add(service.substring(6));
-                            } else if (service.startsWith("vehicle_")) {
-                                vehicleIds.add(service.substring(8));
-                            } else if (service.startsWith("flight_")) {
-                                flightIds.add(service.substring(7));
-                            } else if (service.startsWith("airline_")) {
-                                // Backward compatibility: convert airline_ to flight_
-                                flightIds.add(service.substring(8));
-                            }
+                if (selectedServices != null) {
+                    for (String service : selectedServices) {
+                        if (service.startsWith("hotel_")) {
+                            hotelIds.add(service.substring(6));
+                        } else if (service.startsWith("place_")) {
+                            placeIds.add(service.substring(6));
+                        } else if (service.startsWith("vehicle_")) {
+                            vehicleIds.add(service.substring(8));
+                        } else if (service.startsWith("flight_")) {
+                            flightIds.add(service.substring(7));
+                        } else if (service.startsWith("airline_")) {
+                            // Backward compatibility: convert airline_ to flight_
+                            flightIds.add(service.substring(8));
                         }
                     }
+                }
+                
+                // Validate: Only one hotel and one flight allowed
+                if (hotelIds.size() > 1) {
+                    request.setAttribute("error", "Chỉ có thể chọn một khách sạn cho tour");
+                    request.setAttribute("action", "create");
+                    List<Island> islands = islandDao.getIslands();
+                    request.setAttribute("islands", islands);
+                    request.getRequestDispatcher("/views/staff/tour-form.jsp").forward(request, response);
+                    return;
+                }
+                
+                if (flightIds.size() > 1) {
+                    request.setAttribute("error", "Chỉ có thể chọn một vé máy bay cho tour");
+                    request.setAttribute("action", "create");
+                    List<Island> islands = islandDao.getIslands();
+                    request.setAttribute("islands", islands);
+                    request.getRequestDispatcher("/views/staff/tour-form.jsp").forward(request, response);
+                    return;
+                }
 
                     // Add selected services to tour
                     addSelectedServicesToTour(newTourId, hotelIds.toArray(new String[0]), "Hotel");
@@ -965,6 +999,19 @@ public class TourStaffServlet extends HttpServlet {
                         }
                     }
                     
+                    // Validate: Only one hotel and one flight allowed
+                    if (hotelIds.size() > 1) {
+                        request.setAttribute("error", "Chỉ có thể chọn một khách sạn cho tour");
+                        loadEditTourData(request, response, tourId);
+                        return;
+                    }
+                    
+                    if (flightIds.size() > 1) {
+                        request.setAttribute("error", "Chỉ có thể chọn một vé máy bay cho tour");
+                        loadEditTourData(request, response, tourId);
+                        return;
+                    }
+                    
                     // Convert lists to arrays
                     String[] selectedHotels = hotelIds.toArray(new String[0]);
                     String[] selectedPlaces = placeIds.toArray(new String[0]);
@@ -1076,13 +1123,41 @@ public class TourStaffServlet extends HttpServlet {
             // Check if service is already in tour
             if (serviceDao.isServiceInTour(tourId, serviceType, serviceId)) {
                 request.getSession().setAttribute("error", "Dịch vụ đã được thêm vào tour");
-            } else {
-                boolean success = serviceDao.addServiceToTour(tourId, serviceType, serviceId);
-                if (success) {
-                    request.getSession().setAttribute("success", "Thêm dịch vụ thành công");
-                } else {
-                    request.getSession().setAttribute("error", "Thêm dịch vụ thất bại");
+                response.sendRedirect(request.getContextPath() + "/staff/tours?action=manage-services&tourId=" + tourId);
+                return;
+            }
+            
+            // Validate: Only one hotel and one flight allowed
+            if ("Hotel".equals(serviceType)) {
+                // Check if there's already a hotel in the tour
+                List<TourService> currentServices = serviceDao.getServicesByTourId(tourId);
+                long hotelCount = currentServices.stream()
+                        .filter(s -> "Hotel".equals(s.getServiceType()))
+                        .count();
+                if (hotelCount >= 1) {
+                    request.getSession().setAttribute("error", "Tour này đã có khách sạn. Chỉ có thể chọn một khách sạn cho mỗi tour.");
+                    response.sendRedirect(request.getContextPath() + "/staff/tours?action=manage-services&tourId=" + tourId);
+                    return;
                 }
+            } else if ("FLIGHT".equals(serviceType) || "AIRLINE".equals(serviceType)) {
+                // Check if there's already a flight in the tour
+                List<TourService> currentServices = serviceDao.getServicesByTourId(tourId);
+                long flightCount = currentServices.stream()
+                        .filter(s -> "FLIGHT".equals(s.getServiceType()) || "AIRLINE".equals(s.getServiceType()))
+                        .count();
+                if (flightCount >= 1) {
+                    request.getSession().setAttribute("error", "Tour này đã có vé máy bay. Chỉ có thể chọn một vé máy bay cho mỗi tour.");
+                    response.sendRedirect(request.getContextPath() + "/staff/tours?action=manage-services&tourId=" + tourId);
+                    return;
+                }
+            }
+            
+            // Add service to tour
+            boolean success = serviceDao.addServiceToTour(tourId, serviceType, serviceId);
+            if (success) {
+                request.getSession().setAttribute("success", "Thêm dịch vụ thành công");
+            } else {
+                request.getSession().setAttribute("error", "Thêm dịch vụ thất bại");
             }
             
             // Redirect back to manage services page

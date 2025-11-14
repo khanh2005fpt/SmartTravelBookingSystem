@@ -335,6 +335,26 @@
                 <i class="fa fa-exclamation-circle"></i> ${error}
             </div>
         </c:if>
+        
+        <!-- Rejection Reason Alert (when tour is rejected) -->
+        <c:if test="${tour != null && tour.approvalStatus == 'REJECTED' && not empty tour.rejectionReason}">
+            <div class="alert alert-danger" style="border-left: 5px solid #dc3545; background-color: #f8d7da;">
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <div style="font-size: 1.5em; color: #dc3545;">
+                        <i class="fa fa-exclamation-triangle"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h5 style="margin: 0 0 10px 0; color: #721c24; font-weight: 600;">
+                            <i class="fa fa-ban"></i> Tour bị từ chối
+                        </h5>
+                        <p style="margin: 0; color: #721c24; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">
+                            <strong>Lý do từ chối:</strong><br>
+                            ${tour.rejectionReason}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </c:if>
 
         <!-- Form Container -->
         <div class="form-container">
@@ -517,16 +537,16 @@
                         <!-- Hotels -->
                         <div class="col-md-6 mb-4">
                             <div class="service-category">
-                                <h5><i class="fa fa-bed text-primary"></i> Khách sạn</h5>
+                                <h5><i class="fa fa-bed text-primary"></i> Khách sạn <small class="text-muted">(Chỉ chọn 1)</small></h5>
                                 <div class="service-list" id="hotelList">
                                     <c:choose>
                                         <c:when test="${not empty availableHotels}">
                                             <c:forEach var="hotel" items="${availableHotels}">
                                                 <div class="service-item">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" 
-                                                               type="checkbox" 
-                                                               name="selectedServices" 
+                                                        <input class="form-check-input hotel-radio" 
+                                                               type="radio" 
+                                                               name="selectedHotel" 
                                                                value="hotel_${hotel.hotelId}"
                                                                id="hotel_${hotel.hotelId}"
                                                                ${selectedServices != null && selectedServices.contains('hotel_'.concat(hotel.hotelId.toString())) ? 'checked' : ''}>
@@ -624,7 +644,7 @@
                         <!-- Flights (Vé máy bay) -->
                         <div class="col-md-6 mb-4">
                             <div class="service-category">
-                                <h5><i class="fa fa-plane text-primary"></i> Vé máy bay</h5>
+                                <h5><i class="fa fa-plane text-primary"></i> Vé máy bay <small class="text-muted">(Chỉ chọn 1)</small></h5>
                                 <div class="service-list" id="flightList">
                                     <div class="no-services">
                                         <i class="fa fa-info-circle"></i> Chưa có vé máy bay nào. Vui lòng chọn đảo trước.
@@ -637,6 +657,7 @@
                     <div class="alert alert-info">
                         <i class="fa fa-info-circle"></i>
                         <strong>Lưu ý:</strong> Các dịch vụ được hiển thị dựa trên đảo đã chọn. Thay đổi đảo sẽ cập nhật danh sách dịch vụ.
+                        <br><strong>Khách sạn và vé máy bay:</strong> Chỉ có thể chọn <strong>một khách sạn</strong> và <strong>một vé máy bay</strong> cho mỗi tour.
                     </div>
                 </div>
 
@@ -681,8 +702,35 @@
         </c:if>
         
         $(document).ready(function() {
-            // Form validation
+            // Form validation and radio button conversion
             $('#tourForm').on('submit', function(e) {
+                // Convert radio selections to selectedServices before form submission
+                // Add selected hotel to selectedServices array
+                var selectedHotel = $('input[name="selectedHotel"]:checked').val();
+                if (selectedHotel) {
+                    // Remove any existing hotel selections
+                    $('input[name="selectedServices"][value^="hotel_"]').remove();
+                    // Add the selected hotel
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'selectedServices',
+                        value: selectedHotel
+                    }).appendTo(this);
+                }
+                
+                // Add selected flight to selectedServices array
+                var selectedFlight = $('input[name="selectedFlight"]:checked').val();
+                if (selectedFlight) {
+                    // Remove any existing flight selections
+                    $('input[name="selectedServices"][value^="flight_"]').remove();
+                    // Add the selected flight
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'selectedServices',
+                        value: selectedFlight
+                    }).appendTo(this);
+                }
+                
                 let isValid = true;
                 
                 // Clear previous validation states
@@ -897,12 +945,12 @@
         
         // Update service lists with data
         function updateServiceLists(data) {
-            // Update hotels
+            // Update hotels (radio button - only one selection)
             updateServiceList('hotelList', data.hotels, 'hotel', function(hotel) {
                 var checked = selectedServicesMap['hotel_' + hotel.id] ? 'checked' : '';
                 var html = '<div class="service-item">';
                 html += '<div class="form-check">';
-                html += '<input class="form-check-input" type="checkbox" name="selectedServices" ';
+                html += '<input class="form-check-input hotel-radio" type="radio" name="selectedHotel" ';
                 html += 'value="hotel_' + hotel.id + '" id="hotel_' + hotel.id + '" ' + checked + '>';
                 html += '<label class="form-check-label" for="hotel_' + hotel.id + '">';
                 html += '<strong>' + (hotel.name || '') + '</strong>';
@@ -950,12 +998,12 @@
                 return html;
             }, 'phương tiện');
 
-            // Update flights (Vé máy bay)
+            // Update flights (Vé máy bay) - radio button (only one selection)
             updateServiceList('flightList', data.flights, 'flight', function(flight) {
                 var checked = selectedServicesMap['flight_' + flight.id] ? 'checked' : '';
                 var html = '<div class="service-item">';
                 html += '<div class="form-check">';
-                html += '<input class="form-check-input" type="checkbox" name="selectedServices" ';
+                html += '<input class="form-check-input flight-radio" type="radio" name="selectedFlight" ';
                 html += 'value="flight_' + flight.id + '" id="flight_' + flight.id + '" ' + checked + '>';
                 html += '<label class="form-check-label" for="flight_' + flight.id + '">';
                 html += '<strong>' + (flight.name || '') + '</strong>';

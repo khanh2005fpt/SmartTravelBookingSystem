@@ -70,6 +70,7 @@ public class TourDao extends DBContext {
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
                 t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                t.setRejectionReason(rs.getString("rejectionReason"));
                 return t;
             }
         } catch (SQLException e) {
@@ -638,6 +639,7 @@ public class TourDao extends DBContext {
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
                 t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                t.setRejectionReason(rs.getString("rejectionReason"));
                 t.setIslandName(rs.getString("islandName"));
                 list.add(t);
             }
@@ -701,6 +703,7 @@ public class TourDao extends DBContext {
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
                     t.setApprovalStatus(rs.getString("approvalStatus"));
                     t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                    t.setRejectionReason(rs.getString("rejectionReason"));
                     t.setIslandName(rs.getString("islandName"));
                     list.add(t);
                 }
@@ -781,7 +784,9 @@ public class TourDao extends DBContext {
                     t.setDescription(rs.getString("description"));
                     t.setPrice(rs.getInt("price"));
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
+                    t.setApprovalStatus(rs.getString("approvalStatus"));
                     t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                    t.setRejectionReason(rs.getString("rejectionReason"));
                     t.setIslandName(rs.getString("islandName"));
                     list.add(t);
                 }

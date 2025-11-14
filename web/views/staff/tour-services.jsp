@@ -388,9 +388,15 @@
                             <!-- Danh sách dịch vụ hiện tại (không gồm Vé máy bay) -->
                             <c:forEach var="service" items="${currentServices}">
                                 <c:if test="${service.serviceType ne 'FLIGHT' && service.serviceType ne 'AIRLINE'}">
-                                    <div class="service-card">
+                                    <div class="service-card" data-service-type="${service.serviceType}">
                                         <div class="service-type-badge service-type-${service.serviceType.toLowerCase()}">
-                                            ${service.serviceType}
+                                            <c:choose>
+                                                <c:when test="${service.serviceType == 'Hotel'}">Khách sạn</c:when>
+                                                <c:when test="${service.serviceType == 'Place'}">Địa điểm</c:when>
+                                                <c:when test="${service.serviceType == 'Vehicle'}">Phương tiện</c:when>
+                                                <c:when test="${service.serviceType == 'Restaurant'}">Nhà hàng</c:when>
+                                                <c:otherwise>${service.serviceType}</c:otherwise>
+                                            </c:choose>
                                         </div>
                                         <div class="service-name">
                                             ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
@@ -410,7 +416,7 @@
                                                 <i class="fa fa-calendar"></i>
                                                 <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
                                             </small>
-                                            <form method="post" style="display: inline; margin-left: auto;">
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/tours" style="display: inline; margin-left: auto;">
                                                 <input type="hidden" name="action" value="remove-service">
                                                 <input type="hidden" name="tourId" value="${tour.tourId}">
                                                 <input type="hidden" name="tourServiceId" value="${service.tourServiceId}">
@@ -430,8 +436,8 @@
                             <c:forEach var="service" items="${currentServices}">
                                 <c:if test="${service.serviceType == 'FLIGHT' || service.serviceType == 'AIRLINE'}">
                                     <c:set var="flightCount" value="${flightCount + 1}"/>
-                                    <div class="service-card">
-                                        <div class="service-type-badge service-type-airline">FLIGHT</div>
+                                    <div class="service-card" data-service-type="FLIGHT">
+                                        <div class="service-type-badge service-type-airline">Vé máy bay</div>
                                         <div class="service-name">
                                             ${not empty service.serviceName ? service.serviceName : 'Vé máy bay ID: '.concat(service.serviceId)}
                                         </div>
@@ -450,7 +456,7 @@
                                                 <i class="fa fa-calendar"></i>
                                                 <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
                                             </small>
-                                            <form method="post" style="display: inline; margin-left: auto;">
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/tours" style="display: inline; margin-left: auto;">
                                                 <input type="hidden" name="action" value="remove-service">
                                                 <input type="hidden" name="tourId" value="${tour.tourId}">
                                                 <input type="hidden" name="tourServiceId" value="${service.tourServiceId}">
@@ -483,6 +489,17 @@
             <div class="services-section">
                 <div class="section-header">
                     <h3><i class="fa fa-plus-circle"></i> Dịch vụ có sẵn</h3>
+                    <div style="margin-top: 15px;">
+                        <label for="serviceTypeFilter" style="margin-right: 10px; font-weight: 600;">Lọc theo loại:</label>
+                        <select id="serviceTypeFilter" class="form-control" style="display: inline-block; width: auto; min-width: 200px;">
+                            <option value="all">Tất cả</option>
+                            <option value="Hotel">Khách sạn</option>
+                            <option value="Place">Địa điểm</option>
+                            <option value="Vehicle">Phương tiện</option>
+                            <option value="Restaurant">Nhà hàng</option>
+                            <option value="FLIGHT">Vé máy bay</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="section-content">
                     <c:choose>
@@ -490,9 +507,15 @@
                             <!-- Danh sách dịch vụ khả dụng (không gồm Vé máy bay) -->
                             <c:forEach var="service" items="${availableServices}">
                                 <c:if test="${service.serviceType ne 'FLIGHT'}">
-                                    <div class="service-card">
+                                    <div class="service-card" data-service-type="${service.serviceType}">
                                         <div class="service-type-badge service-type-${service.serviceType.toLowerCase()}">
-                                            ${service.serviceType}
+                                            <c:choose>
+                                                <c:when test="${service.serviceType == 'Hotel'}">Khách sạn</c:when>
+                                                <c:when test="${service.serviceType == 'Place'}">Địa điểm</c:when>
+                                                <c:when test="${service.serviceType == 'Vehicle'}">Phương tiện</c:when>
+                                                <c:when test="${service.serviceType == 'Restaurant'}">Nhà hàng</c:when>
+                                                <c:otherwise>${service.serviceType}</c:otherwise>
+                                            </c:choose>
                                         </div>
                                         <div class="service-name">
                                             ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
@@ -508,7 +531,7 @@
                                             </div>
                                         </c:if>
                                         <div class="service-actions">
-                                            <form method="post" style="display: inline;">
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/tours" style="display: inline;">
                                                 <input type="hidden" name="action" value="add-service">
                                                 <input type="hidden" name="tourId" value="${tour.tourId}">
                                                 <input type="hidden" name="serviceType" value="${service.serviceType}">
@@ -529,8 +552,8 @@
                             <c:forEach var="service" items="${availableServices}">
                                 <c:if test="${service.serviceType == 'FLIGHT'}">
                                     <c:set var="availableFlightCount" value="${availableFlightCount + 1}"/>
-                                    <div class="service-card">
-                                        <div class="service-type-badge service-type-airline">FLIGHT</div>
+                                    <div class="service-card" data-service-type="FLIGHT">
+                                        <div class="service-type-badge service-type-airline">Vé máy bay</div>
                                         <div class="service-name">
                                             ${not empty service.serviceName ? service.serviceName : 'Vé máy bay ID: '.concat(service.serviceId)}
                                         </div>
@@ -545,7 +568,7 @@
                                             </div>
                                         </c:if>
                                         <div class="service-actions">
-                                            <form method="post" style="display: inline;">
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/tours" style="display: inline;">
                                                 <input type="hidden" name="action" value="add-service">
                                                 <input type="hidden" name="tourId" value="${tour.tourId}">
                                                 <input type="hidden" name="serviceType" value="${service.serviceType}">
@@ -614,6 +637,47 @@
                     });
                 }
             );
+            
+            // Filter services by type in "Available Services" section
+            $('#serviceTypeFilter').on('change', function() {
+                var selectedType = $(this).val();
+                var $availableSection = $('.services-section').eq(1); // Second section (Available Services)
+                var $serviceCards = $availableSection.find('.service-card');
+                var $hrElements = $availableSection.find('hr');
+                var $flightHeaders = $availableSection.find('h4:contains("Vé máy bay")').parent();
+                
+                if (selectedType === 'all') {
+                    $serviceCards.show();
+                    $hrElements.show();
+                    $flightHeaders.show();
+                } else {
+                    $serviceCards.each(function() {
+                        var serviceType = $(this).attr('data-service-type');
+                        var shouldShow = false;
+                        
+                        if (selectedType === 'FLIGHT') {
+                            shouldShow = (serviceType === 'FLIGHT' || serviceType === 'AIRLINE');
+                        } else {
+                            shouldShow = (serviceType === selectedType);
+                        }
+                        
+                        if (shouldShow) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+                    
+                    // Show/hide flight section header
+                    if (selectedType === 'FLIGHT') {
+                        $hrElements.show();
+                        $flightHeaders.show();
+                    } else {
+                        $hrElements.hide();
+                        $flightHeaders.hide();
+                    }
+                }
+            });
         });
     </script>
 </body>
