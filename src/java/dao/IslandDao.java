@@ -167,10 +167,12 @@ public class IslandDao extends DBContext {
    
 
     // Lấy danh sách Đảo đang chờ duyệt
-   public List<Island> getPendingIslands() throws SQLException {
+   
+// ⭐ Cập nhật phương thức getPendingIslands()
+public List<Island> getPendingIslands() throws SQLException {
     List<Island> list = new ArrayList<>();
-    // ⭐ SỬA: Thay description bằng shortDescription hoặc longDescription
-    String sql = "SELECT islandId, islandName, shortDescription, longDescription, islandImageUrl, approvalStatus FROM Islands WHERE approvalStatus = 'PENDING' ORDER BY islandId DESC";
+    // SỬA: Lấy thêm longDescription và rejectionReason
+    String sql = "SELECT islandId, islandName, shortDescription, longDescription, imageUrl, approvalStatus, rejectionReason FROM Islands WHERE approvalStatus = 'PENDING' ORDER BY islandId DESC";
 
     try (PreparedStatement ps = connection.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
@@ -179,30 +181,37 @@ public class IslandDao extends DBContext {
             Island island = new Island();
             island.setIslandId(rs.getInt("islandId"));
             island.setIslandName(rs.getString("islandName"));
-
-            // ⭐ SỬA: Dùng setter tương ứng với cột SQL mới
             island.setShortDescription(rs.getString("shortDescription"));
-            // Hoặc island.setLongDescription(rs.getString("longDescription"));
-
-            island.setIslandImageUrl(rs.getString("islandImageUrl")); // Tên này cũng cần được kiểm tra lại (bạn dùng imageUrl trong model)
+            island.setLongDescription(rs.getString("longDescription")); // <--- THÊM DÒNG NÀY
+            island.setImageUrl(rs.getString("imageUrl")); // Đảm bảo dùng 'imageUrl' nếu đó là tên cột trong DB
             island.setApprovalStatus(rs.getString("approvalStatus"));
+            island.setRejectionReason(rs.getString("rejectionReason")); // <--- THÊM DÒNG NÀY
             list.add(island);
         }
     }
     return list;
 }
 
-    // Cập nhật trạng thái duyệt của Đảo
-    public void updateIslandStatus(int islandId, String status) throws SQLException {
-        // Cập nhật trạng thái duyệt (APPROVED/REJECTED) cho Đảo
-        String sql = "UPDATE Islands SET approvalStatus = ? WHERE islandId = ?";
+// ⭐ Cập nhật phương thức updateIslandStatus()
+// THAY ĐỔI CHỮ KÝ PHƯƠNG THỨC để nhận rejectionReason
+public void updateIslandStatus(int islandId, String status, String rejectionReason) throws SQLException {
+    // Cập nhật trạng thái duyệt và lý do từ chối
+    String sql = "UPDATE Islands SET approvalStatus = ?, rejectionReason = ? WHERE islandId = ?";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, status);
-            ps.setInt(2, islandId);
-            ps.executeUpdate();
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setString(1, status);
+
+        // Logic để set rejectionReason: chỉ lưu lý do nếu status là REJECTED
+        if ("REJECTED".equalsIgnoreCase(status)) {
+            ps.setString(2, rejectionReason);
+        } else {
+            ps.setNull(2, java.sql.Types.NVARCHAR); // Đặt NULL cho các trạng thái khác
         }
+        
+        ps.setInt(3, islandId);
+        ps.executeUpdate();
     }
+}
 }
     
 
