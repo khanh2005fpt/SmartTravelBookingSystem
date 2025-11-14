@@ -170,13 +170,4 @@ public class HotelDao extends DBContext {
         return total;
     }
 
-    public static void main(String[] args) {
-        HotelDao hd = new HotelDao();
-//        List<Hotel> h = hd.searchHotels("Vietnam", "", "", "200000");
-            List<Hotel> h = hd.getListHotelsById(1);
-    
-              System.out.println(h.toString());
-     
-      
-    }
 }

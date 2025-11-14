@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -92,7 +93,29 @@ public class VnpayReturn extends HttpServlet {
                 System.out.println(paymentId);
                 Bill bill = null;
                 if (isSuccess) {
+                    
                     bookingDao.updateStatus(bookingId, "COMPLETED");
+                    
+                    // update tồn kho
+         try {
+    boolean inventory = bookingDao.decreaseInventory(bookingId);
+
+    if (!inventory) {
+        // Gửi thông báo tồn kho <0 đến trang error
+        request.setAttribute("errorMessage", "Không đủ tồn kho để đặt tour. Vui lòng kiểm tra lại số lượng.");
+
+        // Forward sang trang error
+        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
+        return; // dừng tiếp tục xử lý
+    }
+
+    // Nếu đủ -> tiếp tục xử lý đặt booking
+} catch (SQLException e) {
+    handleError(request, response, "Lỗi khi update tồn kho: " + e.getMessage(), e);
+}
+
+                  
+
                     HistoryBooking hb = new HistoryBooking();
                     hb.setPaymentId(paymentId);
 
@@ -100,7 +123,7 @@ public class VnpayReturn extends HttpServlet {
                     int userId = user.getUserId();
                     hb.setAccountUserId(userId);
                     System.out.println(userId);
-
+          
                     // Thông tin khách hàng (nếu có trong form)
                     hb.setCustomerName(fullname);
                     hb.setCustomerEmail(email);
@@ -118,6 +141,7 @@ public class VnpayReturn extends HttpServlet {
             } catch (Exception e) {
                 e.printStackTrace();
                 response.getWriter().println("Lỗi khi lưu dữ liệu thanh toán: " + e.getMessage());
+                 response.getWriter().println("Lỗi khi update tồn kho: " + e.getMessage());
             }
         } else {
             response.getWriter().println("❌ Giao dịch không hợp lệ (Invalid signature)");
@@ -135,6 +159,18 @@ public class VnpayReturn extends HttpServlet {
             throws ServletException, IOException {
         processRequest(request, response);
     }
+             private void handleError(HttpServletRequest request, HttpServletResponse response,
+                           String message, Exception e) throws ServletException, IOException {
+        System.err.println("HotelStaffServlet Error: " + message);
+        if (e != null) {
+            e.printStackTrace();
+        }
+        
+        request.setAttribute("errorMessage", message);
+        request.setAttribute("pageTitle", "Error");
+        request.getRequestDispatcher("/views/staff/error.jsp").forward(request, response);
+    }
+  
 
     @Override
     public String getServletInfo() {

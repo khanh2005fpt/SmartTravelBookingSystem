@@ -84,12 +84,16 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession();
 
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
         String code = request.getParameter("code");
+        String redirectURL = request.getParameter("redirect");
+    if (redirectURL != null && !redirectURL.trim().isEmpty()) {
+        redirectURL = java.net.URLDecoder.decode(redirectURL, "UTF-8");
+    }
 
         if (code == null && error == null) {
             request.getRequestDispatcher("/views/account/login.jsp").forward(request, response);
@@ -106,7 +110,6 @@ public class LoginServlet extends HttpServlet {
         System.out.println(accessToken);
         GoogleAccount acc = gg.getUserInfo(accessToken);
         System.out.println(acc);
-
         //check tk nay da dky chua
         User existing = userDAO.getUserByEmail(acc.getEmail());
         try {
@@ -133,10 +136,13 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("emailList_Current", emailList);
                 session.setAttribute("phoneList_Current", phoneList);
 
-                // gui thong bao cua customer sau khi login 
-                List<Notification> notifications = customerDao.getLatestNotificationsByUser(existing.getUserId());
+                // gui thong bao cua customer sau khi login s
+                List<Notification> notifications = customerDao.getAllNotificationsByUser(existing.getUserId());
                 session.setAttribute("notifications", notifications);
-
+if (redirectURL != null && !redirectURL.isEmpty()) {
+                response.sendRedirect(redirectURL);
+                return;
+            }
                 int roleId = existing != null ? existing.getRoleId() : existing.getRoleId();
                 if (roleId == 1) {
                     response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
@@ -149,7 +155,7 @@ public class LoginServlet extends HttpServlet {
                 } else {
                     response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
                 }
-                return;
+
             } else {
                 // user chua co acc --> dky luon cho user
 
@@ -165,6 +171,14 @@ public class LoginServlet extends HttpServlet {
                     //login
                     session.setAttribute("user", newUser);
                     session.setAttribute("loginSuccess", "oke");
+
+                   String savedRedirect = (String) session.getAttribute("redirectAfterLogin");
+
+if (savedRedirect != null && !savedRedirect.isEmpty()) {
+    session.removeAttribute("redirectAfterLogin");
+    response.sendRedirect(savedRedirect);
+    return;
+}
 
                     // redirect theo roleId
                     int roleId = existing != null ? existing.getRoleId() : newUser.getRoleId();
@@ -199,7 +213,7 @@ public class LoginServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request   
+     * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
@@ -249,10 +263,16 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("phoneList_Current", phoneList);
 
             // gui thong bao cua customer sau khi login 
-            List<Notification> notifications = customerDao.getLatestNotificationsByUser(user.getUserId());
+            List<Notification> notifications = customerDao.getAllNotificationsByUser(user.getUserId());
             session.setAttribute("notifications", notifications);
 
             session.setAttribute("loginSuccess", "oke");
+            String redirectURL = request.getParameter("redirect");
+            if (redirectURL != null && !redirectURL.trim().isEmpty()) {
+                redirectURL = java.net.URLDecoder.decode(redirectURL, "UTF-8");
+                response.sendRedirect(redirectURL);
+                return; // QUAN TRỌNG: dừng code ở đây
+            }
 
             // redirect theo roleId
             int roleId = user.getRoleId();
@@ -267,6 +287,7 @@ public class LoginServlet extends HttpServlet {
             } else {
                 response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
             session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa or đặt lại email. Vui lòng thử lại!");

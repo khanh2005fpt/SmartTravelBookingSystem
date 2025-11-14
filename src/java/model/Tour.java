@@ -22,9 +22,8 @@ public class Tour {
     private String approvalStatus; // PENDING, APPROVED, REJECTED
     private int availableQuantity; // Số lượng tour còn lại
     private LocalDateTime createdAt;
+    private String rejectionReason;
 
-
-private String rejectionReason;
     public Tour() {
     }
 

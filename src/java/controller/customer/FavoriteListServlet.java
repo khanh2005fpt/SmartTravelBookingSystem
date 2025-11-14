@@ -17,22 +17,34 @@ public class FavoriteListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+   HttpSession session = req.getSession();
+        User currentUser = (User) session.getAttribute("user");
 
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login.jsp");
+        if (currentUser == null) {
+            session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+            resp.sendRedirect(req.getContextPath() + "/views/account/login.jsp");
             return;
         }
 
-        User user = (User) session.getAttribute("user");
-        int userId = user.getUserId();
-
+        int roleId = currentUser.getRoleId();
+        if (roleId != 1 && roleId != 3) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+            resp.sendRedirect(req.getContextPath() + "/views/account/access_denied.jsp");
+            return;
+        }
+        // Lấy section từ navbar
+    String section = req.getParameter("section");
+    if (section == null || section.isEmpty()) {
+        section = "account"; // mặc định
+    }
         try {
+            int userId = currentUser.getUserId();
             List<Favorite> favorites = dao.getFavoritesByUser(userId);
             req.setAttribute("favoriteList", favorites);
+             req.setAttribute("section", section);
 
             // forward về trang profile.jsp, hiển thị tab favorites
-            req.getRequestDispatcher("/views/customer_profile/profile.jsp?section=favorites")
+            req.getRequestDispatcher("/views/customer_profile/profile.jsp?section=favorites#")
                .forward(req, resp);
 
         } catch (Exception e) {

@@ -212,17 +212,6 @@ public class ServiceDao extends DBContext {
         return list;
     }
 
-//     public static void main(String[] args) {
-//        ServiceDao sd = new ServiceDao();
-//        List<Place> place;
-//        try {
-//            place = sd.getListPlaceById(1);
-//              System.out.println(place.toString());
-//        } catch (SQLException ex) {
-//            Logger.getLogger(ServiceDao.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//
-//    }
     // ==================== HOTEL CRUD OPERATIONS ====================
     // CREATE - Them khach san moi
     public boolean createHotel(Hotel hotel) {
@@ -2939,6 +2928,36 @@ public class ServiceDao extends DBContext {
             e.printStackTrace();
         }
         return data;
+    }
+    
+    
+    
+    // DELETE - Xoa dao with error message
+    public String deleteIslandWithErrorHandling(int islandId) {
+        String sql = "DELETE FROM Islands WHERE islandId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, islandId);
+
+            int result = ps.executeUpdate();
+            if (result > 0) {
+                return "success";
+            } else {
+                return "not_found";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            String errorMessage = e.getMessage();
+
+            // Check for foreign key constraint error
+            if (errorMessage != null && errorMessage.contains("REFERENCE constraint")) {
+                return "foreign_key_constraint";
+            } else if (errorMessage != null && errorMessage.contains("FK_")) {
+                return "foreign_key_constraint";
+            }
+
+            return "database_error";
+        }
     }
 
 }

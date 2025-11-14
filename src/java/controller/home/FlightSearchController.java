@@ -65,6 +65,7 @@ public class FlightSearchController extends HttpServlet {
     throws ServletException, IOException {
         try {
             
+            
     String idRaw = request.getParameter("islandId");
     String flightTypeRaw = request.getParameter("flightType"); // Nhận "MotChieu" hoặc "KhuHoi"
     

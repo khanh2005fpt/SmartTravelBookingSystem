@@ -175,7 +175,7 @@ private boolean isStaffAuthorized(HttpSession session, HttpServletRequest reques
                 break;
         }
 
-        if (!"CUSTOMER".equals(role) && !"ADMIN".equals(role)) {
+        if (!"BOOKING MANAGER".equals(role) && !"ADMIN".equals(role)) {
             session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
             response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
             return false;

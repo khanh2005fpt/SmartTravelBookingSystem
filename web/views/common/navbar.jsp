@@ -74,7 +74,7 @@
         </c:if>
     </a>
 
-    <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="dropdown04" style="max-height: 300px; overflow-y: auto;">
+    <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="dropdown04"  overflow-y: auto;">
     <h6 class="dropdown-header text-info d-flex align-items-center mb-2">
         <i class="fa-solid fa-bell me-2"></i> Thông báo
     </h6>
@@ -148,9 +148,7 @@
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/information?section=account#"><i class="bi bi-person-lines-fill mr-2"></i> Trang cá nhân</a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=member-priority#"><i class="bi bi-award"></i> Membership Level</a>
                         <a class="dropdown-item" href="${pageContext.request.contextPath}/FullHistoryBooking?section=historyBookings#"><i class="bi bi-calendar2-check"></i>Lịch sử đặt chỗ của tôi</a>
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=transactions#"><i class="bi bi-list-ul"></i>Giao dịch </a>
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=notifications#"><i class="bi bi-bell mr-2"></i> Thông báo</a>
-                        <a class="dropdown-item" href="${pageContext.request.contextPath}/views/customer_profile/profile.jsp?section=favorites#"><i class="bi bi-heart-fill"></i>Tours and Services</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/customer/favorites?section=favorites#"><i class="bi bi-heart-fill"></i>Tours and Services</a>
 
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
@@ -337,5 +335,51 @@
         color: #0077b6;
     }
 
+    .notification-dropdown {
+    max-height: 500px !important; 
+    width: 350px !important;      
+    overflow-y: auto;
+    padding: 15px;
+}
 
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background-color: #f1f3f5;
+}
+
+
+.notification-icon i {
+    font-size: 1.5em;
+}
+
+
+.notification-content strong {
+    font-size: 1.05em;
+}
+
+.notification-content p {
+    font-size: 0.95em;
+    margin-bottom: 0;
+}
+
+
+.dropdown-header {
+    font-size: 1.2em;
+}
+
+
+#deleteModal .btn {
+    font-size: 0.95em;
+    padding: 6px 12px;
+}
+  
 </style> 

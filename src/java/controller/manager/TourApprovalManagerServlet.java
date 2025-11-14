@@ -8,6 +8,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import model.User;
 
 @WebServlet(name = "TourApprovalManagerServlet", urlPatterns = {"/manager/tour-approval"})
 public class TourApprovalManagerServlet extends HttpServlet {
@@ -27,9 +28,11 @@ public class TourApprovalManagerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // ... (code kiểm tra role nếu cần) ...
-
-        // Giữ doGet chỉ để list (hiển thị trang duyệt)
+         HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
+           if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         try {
             listPendingTours(request, response);
         } catch (Exception e) {
@@ -97,5 +100,43 @@ public class TourApprovalManagerServlet extends HttpServlet {
         // Chuyển hướng về trang danh sách sau khi hoàn tất
         response.sendRedirect(request.getContextPath() + "/manager/tour-approval");
     }
-    // CẬP NHẬT PHƯƠNG THỨC updateTourStatus --->
+   private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    if (session == null) {
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    // Map roleId -> roleName
+ String role;
+        switch (user.getRoleId()) {
+            case 1:
+                role = "ADMIN";
+                break;
+            case 2:
+                role = "BOOKING MANAGER";
+                break;
+            case 3:
+                role = "CUSTOMER";
+                break;
+            default:
+                role = "STAFF";
+                break;
+        }
+
+        if (!"BOOKING MANAGER".equals(role) && !"ADMIN".equals(role)) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return false;
+        }
+
+        return true;
+    }
+
 }

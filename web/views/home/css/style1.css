@@ -591,88 +591,102 @@ input::placeholder {
 .heart.full {
   color: red; /* khi click → tô đỏ */
 }
-
-/* ==========Notifications ========== */
-
-/* Container dropdown */
-.notification-dropdown {
-    width: 420px;
-    max-height: 400px;
-    overflow-y: auto;
-    border-radius: 16px;
-    padding: 10px 0;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+/* Card container */
+.favorites-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: #fff;
+    border: none;
+    border-radius: 1rem; /* rounded-4 */
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* font chữ card */
 }
 
-/* Thanh cuộn gọn đẹp */
-.notification-dropdown::-webkit-scrollbar {
-    width: 6px;
-}
-.notification-dropdown::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
-}
-.notification-dropdown::-webkit-scrollbar-track {
-    background: transparent;
+/* Hover effect */
+.favorites-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
 }
 
-/* Item */
-.notification-item {
-    display: flex;
-    align-items: flex-start;
-    padding: 10px 16px;
-    transition: background 0.2s;
-    gap: 12px;
-}
-
-.notification-item:hover {
-    background: #f7f9fb;
-}
-
-/* Icon */
-.notification-icon i {
-    font-size: 18px;
-    margin-top: 4px;
-}
-
-/* Nội dung */
-.notification-content {
-    flex: 1;
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-.notification-content strong {
+/* Banner ảnh */
+.card-banner img {
+    height: 160px;
+    object-fit: cover;
     display: block;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 3px;
+    width: 100%;
 }
 
-.notification-content p {
-    font-size: 14px;
-    color: #666;
+/* Card body */
+.favorites-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+/* Service type */
+.favorites-card .card-body p.fw-bold {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    text-transform: capitalize;
+    color: #333; /* màu chữ chính */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Ngày thêm */
+.favorites-card .card-body small.text-muted {
+    font-size: 0.75rem;
+    color: #6c757d; /* màu xám nhạt, nhìn tinh tế */
+    font-style: italic; /* optional để khác với tên dịch vụ */
+    letter-spacing: 0.5px;
+}
+.fav-text p,
+.fav-text small {
     margin: 0;
 }
 
-/* Header */
-.dropdown-header {
-    font-weight: 700;
-    font-size: 16px;
-    padding: 8px 16px;
+/* Tăng khoảng cách giữa tên và ngày thêm nếu cần */
+.fav-text p {
+    margin-bottom: 4px;
 }
 
-/* Nút xóa tất cả */
-.btn-outline-danger {
-    border-radius: 8px;
-    padding: 5px 12px;
-    transition: all 0.2s;
-}
 
-.btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #fff;
-    border-color: #dc3545;
-}
+.flight-scroll-container {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 1rem 0;
+        scroll-behavior: smooth;
+    }
 
+    .flight-item {
+        flex: 0 0 calc(33.333% - 20px); 
+        min-width: 300px;
+        scroll-snap-align: start;
+    }
+
+    /* Ẩn thanh cuộn nhưng vẫn cho scroll */
+    .flight-scroll-container::-webkit-scrollbar {
+        height: 8px;
+    }
+    .flight-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .flight-scroll-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+    .flight-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+    }
+
+    /* Responsive: mobile */
+    @media (max-width: 768px) {
+        .flight-item {
+            flex: 0 0 calc(80% - 20px);
+            min-width: 280px;
+        }
+    }
 
