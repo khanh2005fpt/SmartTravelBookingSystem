@@ -8,7 +8,9 @@ import dao.ServiceDao;
 import model.Place;
 import model.Island;
 import model.User;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -17,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 /**
  * Servlet for managing place operations for staff members
@@ -55,10 +58,9 @@ public class PlaceStaffServlet extends HttpServlet {
         
         // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
-        if (!isStaffAuthorized(session)) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+         if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         
         String action = request.getParameter("action");
         if (action == null) action = "list";
@@ -97,10 +99,9 @@ public class PlaceStaffServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (!isStaffAuthorized(session)) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+         if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         
         String action = request.getParameter("action");
         
@@ -140,22 +141,19 @@ public class PlaceStaffServlet extends HttpServlet {
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
             String search = request.getParameter("search");
+            String hasTicket = request.getParameter("hasTicket");
+            String islandId = request.getParameter("islandId");
             
             int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
             int pageSize = (pageSizeParam != null) ? Integer.parseInt(pageSizeParam) : 10;
             
-            List<Place> places;
-            int totalPlaces;
+            // Load islands for dropdown
+            List<Island> islands = serviceDao.getAllIslands();
+            request.setAttribute("islands", islands);
             
-            // Handle search or normal listing
-            if (search != null && !search.trim().isEmpty()) {
-                places = serviceDao.searchPlacesByNameWithPaginationAndIslandNames(search.trim(), page, pageSize);
-                totalPlaces = serviceDao.getSearchPlacesCount(search.trim());
-                request.setAttribute("search", search);
-            } else {
-                places = serviceDao.getPlacesByPageWithIslandNames(page, pageSize);
-                totalPlaces = serviceDao.getTotalPlacesCount();
-            }
+            // Get places with filters
+            List<Place> places = serviceDao.getPlacesWithFilters(search, hasTicket, islandId, page, pageSize);
+            int totalPlaces = serviceDao.getPlacesCountWithFilters(search, hasTicket, islandId);
             
             // Calculate pagination info
             int totalPages = (int) Math.ceil((double) totalPlaces / pageSize);
@@ -171,6 +169,17 @@ public class PlaceStaffServlet extends HttpServlet {
             request.setAttribute("startPage", startPage);
             request.setAttribute("endPage", endPage);
             request.setAttribute("pageTitle", "Place Management");
+            
+            // Preserve filter parameters for form
+            if (search != null) {
+                request.setAttribute("search", search);
+            }
+            if (hasTicket != null) {
+                request.setAttribute("hasTicket", hasTicket);
+            }
+            if (islandId != null) {
+                request.setAttribute("islandId", islandId);
+            }
             
             request.getRequestDispatcher("/views/staff/place-list.jsp").forward(request, response);
         } catch (Exception e) {
@@ -441,13 +450,49 @@ public class PlaceStaffServlet extends HttpServlet {
     /**
      * Create place object from request parameters
      */
-    private Place createPlaceFromRequest(HttpServletRequest request) {
+    private Place createPlaceFromRequest(HttpServletRequest request) throws ServletException, IOException {
         Place place = new Place();
         
         // Set basic fields
         place.setPlaceName(request.getParameter("placeName"));
         place.setLocation(request.getParameter("location"));
         place.setDescription(request.getParameter("description"));
+        
+        // Handle image URL - check for file upload first, then fallback to current URL
+        String imageUrl = request.getParameter("currentImageUrl"); // Default to existing image
+        
+        try {
+            Part filePart = request.getPart("placeImageFile");
+            if (filePart != null && filePart.getSize() > 0) {
+                // Get original filename
+                String originalName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
+                
+                // Generate unique filename
+                String fileExtension = originalName.substring(originalName.lastIndexOf("."));
+                String uniqueFileName = "place_" + System.currentTimeMillis() + "_" + 
+                                      (int)(Math.random() * 1000) + fileExtension;
+                
+                // Create upload directory if it doesn't exist
+                String uploadDir = getServletContext().getRealPath("/") + "UploadData" + File.separator + "Places";
+                File uploadDirFile = new File(uploadDir);
+                if (!uploadDirFile.exists()) {
+                    uploadDirFile.mkdirs();
+                }
+                
+                // Save the file
+                String filePath = uploadDir + File.separator + uniqueFileName;
+                filePart.write(filePath);
+                
+                // Set the relative path for database storage
+                imageUrl = "UploadData/Places/" + uniqueFileName;
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling file upload: " + e.getMessage());
+            e.printStackTrace();
+            // Continue with existing image URL if file upload fails
+        }
+        
+        place.setPlaceImageUrl(imageUrl);
         
         // Set boolean field
         String hasTicketStr = request.getParameter("hasTicket");
@@ -514,14 +559,43 @@ public class PlaceStaffServlet extends HttpServlet {
     /**
      * Check if user is authorized staff member
      */
-    private boolean isStaffAuthorized(HttpSession session) {
-        if (session == null) return false;
-        
-        User user = (User) session.getAttribute("user");
-        if (user == null) return false;
-        
-        String role = user.getRole();
-        return "staff".equals(role) || "admin".equals(role);
+  private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    if (session == null) {
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    // Map roleId -> roleName
+ String role;
+        switch (user.getRoleId()) {
+            case 1:
+                role = "ADMIN";
+                break;
+            case 2:
+                role = "BOOKING MANAGER";
+                break;
+            case 3:
+                role = "CUSTOMER";
+                break;
+            default:
+                role = "STAFF";
+                break;
+        }
+
+        if (!"STAFF".equals(role) && !"ADMIN".equals(role)) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return false;
+        }
+
+        return true;
     }
 
     /**

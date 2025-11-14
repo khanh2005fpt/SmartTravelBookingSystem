@@ -11,12 +11,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import model.Bill;
+import model.HistoryBooking;
 import model.Payment;
+import model.User;
 
 /**
  *
@@ -39,7 +43,11 @@ public class VnpayReturn extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
-
+        HttpSession session = request.getSession();
+        String fullname = (String) session.getAttribute("fullname");
+        String email = (String) session.getAttribute("email");
+        User user = (User)session.getAttribute("user");
+        String phone = (String) session.getAttribute("phone");
         Map<String, String> fields = new HashMap<>();
         for (String key : request.getParameterMap().keySet()) {
             String value = request.getParameter(key);
@@ -56,8 +64,8 @@ public class VnpayReturn extends HttpServlet {
             fields.remove("vnp_SecureHash");
         }
         String signValue = Config.hashAllFields(fields);
-        System.out.println("✅ signValue (local) = " + signValue);
-        System.out.println("✅ vnp_SecureHash (from VNPAY) = " + vnp_SecureHash);
+    //    System.out.println("✅ signValue (local) = " + signValue);
+    //    System.out.println("✅ vnp_SecureHash (from VNPAY) = " + vnp_SecureHash);
         if (signValue.equals(vnp_SecureHash)) {
             String vnp_TxnRef = request.getParameter("vnp_TxnRef");
             int bookingId;
@@ -80,10 +88,30 @@ public class VnpayReturn extends HttpServlet {
                 payment.setAmount(amount);
 
                 payment.setStatus(isSuccess ? "Success" : "Failed");
-               // bookingDao.createPayment(payment);
+                int paymentId = bookingDao.createPayment(payment);
+                System.out.println(paymentId);
+                Bill bill = null;
                 if (isSuccess) {
                     bookingDao.updateStatus(bookingId, "COMPLETED");
+                    HistoryBooking hb = new HistoryBooking();
+                    hb.setPaymentId(paymentId);
+
+                    // Nếu có người đăng nhập thì lấy userId từ session
+                    int userId = user.getUserId();
+                    hb.setAccountUserId(userId);
+                    System.out.println(userId);
+
+                    // Thông tin khách hàng (nếu có trong form)
+                    hb.setCustomerName(fullname);
+                    hb.setCustomerEmail(email);
+                    hb.setCustomerPhone(phone);
+                    hb.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+                    hb.setTourStatus(hb.getTourStatus());
+                    bookingDao.createHistoryBooking(hb);
+                    bill = bookingDao.getBillByHistoryBooking(paymentId);
                 }
+
+                request.setAttribute("bill", bill);
                 request.setAttribute("payment", payment);
                 request.setAttribute("result", isSuccess ? "Success" : "Failed");
                 request.getRequestDispatcher("views/booking/payment_result.jsp").forward(request, response);

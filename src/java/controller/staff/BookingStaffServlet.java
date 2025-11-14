@@ -48,11 +48,9 @@ public class BookingStaffServlet extends HttpServlet {
         
         // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
-        
+        if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         try {
             String action = request.getParameter("action");
             
@@ -82,10 +80,9 @@ public class BookingStaffServlet extends HttpServlet {
         
         // Check if user is logged in and has staff role
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+         if (!isStaffAuthorized(session, request, response)) {
+        return;
+    }
         
         try {
             String action = request.getParameter("action");
@@ -111,19 +108,37 @@ public class BookingStaffServlet extends HttpServlet {
         
         try {
             List<Booking> bookings = bookingDao.getAllBookings();
-            
-            // Get booking statistics for dashboard
-            int pendingCount = bookingDao.getBookingCountByStatus("PENDING");
-            int confirmedCount = bookingDao.getBookingCountByStatus("CONFIRMED");
-            int cancelledCount = bookingDao.getBookingCountByStatus("CANCELLED");
-            int completedCount = bookingDao.getBookingCountByStatus("COMPLETED");
-            
-            request.setAttribute("bookings", bookings);
-            request.setAttribute("pendingCount", pendingCount);
-            request.setAttribute("confirmedCount", confirmedCount);
-            request.setAttribute("cancelledCount", cancelledCount);
+
+            // Filter: only tour bookings (package or custom) and statuses PENDING/CONFIRMED/COMPLETED
+            List<Booking> tourBookings = new java.util.ArrayList<>();
+            for (Booking b : bookings) {
+                boolean hasTour = (b.getTourName() != null && !b.getTourName().trim().isEmpty())
+                        || (b.getCustomTourName() != null && !b.getCustomTourName().trim().isEmpty());
+                if (!hasTour) continue;
+                String st = b.getStatus();
+                if ("PENDING".equals(st) || "CONFIRMED".equals(st) || "COMPLETED".equals(st)) {
+                    tourBookings.add(b);
+                }
+            }
+
+            // Compute stats only for filtered tour bookings
+            // Chưa hoàn thành = PENDING + CONFIRMED
+            // Đã hoàn thành = COMPLETED
+            int incompleteCount = 0;
+            int completedCount = 0;
+            for (Booking b : tourBookings) {
+                String st = b.getStatus();
+                if ("PENDING".equals(st) || "CONFIRMED".equals(st)) {
+                    incompleteCount++;
+                } else if ("COMPLETED".equals(st)) {
+                    completedCount++;
+                }
+            }
+
+            request.setAttribute("bookings", tourBookings);
+            request.setAttribute("incompleteCount", incompleteCount);
             request.setAttribute("completedCount", completedCount);
-            request.setAttribute("totalCount", bookings.size());
+            request.setAttribute("totalCount", tourBookings.size());
             
             request.getRequestDispatcher("/views/staff/booking-list.jsp").forward(request, response);
             
@@ -185,20 +200,53 @@ public class BookingStaffServlet extends HttpServlet {
             String dateFrom = request.getParameter("dateFrom");
             String dateTo = request.getParameter("dateTo");
             
-            List<Booking> bookings = bookingDao.searchBookings(customerName, status, dateFrom, dateTo);
+            // Convert INCOMPLETE to PENDING,CONFIRMED for search
+            String searchStatus = status;
+            if ("INCOMPLETE".equals(status)) {
+                // Search for both PENDING and CONFIRMED
+                searchStatus = "PENDING,CONFIRMED";
+            }
             
-            // Get booking statistics
-            int pendingCount = bookingDao.getBookingCountByStatus("PENDING");
-            int confirmedCount = bookingDao.getBookingCountByStatus("CONFIRMED");
-            int cancelledCount = bookingDao.getBookingCountByStatus("CANCELLED");
-            int completedCount = bookingDao.getBookingCountByStatus("COMPLETED");
-            
-            request.setAttribute("bookings", bookings);
-            request.setAttribute("pendingCount", pendingCount);
-            request.setAttribute("confirmedCount", confirmedCount);
-            request.setAttribute("cancelledCount", cancelledCount);
+            List<Booking> bookings = bookingDao.searchBookings(customerName, searchStatus, dateFrom, dateTo);
+
+            // Filter: only tour bookings (package or custom) and allowed statuses
+            List<Booking> tourBookings = new java.util.ArrayList<>();
+            for (Booking b : bookings) {
+                boolean hasTour = (b.getTourName() != null && !b.getTourName().trim().isEmpty())
+                        || (b.getCustomTourName() != null && !b.getCustomTourName().trim().isEmpty());
+                if (!hasTour) continue;
+                String st = b.getStatus();
+                if ("PENDING".equals(st) || "CONFIRMED".equals(st) || "COMPLETED".equals(st)) {
+                    // If filtering by INCOMPLETE, only include PENDING and CONFIRMED
+                    if ("INCOMPLETE".equals(status) && "COMPLETED".equals(st)) {
+                        continue;
+                    }
+                    // If filtering by COMPLETED, only include COMPLETED
+                    if ("COMPLETED".equals(status) && !"COMPLETED".equals(st)) {
+                        continue;
+                    }
+                    tourBookings.add(b);
+                }
+            }
+
+            // Stats based on filtered result
+            // Chưa hoàn thành = PENDING + CONFIRMED
+            // Đã hoàn thành = COMPLETED
+            int incompleteCount = 0;
+            int completedCount = 0;
+            for (Booking b : tourBookings) {
+                String st = b.getStatus();
+                if ("PENDING".equals(st) || "CONFIRMED".equals(st)) {
+                    incompleteCount++;
+                } else if ("COMPLETED".equals(st)) {
+                    completedCount++;
+                }
+            }
+
+            request.setAttribute("bookings", tourBookings);
+            request.setAttribute("incompleteCount", incompleteCount);
             request.setAttribute("completedCount", completedCount);
-            request.setAttribute("totalCount", bookings.size());
+            request.setAttribute("totalCount", tourBookings.size());
             
             // Preserve search parameters
             request.setAttribute("searchCustomerName", customerName);
@@ -272,6 +320,49 @@ public class BookingStaffServlet extends HttpServlet {
     private boolean isValidStatus(String status) {
         return status.equals("PENDING") || status.equals("CONFIRMED") || 
                status.equals("CANCELLED") || status.equals("COMPLETED");
+    }
+    
+    /**
+     *isStaffAuthorized role in system
+     */
+    
+    private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    if (session == null) {
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return false;
+    }
+
+    // Map roleId -> roleName
+ String role;
+        switch (user.getRoleId()) {
+            case 1:
+                role = "ADMIN";
+                break;
+            case 2:
+                role = "BOOKING MANAGER";
+                break;
+            case 3:
+                role = "CUSTOMER";
+                break;
+            default:
+                role = "STAFF";
+                break;
+        }
+
+        if (!"STAFF".equals(role) && !"ADMIN".equals(role)) {
+            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
+            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+            return false;
+        }
+
+        return true;
     }
     
     public String getServletInfo() {

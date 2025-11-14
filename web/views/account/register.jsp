@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -9,6 +10,22 @@
         <title>Register Page</title>
         <%@ include file="/views/common/css.jsp" %>
     </head>
+    
+             <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser != null) {
+         
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 3) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
    <body>
     <div class="container-fluid">
         <div class="row min-vh-100">

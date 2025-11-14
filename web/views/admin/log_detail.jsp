@@ -132,9 +132,10 @@
 </head>
 <body>
 
-    <%@ include file="../user/header.jsp" %>
-    <%@ include file="../user/sidebar.jsp" %>
+   <!-- Include Sidebar -->
+       <%@ include file="/views/staff/sidebar.jsp" %>
 
+   
     <div class="main-content">
         <h1>Chi tiết Log #${log.logId}</h1>
 
@@ -164,6 +165,5 @@
         </div>
     </div>
 
-    <%@ include file="../user/footer.jsp" %>
 </body>
 </html>

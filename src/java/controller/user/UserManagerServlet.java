@@ -1,6 +1,7 @@
 package controller.user;
 
-import dao.userDao;
+import dao.UserDao;
+
 import model.User;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +12,7 @@ import java.util.List;
 @WebServlet("/admin/user")
 public class UserManagerServlet extends HttpServlet {
 
-    private final userDao dao = userDao.INSTANCE;
+    private final UserDao dao = UserDao.INSTANCE;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -82,6 +83,7 @@ public class UserManagerServlet extends HttpServlet {
         String status = req.getParameter("status");
         int roleId = Integer.parseInt(req.getParameter("roleId"));
 
+        
         // Kiểm tra trùng username/email
         if (dao.checkUsernameExist(username) || dao.checkEmailExist(email)) {
             req.setAttribute("error", "Tên đăng nhập hoặc Email đã tồn tại!");

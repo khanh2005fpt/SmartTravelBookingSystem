@@ -15,8 +15,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
 import java.util.List;
-import model.EmailCustomer;
+import model.CustomerContacts;
 import model.User;
 
 /**
@@ -89,79 +90,63 @@ public class SecondaryEmail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-          HttpSession session = request.getSession();
-       User user = (User) session.getAttribute("user");
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+            return;
+        }
+        try {
+            Integer userId = user.getUserId();
+            String action = request.getParameter("action");
 
-       if(user==null){
-          response.sendRedirect(request.getContextPath()+"/views/account/login.jsp");
-          return;
-       }
-      Integer userId = user.getUserId();
-       
-       String action = request.getParameter("action");
-       if(action==null){
-            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
-          return;
-       }
-       
-       if(action.startsWith("delete-")){
-          int emailId = Integer.parseInt(action.split("-")[1]);
-          //split("-")[1]) : cat chuoi thanh mang , roi lay phan tu thu 2
-            boolean isPrimary = customerDao.isPrimaryEmail(emailId);
-             
-            if(isPrimary){
-                session.setAttribute("errorEmail_Deleted", "Không thể xóa Email chính!");
-               
-         
-               
-            }else{
-                // check xoa emai ton tai hay chua
-            
-                
-                boolean existEmail= customerDao.checkEmailExistsByIdAndUser(emailId, userId);
-                if(!existEmail){
-                    session.setAttribute("errorEmail_Deleted", "email này đã bị xóa!"); 
-                     response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-        return;
-               }
-                
-                
-                   boolean deleted = customerDao.deleteEmail(emailId);
-                  if(deleted){
-                      session.setAttribute("successEmail", "Đã xóa email thành công!");
-                   
-                  }else {
-                      session.setAttribute("errorEmail_Deleted", " Xóa email không thành công!");
-                     
-                  }
-                 
-             // Cập nhật danh sách email mới
-        session.removeAttribute("emailList");
-        List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
-        session.setAttribute("emailList", updatedList);
-              
+            if (action == null) {
+                response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
+                return;
             }
-             response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
-            return;  
-          
-           }else if(action.startsWith("makePrimary-")){
-              int emailId = Integer.parseInt(action.split("-")[1]);
 
-            // Đặt email mới làm chính, đồng bộ Users và UserEmails
-           customerDao.setPrimaryEmai(user.getUserId(), emailId);
-            System.out.println(user.getEmail());
+              // Xử lý xóa email
+            if (action.startsWith("delete-")) {
+                int contactId = Integer.parseInt(action.split("-")[1]);
 
-            // Cập nhật session user để hiển thị profile ngay
-            String newPrimaryEmail = customerDao.getEmailById(emailId);
-            user.setEmail(newPrimaryEmail);
-            session.setAttribute("user", user);
-            session.setAttribute("successEmail", "Đã đặt email chính mới!");
-            // xong hien thi email sau khinh set la email chinh
-            List<EmailCustomer> updatedList = customerDao.getEmailsByUserId(userId);
-            session.setAttribute("emailList", updatedList);
-              response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
-       }      
-   
+                boolean deleted = customerDao.deleteContact(contactId);
+                if (deleted) {
+                    session.setAttribute("successEmail", "Đã xóa email thành công!");
+                } else {
+                    session.setAttribute("errorEmail_Deleted", "Xóa email không thành công!");
+                }
+
+                // Cập nhật danh sách email mới
+                List<CustomerContacts> updatedList = customerDao.getEmailContactByUserId(userId);
+                session.setAttribute("emailList", updatedList);
+
+                response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+                return;
+            } // Xử lý đặt email chính
+            else if (action.startsWith("makePrimary-")) {
+                int contactId = Integer.parseInt(action.split("-")[1]);
+
+                // Đặt email mới làm chính, trigger tự đồng bộ sang Users
+                customerDao.setPrimaryEmailContact(contactId);
+
+                // Cập nhật session user để hiển thị profile ngay
+                String newPrimaryEmail = customerDao.getEmailContactById(contactId);
+                user.setEmail(newPrimaryEmail);
+                session.setAttribute("user", user);
+                session.setAttribute("successEmail", "Đã đặt email chính mới!");
+
+                // Cập nhật danh sách email mới
+                List<CustomerContacts> updatedList = customerDao.getEmailContactByUserId(userId);
+                session.setAttribute("emailList", updatedList);
+
+                response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa or đặt lại email. Vui lòng thử lại!");
+            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        }
+
     }
 
     /** 

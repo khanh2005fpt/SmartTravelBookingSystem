@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 3) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <html lang="vi">
     <head>
        <%@ include file="/views/common/css.jsp" %>
     </head>
+    
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
         <!-- END nav -->
@@ -181,54 +196,55 @@
                                             <span class="fa fa-star"></span>
                                             <span class="fa fa-star"></span>
                                         </p>
-                                        <p class="mb-4">Xa xa, sau những ngọn núi chữ, xa các quốc gia Vokalia và Consonantia, có những văn bản mù sinh sống.</p>
-                                        <div class="d-flex align-items-center">
-                                            <div class="user-img" style="background-image: url(images/person_3.jpg)"></div>
-                                            <div class="pl-3">
-                                                <p class="name">Roger Scott</p>
-                                                <span class="position">Quản lý Marketing</span>
+                                            <p class="mb-4">Xa xa, sau những ngọn núi chữ, xa các quốc gia Vokalia và Consonantia, có những văn bản mù sinh sống.</p>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-img" style="background-image: url(images/person_3.jpg)"></div>
+                                                <div class="pl-3">
+                                                    <p class="name">Roger Scott</p>
+                                                    <span class="position">Quản lý Marketing</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="item">
-                                <div class="testimony-wrap py-4">
-                                    <div class="text">
-                                        <p class="star">
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                        </p>
-                                        <p class="mb-4">Xa xa, sau những ngọn núi chữ, xa các quốc gia Vokalia và Consonantia, có những văn bản mù sinh sống.</p>
-                                        <div class="d-flex align-items-center">
-                                            <div class="user-img" style="background-image: url(images/person_1.jpg)"></div>
-                                            <div class="pl-3">
-                                                <p class="name">Roger Scott</p>
-                                                <span class="position">Quản lý Marketing</span>
+                                <div class="item">
+                                    <div class="testimony-wrap py-4">
+                                        <div class="text">
+                                            <p class="star">
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                            </p>
+                                            <p class="mb-4">Xa xa, sau những ngọn núi chữ, xa các quốc gia Vokalia và Consonantia, có những văn bản mù sinh sống.</p>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-img" style="background-image: url(images/person_1.jpg)"></div>
+                                                <div class="pl-3">
+                                                    <p class="name">Roger Scott</p>
+                                                    <span class="position">Quản lý Marketing</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="item">
-                                <div class="testimony-wrap py-4">
-                                    <div class="text">
-                                        <p class="star">
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                            <span class="fa fa-star"></span>
-                                        </p>
-                                        <p class="mb-4">Xa xa, sau những ngọn núi chữ, xa các quốc gia Vokalia và Consonantia, có những văn bản mù sinh sống.</p>
-                                        <div class="d-flex align-items-center">
-                                            <div class="user-img" style="background-image: url(images/person_2.jpg)"></div>
-                                            <div class="pl-3">
-                                                <p class="name">Roger Scott</p>
-                                                <span class="position">Quản lý Marketing</span>
+                                <div class="item">
+                                    <div class="testimony-wrap py-4">
+                                        <div class="text">
+                                            <p class="star">
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                                <span class="fa fa-star"></span>
+                                            </p>
+                                            <p class="mb-4">Xa xa, sau những ngọn núi chữ, xa các quốc gia Vokalia và Consonantia, có những văn bản mù sinh sống.</p>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-img" style="background-image: url(images/person_2.jpg)"></div>
+                                                <div class="pl-3">
+                                                    <p class="name">Roger Scott</p>
+                                                    <span class="position">Quản lý Marketing</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -237,8 +253,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
         <section class="ftco-intro ftco-section ftco-no-pt">
             <div class="container">

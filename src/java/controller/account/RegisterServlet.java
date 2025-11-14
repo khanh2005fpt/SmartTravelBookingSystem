@@ -11,7 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dao.userDao;
+import dao.UserDao;
 import jakarta.servlet.http.HttpSession;
 
 /**
@@ -21,12 +21,12 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "registerServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
 
-    private userDao userDAO;
+    private UserDao userDAO;
 
     @Override
     public void init() throws ServletException {
         try {
-            userDAO = userDao.INSTANCE;
+            userDAO = UserDao.INSTANCE;
             System.out.println("userDao initialized successfully in RegisterServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in RegisterServlet: " + e.getMessage());
@@ -64,7 +64,7 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        request.getRequestDispatcher("/views/account/register.jsp").forward(request, response);
     }
 
     /**
@@ -111,7 +111,7 @@ public class RegisterServlet extends HttpServlet {
                     boolean isEmailUser = UserName.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
                     if (!isNormalUser && !isEmailUser) {
-                        error = "Tên đăng nhập phải là chữ/số/_ (bắt đầu bằng chữ) hoặc email hợp lệ!";
+                        error = "Tên đăng nhập phải là chữ/số/(bắt đầu bằng chữ) hoặc email hợp lệ!";
                     } else if (isNormalUser && (UserName.length() < 3 || UserName.length() > 20)) {
                         error = "Tên đăng nhập phải từ 3-20 ký tự!";
                     }

@@ -25,7 +25,7 @@
 
                     <!-- Nút home -->
                     <div class="d-flex justify-content-end  mb-5 " style="max-width: 450px; width: 100%;" >
-                        <a href="${pageContext.request.contextPath}/views/home/index.jsp" class="btn btn-outline-primary">
+                        <a href="${pageContext.request.contextPath}/SearchIslandController" class="btn btn-outline-primary">
                             <i class="fa fa-home"></i> Trang Chủ
                         </a>
                     </div>
@@ -61,6 +61,8 @@
                         </script>
                         <% session.removeAttribute("errorMess"); %>
                         <% } %>
+                        
+                        
                <!-- Thông báo lỗi gui email thanh cong -->           
   <% String success = (String) session.getAttribute("successMessage"); %>
                         <% if (success != null) { %>
@@ -82,7 +84,7 @@
 
                         <!-- Form -->
                         <form action="${pageContext.request.contextPath}/login" method="POST">
-
+                             <input type="hidden" name="redirect" value="${param.redirect}">
                             <div class="mb-4">
                                 <label for="username" class="form-label">Tên đăng nhập</label>
                                 <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" >
@@ -95,9 +97,9 @@
 
                             <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
                                 <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" name="remember" id="remember" 
-                   ${rememberedUser != null ? 'checked' : ''}>
-            <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember "
+                                    ${rememberedUser != null ? 'checked' : ''}>
+                            <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
                                 </div>
                                 <a href="#" class="forgot-pass text-primary" data-toggle="modal" data-target="#forgetModal"> Quên mật khẩu?</a>
                             </div>
@@ -109,7 +111,7 @@
 
                             <a href="https://accounts.google.com/o/oauth2/auth?scope=email profile openid
 
-&redirect_uri=http://localhost:9999/SmartBookingTravelSystem/login
+&redirect_uri=http://localhost:9090/SmartBookingTravelSystem/login
 
 &response_type=code
 
@@ -121,7 +123,7 @@
 
                             <div class="text-center">
                                 <p>Chưa có tài khoản? 
-                                    <a href="register.jsp" class="fw-bold text-primary">Đăng ký ngay</a>
+                                    <a href="${pageContext.request.contextPath}/register" class="fw-bold text-primary">Đăng ký ngay</a>
                                 </p>
                             </div>
                         </form>

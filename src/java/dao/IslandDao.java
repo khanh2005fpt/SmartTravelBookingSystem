@@ -18,6 +18,8 @@ import model.Country;
  * @author Admin
  */
 public class IslandDao extends DBContext {
+    
+       public static IslandDao INSTANCE = new IslandDao();
 
     public List<Country> getAllCountries() throws SQLException {
         List<Country> list = new ArrayList<>();
@@ -38,13 +40,14 @@ public class IslandDao extends DBContext {
 
     public List<Island> getIslands() throws SQLException {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId";
+        String sql = "SELECT a.islandId, a.islandName, a.countryId, a.shortDescription, a.longDescription, a.bestSeason, a.activities, a.imageUrl, a.location, a.approvalStatus, b.countryName FROM Islands a join Countries b on a.countryId = b.countryId";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Island i = new Island();
                 i.setIslandId(rs.getInt("islandId"));
                 i.setIslandName(rs.getString("islandName"));
+                i.setCountryId(rs.getInt("countryId"));
                 i.setCountryName(rs.getString("countryName"));
                 i.setShortDescription(rs.getString("shortDescription"));
                 i.setLongDescription(rs.getString("longDescription"));
@@ -52,6 +55,7 @@ public class IslandDao extends DBContext {
                 i.setActivities(rs.getString("activities"));
                 i.setImageUrl(rs.getString("imageUrl"));
                 i.setLocation(rs.getString("location"));
+                i.setApprovalStatus(rs.getString("approvalStatus"));
                 list.add(i);
             }
         } catch (Exception e) {
@@ -61,7 +65,7 @@ public class IslandDao extends DBContext {
     }
 
     public Island getIslandById(int id) throws SQLException {
-        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE islandId = ?";
+        String sql = "SELECT a.islandId, a.islandName, a.countryId, a.shortDescription, a.longDescription, a.bestSeason, a.activities, a.imageUrl, a.location, a.approvalStatus, b.countryName FROM Islands a join Countries b on a.countryId = b.countryId WHERE a.islandId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -69,6 +73,7 @@ public class IslandDao extends DBContext {
                 Island i = new Island();
                 i.setIslandId(rs.getInt("islandId"));
                 i.setIslandName(rs.getString("islandName"));
+                i.setCountryId(rs.getInt("countryId"));
                 i.setCountryName(rs.getString("countryName"));
                 i.setShortDescription(rs.getString("shortDescription"));
                 i.setLongDescription(rs.getString("longDescription"));
@@ -76,6 +81,7 @@ public class IslandDao extends DBContext {
                 i.setActivities(rs.getString("activities"));
                 i.setImageUrl(rs.getString("imageUrl"));
                 i.setLocation(rs.getString("location"));
+                i.setApprovalStatus(rs.getString("approvalStatus"));
                 return i; // trả về Island
             }
         } catch (SQLException e) {
@@ -101,7 +107,7 @@ public class IslandDao extends DBContext {
 
     public List<Island> searchIslands(String country, String season) throws SQLException {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE 1=1";
+        String sql = "SELECT a.islandId, a.islandName, a.countryId, a.shortDescription, a.longDescription, a.bestSeason, a.activities, a.imageUrl, a.location, a.approvalStatus, b.countryName FROM Islands a join Countries b on a.countryId = b.countryId WHERE 1=1";
 
         if (country != null && !country.isEmpty()) {
             sql += " AND b.countryName LIKE ?";
@@ -121,7 +127,7 @@ public class IslandDao extends DBContext {
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new Island(
+                Island island = new Island(
                         rs.getInt("islandId"),
                         rs.getString("islandName"),
                         rs.getString("countryName"),
@@ -131,7 +137,10 @@ public class IslandDao extends DBContext {
                         rs.getString("activities"),
                         rs.getString("imageUrl"),
                         rs.getString("location")
-                ));
+                );
+                island.setCountryId(rs.getInt("countryId"));
+                island.setApprovalStatus(rs.getString("approvalStatus"));
+                list.add(island);
             }
         } catch (SQLException e) {
             throw new SQLException("Lỗi khi tìm kiếm đảo theo quốc gia hoặc mùa du lịch.", e);

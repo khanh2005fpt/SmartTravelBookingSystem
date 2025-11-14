@@ -6,7 +6,7 @@ package controller.account;
 
 import dao.CustomerDao;
 import model.User;
-import dao.userDao;
+import dao.UserDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,30 +16,28 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.CustomerContacts;
 import model.CustomerProfile;
-import model.EmailCustomer;
 import model.GoogleAccount;
 import model.Notification;
-import model.PhoneCustomer;
+import java.sql.SQLException;
 
 /**
  *
  * @author nqagh
  */
 @WebServlet(name = "loginServlet", urlPatterns = {"/login"})
-public class loginServlet extends HttpServlet {
+public class LoginServlet extends HttpServlet {
 
-    private userDao userDAO;
+    private UserDao userDAO;
     public CustomerDao customerDao;
-   
 
     @Override
     public void init() throws ServletException {
         try {
-          userDAO = userDao.INSTANCE;
-            customerDao = CustomerDao .INSTANCE;
-          
-            
+            userDAO = UserDao.INSTANCE;
+            customerDao = CustomerDao.INSTANCE;
+
             System.out.println("userDao initialized successfully in loginServlet");
         } catch (Exception e) {
             System.out.println("Error initializing userDao in loginServlet: " + e.getMessage());
@@ -87,70 +85,114 @@ public class loginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+         
         // get error khi user click huy trong login gg
         String error = request.getParameter("error");
+           String code = request.getParameter("code");
+           
+           if (code == null && error == null) {
+            request.getRequestDispatcher("/views/account/login.jsp").forward(request, response);
+              return;
+          }
+
+           
         if (error != null) {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
+    
+     
+        GoogleLogin gg = new GoogleLogin();
+        String accessToken = gg.getToken(code);
+        System.out.println(accessToken);
+        GoogleAccount acc = gg.getUserInfo(accessToken);
+        System.out.println(acc);
 
-//        String code = request.getParameter("code");
-////        GoogleLogin gg = new GoogleLogin();
-////        String accessToken = gg.getToken(code);
-////        System.out.println(accessToken);
-////        GoogleAccount acc = gg.getUserInfo(accessToken);
-////        System.out.println(acc);
-//
-//        //check tk nay da dky chua
-//        User existing = userDAO.getUserByEmail(acc.getEmail());
-//        if (existing != null) {
-//            // user ton tai -> login
-//            session.setAttribute("user", existing);
-//            session.setAttribute("loginSuccess", "oke");
-//
-//        // gui thong bang session den trang profile
-//            CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
-//            session.setAttribute("profile_customer", profile);
-//
-//
-//
-//            List<Notification> listNotification = customerDao.getNotificationByUser(existing.getUserId());
-//            List<EmailCustomer> emailList =customerDao.getEmailsByUserId(existing.getUserId());
-//            List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(existing.getUserId());
-//
-//
-//            session.setAttribute("listNotification", listNotification);
-//            session.setAttribute("emailList_Current", emailList);
-//            session.setAttribute("phoneList_Current", phoneList);
-//
-//
-//            response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-//            return;
-//        } else {
-//            // user chua co acc --> dky luon cho user
-//
-//            String randomPass = userDAO.generateRandomPassword(10);
-//            String fullName = acc.getFamily_name() + " " + acc.getGiven_name();
-//
-//            String result = userDAO.AutoSignupByGoogle(acc.getEmail(), randomPass, acc.getEmail(), fullName, null);
-//
-//            if (result.startsWith("Success")) {
-//                // sau khi add thi check user de login
-//                User newUser = userDAO.getUserByEmail(acc.getEmail());
-//                // List<PhoneCustomer> listPhone = phoneDAO.getPhoneCustomersByUserId(0);
-//                //login
-//                session.setAttribute("user", newUser);
-//                session.setAttribute("userId", newUser.getUserId());
-//
-//                session.setAttribute("loginSuccess", "oke");
-//                response.sendRedirect(request.getContextPath() + "/SearchIslandController");
-//            } else {
-//                session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
-//                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-//
-//            }
-//
-//        }
+        //check tk nay da dky chua
+        User existing = userDAO.getUserByEmail(acc.getEmail());
+        try {
+            if (existing != null) {
+                   if ("LOCKED".equalsIgnoreCase(existing.getStatus())) {
+        // nếu tài khoản bị khóa, gửi thông báo và redirect về login
+        session.setAttribute("errorMess", "Tài khoản của bạn đã bị khóa!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return; // quan trọng: dừng tiếp tục xử lý
+    }
+
+                
+                
+                // user ton tai -> login
+                session.setAttribute("user", existing);
+                session.setAttribute("loginSuccess", "oke");
+           
+                System.out.println("UserId: " + existing.getUserId());
+                // gui thong bang session den trang profile
+                CustomerProfile profile = customerDao.getProfileByUserId(existing.getUserId());
+     
+                session.setAttribute("profile_customer", profile);
+                List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(existing.getUserId());
+                List<CustomerContacts> phoneList = customerDao.getPhoneContactByUserId(existing.getUserId());
+
+                session.setAttribute("emailList_Current", emailList);
+                session.setAttribute("phoneList_Current", phoneList);
+
+               int roleId = existing != null ? existing.getRoleId() : existing.getRoleId();
+                    if (roleId == 1) {
+                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                    }else if(roleId == 2 ){
+                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                    }else if( roleId == 4){
+                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+                    }
+                     else if (roleId == 3) {
+                        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                    }
+                return;
+            } else {
+                // user chua co acc --> dky luon cho user
+
+                String randomPass = userDAO.generateRandomPassword(10);
+                String fullName = acc.getFamily_name() + " " + acc.getGiven_name();
+
+                String result = userDAO.AutoSignupByGoogle(acc.getEmail(), randomPass, acc.getEmail(), fullName, null);
+
+                if (result.startsWith("Success")) {
+                    // sau khi add thi check user de login
+                    User newUser = userDAO.getUserByEmail(acc.getEmail());
+
+                    //login
+                    session.setAttribute("user", newUser);
+                    session.setAttribute("loginSuccess", "oke");
+
+                    // redirect theo roleId
+                    int roleId = existing != null ? existing.getRoleId() : newUser.getRoleId();
+                   if (roleId == 1) {
+                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                    }else if(roleId == 2 ){
+                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                    }else if( roleId == 4){
+                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+                    }
+                     else if (roleId == 3) {
+                        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                    }
+                } else {
+                    session.setAttribute("errorMess", "Không thể tạo tài khoản bằng google");
+                    response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+
+                }
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi login or register bằng google. Vui lòng thử lại!");
+               response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        }
 
         //insertAccout , tao password ham random tu dong
     }
@@ -170,7 +212,6 @@ public class loginServlet extends HttpServlet {
         String passWord = request.getParameter("pass");
 
         HttpSession session = request.getSession();
-       
 
         // check null input
         if (userN.isEmpty() || userN == null || passWord.isEmpty() || passWord == null) {
@@ -178,45 +219,57 @@ public class loginServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
             return;
         }
-        
-          User user =userDAO.loginSystem(userN, passWord);
-        //check acc active and ton tai
-        String error = null;
-        if (user == null) {
-            error = "Tên đăng nhập hoặc mật khẩu không đúng!";
-        } else if ("Locked".equals(user.getStatus())) {
-            error = "Tài khoản của bạn đã bị khóa!";
-        }
-        // thong bao loi
-        if (error != null) {
-            session.setAttribute("errorMess", error);
-            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-            return;
-        }
+        try {
 
-        
-        //login thanh cong
-     
-        session.setAttribute("user", user);
-      
-        // gui thong bang session den trang profile
-        
-        CustomerProfile profile = customerDao.getProfileByUserId(user.getUserId());
+            User user = userDAO.loginSystem(userN, passWord);
+            //check acc active and ton tai
+            String error = null;
+            if (user == null) {
+                error = "Tên đăng nhập hoặc mật khẩu không đúng!";
+            } else if ("LOCKED".equals(user.getStatus())) {
+                error = "Tài khoản của bạn đã bị khóa!";
+            }
+            // thong bao loi
+            if (error != null) {
+                session.setAttribute("errorMess", error);
+                response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                return;
+            }
+
+            //login thanh cong
+            session.setAttribute("user", user);
+
+            // gui thong bang session den trang profile
+            CustomerProfile profile = customerDao.getProfileByUserId(user.getUserId());
             session.setAttribute("profile_customer", profile);
-         
-        
-        List<EmailCustomer> emailList = customerDao.getEmailsByUserId(user.getUserId());
-        List<PhoneCustomer> phoneList = customerDao.getPhoneCustomersByUserId(user.getUserId());
-        List<Notification> listNotification = customerDao.getNotificationByUser(user.getUserId());
 
-        session.setAttribute("listNotification", listNotification);
-        session.setAttribute("emailList_Current", emailList);
-        session.setAttribute("phoneList_Current", phoneList);
-  
+            List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(user.getUserId());
+            List<CustomerContacts> phoneList = customerDao.getPhoneContactByUserId(user.getUserId());
 
-        session.setAttribute("userId", user.getUserId());
-        session.setAttribute("loginSuccess", "oke");
-        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+            session.setAttribute("emailList_Current", emailList);
+            session.setAttribute("phoneList_Current", phoneList);
+
+            session.setAttribute("loginSuccess", "oke");
+
+            // redirect theo roleId
+            int roleId = user.getRoleId();
+                    if (roleId == 1) {
+                      response.sendRedirect(request.getContextPath() + "/admin/dashboard-user");
+                    }else if(roleId == 2 ){
+                        response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                    }else if( roleId == 4){
+                        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+                    }
+                     else if (roleId == 3) {
+                        response.sendRedirect(request.getContextPath() + "/SearchIslandController");
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+                    }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa or đặt lại email. Vui lòng thử lại!");
+            response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        }
 
     }
 

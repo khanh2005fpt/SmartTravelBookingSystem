@@ -28,3 +28,6 @@ nbproject/build-impl.xml~
 # Ignore uploaded files
 /UploadData/
 /out/
+builld/
+nbproject/
+.serena/

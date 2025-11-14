@@ -10,6 +10,7 @@
 <%@ page import="model.Booking" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="model.User" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -34,7 +35,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -78,8 +79,6 @@
         }
         
         .stat-card.pending .icon { color: #ffc107; }
-        .stat-card.confirmed .icon { color: #28a745; }
-        .stat-card.cancelled .icon { color: #dc3545; }
         .stat-card.completed .icon { color: #17a2b8; }
         .stat-card.total .icon { color: #6f42c1; }
         
@@ -107,6 +106,21 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             align-items: end;
+        }
+        .btn-searchBooking{
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
+                color: white;
+                border: none;
+                padding: 10px 25px;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                height: fit-content;
+        }
+        .btn-searchBooking:hover{
+             transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                color: white;
         }
         
         .form-group label {
@@ -218,6 +232,26 @@
         }
     </style>
 </head>
+
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -255,23 +289,13 @@
         <div class="stats-cards">
             <div class="stat-card pending">
                 <div class="icon"><i class="fa fa-clock"></i></div>
-                <div class="number">${pendingCount}</div>
-                <div class="label">Chờ xử lý</div>
-            </div>
-            <div class="stat-card confirmed">
-                <div class="icon"><i class="fa fa-check"></i></div>
-                <div class="number">${confirmedCount}</div>
-                <div class="label">Đã xác nhận</div>
+                <div class="number">${incompleteCount}</div>
+                <div class="label">Chưa hoàn thành</div>
             </div>
             <div class="stat-card completed">
                 <div class="icon"><i class="fa fa-flag-checkered"></i></div>
                 <div class="number">${completedCount}</div>
-                <div class="label">Hoàn thành</div>
-            </div>
-            <div class="stat-card cancelled">
-                <div class="icon"><i class="fa fa-times"></i></div>
-                <div class="number">${cancelledCount}</div>
-                <div class="label">Đã hủy</div>
+                <div class="label">Đã hoàn thành</div>
             </div>
             <div class="stat-card total">
                 <div class="icon"><i class="fa fa-list"></i></div>
@@ -296,10 +320,8 @@
                     <label for="status">Trạng thái</label>
                     <select class="form-control" id="status" name="status">
                         <option value="">Tất cả trạng thái</option>
-                        <option value="PENDING" ${searchStatus == 'PENDING' ? 'selected' : ''}>Chờ xử lý</option>
-                        <option value="CONFIRMED" ${searchStatus == 'CONFIRMED' ? 'selected' : ''}>Đã xác nhận</option>
-                        <option value="COMPLETED" ${searchStatus == 'COMPLETED' ? 'selected' : ''}>Hoàn thành</option>
-                        <option value="CANCELLED" ${searchStatus == 'CANCELLED' ? 'selected' : ''}>Đã hủy</option>
+                        <option value="INCOMPLETE" ${searchStatus == 'INCOMPLETE' ? 'selected' : ''}>Chưa hoàn thành</option>
+                        <option value="COMPLETED" ${searchStatus == 'COMPLETED' ? 'selected' : ''}>Đã hoàn thành</option>
                     </select>
                 </div>
                 
@@ -314,7 +336,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-searchBooking">
                         <i class="fa fa-search"></i> Tìm kiếm
                     </button>
                     <a href="${pageContext.request.contextPath}/staff/bookings" class="btn btn-secondary ml-2">
@@ -360,7 +382,7 @@
                                                 </c:when>
                                                 <c:when test="${not empty booking.customTourName}">
                                                     <span class="tour-name">${booking.customTourName}</span>
-                                                    <small class="text-muted d-block">Tour tùy chỉnh</small>
+                                                    <small class="text-muted d-block">Tour lẻ</small>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="text-muted">Không xác định</span>
@@ -380,23 +402,18 @@
                                         </td>
                                         <td>
                                             <strong class="text-success">
-                                                <fmt:formatNumber value="${booking.price}" type="currency" 
-                                                                currencySymbol="₫" groupingUsed="true" />
+                                                    <fmt:formatNumber value="${booking.totalPrice}" type="number" groupingUsed="true" /> VND /Khách
+                                           
                                             </strong>
+                                        
                                         </td>
                                         <td>
                                             <c:choose>
-                                                <c:when test="${booking.status == 'PENDING'}">
-                                                    <span class="status-badge status-pending">Chờ xử lý</span>
-                                                </c:when>
-                                                <c:when test="${booking.status == 'CONFIRMED'}">
-                                                    <span class="status-badge status-confirmed">Đã xác nhận</span>
+                                                <c:when test="${booking.status == 'PENDING' || booking.status == 'CONFIRMED'}">
+                                                    <span class="status-badge status-pending">Chưa hoàn thành</span>
                                                 </c:when>
                                                 <c:when test="${booking.status == 'COMPLETED'}">
-                                                    <span class="status-badge status-completed">Hoàn thành</span>
-                                                </c:when>
-                                                <c:when test="${booking.status == 'CANCELLED'}">
-                                                    <span class="status-badge status-cancelled">Đã hủy</span>
+                                                    <span class="status-badge status-completed">Đã hoàn thành</span>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="status-badge">${booking.status}</span>

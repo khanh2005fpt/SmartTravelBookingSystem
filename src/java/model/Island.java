@@ -12,6 +12,7 @@ public class Island {
 
      private int islandId;
     private String islandName;
+    private int countryId;
     private String countryName;
     private String shortDescription;
     private String longDescription;
@@ -19,6 +20,7 @@ public class Island {
     private String activities;
     private String imageUrl;
     private String location;
+    private String approvalStatus;
 
     public Island() {
     }
@@ -49,6 +51,14 @@ public class Island {
 
     public void setIslandName(String islandName) {
         this.islandName = islandName;
+    }
+
+    public int getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
     }
 
     public String getCountryName() {
@@ -107,9 +117,17 @@ public class Island {
         this.location = location;
     }
 
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+
     @Override
     public String toString() {
-        return "Island{" + "islandId=" + islandId + ", islandName=" + islandName + ", countryName=" + countryName + ", shortDescription=" + shortDescription + ", longDescription=" + longDescription + ", bestSeason=" + bestSeason + ", activities=" + activities + ", imageUrl=" + imageUrl + ", location=" + location + '}' + "\n";
+        return "Island{" + "islandId=" + islandId + ", islandName=" + islandName + ", countryName=" + countryName + ", shortDescription=" + shortDescription + ", longDescription=" + longDescription + ", bestSeason=" + bestSeason + ", activities=" + activities + ", imageUrl=" + imageUrl + ", location=" + location + ", approvalStatus=" + approvalStatus + '}' + "\n";
     }
     
     

@@ -10,7 +10,7 @@
 <%@ page import="model.Island" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -34,7 +34,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -107,7 +107,7 @@
             background: #f8f9fa;
             padding: 20px;
             border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #00ACD4;
         }
         
         .info-label {
@@ -160,9 +160,18 @@
             min-width: 140px;
             text-align: center;
         }
+        .btn-outline-addNew{
+          color: #00ACD4;
+    border: 2px solid #00ACD4;
+    background: transparent;  
+        }
+        .btn-outline-addNew:hover{
+          background: #00ACD4;
+    color: white;;  
+        }
         
         .btn-primary-action {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
         }
         
@@ -231,7 +240,7 @@
         }
         
         .breadcrumb-item a {
-            color: #667eea;
+            color: #00ACD4;
             text-decoration: none;
         }
         
@@ -331,6 +340,25 @@
         }
     </style>
 </head>
+         <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -348,7 +376,7 @@
         <nav class="breadcrumb-nav">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="${pageContext.request.contextPath}/staff/dashboard">
+                    <a href="${pageContext.request.contextPath}/views/staff/index.jsp">
                         <i class="fa fa-home"></i> Dashboard
                     </a>
                 </li>
@@ -472,41 +500,39 @@
                             
                             <c:choose>
                                 <c:when test="${not empty currentServices}">
+                                    <!-- Danh sách dịch vụ -->
                                     <div class="services-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
                                         <c:forEach var="service" items="${currentServices}">
-                                            <div class="service-card" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; transition: all 0.3s ease;">
-                                                <div class="service-header" style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
-                                                    <div class="service-type" style="background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: 600; text-transform: uppercase;">
-                                                        ${service.serviceType}
+                                            <c:if test="${service.serviceType ne 'AIRLINE'}">
+                                                <div class="service-card" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; transition: all 0.3s ease;">
+                                                    <div class="service-header" style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
+                                                        <div class="service-type" style="background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: 600; text-transform: uppercase;">
+                                                            ${service.serviceType}
+                                                        </div>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h5 style="margin: 0 0 10px 0; color: #333; font-weight: 600;">
+                                                            ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
+                                                        </h5>
+                                                        <c:if test="${not empty service.serviceDescription}">
+                                                            <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em; line-height: 1.4;">
+                                                                ${service.serviceDescription}
+                                                            </p>
+                                                        </c:if>
+                                                        <c:if test="${not empty service.servicePrice}">
+                                                            <div class="service-price" style="color: #28a745; font-weight: 600; font-size: 1.1em;">
+                                                                <fmt:formatNumber value="${service.servicePrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                                            </div>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="service-actions" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                                                        <small class="text-muted">
+                                                            <i class="fa fa-calendar"></i>
+                                                            Thêm vào: <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                                        </small>
                                                     </div>
                                                 </div>
-                                                
-                                                <div class="service-info">
-                                                    <h5 style="margin: 0 0 10px 0; color: #333; font-weight: 600;">
-                                                        ${not empty service.serviceName ? service.serviceName : 'Dịch vụ ID: '.concat(service.serviceId)}
-                                                    </h5>
-                                                    
-                                                    <c:if test="${not empty service.serviceDescription}">
-                                                        <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em; line-height: 1.4;">
-                                                            ${service.serviceDescription}
-                                                        </p>
-                                                    </c:if>
-                                                    
-                                                    <c:if test="${not empty service.servicePrice}">
-                                                        <div class="service-price" style="color: #28a745; font-weight: 600; font-size: 1.1em;">
-                                                            <fmt:formatNumber value="${service.servicePrice}" type="currency" 
-                                                                            currencySymbol="₫" groupingUsed="true"/>
-                                                        </div>
-                                                    </c:if>
-                                                </div>
-                                                
-                                                <div class="service-actions" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-                                                    <small class="text-muted">
-                                                        <i class="fa fa-calendar"></i> 
-                                                        Thêm vào: <fmt:formatDate value="${service.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
-                                                    </small>
-                                                </div>
-                                            </div>
+                                            </c:if>
                                         </c:forEach>
                                     </div>
                                 </c:when>
@@ -516,7 +542,7 @@
                                         <i class="fa fa-cogs" style="font-size: 3em; margin-bottom: 15px; opacity: 0.5;"></i>
                                         <p style="margin: 0; font-style: italic;">Chưa có dịch vụ nào được thêm vào tour này</p>
                                         <a href="${pageContext.request.contextPath}/staff/tours?action=manage-services&tourId=${tour.tourId}" 
-                                           class="btn btn-outline-primary mt-3">
+                                           class="btn btn-outline-addNew mt-3">
                                             <i class="fa fa-plus"></i> Thêm dịch vụ đầu tiên
                                         </a>
                                     </div>

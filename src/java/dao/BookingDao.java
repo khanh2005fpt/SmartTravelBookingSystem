@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
-
+import java.time.LocalDate;
 import java.util.Date;
 import utils.DBContext;
 import java.sql.PreparedStatement;
@@ -12,14 +12,20 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
+import java.time.LocalDateTime;
 import model.Booking;
 import utils.DBContext;
 import java.sql.*;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import model.BookingDetailItem;
+import model.BookingListItem;
+import model.BookingStatus;
 
 import model.Payment;
+import model.Bill;
+import model.HistoryBooking;
 
 /**
  *
@@ -27,45 +33,69 @@ import model.Payment;
  */
 public class BookingDao extends DBContext {
 
+    public static final int PAGE_SIZE = 10;
+
     public static BookingDao INSTANCE = new BookingDao();
 
-    public int createBooking(Booking booking) throws SQLException {
-        String sql = "INSERT INTO Bookings ( customerId, tourId, customTourId, departureDate, endDate, adultQuantity, childQuantity, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+     public int createBooking(Booking booking) throws SQLException {
+        String sql = "INSERT INTO Bookings (customerId, tourId, customTourId, departureDate, endDate, adultQuantity, childQuantity, status, totalPrice) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, booking.getCustomerId());
-            ps.setInt(2, booking.getTourId());
-            ps.setInt(3, booking.getCustomTourId());
+
+            // Cho phép tourId hoặc customTourId (tùy loại tour)
+            if (booking.getTourId() != null) {
+                ps.setInt(2, booking.getTourId());
+            } else {
+                ps.setNull(2, java.sql.Types.INTEGER);
+            }
+
+            if (booking.getCustomTourId() != null) {
+                ps.setInt(3, booking.getCustomTourId());
+            } else {
+                ps.setNull(3, java.sql.Types.INTEGER);
+            }
+
             ps.setDate(4, new java.sql.Date(booking.getDepartureDate().getTime()));
-            ps.setDate(5, booking.getEndDate() != null ? new java.sql.Date(booking.getEndDate().getTime()) : null);
+
+            if (booking.getEndDate() != null) {
+                ps.setDate(5, new java.sql.Date(booking.getEndDate().getTime()));
+            } else {
+                ps.setNull(5, java.sql.Types.DATE);
+            }
+
             ps.setInt(6, booking.getAdultQuantity());
             ps.setInt(7, booking.getChildQuantity());
             ps.setString(8, booking.getStatus());
+            ps.setDouble(9, booking.getTotalPrice());
 
-            ps.executeUpdate();
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                int paymentId = rs.getInt(1);
-                //payment.setPaymentId(paymentId);
-                return paymentId;
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("❌ Tạo booking thất bại.");
             }
-        } catch (Exception e) {
-            System.out.println(e);
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int bookingId = rs.getInt(1);
+                    booking.setBookingId(bookingId);
+                    return bookingId;
+                } else {
+                    throw new SQLException("❌ Tạo booking thất bại — không lấy được ID vừa tạo.");
+                }
+            }
         }
-        return 0;
     }
 
     /**
      * Get all bookings with customer and tour information for staff view
      */
+   
     public List<Booking> getAllBookings() {
         List<Booking> bookings = new ArrayList<>();
         String sql = """
-            SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
+            SELECT TOP 10
+                b.*,
                 u.fullName as customerName,
                 t.tourName,
                 ct.tourName as customTourName
@@ -89,16 +119,13 @@ public class BookingDao extends DBContext {
 
         return bookings;
     }
-
     /**
      * Get booking by ID with detailed information
      */
-    public Booking getBookingById(int bookingId) {
+    public  Booking getBookingById(int bookingId) {
         String sql = """
             SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
+                b.*,
                 u.fullName as customerName, u.email, u.phone,
                 t.tourName, t.description as tourDescription,
                 ct.tourName as customTourName, NULL as customTourDescription
@@ -129,10 +156,8 @@ public class BookingDao extends DBContext {
     public List<Booking> searchBookings(String customerName, String status, String dateFrom, String dateTo) {
         List<Booking> bookings = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
-            SELECT 
-                b.bookingId, b.profileId, b.customerId, b.tourId, b.customTourId,
-                b.price, b.departureDate, b.endDate, b.adultQuantity, b.childQuantity,
-                b.status, b.bookingDate,
+            SELECT TOP 10
+                b.*,
                 u.fullName as customerName,
                 t.tourName,
                 ct.tourName as customTourName
@@ -151,8 +176,22 @@ public class BookingDao extends DBContext {
         }
 
         if (status != null && !status.trim().isEmpty()) {
-            sql.append(" AND b.status = ?");
-            parameters.add(status);
+            // Handle multiple statuses separated by comma (e.g., "PENDING,CONFIRMED")
+            if (status.contains(",")) {
+                String[] statuses = status.split(",");
+                sql.append(" AND b.status IN (");
+                for (int i = 0; i < statuses.length; i++) {
+                    if (i > 0) {
+                        sql.append(",");
+                    }
+                    sql.append("?");
+                    parameters.add(statuses[i].trim());
+                }
+                sql.append(")");
+            } else {
+                sql.append(" AND b.status = ?");
+                parameters.add(status);
+            }
         }
 
         if (dateFrom != null && !dateFrom.trim().isEmpty()) {
@@ -203,6 +242,109 @@ public class BookingDao extends DBContext {
         return false;
     }
 
+    public void createHistoryBooking(HistoryBooking hb) throws SQLException {
+        String sql = "INSERT INTO HistoryBooking (paymentId, accountUserId, customerName, "
+                + "customerEmail, customerPhone, tourStatus, createdAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, hb.getPaymentId());
+
+            if (hb.getAccountUserId() != null) {
+                ps.setInt(2, hb.getAccountUserId());
+            } else {
+                ps.setNull(2, java.sql.Types.INTEGER);
+            }
+
+            ps.setString(3, hb.getCustomerName());
+            ps.setString(4, hb.getCustomerEmail());
+            ps.setString(5, hb.getCustomerPhone());
+            ps.setString(6, "INCOMPLETE");
+            ps.setTimestamp(7, hb.getCreatedAt());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi thêm lịch sử paymentId = " + hb.getPaymentId(), e);
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            // 1. Tạo DAO (đảm bảo trong class này có connection hợp lệ)
+           BookingDao bookingDao = new BookingDao();
+                // 2. Khởi tạo DAO
+            Booking b = bookingDao.getBookingById(33);
+
+            // 4. In kết quả
+            if (b != null) {
+                System.out.println("Booking found:");
+                System.out.println("ID: " + b.getBookingId());
+                System.out.println("Customer: " + b.getCustomerName() );
+                System.out.println("Tour: " + b.getTourName() + " / Custom Tour: " + b.getCustomTourName());
+                System.out.println("Departure: " + b.getDepartureDate() + ", End: " + b.getEndDate());
+                System.out.println("Adults: " + b.getAdultQuantity() + ", Children: " + b.getChildQuantity());
+                System.out.println("Status: " + b.getStatus() + ", Total: " + b.getTotalPrice());
+            } else {
+                System.out.println("Booking with ID " + b + " not found.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Bill getBillByHistoryBooking(int paymentId) throws SQLException {
+        String sql = "SELECT [hb].[paymentId], [hb].[customerName], [hb].[customerPhone], [hb].[createdAt], "
+                + "COALESCE([t].[tourName], [ct].[tourName]) AS tourNamePayment, [p].[amount], [p].[status] AS paymentStatus "
+                + "FROM [HistoryBooking] hb "
+                + "JOIN [Payments] p ON [hb].[paymentId] = [p].[paymentId] "
+                + "JOIN [Bookings] b ON [p].[bookingId] = [b].[bookingId] "
+                + "LEFT JOIN [Tours] t ON [b].[tourId] = [t].[tourId] "
+                + "LEFT JOIN [CustomTours] ct ON [b].[customTourId] = [ct].[customTourId] "
+                + "WHERE [hb].[paymentId] = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, paymentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Bill bill = new Bill();
+                    bill.setPaymentId(rs.getInt("paymentId"));
+                    bill.setFullname(rs.getString("customerName"));
+                    bill.setPhone(rs.getString("customerPhone"));
+                    bill.setCreatedAt(rs.getTimestamp("createdAt"));
+                    bill.setTourName(rs.getString("tourNamePayment"));
+                    bill.setAmount(rs.getLong("amount"));
+                    bill.setStatus(rs.getString("paymentStatus"));
+                    return bill;
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Lỗi khi lấy thông tin bill paymentId = " + paymentId, e);
+        }
+        return null;
+    }
+
+    //Tao thanh toan cho booking
+    public int createPayment(Payment payment) throws SQLException {
+        String sql = "INSERT INTO Payments (bookingId, amount, status) OUTPUT INSERTED.paymentId VALUES (?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, payment.getBookingId());
+            ps.setDouble(2, payment.getAmount());
+            ps.setString(3, payment.getStatus());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int paymentId = rs.getInt(1);
+                payment.setPaymentId(paymentId);
+                return paymentId;
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
+
     /**
      * Get booking statistics for dashboard
      */
@@ -239,6 +381,7 @@ public class BookingDao extends DBContext {
         booking.setAdultQuantity(rs.getInt("adultQuantity"));
         booking.setChildQuantity(rs.getInt("childQuantity"));
         booking.setStatus(rs.getString("status"));
+        booking.setTotalPrice(rs.getInt("totalPrice"));
         booking.setBookingDate(rs.getTimestamp("bookingDate"));
         booking.setCustomerName(rs.getString("customerName"));
         booking.setTourName(rs.getString("tourName"));
@@ -259,32 +402,371 @@ public class BookingDao extends DBContext {
         }
     }
 
-    public static void main(String[] args) {
-        BookingDao bookingDao = new BookingDao();
+    public List<BookingListItem> searchByStatus(String status) throws SQLException {
+        String sql = """
+        SELECT 
+            b.bookingId,
+            u.fullName AS customerName,
+            t.tourName AS services,
+            b.totalPrice AS price,
+            b.status,
+            b.bookingDate,
+            b.totalPrice AS totalAmount
+        FROM Bookings b
+        LEFT JOIN Users u ON b.customerId = u.userId
+        LEFT JOIN Tours t ON b.tourId = t.tourId
+        WHERE b.status = ?
+        ORDER BY b.bookingDate DESC;
+    """;
 
-        // Tạo đối tượng Booking mẫu
-        Booking booking = new Booking();
+        List<BookingListItem> list = new ArrayList<>();
 
-        // **Quan trọng:** customerId phải tồn tại trong bảng Users
-        booking.setCustomerId(5); // Giả sử userId 1 có trong Users
-        try {
-            // Chuyển đổi string thành java.util.Date
-            Date departureDate = new SimpleDateFormat("yyyy-MM-dd").parse("2025-10-25");
-            booking.setDepartureDate(departureDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BookingListItem it = new BookingListItem();
+
+                    it.setBookingId(rs.getInt("bookingId"));
+                    it.setProfileName(null); // Không có profileName trong DB
+                    it.setCustomerName(rs.getString("customerName"));
+
+                    int p = rs.getInt("totalPrice");
+                    it.setPrice(rs.wasNull() ? null : p);
+
+                    String st = rs.getString("status");
+                    it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
+
+                    Timestamp ts = rs.getTimestamp("bookingDate");
+                    it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
+
+                    it.setTotalAmount(rs.getBigDecimal("totalAmount"));
+                    it.setServices(rs.getString("services")); // tourName
+
+                    list.add(it);
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<BookingListItem> searchByCustomerName(String keyword) throws SQLException {
+        String sql = """
+        SELECT 
+            b.bookingId,
+            u.fullName AS customerName,
+            t.tourName AS services,
+            b.totalPrice AS price,
+            b.status,
+            b.bookingDate,
+            b.totalPrice AS totalAmount
+        FROM Bookings b
+        LEFT JOIN Users u ON b.customerId = u.userId
+        LEFT JOIN Tours t ON b.tourId = t.tourId
+        WHERE u.fullName LIKE ?
+        ORDER BY b.bookingDate DESC;
+    """;
+
+        List<BookingListItem> list = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BookingListItem it = new BookingListItem();
+
+                    it.setBookingId(rs.getInt("bookingId"));
+                    it.setProfileName(null);
+                    it.setCustomerName(rs.getString("customerName"));
+
+                    int p = rs.getInt("price");
+                    it.setPrice(rs.wasNull() ? null : p);
+
+                    String st = rs.getString("status");
+                    it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
+
+                    Timestamp ts = rs.getTimestamp("bookingDate");
+                    it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
+
+                    it.setTotalAmount(rs.getBigDecimal("totalAmount"));
+                    it.setServices(rs.getString("services"));
+
+                    list.add(it);
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<BookingListItem> getAll(int page) throws SQLException {
+        if (page < 1) {
+            page = 1;
+        }
+        int offset = (page - 1) * PAGE_SIZE;
+
+        String sql = """
+        WITH agg AS (
+            SELECT 
+                b.bookingId,
+                u.fullName AS customerName,
+                t.tourName AS services,
+                b.status,
+                b.totalPrice AS price,
+                b.bookingDate,
+                b.totalPrice AS totalAmount
+            FROM Bookings b
+            LEFT JOIN Users u ON b.customerId = u.userId
+            LEFT JOIN Tours t ON b.tourId = t.tourId
+        )
+        SELECT 
+            bookingId,
+            customerName,
+            services,
+            price,
+            status,
+            bookingDate,
+            totalAmount
+        FROM agg
+        ORDER BY bookingDate DESC
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY;
+    """;
+
+        List<BookingListItem> list = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, PAGE_SIZE);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BookingListItem it = new BookingListItem();
+
+                    it.setBookingId(rs.getInt("bookingId"));
+                    it.setProfileName(null); // DB không có cột profileName, giữ null
+                    it.setCustomerName(rs.getString("customerName"));
+
+                    int p = rs.getInt("price");
+                    it.setPrice(rs.wasNull() ? null : p);
+
+                    String st = rs.getString("status");
+                    it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
+
+                    Timestamp ts = rs.getTimestamp("bookingDate");
+                    it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
+
+                    it.setTotalAmount(rs.getBigDecimal("totalAmount"));
+                    it.setServices(rs.getString("services")); // tourName hiển thị ở đây
+
+                    list.add(it);
+                }
+            }
         }
 
-        booking.setAdultQuantity(2);
-        booking.setChildQuantity(1);
-        booking.setStatus("PENDING");
+        return list;
+    }
 
-        try {
-            bookingDao.createBooking(booking);
-            System.out.println("Tạo booking thành công. Booking ID: " + booking.getBookingId());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Tạo booking thất bại: " + e.getMessage());
+    public int getTotalPages() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Bookings";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            int total = 0;
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+            return (total + PAGE_SIZE - 1) / PAGE_SIZE;
         }
     }
+
+    public List<String> getAllTours() throws SQLException {
+        List<String> tours = new ArrayList<>();
+        String sql = "SELECT tourName FROM Tours ORDER BY tourName ASC";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                tours.add(rs.getString("tourName"));
+            }
+        }
+        return tours;
+    }
+
+    public List<BookingListItem> searchByTourAndSort(String tour, String sortOrder) throws SQLException {
+        String orderBy = "ASC".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
+
+        String sql = """
+        SELECT 
+            b.bookingId,
+            u.fullName AS customerName,
+            t.tourName AS services,
+            b.totalPrice AS price,
+            b.status,
+            b.bookingDate,
+            b.totalPrice AS totalAmount
+        FROM Bookings b
+        LEFT JOIN Users u ON b.customerId = u.userId
+        LEFT JOIN Tours t ON b.tourId = t.tourId
+        WHERE (? IS NULL OR t.tourName = ?)
+        ORDER BY b.totalPrice """ + orderBy;
+
+        List<BookingListItem> list = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, tour == null || tour.isEmpty() ? null : tour);
+            ps.setString(2, tour == null || tour.isEmpty() ? null : tour);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BookingListItem it = new BookingListItem();
+                    it.setBookingId(rs.getInt("bookingId"));
+                    it.setProfileName(null);
+                    it.setCustomerName(rs.getString("customerName"));
+                    int p = rs.getInt("price");
+                    it.setPrice(rs.wasNull() ? null : p);
+                    String st = rs.getString("status");
+                    it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
+                    Timestamp ts = rs.getTimestamp("bookingDate");
+                    it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
+                    it.setTotalAmount(rs.getBigDecimal("totalAmount"));
+                    it.setServices(rs.getString("services"));
+                    list.add(it);
+                }
+            }
+        }
+        return list;
+    }
+
+    public BookingListItem getBookingById2(int id) throws SQLException {
+        String sql = """
+        SELECT 
+            b.bookingId,
+            u.fullName AS customerName,
+            u.email,
+            u.phone,
+            t.tourName AS services,
+            t.price AS tourPrice,
+            b.totalPrice AS price,
+            b.status,
+            b.bookingDate,
+            b.totalPrice AS totalAmount
+        FROM Bookings b
+        LEFT JOIN Users u ON b.customerId = u.userId
+        LEFT JOIN Tours t ON b.tourId = t.tourId
+        WHERE b.bookingId = ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    BookingListItem it = new BookingListItem();
+                    it.setBookingId(rs.getInt("bookingId"));
+                    it.setCustomerName(rs.getString("customerName"));
+                    it.setServices(rs.getString("services"));
+                    it.setPrice(rs.getInt("price"));
+                    String st = rs.getString("status");
+                    it.setStatus(st == null ? null : BookingStatus.valueOf(st.toUpperCase()));
+
+                    Timestamp ts = rs.getTimestamp("bookingDate");
+                    it.setBookingDate(ts == null ? null : ts.toLocalDateTime());
+
+                    it.setTotalAmount(rs.getBigDecimal("totalAmount"));
+                    return it;
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<BookingDetailItem> getDetailsByBookingId(int bookingId) throws SQLException {
+        String sql
+                = "SELECT d.*, "
+                + "       COALESCE(h.hotelName, f.flightNumber, v.modelName, t.tourName) AS serviceName "
+                + "FROM BookingDetails d "
+                + "LEFT JOIN Hotels h ON d.hotelId = h.hotelId "
+                + "LEFT JOIN Flights f ON d.flightId = f.flightId "
+                + "LEFT JOIN IslandVehicles v ON d.vehicleId = v.vehicleId "
+                + "LEFT JOIN Tours t ON d.tourId = t.tourId "
+                + "WHERE d.bookingId = ?";
+
+        List<BookingDetailItem> list = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                BookingDetailItem it = new BookingDetailItem();
+                it.setBookingDetailId(rs.getInt("bookingDetailId"));
+                it.setBookingId(rs.getInt("bookingId"));
+                it.setAdultQuantity(rs.getInt("adultQuantity"));
+                it.setChildQuantity(rs.getInt("childQuantity"));
+                it.setDepartureDate(rs.getDate("departureDate"));
+                it.setUnitPrice(rs.getInt("unitPrice"));
+                it.setTotalPrice(rs.getDouble("totalPrice"));
+                it.setServiceName(rs.getString("serviceName"));
+                list.add(it);
+            }
+        }
+        return list;
+        
+        // get total booking
+        
+        
+    }
+    public int getTotalBooking() throws  SQLException{
+    String sql = "SELECT COUNT(*) AS total FROM Bookings";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("total");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
 }
+    
+    // get revenue 
+    public long getTotalRevenue() throws SQLException{
+    String sql = "SELECT SUM(amount) AS totalRevenue FROM Payments WHERE status = 'SUCCESS'";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getLong("totalRevenue");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+    // lay 5 historyBookings
+    
+    public List<HistoryBooking> getTop5HistoryByUser(int accountUserId) throws SQLException {
+    List<HistoryBooking> list = new ArrayList<>();
+    String sql = "SELECT TOP 5 * FROM HistoryBooking WHERE accountUserId = ? ORDER BY createdAt DESC";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, accountUserId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                HistoryBooking hb = new HistoryBooking();
+                hb.setHistoryId(rs.getInt("historyId"));
+                hb.setPaymentId(rs.getInt("paymentId"));
+
+                int userId = rs.getInt("accountUserId");
+                if (rs.wasNull()) hb.setAccountUserId(null);
+                else hb.setAccountUserId(userId);
+
+                hb.setCustomerName(rs.getString("customerName"));
+                hb.setCustomerEmail(rs.getString("customerEmail"));
+                hb.setCustomerPhone(rs.getString("customerPhone"));
+                hb.setCreatedAt(rs.getTimestamp("createdAt"));
+                hb.setTourStatus(rs.getString("tourStatus"));
+
+                list.add(hb);
+            }
+        }
+    }
+    return list;
+}
+
+    
+}
+

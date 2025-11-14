@@ -16,6 +16,7 @@ public class IslandVehicle {
     private double pricePerDay;
     private int capacity;
     private int availability;
+    private int totalQuantity; // Tổng số lượng phương tiện
     
     // Additional properties for JSP compatibility
     private String vehicleImageUrl;
@@ -31,7 +32,7 @@ public class IslandVehicle {
     public IslandVehicle() {
     }
 
-    public IslandVehicle(int vehicleId, int islandId, String vehicleType, String modelName, double pricePerDay, int capacity, int availability) {
+    public IslandVehicle(int vehicleId, int islandId, String vehicleType, String modelName, double pricePerDay, int capacity, int availability, String vehicleImageUrl, int totalQuantity) {
         this.vehicleId = vehicleId;
         this.islandId = islandId;
         this.vehicleType = vehicleType;
@@ -39,6 +40,8 @@ public class IslandVehicle {
         this.pricePerDay = pricePerDay;
         this.capacity = capacity;
         this.availability = availability;
+        this.vehicleImageUrl = vehicleImageUrl;
+        this.totalQuantity = totalQuantity;
     }
     
     public IslandVehicle(int vehicleId, int islandId, String vehicleType, String modelName, double pricePerDay, int capacity, int availability,
@@ -114,6 +117,14 @@ public class IslandVehicle {
 
     public void setAvailability(int availability) {
         this.availability = availability;
+    }
+
+    public int getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(int totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 
     public String getVehicleImageUrl() {
@@ -198,6 +209,7 @@ public class IslandVehicle {
                 ", pricePerDay=" + pricePerDay +
                 ", capacity=" + capacity +
                 ", availability=" + availability +
+                ", totalQuantity=" + totalQuantity +
                 ", vehicleImageUrl='" + vehicleImageUrl + '\'' +
                 ", vehicleName='" + vehicleName + '\'' +
                 ", brand='" + brand + '\'' +

@@ -12,8 +12,7 @@ import java.time.LocalTime;
  */
 public class FlightSchedule {
     private int scheduleId;
-    private Flight flight;               
-    private String planeModel;          
+    private Flight flight;                      
     private String departureAirport;    
     private String arrivalAirport;      
     private LocalTime departureTime;    
@@ -24,6 +23,7 @@ public class FlightSchedule {
     private String transitDuration; 
     private String notes;  
     // k phai thuoc tinh db , ma la de hien thi ui thoi 
+    private String planeModel; 
     private int seatCapacity;
     private String cabinBaggage;
     private String seatPitch;    

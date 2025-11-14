@@ -13,16 +13,6 @@
     <body>
         <!-- Header -->
         <%@ include file="/views/common/navbar.jsp" %>
-        <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
-            <div class="overlay"></div>
-            <div class="container">
-                <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-center">
-                    <div class="col-md-9 ftco-animate pb-5 text-center">
-                        <h1 class="mb-0 bread">Chi tiết đảo</h1>
-                    </div>
-                </div>
-            </div>
-        </section>
         <!-- Main Content -->
         <main class="container" style="max-width: 1400px;">
             <!-- Island Overview -->
@@ -107,16 +97,21 @@
                                                     ${tour.description}
                                                 </p>
                                                 <div class="mt-auto">
-                                                    <p class="text-primary fw-bold fs-5 mb-2 text-end">
-                                                        Giá tour: 
-                                                        <fmt:setLocale value="vi_VN" />
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <p class="mb-2" style="margin-left: 2px;">
 
-                                                        <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
-                                                    </p>
-                                                    <a href="TourDetailController?tourid=${tour.tourId}" 
-                                                       class="btn btn-primary w-100 rounded-pill">
-                                                        Xem chi tiết
-                                                    </a>
+                                                            <i class="bi bi-heart heart" data-tour-id="${tour.tourId}" style="font-size:1.4rem;"></i>
+                                                        </p>
+                                                        <p class="text-primary fw-bold fs-5 mb-2 text-end">
+                                                            Giá tour: 
+                                                            <fmt:setLocale value="vi_VN" />
+
+                                                            <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
+                                                        </p>
+                                                    </div>
+                                                    <form action="TourDetailController" method="post" class="search-property-1">
+                                                        <button type="submit" class="btn btn-primary w-100 rounded-pill" name="tourid" value="${tour.tourId}">Xem chi tiết</button>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -126,10 +121,6 @@
                         </c:choose>
                     </div>
                 </section>
-
-
-
-
 
                 <!-- Tour riêng le Section -->
                 <form action="CreateCustomTourController" method="post" id="customTourForm">
@@ -141,7 +132,7 @@
                     </c:if>
 
                     <input type="hidden" name="islandId" value="${island.islandId}">
-
+                    <input type="hidden" name="flightType" value="${flightType}">
                     <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
                     <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
                         🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
@@ -150,20 +141,20 @@
                     <!------- Flights Section -------------------------------------------------------------->
 
                     <section id="flightSection"class="mb-5"  >
-                        <h2 class="h2 text-center text-primary fw-bold mb-4">
-                            Chuyến bay du lịch
+                        <h2 class="h2 text-center text-primary fw-bold mb-5">
+                            Chuyến bay du lịch  
                         </h2>
 
-
-
                         <!-- NGÀY BẮT ĐẦU & KẾT THÚC -->
-                        <div class="d-flex justify-content-center gap-4 mb-3 flex-wrap">
+                        <div class="d-flex justify-content-center gap-4 mb-3 mt-3 flex-wrap">
                             <div class="text-center">
 
                                 <div class="input-group " style="max-width: 180px;">
                                     <div>
-                                        <label for="startDateFlight" class="form-label fw-semibold">Ngày bắt đầu</label>
-                                        <input type="date" class="form-control rounded-pill text-center" id="startDateFlight" name="startDateFlight" >
+                                        <label for="startDateFlight" class="form-label fw-semibold">Ngày khởi hành</label>
+                                        <input type="date" class="form-control rounded-pill text-center"
+                                               id="startDateFlight" name="startDateFlight"
+                                               value="${param.startDateFlight}">                                    
                                     </div>
                                 </div>
                             </div>
@@ -171,8 +162,10 @@
 
                                 <div class="input-group" style="max-width: 180px;">
                                     <div>
-                                        <label for="endDateFlight" class="form-label fw-semibold">Ngày kết thúc</label>
-                                        <input type="date" class="form-control rounded-pill text-center" id="endDateFlight" name="endDateFlight">
+                                        <label for="endDateFlight" class="form-label fw-semibold">Ngày trở về</label>
+                                        <input type="date" class="form-control rounded-pill text-center"
+                                               id="endDateFlight" name="endDateFlight"
+                                               value="${param.endDateFlight}">                                   
                                     </div>
                                 </div>
                             </div>
@@ -207,7 +200,7 @@
                                     </a>
                                     <a href="${pageContext.request.contextPath}/FlightSearchController?islandId=<c:out value='${island.islandId}'/>&flightType=khuhoi"
                                        class="btn btn-outline-primary rounded-pill px-4 py-3 " id="roundTripLink">
-                                        <i class="bi bi-arrow-repeat me-1"></i> <strong>Khứ hồi</strong>
+                                        <i class="bi bi-arrow-repeat me-1"></i> Khứ hồi</strong>
                                     </a>
                                 </div>
                             </div>
@@ -228,7 +221,7 @@
                             <c:choose>
                                 <c:when test="${not empty flights}">
                                     <c:forEach var="f" items="${flights}">
-                                   
+
                                         <div class="col-lg-4 col-md-6 mb-4 flight-item">
                                             <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
                                                  data-flightId="${f.flightId}">
@@ -266,10 +259,17 @@
                                                             <span class="badge bg-success text-white px-2 py-1 fs-6">${f.flightClass}</span>
                                                         </p>
                                                     </div>
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <p class="mb-2" style="margin-left: 2px;">
 
-                                                    <p class="fw-bold text-danger fs-5 text-end mt-3">
-                                                        <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
-                                                    </p>
+                                                            <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                                        </p>
+                                                        <p class="fw-bold text-danger fs-5 text-end">
+                                                            <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
+                                                        </p>
+                                                    </div>
+
+
 
                                                     <div class="mt-0 d-flex gap-2">
                                                         <!-- NÚT CHỌN -->
@@ -284,12 +284,13 @@
                                         </div>
                                     </c:forEach>
                                 </c:when>
+
                                 <c:otherwise>
                                     <div class="col-12 text-center text-muted py-5">
 
                                         <i class="bi bi-airplane fs-1 d-block mb-3"></i>
                                         <i class="bi bi-search me-2"></i>
-                                        Vui lòng hãy nhập  <strong>ngày khởi hành</strong> &  <strong> ngày trở về</strong> để tìm chuyến bay
+                                        Không có <strong>chuyến bay</strong> nào mà bạn vừa tìm kiếm
 
                                     </div>
 
@@ -331,11 +332,20 @@
                                                         <span class="text-muted">(${hotel.rating})</span>
                                                     </p>
                                                     <div class="mt-auto">
-                                                        <p class="text-danger fw-bold fs-5 mb-2 text-end">
-                                                            <fmt:setLocale value="vi_VN" />
-                                                            <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/> VND
-                                                            <span class="text-muted fs-6">/đêm</span>
-                                                        </p>
+
+                                                        <div class="d-flex justify-content-between mt-3">
+                                                            <p class="mb-2" style="margin-left: 2px;">
+
+                                                                <i class="bi bi-heart heart" data-hotel-id="${hotel.hotelId}" style="font-size:1.4rem;"></i>
+                                                            </p>
+                                                            <p class="text-danger fw-bold fs-5 mb-2 text-end">
+                                                                <fmt:setLocale value="vi_VN" />
+                                                                <fmt:formatNumber value="${hotel.pricePerNight}" type="number" groupingUsed="true"/> VND
+                                                                <span class="text-muted fs-6">/đêm</span>
+                                                            </p>
+                                                        </div>
+
+
                                                         <div class="mt-auto d-flex gap-2">
                                                             <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-hotel-btn">
                                                                 <i class="bi bi-check-circle"></i> Chọn
@@ -386,72 +396,75 @@
                     <!-- Vehicles Section -->
                     <section class="mb-5">
                         <h2 class="h3 mb-4 text-center fw-bold text-primary">🚘 Chọn phương tiện di chuyển trong đảo</h2>
-                        <div class="row g-4 justify-content-center">
-
+                        <div class="vehicle-scroll-container">
                             <c:forEach var="v" items="${islandvehicles}">
-                                <div class="col-lg-4">
+                                <div class="vehicle-item">
                                     <div class="card vehicle-card shadow-lg h-100 border-2" data-vehicleid="${v.vehicleId}">
-                                        <img src="${pageContext.request.contextPath}/views/home/images/vehicles/${v.vehicleType}.jpg"
-                                             alt="${v.vehicleType}" class="card-img-top"
-                                             style="height: 220px; object-fit: cover; border-top-left-radius: .75rem; border-top-right-radius: .75rem;">
-
+                                        <img src="${pageContext.request.contextPath}/${v.vehicleImageUrl}"
+                                             alt="${v.vehicleName}" class="card-img-top"
+                                             style="height: 220px; object-fit: cover; border-radius: .75rem .75rem 0 0;">
                                         <div class="card-body">
                                             <h5 class="card-title fw-bold text-dark">${v.vehicleType}</h5>
                                             <p class="mb-1">Tên xe: ${v.modelName}</p>
-
                                             <div class="mb-2 fs-5">
                                                 <span class="badge bg-info text-dark me-1">Sức chứa: ${v.capacity} người</span>
                                                 <span class="badge bg-success text-light">Còn ${v.availability} xe</span>
                                             </div>
-
-                                            <h6 class="text-danger fw-bold fs-5 mb-2 text-end">
-                                                <fmt:formatNumber value="${v.pricePerDay}" type="number" /> VNĐ/ngày
-                                            </h6>
-
-                                            <button type="button" 
-                                                    class="mt-2 btn btn-primary flex-fill rounded-pill w-100 fw-semibold select-btn">
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <p class="mb-2"><i class="bi bi-heart heart" data-vehicle-id="${v.vehicleId}" style="font-size:1.4rem;"></i></p>
+                                                <h6 class="text-danger fw-bold fs-5 mb-2 text-end">
+                                                    <fmt:formatNumber value="${v.pricePerDay}" type="number" /> VNĐ/ngày
+                                                </h6>
+                                            </div>
+                                            <button type="button" class="mt-2 btn btn-primary flex-fill rounded-pill w-100 fw-semibold select-btn">
                                                 <i class="bi bi-check2-circle"></i> Chọn
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </c:forEach>
-
                         </div>
 
-                        <!-- Input ẩn để lưu ID của phương tiện được chọn -->
                         <input type="hidden" id="selectedVehicleId" name="selectedVehicleId" value="">
+
                     </section>
+                    <style>
+                        .vehicle-scroll-container {
+                            display: flex;
+                            gap: 20px;
+                            overflow-x: auto;
+                            scroll-snap-type: x mandatory;
+                            padding-bottom: 1rem;
+                        }
+
+                        .vehicle-item {
+                            flex: 0 0 calc(33.333% - 20px); /* 3 items trên 1 màn hình, thay đổi % nếu muốn */
+                            scroll-snap-align: start;
+                        }
+                    </style>
+
+
                     <!-- Places Section -->
-                     <section class="mb-5">
-                        <h2 class="h3 mb-4 text-center fw-bold text-primary">
+                    <section class="mb-5">
+                        <h2 class="h3 mb-4 text-center fw-bold text-primary border-bottom pb-2">
                             📍 Các địa điểm nổi bật tại đảo
                         </h2>
 
-                        <div class="row g-4">
-                            <c:choose>
-                                <c:when test="${empty places}">
-                                    <div class="col-12">
-                                        <div class="alert alert-warning text-center rounded-3 shadow-sm py-4">
-                                            <i class="bi bi-exclamation-circle text-warning fs-4"></i>
-                                            Hiện chưa có địa điểm nào được thêm cho đảo này.
-                                        </div>
-                                    </div>
-                                </c:when>
-
-                                <c:otherwise>
+                        <c:choose>
+                            <c:when test="${empty places}">
+                                <div class="col-12 text-center text-muted py-5">
+                                    <i class="bi bi-exclamation-circle fs-1 d-block mb-3"></i>
+                                    Hiện chưa có địa điểm nào được thêm cho đảo này.
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="place-scroll-container">
                                     <c:forEach var="p" items="${places}">
-                                        <div class="col-sm-6 col-lg-4">
+                                        <div class="place-item">
                                             <div class="card place-card border-0 shadow-lg rounded-4 h-100 overflow-hidden position-relative card-hover" data-placeid="${p.placeId}">
-
-                                                <!-- Ảnh địa điểm -->
                                                 <div class="ratio ratio-16x9">
-                                                    <img src="${pageContext.request.contextPath}/views/home/images/places/${p.placeName}.jpg"
-                                                         class="card-img-top object-fit-cover"
-                                                         alt="${p.placeName}">
+                                                    <img src="${pageContext.request.contextPath}/${p.placeImageUrl}" class="card-img-top object-fit-cover" alt="${p.placeName}">
                                                 </div>
-
-                                                <!-- Nội dung -->
                                                 <div class="card-body d-flex flex-column p-4">
                                                     <h5 class="card-title fw-bold text-dark mb-2">
                                                         <i class="bi bi-map text-primary me-1"></i>${p.placeName}
@@ -462,41 +475,55 @@
                                                     <p class="card-text text-muted small flex-grow-1">
                                                         ${p.description}
                                                     </p>
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <p class="mb-2" style="margin-left: 2px;">
 
-                                                    <!-- Vé -->
-                                                    <div class="text-end">
-                                                        <c:choose>
-                                                            <c:when test="${p.hasTicket}">
-                                                                <span class="badge bg-success-subtle text-success fs-6 py-2 px-3">
-                                                                    Có vé: 
-                                                                    <fmt:formatNumber value="${p.ticketPrice}" type="number" groupingUsed="true"/> VNĐ
-                                                                </span>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <span class="badge bg-secondary-subtle text-secondary fs-6 py-2 px-3">
-                                                                    Miễn phí tham quan
-                                                                </span>
-                                                            </c:otherwise>
-
-                                                        </c:choose>
+                                                            <i class="bi bi-heart heart" data-place-id="${p.placeId}" style="font-size:1.4rem;"></i>
+                                                        </p>
+                                                        <div class="text-end">
+                                                            <c:choose>
+                                                                <c:when test="${p.hasTicket}">
+                                                                    <span class="badge bg-success-subtle text-success fs-6 py-2 px-3">
+                                                                        Có vé: 
+                                                                        <fmt:formatNumber value="${p.ticketPrice}" type="number" groupingUsed="true"/> VNĐ
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="badge bg-secondary-subtle text-secondary fs-6 py-2 px-3">
+                                                                        Miễn phí tham quan
+                                                                    </span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </div>
                                                     </div>
-
-
-                                                    <!-- Nút chọn -->
-                                                    <button type="button"
-                                                            class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-place-btn">
+                                                    <button type="button" class="mt-3 btn btn-primary rounded-pill w-100 fw-semibold select-place-btn">
                                                         <i class="bi bi-check2-circle"></i> Chọn
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                        <!-- Input ẩn để lưu ID của địa điểm được chọn -->
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+
                         <input type="hidden" id="selectedPlaceId" name="selectedPlaceId" value="">
                     </section>
+
+                    <style>
+                        .place-scroll-container {
+                            display: flex;
+                            gap: 20px;
+                            overflow-x: auto;
+                            scroll-snap-type: x mandatory;
+                            padding-bottom: 1rem;
+                        }
+                        .place-item {
+                            flex: 0 0 calc(33.333% - 20px); /* hiển thị 3 item trên 1 màn hình, điều chỉnh % nếu muốn */
+                            scroll-snap-align: start;
+                        }
+                    </style>
+
                     <section class="mb-5 text-center d-flex justify-content-center flex-column">
 
                         <h2 class="h2 mb-4 text-primary fw-bold">📅 Vui lòng hãy chọn thời gian du lịch</h2>
@@ -548,7 +575,7 @@
                             </div>
                         </div>
 
-                        <!-- Service Card 3: Hướng dẫn viên -->
+                        <!-- Service Card 3: Khu du lịch nổi tiếng -->
                         <div class="col-md-6 col-lg-3">
                             <div class="card shadow-sm p-3 h-100 d-flex align-items-start border-0 rounded-3">
                                 <div class="d-flex align-items-center mb-3">
@@ -719,7 +746,7 @@
                                 btn.classList.remove("btn-success");
                                 btn.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
                                 btn.disabled = false;
-                                btn.style.opacity = "1";
+                                btn.style.opacity = "1"; //độ mờ
                             });
 
                             // Đặt trạng thái "đã chọn"
@@ -740,17 +767,17 @@
                         const placeId = card.getAttribute("data-placeId");
 
                         if (selectedPlaces.has(placeId)) {
-                            // 👉 Bỏ chọn
+                            // Bỏ chọn
                             selectedPlaces.delete(placeId);
                             this.classList.remove("btn-success");
                             this.innerHTML = '<i class="bi bi-check2-circle"></i> Chọn';
-                            this.style.opacity = "1"; // 🌟 làm nút sáng lại
+                            this.style.opacity = "1"; // ?làm nút sáng lại
                         } else {
-                            // 👉 Chọn thêm
+                            // Chọn thêm
                             selectedPlaces.add(placeId);
                             this.classList.add("btn-success");
                             this.innerHTML = '<i class="bi bi-check-lg"></i> Đã chọn';
-                            this.style.opacity = "0.6"; // 🌟 làm nút mờ đi để báo đã chọn
+                            this.style.opacity = "0.6"; // làm nút mờ đi để báo đã chọn
                         }
 
                         // Cập nhật input ẩn
@@ -760,7 +787,7 @@
             });
         </script>
         <script>
-            //2. Lấy modal element
+            //2. Lấy modal hotel
             const hotelModal = document.getElementById('hotelDetailModal');
 
             hotelModal.addEventListener('show.bs.modal', event => {
@@ -822,61 +849,104 @@
                 const roundTripLink = document.getElementById('roundTripLink');
                 const commitCheckbox = document.getElementById('commitFlight');
 
-                // Lưu href gốc
-                const oneWayHref = oneWayLink.href;
-                const roundTripHref = roundTripLink.href;
+                const today = new Date().toISOString().split("T")[0];
+                startDate.setAttribute("min", today);
+                endDate.setAttribute("min", today);
 
+                // --- LOAD STATE ---
+                const savedStart = sessionStorage.getItem("startDateFlight");
+                const savedEnd = sessionStorage.getItem("endDateFlight");
+                // ❌ Không load trạng thái checkbox nữa
+                commitCheckbox.checked = false;
 
+                if (savedStart)
+                    startDate.value = savedStart;
+                if (savedEnd)
+                    endDate.value = savedEnd;
 
-
-                // Hàm kiểm tra và bật/tắt nút
+                // --- UPDATE BUTTONS ---
                 function updateButtons() {
-                    const hasStart = startDate.value.trim() !== '';
-                    const hasEnd = endDate.value.trim() !== '';
+                    const startVal = startDate.value;
+                    const endVal = endDate.value;
                     const isCommitted = commitCheckbox.checked;
-                    // Cập nhật nút Một chiều
-                    if (hasStart && isCommitted) {
-                        oneWayLink.href = oneWayHref;
-                        oneWayLink.classList.remove('disabled');
-                        oneWayLink.style.pointerEvents = 'auto';
-                        oneWayLink.style.opacity = '1';
-                    } else {
-                        oneWayLink.removeAttribute('href');
-                        oneWayLink.classList.add('disabled');
-                        oneWayLink.style.pointerEvents = 'none';
-                        oneWayLink.style.opacity = '0.5';
+
+                    if (startVal && endVal && endVal < startVal) {
+                        alert("❌ Ngày kết thúc không thể trước ngày bắt đầu!");
+                        endDate.value = "";
+                        sessionStorage.removeItem("endDateFlight");
                     }
 
-                    // Cập nhật nút Khứ hồi
-                    if (hasStart && hasEnd && isCommitted) {
-                        roundTripLink.href = roundTripHref;
-                        roundTripLink.classList.remove('disabled');
-                        roundTripLink.style.pointerEvents = 'auto';
-                        roundTripLink.style.opacity = '1';
-                    } else {
-                        roundTripLink.removeAttribute('href');
-                        roundTripLink.classList.add('disabled');
-                        roundTripLink.style.pointerEvents = 'none';
-                        roundTripLink.style.opacity = '0.5';
-                    }
-                    // Nếu chưa có ngày → tự bỏ tick cam kết
-                    if (!hasStart && commitCheckbox.checked) {
-                        commitCheckbox.checked = false;
+                    const hasStart = startVal.trim() !== '';
+                    const hasEnd = endVal.trim() !== '';
+
+                    oneWayLink.classList.toggle('disabled', !(hasStart && isCommitted));
+                    oneWayLink.style.pointerEvents = hasStart && isCommitted ? 'auto' : 'none';
+                    oneWayLink.style.opacity = hasStart && isCommitted ? '1' : '0.5';
+
+                    roundTripLink.classList.toggle('disabled', !(hasStart && hasEnd && isCommitted));
+                    roundTripLink.style.pointerEvents = hasStart && hasEnd && isCommitted ? 'auto' : 'none';
+                    roundTripLink.style.opacity = hasStart && hasEnd && isCommitted ? '1' : '0.5';
+                }
+
+                // --- SAVE STATE ---
+                function saveState() {
+                    if (commitCheckbox.checked) {
+                        sessionStorage.setItem("startDateFlight", startDate.value);
+                        sessionStorage.setItem("endDateFlight", endDate.value);
                     }
                 }
 
-                // Gọi lần đầu
+                // --- EVENT LISTENERS ---
+                startDate.addEventListener('change', () => {
+                    saveState();
+                    updateButtons();
+                });
+                endDate.addEventListener('change', () => {
+                    saveState();
+                    updateButtons();
+                });
+                commitCheckbox.addEventListener('change', () => {
+                    if (!commitCheckbox.checked) {
+                        sessionStorage.clear();
+                        startDate.value = "";
+                        endDate.value = "";
+                    } else {
+                        saveState();
+                    }
+                    updateButtons();
+                });
+
+                // --- Xóa tick khi rời trang ---
+                window.addEventListener('beforeunload', () => {
+                    commitCheckbox.checked = false;
+                    sessionStorage.removeItem("commitFlightChecked");
+                });
+
                 updateButtons();
-
-                // Lắng nghe thay đổi ngày
-                startDate.addEventListener('change', updateButtons);
-                endDate.addEventListener('change', updateButtons);
-                commitCheckbox.addEventListener('change', updateButtons);
-
             });
         </script>
 
+        <!-- add favaroutie tours ,services   -->
+        <script >
 
+
+            document.addEventListener("DOMContentLoaded", () => {
+                document.querySelectorAll(".heart").forEach(heart => {
+                    heart.addEventListener("click", () => {
+                        heart.classList.toggle("full");
+                        heart.classList.toggle("bi-heart");       // bi-heart: trống
+                        heart.classList.toggle("bi-heart-fill");  // bi-heart-fill: đầy
+
+                        const flightId = heart.dataset.flightId;
+                        const liked = heart.classList.contains("full");
+
+                        // Gửi lên server  lưu trạng thái like
+                        console.log("Flight ID:", flightId, "Liked:", liked);
+                    });
+                });
+            });
+
+        </script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

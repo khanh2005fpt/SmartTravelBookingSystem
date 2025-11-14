@@ -7,8 +7,8 @@ package controller.profile.account;
 
 import dao.CustomerDao;
 
-import dao.userDao;
-
+import dao.UserDao;
+import java.sql.SQLException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import model.EmailCustomer;
+import model.CustomerContacts;
 import model.User;
 
 /**
@@ -70,7 +70,7 @@ public class EmailAdded extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+      response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
     } 
 
     /** 
@@ -102,30 +102,42 @@ public class EmailAdded extends HttpServlet {
          response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
-        // check mail ton tai
         
-        Boolean existAddedPhone = customerDao.checkEmailExists(userId, email);
+        try{
+            
+             // check mail ton tai
+        
+        Boolean existAddedPhone = customerDao.isContactExist(userId, email);
         
         if(existAddedPhone || email.equals(user.getEmail())){
-             session.setAttribute("errorEmail_Deleted", "Email này đã tồn tại!");
+           session.setAttribute("errorEmail", "Email này đã tồn tại!");
             response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
         }
         
         // check k them qua 2 mail
-        int totalEmails = customerDao.countSecondaryEmails(userId);
+        int totalEmails = customerDao.countEmailContactSecondary(userId);
           if(totalEmails>=2){
               session.setAttribute("errorEmail_Deleted", "Bạn chỉ được dùng tối đa 3 email!");
               response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
             return;
           }
         // them email
-        customerDao.addEmail(userId, email);
-        List<EmailCustomer> emailList = customerDao.getEmailsByUserId(userId);
-      session.setAttribute("emailList", emailList);
-       session.setAttribute("successEmail", "Thêm email thành công!");
-       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp");
-   
+        customerDao.addContact(userId, email);
+        List<CustomerContacts> emailList = customerDao.getEmailContactByUserId(userId);
+        session.setAttribute("emailList", emailList);
+        session.setAttribute("successEmail", "Thêm email thành công!");
+        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+         } catch (IllegalArgumentException e) {
+         // Bắt lỗi validate contact không hợp lệ
+        session.setAttribute("errorEmail_Deleted", e.getMessage());
+        response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");   
+        }catch(SQLException e){
+       e.printStackTrace();
+       session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi thêm email. Vui lòng thử lại!");
+       response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        }
+       
 
         
     }

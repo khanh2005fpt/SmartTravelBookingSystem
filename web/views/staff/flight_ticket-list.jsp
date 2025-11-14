@@ -3,7 +3,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -27,7 +27,7 @@
             }
 
             .page-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 padding: 30px;
                 border-radius: 15px;
@@ -84,8 +84,8 @@
                 box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
             }
 
-            .btn-search {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            .btn-searchTicket {
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 border: none;
                 padding: 10px 25px;
@@ -95,7 +95,7 @@
                 height: fit-content;
             }
 
-            .btn-search:hover {
+            .btn-searchTicket:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
                 color: white;
@@ -142,25 +142,15 @@
                 gap: 4px;
             }
 
-            .btn-view {
-                background: #17a2b8;
-                color: white;
-            }
-
-            .btn-view:hover {
-                background: #138496;
-                color: white;
-                text-decoration: none;
-            }
 
             .btn-edit {
-                background: #ffc107;
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: #212529;
             }
 
             .btn-edit:hover {
-                background: #e0a800;
-                color: #212529;
+                background: #007CB9;
+                color: #007CB9;
                 text-decoration: none;
             }
 
@@ -175,35 +165,38 @@
                 text-decoration: none;
             }
 
-            .pagination-container {
-                padding: 20px 25px;
-                background: #f8f9fa;
-                border-top: 1px solid #dee2e6;
+            .pagination-wrapper {
+                background: white;
+                padding: 25px;
+                border-radius: 15px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+                margin-top: 30px;
+                width: 100%;
             }
 
             .pagination {
-                margin: 0;
                 justify-content: center;
+                margin: 0;
             }
 
             .page-link {
                 border-radius: 8px;
-                margin: 0 2px;
-                border: 2px solid #e9ecef;
-                color: #667eea;
-                font-weight: 600;
+                margin: 0 3px;
+                border: none;
+                color: #00ACD4;
+                font-weight: 500;
             }
 
             .page-link:hover {
-                background-color: #667eea;
-                border-color: #667eea;
+                background: #007CB9;
                 color: white;
             }
 
             .page-item.active .page-link {
-                background-color: #667eea;
-                border-color: #667eea;
+                background: #00ACD4;
+                border-color: #007CB9;
             }
+
 
             .empty-state {
                 text-align: center;
@@ -256,9 +249,29 @@
                     flex-direction: column;
                 }
             }
-            
+
         </style>
     </head>
+
+    <!-- lay thong tin user và athorized -->
+
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+    %>
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="sidebar.jsp">
@@ -268,12 +281,12 @@
         <div class="main-content">
             <!-- Page Header -->
             <div class="page-header ">
-                <h1><i class="fa fa-utensils  text-left"></i> Quản lý chuyến bay MelanBooking</h1>
-               <p class="flights-title text-white">
-                                <i class="fa fa-list"></i> Danh sách dịch vụ vé máy bay : <span class="flights-count text-white small">
-                ${not empty flights ? flights.size() : 0}  vé máy bay
-            </span>
-                            </p>
+                <h1><i class="fa fa-plane"></i> Quản lý chuyến bay MelanBooking</h1>
+                <p class="flights-title text-white">
+                    <i class="fa fa-list"></i> Danh sách dịch vụ vé máy bay : <span class="flights-count text-white small">
+                        ${not empty flights ? flights.size() : 0}  vé máy bay
+                    </span>
+                </p>
             </div>
 
             <!-- Success/Error Messages -->
@@ -318,7 +331,7 @@
                             <option value="">Tất cả các hãng</option>
                             <c:forEach var="airline" items="${airlineNames}">
                                 <option value="${airline.airlineId}"
-                                    ${param.airlineId != null && param.airlineId == airline.airlineId ? 'selected' : ''}>
+                                        ${param.airlineId != null && param.airlineId == airline.airlineId ? 'selected' : ''}>
                                     ${airline.airlineName}
                                 </option>
                             </c:forEach>
@@ -328,7 +341,7 @@
                     <!-- Filter giá -->
                     <div class="filter-group" style="min-width: 180px;">
                         <label for="priceRange" class="form-label mb-1 fw-semibold">Khoảng giá vé</label>
-                        <select class="form-control form-control-sm" id="priceRange" name="priceRange">
+                        <select class="form-control form-control-sm " id="priceRange" name="priceRange">
                             <option value="">Tất cả mức giá</option>
                             <option value="0-1000000" ${param.priceRange == '0-1000000' ? 'selected' : ''}>Dưới 1.000.000₫</option>
                             <option value="1000000-3000000" ${param.priceRange == '1000000-3000000' ? 'selected' : ''}>1.000.000₫ - 3.000.000₫</option>
@@ -338,7 +351,7 @@
                     </div>
 
                     <!-- Nút tìm kiếm -->
-                    <button type="submit" class="btn btn-primary btn-sm d-flex align-items-center" style="height: fit-content; margin-top: 25px;">
+                    <button type="submit" class="btn btn-searchTicket btn-sm d-flex align-items-center" style="height: fit-content; margin-top: 25px;">
                         <i class="fa fa-search me-2"></i> Tìm kiếm
                     </button>
 
@@ -400,34 +413,79 @@
                                             </p>
                                         </div>
 
-                                                
-                                                <div class="flightTicket-actions d-flex flex-column align-items-end text-end mt-2">
-                                                    <p class="fw-bold text-danger fs-5 mb-2">
-                                                        <fmt:formatNumber value="${flight.basePrice}" type="number" groupingUsed="true" /> VND /Khách
-                                                    </p>
 
-                                                    <div>
-                                                      
-                                                        <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=edit&flightId=${flight.flightId}" 
-                                                           class="btn-action btn-edit bg-success text-white ">
-                                                            <i class="fa fa-edit"></i> Sửa
-                                                        </a>
-                                                        <a href="#" onclick="confirmDelete(${flight.flightId}, '${flight.flightNumber}')" 
-                                                           class="btn-action btn-delete">
-                                                            <i class="fa fa-trash"></i> Xóa
-                                                        </a>
-                                                    </div>
-                                                </div>
+                                        <div class="flightTicket-actions d-flex flex-column align-items-end text-end mt-2">
+                                            <p class="fw-bold text-danger fs-5 mb-2">
+                                                <fmt:formatNumber value="${flight.basePrice}" type="number" groupingUsed="true" /> VND /Khách
+                                            </p>
 
- 
+                                            <div>
+
+                                                <a href="${pageContext.request.contextPath}/staff/flight/tickets?action=edit&flightId=${flight.flightId}" 
+                                                   class="btn-action btn-edit text-white ">
+                                                    <i class="fa fa-edit"></i> Sửa
+                                                </a>
+                                                <a href="#" onclick="confirmDelete(${flight.flightId}, '${flight.flightNumber}')" 
+                                                   class="btn-action btn-delete">
+                                                    <i class="fa fa-trash"></i> Xóa
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
-                                      
                                 </div>
                             </div>
                         </c:forEach>
+
+                        <!-- Pagination -->
+                        <c:if test = "${totalPages>1}">
+                            <div class ="pagination-wrapper">
+                                <nav aria-label="Flight pagination">
+                                    <ul class="pagination">
+                                        <!-- Previous Page -->  
+                                        <c:if test="${currentPage>1}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage - 1}&pageSize=${pageSize}&search=${param.search}">
+                                                    <i class="fa fa-chevron-left"></i> Trước
+                                                </a>  
+                                            </li>
+                                        </c:if>
+
+                                        <!-- Page Numbers --> 
+                                        <c:forEach begin="${startPage}" end="${endPage}" var="pageNum">
+                                            <li class="page-item ${pageNum == currentPage ? 'active' : ''}">
+                                                <a class="page-link" href="?page=${pageNum}&pageSize=${pageSize}&search=${param.search}">
+                                                    ${pageNum}
+                                                </a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <!-- Next Page --> 
+                                        <c:if test="${currentPage < totalPages}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage + 1}&pageSize=${pageSize}&search=${param.search}">
+                                                    Sau <i class="fa fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </c:if>
+
+                                    </ul>
+
+                                </nav>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        Hiển thị ${(currentPage - 1) * pageSize + 1} - 
+                                        ${currentPage * pageSize > totalFlights ? totalFlights : currentPage * pageSize} 
+                                        trong tổng số ${totalFlights} vé máy bay
+                                    </small>
+                                </div>
+
+                            </div>
+
+                        </c:if>
+
                     </c:when>
                     <c:otherwise>
-             
+
 
                         <div class="empty-state d-flex flex-column align-content-center align-items-center">
                             <i class="fa fa-map-marker"></i>
@@ -484,21 +542,21 @@
                 </div>
             </div>
         </div>
-   <script>
-        function confirmDelete(flightlId, flightNumber) {
-            document.getElementById('flightlIdToDelete').value =flightlId;
-            document.getElementById('flightNumberToDelete').textContent = flightNumber;
-            document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/tickets';
-            $('#deleteModal').modal('show');
-        }
+        <script>
+            function confirmDelete(flightlId, flightNumber) {
+                document.getElementById('flightlIdToDelete').value = flightlId;
+                document.getElementById('flightNumberToDelete').textContent = flightNumber;
+                document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/tickets';
+                $('#deleteModal').modal('show');
+            }
 
-        // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            $('.alert').fadeOut('slow');
-        }, 5000);
-    </script>
-        
-        
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function () {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        </script>
+
+
         <!-- Modal thông báo action khi thành công -->
         <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -531,17 +589,15 @@
         <!-- Script bật modal -->
         <c:if test="${param.success == 'created' || param.success == 'updated' || param.success == 'deleted'}">
             <script>
-              document.addEventListener("DOMContentLoaded", function() {
-                const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
-                modal.show();
-                document.getElementById("btnOk").addEventListener("click", function() {
-                  modal.hide();
+                document.addEventListener("DOMContentLoaded", function () {
+                    const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+                    modal.show();
+                    document.getElementById("btnOk").addEventListener("click", function () {
+                        modal.hide();
+                    });
                 });
-              });
             </script>
         </c:if>
 
-
-        
     </body>
 </html>

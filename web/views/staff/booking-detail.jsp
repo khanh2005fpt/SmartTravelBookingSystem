@@ -9,6 +9,7 @@
 <%@ page import="model.Booking" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="model.User" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -33,7 +34,7 @@
         }
         
         .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             background: linear-gradient(180deg, #0077b6, #00b4d8);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -266,6 +267,28 @@
         }
     </style>
 </head>
+
+
+          <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
+
 <body>
     <!-- Include Sidebar -->
     <jsp:include page="sidebar.jsp">
@@ -384,7 +407,7 @@
                 <div class="detail-row">
                     <span class="detail-label">Tổng tiền:</span>
                     <span class="detail-value price-highlight">
-                        <fmt:formatNumber value="${booking.price}" type="currency" 
+                        <fmt:formatNumber value="${booking.totalPrice}" type="currency" 
                                         currencySymbol="₫" groupingUsed="true" />
                     </span>
                 </div>
@@ -396,10 +419,7 @@
                         <span class="info-label">Tên khách hàng:</span>
                         <span class="info-value">${booking.customerName}</span>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">ID Profile:</span>
-                        <span class="info-value">#${booking.profileId}</span>
-                    </div>
+                    
                     <div class="info-item">
                         <span class="info-label">ID Customer:</span>
                         <span class="info-value">#${booking.customerId}</span>

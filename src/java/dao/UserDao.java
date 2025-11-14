@@ -6,6 +6,7 @@ package dao;
 
 import java.security.SecureRandom;
 import model.User;
+import model.Log;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,16 +19,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import model.Role;
 import model.Token;
+
 import utils.DBContext;
 
 /**
  *
  * @author nqagh
  */
-public class userDao extends DBContext {
+public class UserDao extends DBContext {
 
-    public static userDao INSTANCE = new userDao();
+    public static UserDao INSTANCE = new UserDao();
 
     public String status;
 
@@ -40,7 +43,7 @@ public class userDao extends DBContext {
     }
 
     // dang ky  
-    public String Signup(String username, String password, String email, String fullName, String phone) {
+    public String Signup(String username, String password, String email, String fullName, String phone) throws SQLException{
         try {
 
             String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -84,7 +87,7 @@ public class userDao extends DBContext {
                 user.setUserId(rs.getInt("userId"));
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password")); // lấy hash từ DB
-                user.setFullName(rs.getString("fullName"));
+                user.setFullName(rs.getString("fullName")); 
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setStatus(rs.getString("status"));
@@ -364,7 +367,7 @@ public class userDao extends DBContext {
         return formattedDate;
     }
 
-    // luu token moi
+      // luu token moi
     public boolean insertToken(Token tokenForget) {
 
         try {
@@ -374,7 +377,7 @@ public class userDao extends DBContext {
                 ps.setString(2, tokenForget.getTokenValue());
                 ps.setTimestamp(3, Timestamp.valueOf(tokenForget.getExpiryDate()));
                 ps.setBoolean(4, tokenForget.isIsUsed());
-                ps.setString(5, tokenForget.getOtpCode());
+                ps.setString(5,tokenForget.getOtpCode());
                 ps.setInt(6, tokenForget.getAttemptCount());
                 return ps.executeUpdate() > 0;
             }
@@ -384,25 +387,26 @@ public class userDao extends DBContext {
         }
         return false;
     }
+    
+     // check validToken
+public Token checkValidToken(String tokenValue) {
+    Token token = getTokenByValue(tokenValue);
 
-    // check validToken
-    public Token checkValidToken(String tokenValue) {
-        Token token = getTokenByValue(tokenValue);
-
-        if (token == null) {
-            return null;
-        }
-        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-            return null;
-        }
-        if (token.isIsUsed()) {
-            return null;
-        }
-
-        return token; // token hợp lệ
+    if (token == null) {
+        return null; 
+    }
+    if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+        return null;
+    }
+    if (token.isIsUsed()) {
+        return null;
     }
 
-    // danh dau token da su dung
+    return token; // token hợp lệ
+}
+
+
+ // danh dau token da su dung
     public void markTokenAsUsed(String tokenValue) {
 
         try {
@@ -417,7 +421,7 @@ public class userDao extends DBContext {
         }
     }
 
-    // xoa token het han 
+ // xoa token het han 
     public void deleteExpiredTokens() {
 
         try {
@@ -430,8 +434,9 @@ public class userDao extends DBContext {
         }
 
     }
+    
+     // get token 
 
-    // get token 
     public Token getTokenByValue(String tokenValue) {
         try {
             String sql = "SELECT * FROM Tokens WHERE TokenValue =? ";
@@ -448,7 +453,9 @@ public class userDao extends DBContext {
                             rs.getString("OtpCode"),
                             rs.getInt("AttemptCount")
                     );
+                    
 
+                    
                 }
             }
 
@@ -457,27 +464,52 @@ public class userDao extends DBContext {
         }
         return null;
     }
-
-    // update otpcode va attempt cout
-    public void updateOtpAndAttempt(int tokenId, String OtpCode, int AttemptCount) {
-        try {
-            String sqlOtp = "UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
-            try (PreparedStatement ps = connection.prepareStatement(sqlOtp)) {
-                ps.setString(1, OtpCode);
-
-                ps.setInt(2, AttemptCount);
-                ps.setInt(3, tokenId);
-
-                ps.executeUpdate();
+    
+     // update otpcode va attempt cout
+    
+      public void updateOtpAndAttempt(int tokenId , String OtpCode , int AttemptCount){
+            try{
+                String sqlOtp ="UPDATE Tokens SET OtpCode =? , AttemptCount = ? WHERE TokenId =?";
+                try(PreparedStatement ps = connection.prepareStatement(sqlOtp)){
+                     ps.setString(1, OtpCode); 
+              
+                     ps.setInt(2, AttemptCount);
+                     ps.setInt(3, tokenId);
+                     
+                     ps.executeUpdate();
+                }
+                
+            }catch(SQLException e){
+                e.printStackTrace();
+                System.out.println(e);
             }
-
-        } catch (SQLException e) {
+      }  
+      
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   
+   /*
+    // ===================  Phần ADMIN ===================
+  */   
+      
+         // lay roleAllUser
+    
+      public List<Role> getAllRoles() {
+        List<Role> list = new ArrayList<>();
+        String sql = "SELECT roleId, roleName FROM Roles ORDER BY roleName";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Role r = new Role();
+                r.setRoleId(rs.getInt("roleId"));
+                r.setRoleName(rs.getString("roleName"));
+                list.add(r);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e);
         }
+        return list;
     }
-
-    // Thống kê người dùng theo trạng thái (ACTIVE, LOCKED, INACTIVE, v.v.)
+      
+        // Thống kê người dùng theo trạng thái (ACTIVE, LOCKED, INACTIVE, v.v.)
     public Map<String, Integer> getUserCountByStatus() {
         Map<String, Integer> map = new HashMap<>();
         String sql = "SELECT status, COUNT(*) AS total FROM Users GROUP BY status";
@@ -506,7 +538,6 @@ public class userDao extends DBContext {
     public int getLockedUsers() {
         return getCount("SELECT COUNT(*) FROM Users WHERE status = 'LOCKED'");
     }
-
     private int getCount(String sql) {
         int count = 0;
         try {
@@ -522,7 +553,8 @@ public class userDao extends DBContext {
         }
         return count;
     }
-
+    
+    
     public List<User> getAllUsers(int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
@@ -551,8 +583,9 @@ public class userDao extends DBContext {
         }
         return list;
     }
-
-    public int getTotalUsers() {
+    
+    // lay total user
+   public int getTotalUsers() {
         String sql = "SELECT COUNT(*) FROM Users";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
@@ -563,8 +596,11 @@ public class userDao extends DBContext {
         }
         return 0;
     }
-
-    public List<User> searchUsers(String keyword, int page, int pageSize) {
+   
+   
+   // search user of admin
+   
+   public List<User> searchUsers(String keyword, int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
                 + "FROM Users "
@@ -594,7 +630,8 @@ public class userDao extends DBContext {
         }
         return list;
     }
-
+   
+   // lay user b trang thai
     public List<User> getUsersByStatus(String status, int page, int pageSize) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT userId, username, email, fullName, phone, roleId, createdAt, status "
@@ -631,7 +668,7 @@ public class userDao extends DBContext {
         }
         return list;
     }
-
+   // update status
     public boolean updateUserStatus(int userId, String status) {
         String sql = "UPDATE Users SET status = ? WHERE userId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -643,8 +680,7 @@ public class userDao extends DBContext {
         }
         return false;
     }
-
-    // =================== ADD USER ===================
+       // =================== ADD USER ===================
     public boolean addUser(User user) {
         String sql = "INSERT INTO Users (username, password, email, fullName, phone, roleId, status, createdAt) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())";
@@ -687,5 +723,275 @@ public class userDao extends DBContext {
         }
         return false;
     }
+   // =================== Log của admin===================
+    public List<Log> getAllLogs() {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.roleName, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l "
+                + "LEFT JOIN Users u ON l.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON u.RoleId = r.RoleId "
+                + "ORDER BY l.Timestamp DESC";
 
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("roleName"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+     // Lấy chi tiết log theo ID
+    public Log getLogById(int logId) {
+        String sql = "SELECT l.LogId, l.UserId, u.username, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l LEFT JOIN Users u ON l.UserId = u.UserId WHERE l.LogId = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, logId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                return log;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+      // search log
+      public List<Log> searchLogsByUser(String keyword) {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.role_name, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l "
+                + "LEFT JOIN Users u ON l.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON u.RoleId = r.RoleId "
+                + "WHERE u.username LIKE ? OR u.email LIKE ? "
+                + "ORDER BY l.Timestamp DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("role_name"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+        public List<Log> searchLogsByAction(String action) {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.roleName, l.Action, l.Method, l.Timestamp \n"
+                + "                FROM Logs l \n"
+                + "                LEFT JOIN Users u ON l.UserId = u.UserId \n"
+                + "                LEFT JOIN Roles r ON u.RoleId = r.RoleId \n"
+                + "                WHERE l.Action = ? \n"
+                + "                ORDER BY l.Timestamp DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, action);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("role_name"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+         public List<Log> searchLogsByRole(String role) {
+        List<Log> list = new ArrayList<>();
+        String sql = "SELECT l.LogId, l.UserId, u.username, r.roleName, l.Action, l.Method, l.Timestamp "
+                + "FROM Logs l "
+                + "LEFT JOIN Users u ON l.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON u.RoleId = r.RoleId "
+                + "WHERE r.roleName = ? "
+                + "ORDER BY l.Timestamp DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, role);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Log log = new Log();
+                log.setLogId(rs.getInt("LogId"));
+                log.setUserId(rs.getInt("UserId"));
+                log.setUsername(rs.getString("username"));
+                log.setRoleName(rs.getString("roleName"));
+                log.setAction(rs.getString("Action"));
+                log.setMethod(rs.getString("Method"));
+                log.setTimestamp(rs.getTimestamp("Timestamp"));
+                list.add(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<String> getAllActions() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT Action FROM Logs ORDER BY Action";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getString("Action"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+     public List<String[]> getAllRolesOfManager() throws SQLException {
+        List<String[]> roles = new ArrayList<>();
+        String sql = "SELECT roleId, roleName FROM Roles ORDER BY roleId";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                roles.add(new String[]{String.valueOf(rs.getInt("roleId")), rs.getString("roleName")});
+            }
+        }
+        return roles;
+    }
+
+    public List<String> getAllStatuses() throws SQLException {
+        List<String> statuses = new ArrayList<>();
+        String sql = "SELECT DISTINCT status FROM Users WHERE status IS NOT NULL ORDER BY status";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                statuses.add(rs.getString("status"));
+            }
+        }
+        return statuses;
+    }
+   
+
+    private User mapRow(ResultSet rs) throws SQLException {
+        User u = new User();
+        u.setUserId(rs.getInt("userId"));
+        u.setUsername(rs.getString("username"));
+        u.setPassword(rs.getString("password"));
+        u.setEmail(rs.getString("email"));
+        u.setFullName(rs.getString("fullName"));
+        u.setPhone(rs.getString("phone"));
+        u.setRoleId(rs.getInt("roleId"));
+        u.setCreatedAt(rs.getTimestamp("createdAt"));
+        u.setStatus(rs.getString("status"));
+        return u;
+    }
+
+    public List<User> searchByUsername(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND username LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByFullName(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND fullName LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByEmail(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND email LIKE ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByRole(int roleId) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND roleId = ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, roleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<User> searchByStatus(String status) throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE roleId = 3 AND status = ? ORDER BY createdAt DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public int getTotalUsersOfManager() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Users WHERE roleId = 3";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+    
 }

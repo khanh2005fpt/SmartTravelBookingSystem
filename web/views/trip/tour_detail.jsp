@@ -14,11 +14,21 @@
 
     <body>
         <%@ include file="/views/common/navbar.jsp" %>
-
-        <div class="container" style="max-width: 1400px;">
+        <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');">
+            <div class="overlay"></div>
+            <div class="container">
+                <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-center">
+                    <div class="col-md-9 ftco-animate pb-5 text-center">
+                        <p class="breadcrumbs"><span class="mr-2"><a href="SearchIslandController">Trang chủ <i class="fa fa-chevron-right"></i></a></span> <span>Khách sạn <i class="fa fa-chevron-right"></i></span></p>
+                        <h1 class="mb-0 bread">Chi tiết tour</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="container" style="max-width: 1600px;">
             <div class="row" style="margin-top: 120px">
                 <!-- Cột nội dung tour -->
-                <div class="col-lg-7">
+                <div class="col-lg-8">
 
                     <!-- Card tổng tour -->
                     <div class="card shadow-lg rounded mb-4 border">
@@ -27,11 +37,6 @@
                             <!-- Tiêu đề tour -->
                             <h1 class="font-weight-bold mb-3 text-primary ">${tour.tourName}</h1>
 
-                            <!-- Đánh giá -->
-                            <div class="d-flex align-items-center mb-4">
-                                <span class="badge bg-primary px-3 py-2 text-white">9.4 Tuyệt vời</span>
-                                <span class="ml-2 text-muted">(18 đánh giá)</span>
-                            </div>
 
                             <!-- Hình ảnh chính -->
                             <div class="mb-4" style="width:100%; height:500px; overflow:hidden;">
@@ -39,13 +44,12 @@
                                      alt="${tour.tourName}" 
                                      class="img-fluid w-100 h-100 rounded shadow-sm border border-primary">
                             </div>
-
                             <!-- Mô tả tour -->
-                            <h4 class="mb-3 border-bottom pb-2 text-primary">Mô tả tour</h4>
+                            <h4 class="mb-3 fw-bold border-bottom pb-2 text-primary">Mô tả tour</h4>
                             <p class="text-justify">${tour.description}</p>
 
                             <!-- Chương trình tour -->
-                            <h4 class="mt-4 mb-3 border-bottom pb-2 text-primary">Chương trình tour</h4>
+                            <h4 class="mt-4 mb-3 fw-bold border-bottom pb-2 text-primary">Chương trình tour</h4>
                             <div class="accordion" id="itineraryAccordion">
                                 <c:forEach var="iti" items="${itineraries}">
                                     <div class="accordion-item mb-2 shadow-sm rounded">
@@ -55,7 +59,7 @@
                                                     data-bs-target="#collapse${iti.dayNumber}" 
                                                     aria-expanded="false" 
                                                     aria-controls="collapse${iti.dayNumber}">
-                                                Ngày ${iti.dayNumber}: ${iti.title}
+                                                🌅 Ngày ${iti.dayNumber}: ${iti.title}
                                             </button>
                                         </h2>
                                         <div id="collapse${iti.dayNumber}" 
@@ -81,44 +85,6 @@
                             </div>
 
 
-                            <!-- Thông tin cần lưu ý -->
-                            <h4 class="mt-4 mb-3 border-bottom pb-2 text-primary">Thông tin cần lưu ý</h4>
-                            <ul class="list-group shadow-sm rounded border border-primary">
-                                <li class="list-group-item">
-                                    <i class="bi bi-airplane-fill text-primary mr-2"></i>
-                                    Vận chuyển: Vé máy bay khứ hồi, xe đưa đón, tàu cao tốc/phà ra đảo …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-building text-primary mr-2"></i>
-                                    Khách sạn & lưu trú: Tiêu chuẩn 2-4 sao, phụ thu phòng đơn nếu đi lẻ …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-cup-hot text-primary mr-2"></i>
-                                    Ăn uống: Bữa ăn theo chương trình, đặc sản địa phương, nước uống …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-people-fill text-primary mr-2"></i>
-                                    Hướng dẫn viên & dịch vụ: HDV tiếng Việt/Anh, bảo hiểm, vé tham quan …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-wallet2 text-primary mr-2"></i>
-                                    Chi phí không bao gồm: Hành lý ký gửi, ăn uống ngoài chương trình, chi phí cá nhân …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-exclamation-triangle-fill text-primary mr-2"></i>
-                                    Điều kiện hủy & thay đổi: Chính sách hoàn/huỷ, phí đổi ngày/đổi tên …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-file-earmark-text-fill text-primary mr-2"></i>
-                                    Giấy tờ & thủ tục: CMND/CCCD, hộ chiếu còn hạn, visa (nếu cần) …
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-sun-fill text-primary mr-2"></i>
-                                    Lưu ý đặc biệt: Ảnh hưởng thời tiết, sức khỏe cho hoạt động biển, trẻ em/người già cần giám hộ …
-                                </li>
-                            </ul>
-
-
 
                         </div> <!-- /card-body -->
                     </div> <!-- /card -->
@@ -128,9 +94,11 @@
 
 
                 <!-- Cột sidebar -->
-                <div class="col-lg-5">
+                <div class="col-lg-4">
+
                     <div class="card shadow-sm p-4">
-                        <h3 class="text-primary mb-4">📅 Chọn Ngày Khởi Hành</h3>
+
+                        <h4 class="fw-bold text-primary mb-3">📅 Chọn Ngày Khởi Hành</h4>
                         <c:if test="${not empty errorMessage}">
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 ${errorMessage}
@@ -176,14 +144,35 @@
 
                             <c:otherwise>
                                 <div class="alert alert-warning">
-                                    Bạn cần <a href="${pageContext.request.contextPath}/views/home/login.jsp" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
+                                    Bạn cần 
+                                    <c:url var="loginURL" value="/views/account/login.jsp">
+                                        <c:param name="redirect" value="${pageContext.request.contextPath}/TourDetailController?tourid=${tourId}" />
+                                    </c:url>
+                                    <a href="${loginURL}" class="text-primary fw-bold">đăng nhập</a> để đặt tour.
                                 </div>
                             </c:otherwise>
+
+
+
                         </c:choose>
                     </div>
+                    <div class="card p-3 shadow-sm">
+                        <div class="card-body small text-muted">
+                            <p class="mb-1"><strong>Lưu ý:</strong></p>
+                            <ul class="ps-3 mb-0">
+                                <li>Giá hiển thị là tổng ước tính. Giá cuối cùng phụ thuộc vào ngày và số lượng khách.</li>
+                                <li>Vui lòng kiểm tra kỹ ngày khởi hành trước khi thanh toán.</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
+            </div>
+            <div class="text-center mt-4 mb-4">
+                <a href="javascript:history.back()" class="btn btn-outline-primary rounded-pill px-4">
+                    Quay lại trang trước
+                </a>
+            </div>
         </div>
 
         <%@ include file="/views/common/footer.jsp" %>

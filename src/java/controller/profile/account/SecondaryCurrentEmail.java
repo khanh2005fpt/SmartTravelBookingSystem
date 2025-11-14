@@ -15,9 +15,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
 import java.util.List;
-import model.EmailCustomer;
-import model.PhoneCustomer;
+import model.CustomerContacts;
 import model.User;
 
 /**
@@ -90,26 +90,33 @@ public class SecondaryCurrentEmail extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
         return;
        }
+       
+         try {
         Integer userId = user.getUserId();
        String action = request.getParameter("action_current");
        if(action==null){
-            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+              response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
           return;
        }
        
        if(action.startsWith("delete-")){
            
-             int emailId = Integer.parseInt(action.split("-")[1]);
-           customerDao.deleteEmail(emailId);
+             int contactId = Integer.parseInt(action.split("-")[1]);
+           customerDao.deleteContact(contactId);
            session.setAttribute("successEmail", "Đã xóa email thành công!");
             session.removeAttribute("emailList_Current");
             //sau khi xoa update moi nhat
-           List<EmailCustomer> updateList =  customerDao.getEmailsByUserId(userId);
-           session.setAttribute("emailList_Current", updateList);
-            response.sendRedirect(request.getContextPath()+"/views/customer_profile/profile.jsp");
+              List<CustomerContacts> updatedList = customerDao.getEmailContactByUserId(userId);
+           session.setAttribute("emailList_Current", updatedList);
+              response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
            
            
        }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            session.setAttribute("errorEmail_Deleted", "Có lỗi xảy ra khi xóa email. Vui lòng thử lại!");
+            response.sendRedirect(request.getContextPath() + "/views/customer_profile/profile.jsp?section=account#");
+        }
     }
 
     /** 

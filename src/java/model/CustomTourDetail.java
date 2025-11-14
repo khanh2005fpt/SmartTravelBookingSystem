@@ -9,6 +9,7 @@ package model;
  * @author Admin
  */
 public class CustomTourDetail {
+     private int detailId;      // chỉ khi lấy từ DB
     private int customTourId;
     private String serviceType;
     private int serviceId;
@@ -17,7 +18,7 @@ public class CustomTourDetail {
 
     public CustomTourDetail() {
     }
-
+  // Constructor tạo mới khi add dịch vụ (chưa có detailId)
     public CustomTourDetail(int customTourId, String serviceType, int serviceId, int price) {
         this.customTourId = customTourId;
         this.serviceType = serviceType;
@@ -26,6 +27,13 @@ public class CustomTourDetail {
 
     }
 
+    public int getDetailId() {
+        return detailId;
+    }
+
+    public void setDetailId(int detailId) {
+        this.detailId = detailId;
+    }
     
 
     

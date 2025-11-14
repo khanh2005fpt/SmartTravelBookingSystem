@@ -77,7 +77,25 @@
                             
         %>
         
+                   <!-- lay thong tin user và athorized -->
+        
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
 
+    if (roleId != 1 && roleId != 3) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+%>
 
     </head>
     <body class="profile" >
@@ -125,7 +143,7 @@
                     </div>
 
                     <!-- xử lý ảnh trước khi upload  -->
-                    <script>
+                    <script>    
                         // Preview ảnh và auto upload
                         function previewAvatar(event) {
                             const file = event.target.files[0];
@@ -151,11 +169,11 @@
 
                 <div class="profile-menu">
                     <a href="#" onclick="showMainSection(event, 'member-priority')"><i class="bi bi-award"></i> Membership Level</a>
-                    <a href="#" onclick="showMainSection(event, 'historyBooking')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ của tôi</a>
+                    <a href="#" onclick="showMainSection(event, 'historyBookings')"><i class="bi bi-calendar2-check"></i> Lịch sử đặt chỗ</a>
                     <a href="#" onclick="showMainSection(event, 'transactions')"><i class="bi bi-list-ul"></i> Giao dịch</a>
                     <a href="#" onclick="showMainSection(event, 'notifications')"><i class="bi bi-bell"></i> Thông báo</a>
                     <a href="#" onclick="showMainSection(event, 'favorites')"><i class="bi bi-heart-fill"></i>Tours and Services</a>
-                    <a href="#" onclick="showMainSection(event, 'account')" class="active"><i class="bi bi-gear"></i> Tài khoản</a>
+                    <a href="#" onclick="showMainSection(event, 'account')"><i class="bi bi-gear"></i> Tài khoản</a>
                     <a  href="#" data-toggle="modal" data-target="#logoutModal"class="logout text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
 
                 </div>
@@ -214,9 +232,9 @@
                             <div class="membership-card bronze">
                                 <div class="level-icon">🥉</div>
                                 <h5>Bronze</h5>
-                                <p>Dưới 1.000 điểm</p>
+                                <p>Dưới 800.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 5% cho mọi đơn hàng</li>
+                                    <li>• Giảm 5% cho mọi dịch vụ và gói tour</li>
                                     <li>• Nhận thông báo ưu đãi sớm</li>
                                     <li>• Cộng điểm tích lũy khi thanh toán</li>
                                 </ul>
@@ -227,9 +245,9 @@
                             <div class="membership-card silver">
                                 <div class="level-icon">🥈</div>
                                 <h5>Silver</h5>
-                                <p>Từ 1.000 đến 4.999 điểm</p>
+                                <p>Từ 800.000 đến 5.000.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 10% cho mọi đơn hàng</li>
+                                    <li>• Giảm 10% cho mọi dịch vụ và gói tour</li>
                                     <li>• Miễn phí 1 lần đổi dịch vụ mỗi tháng</li>
                                     <li>• Ưu tiên hỗ trợ khách hàng</li>
                                 </ul>
@@ -240,9 +258,9 @@
                             <div class="membership-card gold">
                                 <div class="level-icon">🥇</div>
                                 <h5>Gold</h5>
-                                <p>Từ 5.000 đến 9.999 điểm</p>
+                                <p>Từ  5.000.000 đến 10.000.000 điểm</p>
                                 <ul>
-                                    <li>• Giảm 15% cho mọi đơn hàng</li>
+                                    <li>• Giảm 15% cho mọi dịch vụ và gói tour</li>
                                     <li>• Tặng voucher sinh nhật trị giá 100.000đ</li>
                                     <li>• Ưu tiên đặt dịch vụ trước</li>
                                 </ul>
@@ -253,9 +271,9 @@
                             <div class="membership-card platinum">
                                 <div class="level-icon">💎</div>
                                 <h5>Platinum</h5>
-                                <p>Từ 10.000 điểm trở lên</p>
+                                <p>Từ 10.000.000 điểm trở lên</p>
                                 <ul>
-                                    <li>• Giảm 20% cho mọi đơn hàng</li>
+                                    <li>• Giảm 20% cho mọi DỊCH VỤ KÈM GÓI TOUR</li>
                                     <li>• Có nhân viên chăm sóc riêng</li>
                                     <li>• Quyền truy cập sớm các chương trình VIP</li>
                                 </ul>
@@ -264,13 +282,105 @@
 
                     </div>
                 </section>
-
-
-
-
             </div>
-                    
-                    
+                  <!-- historyBooking content ----------------------------------------->       
+            
+                  <div id="historyBookings" class="historyBookings-container main-section">
+
+    <!-- Banner -->
+    <div class="tab-header-historyBookings text-center mb-4 w-100">
+        <img 
+            src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+            alt="historyBookings Banner"
+            class="img-fluid rounded-3 shadow-sm w-100">
+    </div>
+
+    <!-- Tiêu đề -->
+    <div class="text-center mb-4 w-auto">
+        <span class="badge bg-gradient" 
+              style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+            🔔 Lịch sử đặt tour của bạn
+        </span>
+    </div>
+
+   <!-- Tiêu đề phụ / thông báo -->
+<div class="text-center mb-3">
+    <p class="fw-bold text-success mb-0" style="font-size: 20px;">
+        Những lần <strong>Booking Tour</strong>  gần nhất của bạn
+    </p>
+</div>
+   <hr>
+ <div class="text-center mb-3">
+                          <a class="btn btn-primary btn-reload" href="${pageContext.request.contextPath}/FullHistoryBooking?section=historyBookings#" >Hiển thị lịch sử</a>
+                      </div>
+
+    <!-- Nếu không có lịch sử -->
+    <c:if test="${empty historyList}">
+        <p class="text-center text-muted mt-3">Không có lịch sử đặt tour nào.</p>
+    </c:if>
+
+    <!-- List nội dung -->
+    <div class="container mt-4">
+        <ul class="list-group list-group-flush">
+            <c:forEach var="history" items="${historyList}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+
+                    <!-- Thông tin khách -->
+                    <div class="d-flex flex-column flex-md-row w-100 justify-content-between align-items-md-center">
+
+                        <div class="me-md-3">
+                            <p class="mb-1 fw-semibold">👤 ${history.customerName}</p>
+                            <p class="mb-1 text-muted">📧 ${history.customerEmail}</p>
+                            <p class="mb-1 text-muted">☎️ ${history.customerPhone}</p>
+                        </div>
+
+                        <div class="me-md-3 text-md-center">
+                            <p class="mb-1 text-muted">
+                                🕓 <fmt:formatDate value="${history.createdAt}" pattern="dd/MM/yyyy HH:mm" />
+                            </p>
+                        </div>
+
+                        <div class="text-md-end mt-2 mt-md-0">
+                            <span class="badge px-3 py-2 
+                                ${history.tourStatus == 'COMPLETED' ? 'bg-success text-white' : 
+                                  (history.tourStatus == 'INCOMPLETE' ? 'bg-danger' : 'bg-warning text-dark')} fw-semibold">
+                                ${history.tourStatus}
+                            </span>
+                        </div>
+
+                    </div>
+                </li>
+            </c:forEach>
+        </ul>
+    </div>
+
+</div>
+
+                 <!-- Payments content ----------------------------------------->
+                 
+                        <!--  content -->
+                        <div id="transactions" class=" transactions-container main-section" style="display:none;">
+                            <!-- Banner -->
+                            <div class="tab-header-transactions text-center mb-4 w-100">
+                                <img 
+                                    src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                                    alt="transactions Banner"
+                                    class="img-fluid rounded-3 shadow-sm w-100">
+                            </div>
+                            <!-- Tiêu đề -->
+                            <div class="text-center mb-4 w-auto">
+                                <span class="badge bg-gradient" 
+                                      style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                                    🔔 Danh sách thông báo Meland Booking
+                                </span>
+                            </div>
+
+
+                                  
+                              </div>
+             
       <!-- Notifications content ----------------------------------------->
       <div id="notifications" class="notifications-container main-section p-3">
 
@@ -396,17 +506,29 @@
               </c:forEach>
           </section>
       </div>
+          <!-- favorites content ----------------------------------------->
+                 <div id="favorites" class=" favorites-container main-section" style="display:none;">
+                 
+                       <!-- Banner -->
+          <div class="tab-header-favorites text-center mb-4 w-100">
+              <img 
+                  src="${pageContext.request.contextPath}/views/home/images/island_Bg.jpg"
+                  alt="favorites Banner"
+                  class="img-fluid rounded-3 shadow-sm w-100">
+          </div>
+               <!-- Tiêu đề -->
+          <div class="text-center mb-4 w-auto">
+              <span class="badge bg-gradient" 
+                    style="background: linear-gradient(to right, #d97706, #b45309);
+                     font-size: 1.1rem; padding: 10px 20px; border-radius: 20px; color: #FFF">
+                         🔔 Danh sách thông báo Meland Booking
+              </span>
+          </div>
 
-           
-
-            <!-- booking content -->
-            <div id="historyBooking" class="main-section" style="display:none;"> Lịch sử Nội dung Đặt chỗ của tôi...</div>
-             
-            <!--  content -->
-            <div id="transactions" class="main-section" style="display:none;">Nội dung giao dịch của tôi...</div>
-             
-            
-                 <div id="favorites" class="main-section" style="display:none;">tour và dịch vụ yêu thích</div>
+                 
+                 
+                 
+                 </div>
             
             <!-- account and securit content --> 
             <div id="account" class="account-container main-section " >
@@ -473,6 +595,7 @@
                                 <div>
                                     <label for="gender">Giới tính</label>
                                     <select id="gender" name="gender">
+                                      
                                         <option value="MALE" ${requestScope.gender == 'MALE' ? 'selected' : ''}>Nam</option>
                                         <option value="FEMALE" ${requestScope.gender == 'FEMALE' ? 'selected' : ''}>Nữ</option>
                                         <option value="OTHER" ${requestScope.gender == 'OTHER' ? 'selected' : ''}>Khác</option>
@@ -552,13 +675,13 @@
                                     <c:forEach var="email" items="${sessionScope.emailList}">
                                         <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                             <div>
-                                                📧 <span>${email.email}</span>
+                                                📧 <span>${email.contactValue}</span>
                                             </div>
                                             <div>
-                                                <button type="submit" name="action" value="makePrimary-${email.emailId}" class="btn btn-sm btn-outline-success me-2">
+                                                <button type="submit" name="action" value="makePrimary-${email.contactId}" class="btn btn-sm btn-outline-success me-2">
                                                     ✅
                                                 </button>
-                                                <button type="submit" name="action" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+                                                <button type="submit" name="action" value="delete-${email.contactId}" class="btn btn-sm btn-outline-danger">
                                                     🗑️
                                                 </button>
                                             </div>
@@ -580,10 +703,10 @@
                                 <c:forEach var="email" items="${sessionScope.emailList_Current}">
                                     <div class="email-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                         <div>
-                                            📧 <span>${email.email}</span>
+                                            📧 <span>${email.contactValue}</span>
                                         </div>
                                         <div>
-                                            <button type="submit" name="action_current" value="delete-${email.emailId}" class="btn btn-sm btn-outline-danger">
+                                            <button type="submit" name="action_current" value="delete-${email.contactId}" class="btn btn-sm btn-outline-danger">
                                                 🗑️
                                             </button>
                                         </div>
@@ -651,10 +774,10 @@
                                     <c:forEach var="phone" items="${sessionScope.phoneList}">
                                         <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                             <div>
-                                                📱 <span>${phone.phone}</span>
+                                                📱 <span>${phone.contactValue}</span>
                                             </div>
                                             <div>
-                                                <button type="submit" name="action" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                                                <button type="submit" name="action" value="delete-${phone.contactId}" class="btn btn-sm btn-outline-danger">
                                                     🗑️
                                                 </button>
                                             </div>
@@ -676,10 +799,10 @@
                                 <c:forEach var="phone" items="${sessionScope.phoneList_Current}">
                                     <div class="phone-item d-flex justify-content-between align-items-center border p-2 rounded mb-2">
                                         <div>
-                                            📱 <span>${phone.phone}</span>
+                                            📱 <span>${phone.contactValue}</span>
                                         </div>
                                         <div>
-                                            <button type="submit" name="action_current" value="delete-${phone.phoneId}" class="btn btn-sm btn-outline-danger">
+                                            <button type="submit" name="action_current" value="delete-${phone.contactId}" class="btn btn-sm btn-outline-danger">
                                                 🗑️
                                             </button>
                                         </div>
@@ -707,7 +830,7 @@
                                     </button>
                                 </div>
 
-                                <!-- Body -->
+                                <!-- Body -->S
                                 <div class="modal-body">
                                     <!-- Thông báo lỗi -->
                                     <% String errorEmail = (String) session.getAttribute("errorEmail"); %>
@@ -863,20 +986,22 @@
                     <!-- =================== Js for sidebar menu =================== -->               
                <script>
                    
-// Hàm hiển thị section chính
+// =================== Hiển thị section chính ===================
 function showMainSection(evt, sectionId) {
-    evt.preventDefault(); // Ngăn hành vi mặc định của thẻ <a>
+    evt.preventDefault(); // Ngăn reload page
+    console.log("Showing section: " + sectionId);
 
-    // Ẩn tất cả các section
+    // Ẩn tất cả section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
     // Hiển thị section được chọn
     const selected = document.getElementById(sectionId);
     if (selected) selected.style.display = "block";
 
-    // Nếu section là 'account', hiển thị container tài khoản
+    // Nếu là account, hiển thị container account
     if (sectionId === 'account') {
-        document.querySelector('.account-container').style.display = "block";
+        const accountContainer = document.querySelector(".account-container");
+        if (accountContainer) accountContainer.style.display = "block";
     }
 
     // Cập nhật class active cho menu
@@ -884,59 +1009,73 @@ function showMainSection(evt, sectionId) {
     evt.currentTarget.classList.add("active");
 }
 
-// Điều khiển tab con trong phần Tài khoản
+// =================== Điều khiển tab con trong Account ===================
 function showAccountTab(evt, tabId) {
+    // Ẩn tất cả tab-content
     document.querySelectorAll(".account-container .tab-content").forEach(c => c.classList.remove("active"));
     document.querySelectorAll(".tab-header-account button").forEach(b => b.classList.remove("active"));
-    document.getElementById(tabId).classList.add("active");
+
+    // Hiển thị tab được chọn
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) selectedTab.classList.add("active");
+
     evt.currentTarget.classList.add("active");
 }
 
-// =================== Khởi tạo section khi trang được tải ===================   
+// =================== Khởi tạo section khi trang được tải ===================
 document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const section = params.get("section"); 
-
-    // Ẩn tất cả section khi load
+    // Ẩn tất cả section
     document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-    const validSections = ['member-priority', 'historyBooking', 'transactions', 'notifications', 'favorites', 'account'];
+  
 
-    if (section && validSections.includes(section)) {
-        const selected = document.getElementById(section);
-        if (selected) selected.style.display = "block";
-
-        if (section === 'account') {
-            document.querySelector(".account-container").style.display = "block";
-        }
-
-        // Cập nhật lớp active trong menu sidebar
-        document.querySelectorAll(".profile-menu a").forEach(link => {
-            const onclick = link.getAttribute("onclick");
-            if (onclick && onclick.includes(section)) {
-                link.classList.add("active");
-            }
+    // Cập nhật class active cho menu mặc định
+    const defaultMenuLink = Array.from(document.querySelectorAll(".profile-menu a"))
+        .find(a => {
+            const onclick = a.getAttribute("onclick");
+            return onclick && onclick.includes(defaultSectionId);
         });
-    }
+    if (defaultMenuLink) defaultMenuLink.classList.add("active");
 });
 
 
-// an list thong ui sau khi xoa me 
-document.addEventListener("click", function(e) { 
-    if (e.target.closest(".btn-hide")) {
-        const card = e.target.closest(".notification-card");
-        card.remove();
+document.addEventListener("DOMContentLoaded", function () {
+    // Ẩn tất cả
+    document.querySelectorAll(".main-section, .account-container").forEach(s => s.style.display = "none");
 
-        const list = document.querySelectorAll(".notification-card");
-        if (list.length === 0) {
-            const emptyMsg = document.createElement("p");
-            emptyMsg.textContent = "Không có thông báo nào.";
-            emptyMsg.classList.add("text-center", "text-muted", "mt-3");
-            document.querySelector("section").appendChild(emptyMsg);
-        }
-    }
+    // Lấy section từ URL query param
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') || 'account'; // default nếu không có
+
+    const selectedSection = document.getElementById(section);
+    if (selectedSection) selectedSection.style.display = "block";
+
+    // Cập nhật active menu
+    const menuLink = Array.from(document.querySelectorAll(".profile-menu a"))
+        .find(a => a.getAttribute("onclick")?.includes(section));
+    if (menuLink) menuLink.classList.add("active");
 });
 
+
+// Hàm helper kiểm tra danh sách rỗng
+function checkEmptyList(cardSelector, emptyMessage, containerSelector) {
+    const list = document.querySelectorAll(cardSelector);
+    const container = document.querySelector(containerSelector);
+
+    // Xóa thông báo rỗng cũ nếu tồn tại
+    const existingEmptyMsg = container.querySelector(".text-center.text-muted.mt-3");
+    if (existingEmptyMsg) {
+        existingEmptyMsg.remove();
+    }
+
+    // Kiểm tra và thêm thông báo rỗng nếu danh sách trống
+    if (list.length === 0 && container) {
+        const emptyMsg = document.createElement("p");
+        emptyMsg.textContent = emptyMessage;
+        emptyMsg.classList.add("text-center", "text-muted", "mt-3");
+        container.appendChild(emptyMsg);
+    }
+}
 </script>
 
                     <%@ include file="/views/common/script.jsp" %>

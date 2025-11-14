@@ -6,7 +6,7 @@
 package controller.account;
 
 
-import dao.userDao;
+import dao.UserDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -25,13 +25,13 @@ import model.User;
 @WebServlet(name="ResetPassword", urlPatterns={"/ResetPassword"})
 public class ResetPassword extends HttpServlet {
     
-  public userDao userDAO ;
+  public UserDao userDAO ;
     
     
     @Override
      public void init() throws ServletException {
         try {
-           userDAO = userDao.INSTANCE;
+           userDAO = UserDao.INSTANCE;
                
             System.out.println("userDao initialized successfully in requestPasswordServlet");
         } catch (Exception e) {

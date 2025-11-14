@@ -3,7 +3,7 @@
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<%@ page import="model.User" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -27,7 +27,7 @@
             }
 
             .page-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 padding: 30px;
                 border-radius: 15px;
@@ -84,8 +84,8 @@
                 box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
             }
 
-            .btn-search {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            .btn-searchSchedule {
+                background: linear-gradient(180deg, #0077b6, #00b4d8);
                 color: white;
                 border: none;
                 padding: 10px 25px;
@@ -95,7 +95,7 @@
                 height: fit-content;
             }
 
-            .btn-search:hover {
+            .btn-searchSchedule:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
                 color: white;
@@ -122,37 +122,7 @@
                 text-decoration: none;
             }
 
-            .restaurants-container {
-                background: white;
-                border-radius: 15px;
-                overflow: hidden;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            }
-
-            .restaurants-header {
-                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                padding: 20px 25px;
-                border-bottom: 1px solid #dee2e6;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .restaurants-title {
-                font-size: 1.25em;
-                font-weight: 600;
-                color: #333;
-                margin: 0;
-            }
-
-            .restaurants-count {
-                background: #667eea;
-                color: white;
-                padding: 5px 12px;
-                border-radius: 20px;
-                font-size: 0.9em;
-                font-weight: 600;
-            }
+           
 
             .table-responsive {
                 max-height: 600px;
@@ -225,12 +195,6 @@
                 color: #333;
             }
 
-            .restaurant-price {
-                font-weight: 700;
-                color: #28a745;
-                font-size: 1.1em;
-            }
-
             .action-buttons {
                 display: flex;
                 gap: 8px;
@@ -282,36 +246,37 @@
                 text-decoration: none;
             }
 
-            .pagination-container {
-                padding: 20px 25px;
-                background: #f8f9fa;
-                border-top: 1px solid #dee2e6;
+            .pagination-wrapper {
+                background: white;
+                padding: 25px;
+                border-radius: 15px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+                margin-top: 30px;
+                width: 100%;
             }
 
             .pagination {
-                margin: 0;
                 justify-content: center;
+                margin: 0;
             }
 
             .page-link {
                 border-radius: 8px;
-                margin: 0 2px;
-                border: 2px solid #e9ecef;
-                color: #667eea;
-                font-weight: 600;
+                margin: 0 3px;
+                border: none;
+                color: #00ACD4;
+                font-weight: 500;
             }
 
             .page-link:hover {
-                background-color: #667eea;
-                border-color: #667eea;
+                background: #007CB9;
                 color: white;
             }
 
             .page-item.active .page-link {
-                background-color: #667eea;
-                border-color: #667eea;
+                background: #00ACD4;
+                border-color: #007CB9;
             }
-
             .empty-state {
                 text-align: center;
                 padding: 60px 20px;
@@ -403,6 +368,26 @@
             }
         </style>
     </head>
+
+    <!-- lay thong tin user và athorized -->
+
+    <%
+User currentUser = (User) session.getAttribute("user");
+if (currentUser == null) {
+        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
+        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
+        return;
+    }
+if (currentUser != null) {
+    int roleId = currentUser.getRoleId();
+
+    if (roleId != 1 && roleId != 4) {
+        session.setAttribute("errorMess", "Bạn không có quyền truy cập trang này!");
+        response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
+        return;
+    }
+}
+    %>
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="sidebar.jsp">
@@ -412,7 +397,7 @@
         <div class="main-content">
             <!-- Page Header -->
             <div class="page-header ">
-                <h1><i class="fa fa-utensils  text-left"></i> Quản lý chuyến bay MelanBooking</h1>
+                <h1><i class="fa fa-plane"></i></i> Quản lý chuyến bay MelanBooking</h1>
                 <p class="flights-title text-white">
                     <i class="fa fa-list"></i> Danh sách lịch trình chuyến bay : <span class="flights-count text-white small">
                         ${not empty flightSchedules ? flightSchedules.size() : 0}  lịch trình
@@ -501,11 +486,8 @@
                             </option>
                         </select>
 
-
                     </div>
-
-
-                    <button type="submit" class="btn-search">
+                    <button type="submit" class="btn-searchSchedule">
                         <i class="fa fa-search"></i> Tìm kiếm
                     </button>
                     <!-- Thông tin + nút thêm vé -->
@@ -610,23 +592,72 @@
                                         <!-- Vạch ngăn cách trước nút -->
                                         <hr class="my-3" style="border-top: 1px solid #ddd;">
                                         <div class="d-flex justify-content-end mt-4 " style="gap: 12px;">
-                                            <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=edit&id=${s.scheduleId}"
+                                            <a href="${pageContext.request.contextPath}/staff/flight/schedules?action=edit&scheduleId=${s.scheduleId}"
                                                class="btn btn-outline-primary rounded-3 px-3 py-1">
                                                 <i class="fa fa-edit me-1"></i> Sửa
                                             </a>
-                                            <a href="${pageContext.request.contextPath}/staff/flight/schedule?action=delete&id=${s.scheduleId}"
+
+                                            <a href="#"
+                                               onclick="confirmDelete(${s.scheduleId}, ${s.flight.flightId}, '${s.flight.flightNumber}')"
                                                class="btn btn-outline-danger rounded-3 px-3 py-1">
                                                 <i class="fa fa-trash me-1"></i> Xóa
                                             </a>
+
                                         </div>
-
-
-
 
                                     </div>
                                 </div>
                             </div>
                         </c:forEach>
+
+
+                        <!-- Pagination -->
+                        <c:if test = "${totalPages>1}">
+                            <div class ="pagination-wrapper">
+                                <nav aria-label="FlightSchedule pagination">
+                                    <ul class="pagination">
+                                        <!-- Previous Page -->  
+                                        <c:if test="${currentPage>1}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage - 1}&pageSize=${pageSize}&search=${param.search}">
+                                                    <i class="fa fa-chevron-left"></i> Trước
+                                                </a>  
+                                            </li>
+                                        </c:if>
+
+                                        <!-- Page Numbers --> 
+                                        <c:forEach begin="${startPage}" end="${endPage}" var="pageNum">
+                                            <li class="page-item ${pageNum == currentPage ? 'active' : ''}">
+                                                <a class="page-link" href="?page=${pageNum}&pageSize=${pageSize}&search=${param.search}">
+                                                    ${pageNum}
+                                                </a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <!-- Next Page --> 
+                                        <c:if test="${currentPage < totalPages}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage + 1}&pageSize=${pageSize}&search=${param.search}">
+                                                    Sau <i class="fa fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </c:if>
+
+                                    </ul>
+
+                                </nav>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        Hiển thị ${(currentPage - 1) * pageSize + 1} - 
+                                        ${currentPage * pageSize > totalFlightSchedules ? totalFlightSchedules : currentPage * pageSize} 
+                                        trong tổng số ${totalFlightSchedules} Lịch trình chuyến bay bay
+                                    </small>
+                                </div>
+
+                            </div>
+
+                        </c:if>
+
                     </c:when>
                     <c:otherwise>
 
@@ -667,20 +698,21 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Xác nhận xóa</h5>
+                            <h5 class="modal-title ">⚠️ Xác nhận xóa lịch trình chuyến bay</h5>
                             <button type="button" class="close" data-dismiss="modal">
                                 <span>&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <p>Bạn có chắc chắn muốn xóa nhà hàng "<span id="restaurantNameToDelete"></span>"?</p>
+                            <p>Bạn có chắc chắn muốn xóa lịch trình bay mã số : "<strong id="flightNumberToDelete"></strong>" ?</p>
                             <p class="text-danger"><small>Hành động này không thể hoàn tác.</small></p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                             <form id="deleteForm" method="post" style="display: inline;">
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" id="restaurantIdToDelete">
+                                <input type="hidden" name="scheduleId" id="scheduleIdToDelete">
+                                <input type="hidden" name="flightId" id="flightIdToDelete">
                                 <button type="submit" class="btn btn-danger">Xóa</button>
                             </form>
                         </div>
@@ -688,14 +720,15 @@
                 </div>
             </div>
 
+
             <script>
-                function confirmDelete(restaurantId, restaurantName) {
-                    document.getElementById('restaurantIdToDelete').value = restaurantId;
-                    document.getElementById('restaurantNameToDelete').textContent = restaurantName;
-                    document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/restaurants';
+                function confirmDelete(scheduleId, flightId, flightNumber) {
+                    document.getElementById('scheduleIdToDelete').value = scheduleId;
+                    document.getElementById('flightIdToDelete').value = flightId;
+                    document.getElementById('flightNumberToDelete').textContent = flightNumber;
+                    document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/flight/schedules';
                     $('#deleteModal').modal('show');
                 }
-
                 // Auto-hide alerts after 5 seconds
                 setTimeout(function () {
                     $('.alert').fadeOut('slow');
@@ -718,5 +751,47 @@
                     });
                 });
             </script>
+
+            <!-- Modal thông báo action khi thành công -->
+            <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-center shadow-lg border-0 rounded-4 overflow-hidden">
+
+                        <!-- Header xanh lá -->
+                        <div class="modal-header bg-success text-white justify-content-center py-3">
+                            <h5 class="modal-title fw-bold text-uppercase text-white letter-spacing-1" id="successModalLabel">
+                                🎉 Thao tác thành công!
+                            </h5>
+                        </div>
+
+                        <!-- Nội dung -->
+                        <div class="modal-body fs-5 text-secondary py-4">
+                            ✈️ Lịch trình chuyến bay của bạn đã được <strong class="text-success fw-bold">${param.success}</strong> thành công!<br>
+                            <strong class="text-dark">ID Lịch trình chuyến bay:</strong> ${param.scheduleId}
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="modal-footer justify-content-center border-0 pb-4">
+                            <button type="button" class="btn btn-success px-4 fw-semibold" id="btnOk" data-bs-dismiss="modal">
+                                <i class="fa fa-check-circle me-2"></i> OK
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Script bật modal -->
+            <c:if test="${param.success == 'created' || param.success == 'updated' || param.success == 'deleted'}">
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+                        modal.show();
+                        document.getElementById("btnOk").addEventListener("click", function () {
+                            modal.hide();
+                        });
+                    });
+                </script>
+            </c:if>
     </body>
 </html>
