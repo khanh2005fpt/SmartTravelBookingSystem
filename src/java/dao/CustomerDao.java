@@ -141,10 +141,10 @@ public class CustomerDao extends DBContext {
 
 
 
-    public List<Notification> getLatestNotificationsByUser(int userId) throws SQLException{
+    public List<Notification> getAllNotificationsByUser(int userId) throws SQLException{
         List<Notification> list = new ArrayList<>();
         String sql = """
-            SELECT TOP 10 
+            SELECT 
                 notificationId, 
                 userId, 
                 title, 

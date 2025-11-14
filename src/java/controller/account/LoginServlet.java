@@ -133,8 +133,8 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("emailList_Current", emailList);
                 session.setAttribute("phoneList_Current", phoneList);
 
-                // gui thong bao cua customer sau khi login 
-                List<Notification> notifications = customerDao.getLatestNotificationsByUser(existing.getUserId());
+                // gui thong bao cua customer sau khi login s
+                List<Notification> notifications = customerDao.getAllNotificationsByUser(existing.getUserId());
                 session.setAttribute("notifications", notifications);
 
                 int roleId = existing != null ? existing.getRoleId() : existing.getRoleId();
@@ -249,7 +249,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("phoneList_Current", phoneList);
 
             // gui thong bao cua customer sau khi login 
-            List<Notification> notifications = customerDao.getLatestNotificationsByUser(user.getUserId());
+            List<Notification> notifications = customerDao.getAllNotificationsByUser(user.getUserId());
             session.setAttribute("notifications", notifications);
 
             session.setAttribute("loginSuccess", "oke");

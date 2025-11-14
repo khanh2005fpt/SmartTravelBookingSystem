@@ -273,22 +273,17 @@ public class BookingDao extends DBContext {
     public static void main(String[] args) {
         try {
             // 1. Tạo DAO (đảm bảo trong class này có connection hợp lệ)
-           BookingDao bookingDao = new BookingDao();
-                // 2. Khởi tạo DAO
-          
-     // 3️⃣ Nhập bookingId muốn test
-            int bookingId = 71; // <-- thay bằng bookingId thật có trong DB
+        BookingDao dao = new BookingDao();
+    int bookingId = 85; // booking muốn test
+         System.out.println(">>> Testing decreaseInventory for bookingId = " + bookingId);
 
-            // 4️⃣ Gọi hàm test
-            Integer flightId = bookingDao.getFlightIdByBookingId(bookingId);
+        boolean success = dao.decreaseInventory(bookingId);
 
-            // 5️⃣ In kết quả
-            if (flightId != null) {
-                System.out.println("✅ Flight ID for booking " + bookingId + " = " + flightId);
-            } else {
-                System.out.println("❌ No flight found for booking " + bookingId);
-            }
-       
+        if (success) {
+            System.out.println("✅ Inventory decreased successfully for bookingId = " + bookingId);
+        } else {
+            System.out.println("❌ Inventory decrease failed for bookingId = " + bookingId);
+        }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -850,5 +845,125 @@ public class BookingDao extends DBContext {
     }
     
     
+    // Tính tồn kho 
+    
+   public boolean decreaseInventory(int bookingId) throws SQLException {
+    connection.setAutoCommit(false); // start transaction
+
+    try {
+        // 1️⃣ Lấy thông tin booking
+        String sqlBooking = "SELECT tourId, adultQuantity, childQuantity FROM Bookings WHERE bookingId = ?";
+        PreparedStatement psBooking = connection.prepareStatement(sqlBooking);
+        psBooking.setInt(1, bookingId);
+        ResultSet rsBooking = psBooking.executeQuery();
+        if (!rsBooking.next()) return false;
+
+        int tourId = rsBooking.getInt("tourId");
+        int quantity = rsBooking.getInt("adultQuantity") + rsBooking.getInt("childQuantity");
+
+        if (tourId == 0) return false; // nếu là customTour, bỏ qua
+
+        // 2.lấy island
+        String sqlTour = "SELECT islandId, availableQuantity FROM Tours WHERE tourId = ?";
+        PreparedStatement psTour = connection.prepareStatement(sqlTour);
+        psTour.setInt(1, tourId);
+        ResultSet rsTour = psTour.executeQuery();
+        if (!rsTour.next()) return false;
+
+        int islandId = rsTour.getInt("islandId");
+        int availableTour = rsTour.getInt("availableQuantity");
+
+        if (availableTour < quantity) throw new SQLException("Not enough Tour availableQuantity");
+
+        // 3️ giảm tour
+        String updateTour = "UPDATE Tours SET availableQuantity = availableQuantity - ? WHERE tourId = ?";
+        PreparedStatement psUpdateTour = connection.prepareStatement(updateTour);
+        psUpdateTour.setInt(1, quantity);
+        psUpdateTour.setInt(2, tourId);
+        psUpdateTour.executeUpdate();
+
+        // 4️⃣ Giảm Flights
+        String sqlFlights = "SELECT flightId, ticketAvailable FROM Flights WHERE destinationIslandId = ?";
+        PreparedStatement psF = connection.prepareStatement(sqlFlights);
+        psF.setInt(1, islandId);
+        ResultSet rsF = psF.executeQuery();
+
+        int remaining = quantity;
+        while (rsF.next() && remaining > 0) {
+            int flightId = rsF.getInt("flightId");
+            int availableTickets = rsF.getInt("ticketAvailable");
+            int toReduce = Math.min(availableTickets, remaining);
+
+            if (toReduce > 0) {
+                String upd = "UPDATE Flights SET ticketAvailable = ticketAvailable - ? WHERE flightId = ?";
+                PreparedStatement psUpd = connection.prepareStatement(upd);
+                psUpd.setInt(1, toReduce);
+                psUpd.setInt(2, flightId);
+                psUpd.executeUpdate();
+
+                remaining -= toReduce;
+            }
+        }
+        if (remaining > 0) throw new SQLException("Not enough flight tickets");
+
+        // 5️⃣ Giảm Hotels
+        String sqlHotels = "SELECT hotelId, roomsAvailable FROM Hotels WHERE islandId = ?";
+        PreparedStatement psH = connection.prepareStatement(sqlHotels);
+        psH.setInt(1, islandId);
+        ResultSet rsH = psH.executeQuery();
+
+        remaining = quantity;
+        while (rsH.next() && remaining > 0) {
+            int hotelId = rsH.getInt("hotelId");
+            int availableRooms = rsH.getInt("roomsAvailable");
+            int toReduce = Math.min(availableRooms, remaining);
+
+            if (toReduce > 0) {
+                String upd = "UPDATE Hotels SET roomsAvailable = roomsAvailable - ? WHERE hotelId = ?";
+                PreparedStatement psUpd = connection.prepareStatement(upd);
+                psUpd.setInt(1, toReduce);
+                psUpd.setInt(2, hotelId);
+                psUpd.executeUpdate();
+
+                remaining -= toReduce;
+            }
+        }
+        if (remaining > 0) throw new SQLException("Not enough hotel rooms");
+
+        // 6️⃣ Giảm Vehicles
+        String sqlVehicles = "SELECT vehicleId, availability FROM IslandVehicles WHERE islandId = ?";
+        PreparedStatement psV = connection.prepareStatement(sqlVehicles);
+        psV.setInt(1, islandId);
+        ResultSet rsV = psV.executeQuery();
+
+        remaining = quantity;
+        while (rsV.next() && remaining > 0) {
+            int vehicleId = rsV.getInt("vehicleId");
+            int availableVehicles = rsV.getInt("availability");
+            int toReduce = Math.min(availableVehicles, remaining);
+
+            if (toReduce > 0) {
+                String upd = "UPDATE IslandVehicles SET availability = availability - ? WHERE vehicleId = ?";
+                PreparedStatement psUpd = connection.prepareStatement(upd);
+                psUpd.setInt(1, toReduce);
+                psUpd.setInt(2, vehicleId);
+                psUpd.executeUpdate();
+
+                remaining -= toReduce;
+            }
+        }
+        if (remaining > 0) throw new SQLException("Not enough vehicles");
+
+        connection.commit(); // commit transaction nếu tất cả thành công
+        return true;
+
+    } catch (SQLException ex) {
+        connection.rollback(); // rollback nếu bất kỳ dịch vụ nào không đủ
+        throw ex;
+    } finally {
+        connection.setAutoCommit(true);
+    }
+}
+
 }
 

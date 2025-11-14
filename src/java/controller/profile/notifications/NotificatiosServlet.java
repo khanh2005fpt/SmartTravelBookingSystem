@@ -104,7 +104,7 @@ public class NotificatiosServlet extends HttpServlet {
    boolean isDeleted = customerDao.deleteAllNotificationsByUserId(userId);
 
 // Load lại danh sách notifications mới
-List<Notification> notifications = customerDao.getLatestNotificationsByUser(userId);
+List<Notification> notifications = customerDao.getAllNotificationsByUser(userId);
 request.setAttribute("notifications", notifications);
 
 request.getRequestDispatcher("/SearchIslandController").forward(request, response);

@@ -92,7 +92,11 @@ public class VnpayReturn extends HttpServlet {
                 System.out.println(paymentId);
                 Bill bill = null;
                 if (isSuccess) {
+                    
                     bookingDao.updateStatus(bookingId, "COMPLETED");
+                    
+                    // update tồn kho
+                    bookingDao.decreaseInventory(bookingId);
                     HistoryBooking hb = new HistoryBooking();
                     hb.setPaymentId(paymentId);
 
@@ -100,7 +104,7 @@ public class VnpayReturn extends HttpServlet {
                     int userId = user.getUserId();
                     hb.setAccountUserId(userId);
                     System.out.println(userId);
-
+          
                     // Thông tin khách hàng (nếu có trong form)
                     hb.setCustomerName(fullname);
                     hb.setCustomerEmail(email);
@@ -118,6 +122,7 @@ public class VnpayReturn extends HttpServlet {
             } catch (Exception e) {
                 e.printStackTrace();
                 response.getWriter().println("Lỗi khi lưu dữ liệu thanh toán: " + e.getMessage());
+                 response.getWriter().println("Lỗi khi update tồn kho: " + e.getMessage());
             }
         } else {
             response.getWriter().println("❌ Giao dịch không hợp lệ (Invalid signature)");

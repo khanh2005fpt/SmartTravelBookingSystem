@@ -23,16 +23,16 @@
             margin: 0;
             padding: 20px;
         }
-       .container {
-    margin-left: 270px;
-    padding: 30px;
-    max-width: 100%; 
-    margin-right: auto;
-    margin-top: 80px;
-    background-color: #ffffffb3;
-    border-radius: 20px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
+        .container {
+            margin-left: 270px;
+            padding: 30px;
+            max-width: 100%;
+            margin-right: auto;
+            margin-top: 80px;
+            background-color: #ffffffb3;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
 
 
         h2 {

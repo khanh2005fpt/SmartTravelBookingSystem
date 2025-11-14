@@ -100,9 +100,11 @@
                                     </p>
                                     <div class="mt-auto">
                                         <div class="d-flex justify-content-between align-items-center mt-3">
+                                            
                                             <p class="mb-0">
                                                 <i class="bi bi-heart heart" data-tour-id="${tour.tourId}" style="font-size:1.4rem; cursor:pointer;"></i>
                                             </p>
+                                            <p>  </p>
                                             <p class="text-primary fw-bold fs-5 mb-0 text-end">
                                                 <fmt:setLocale value="vi_VN" />
                                                 <fmt:formatNumber value="${tour.price}" type="number" groupingUsed="true"/> VND
@@ -135,6 +137,7 @@
 
                     <input type="hidden" name="islandId" value="${island.islandId}">
                     <input type="hidden" name="flightType" value="${flightType}">
+                    
                     <h2 class="h2 mb-4 text-center fw-bold text-primary">🏝️ Tour du lịch riêng lẻ</h2>
                     <div class="alert alert-info text-center fw-semibold rounded-pill py-2 shadow-sm">
                         🔹 Khách hàng có thể chọn nhiều dịch vụ cùng lúc để đặt trong một tour.
@@ -219,83 +222,69 @@
 
 
                         <!-- DANH SÁCH CHUYẾN BAY -->
-                        <div class="flight-scroll-container row">
-                            <c:choose>
-                                <c:when test="${not empty flights}">
-                                    <c:forEach var="f" items="${flights}">
-
-                                        <div class="col-lg-4 col-md-6 mb-4 flight-item">
-                                            <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
-                                                 data-flightId="${f.flightId}">
-
-                                                <!-- Ảnh + Logo -->
-                                                <div class="position-relative flight-card">
-                                                    <img src="${pageContext.request.contextPath}/${f.destinationImageUrl}"
-                                                         alt="${f.flightNumber}"
-                                                         class="card-img-top"
-                                                         style="height:220px; object-fit:cover; border-radius:10px;">
-                                                    <div class="airline-logo-wrapper">
-                                                        <img src="${pageContext.request.contextPath}/${f.airline.logoUrl}"
-                                                             alt="${f.airline.airlineName}"
-                                                             class="airline-logo">
-                                                    </div>
-                                                </div>
-
-                                                <div class="card-body d-flex flex-column">
-                                                    <div class="mb-1" style="text-align:left;">
-                                                        <h5 class="card-title fw-bold mb-1">
-                                                            <c:choose>
-                                                                <c:when test="${flightType == 'khuhoi'}">
-                                                                    ${f.departure} ⇌${f.destination}
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    ${f.departure} → ${f.destination}
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </h5>
-                                                        <p class="card-text">
-                                                            <span class="badge bg-success text-white px-2 py-1 fs-6">${f.flightClass}</span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mt-3">
-                                                        <p class="mb-2" style="margin-left: 2px;">
-
-                                                            <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
-                                                        </p>
-                                                        <p class="fw-bold text-danger fs-5 text-end">
-                                                            <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
-                                                        </p>
-                                                    </div>
-
-
-
-                                                    <div class="mt-0 d-flex gap-2">
-                                                        <!-- NÚT CHỌN -->
-                                                        <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn"
-                                                                data-flight-id="${f.flightId}">
-                                                            Chọn
-                                                        </button>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:forEach>
-                                </c:when>
-
-                                <c:otherwise>
-                                    <div class="col-12 text-center text-muted py-5">
-
-                                        <i class="bi bi-airplane fs-1 d-block mb-3"></i>
-                                        <i class="bi bi-search me-2"></i>
-                                        Không có <strong>chuyến bay</strong> nào mà bạn vừa tìm kiếm
-
-                                    </div>
-
-
-                                </c:otherwise>
-                            </c:choose>
+                  <!-- DANH SÁCH CHUYẾN BAY - SCROLL NGANG -->
+<div class="flight-scroll-container">
+    <c:choose>
+        <c:when test="${not empty flights}">
+            <c:forEach var="f" items="${flights}">
+                <div class="flight-item">
+                    <div class="card flight-card h-100 shadow-lg border-0 rounded-3 overflow-hidden"
+                         data-flightId="${f.flightId}">
+                        <!-- Nội dung giữ nguyên -->
+                        <div class="position-relative">
+                            <img src="${pageContext.request.contextPath}/${f.destinationImageUrl}"
+                                 alt="${f.flightNumber}"
+                                 class="card-img-top"
+                                 style="height:220px; object-fit:cover; border-radius:10px;">
+                            <div class="airline-logo-wrapper">
+                                <img src="${pageContext.request.contextPath}/${f.airline.logoUrl}"
+                                     alt="${f.airline.airlineName}"
+                                     class="airline-logo">
+                            </div>
                         </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-1" style="text-align:left;">
+                                <h5 class="card-title fw-bold mb-1">
+                                    <c:choose>
+                                        <c:when test="${flightType == 'khuhoi'}">
+                                            ${f.departure} ⇌ ${f.destination}
+                                        </c:when>
+                                        <c:otherwise>
+                                            ${f.departure} → ${f.destination}
+                                        </c:otherwise>
+                                    </c:choose>
+                                </h5>
+                                <p class="card-text">
+                                    <span class="badge bg-success text-white px-2 py-1 fs-6">${f.flightClass}</span>
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-between mt-3">
+                                <p class="mb-2" style="margin-left: 2px;">
+                                   <i class="bi bi-heart heart" data-flight-id="${f.flightId}" style="font-size:1.4rem;"></i>
+                                </p>
+                                <p class="fw-bold text-danger fs-5 text-end">
+                                    <fmt:formatNumber value="${f.basePrice}" type="currency" currencySymbol="VND" groupingUsed="true"/> /Khách
+                                </p>
+                            </div>
+                            <div class="mt-0 d-flex gap-2">
+                                <button type="button" class="btn btn-primary flex-fill rounded-pill w-100 select-flight-btn"
+                                        data-flightId="${f.flightId}">
+                                    Chọn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </c:forEach>
+        </c:when>
+        <c:otherwise>
+            <div class="text-center text-muted py-5 w-100">
+                <i class="bi bi-airplane fs-1 d-block mb-3"></i>
+                Không có chuyến bay nào
+            </div>
+        </c:otherwise>
+    </c:choose>
+</div>
 
                         <input type="hidden" id="selectedFlightId" name="selectedFlightId" value="">
                     </section>
@@ -818,20 +807,7 @@
                     el.style.display = 'block';
             }
 
-            function hide(selector) {
-                const el = document.querySelector(selector);
-                if (el)
-                    el.style.display = 'none';
-            }
-
-            function formatTime(time) {
-                return time ? time.substring(0, 5) : '-';
-            }
-
-            function splitAirport(airport) {
-                return airport ? airport.split('(')[0].trim() : '-';
-            }
-
+          
         </script>
 
         <!-- nhap thong tin ngay de tim chuyen bay va cam ket -->
@@ -921,103 +897,97 @@
         </script>
 
         <!-- add favaroutie tours ,services   -->
-          <!-- add favaroutie tours ,services   -->
-        <script >
-            // Load initial favorite states
-            document.addEventListener("DOMContentLoaded", () => {
-                // Collect all items to check
-                const itemsToCheck = [];
-                document.querySelectorAll(".heart").forEach(heart => {
-                    let serviceType = "";
-                    let refId = "";
-                    if (heart.dataset.tourId) {
-                        serviceType = "tour";
-                        refId = heart.dataset.tourId;
-                    } else if (heart.dataset.flightId) {
-                        serviceType = "flight";
-                        refId = heart.dataset.flightId;
-                    } else if (heart.dataset.hotelId) {
-                        serviceType = "hotel";
-                        refId = heart.dataset.hotelId;
-                    } else if (heart.dataset.vehicleId) {
-                        serviceType = "vehicle";
-                        refId = heart.dataset.vehicleId;
-                    } else if (heart.dataset.placeId) {
-                        serviceType = "place";
-                        refId = heart.dataset.placeId;
-                    }
-                    if (serviceType && refId) {
-                        itemsToCheck.push({ heart, serviceType, refId });
-                    }
-                });
+<script>
+document.addEventListener("DOMContentLoaded", () => {
 
-                // Check each item
-                itemsToCheck.forEach(({ heart, serviceType, refId }) => {
-                    fetch('${pageContext.request.contextPath}/favorite?action=check&serviceType=' + serviceType + '&refId=' + refId)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success && data.isFavorite) {
-                            heart.classList.add("favorited");
-                        }
-                    })
-                    .catch(error => console.error('Error checking favorite:', error));
-                });
-            });
+    // ====== LOAD FAVORITE STATES ======
+    const itemsToCheck = [];
+    document.querySelectorAll(".heart").forEach(heart => {
+        console.log("Heart clicked:", heart.dataset);
+        let serviceType = "";
+        let refId = "";
 
-            // Handle clicks
-            document.addEventListener("DOMContentLoaded", () => {
-                document.querySelectorAll(".heart").forEach(heart => {
-                    heart.addEventListener("click", () => {
-                        // Determine serviceType and refId
-                        let serviceType = "";
-                        let refId = "";
-                        if (heart.dataset.tourId) {
-                            serviceType = "tour";
-                            refId = heart.dataset.tourId;
-                        } else if (heart.dataset.flightId) {
-                            serviceType = "flight";
-                            refId = heart.dataset.flightId;
-                        } else if (heart.dataset.hotelId) {
-                            serviceType = "hotel";
-                            refId = heart.dataset.hotelId;
-                        } else if (heart.dataset.vehicleId) {
-                            serviceType = "vehicle";
-                            refId = heart.dataset.vehicleId;
-                        } else if (heart.dataset.placeId) {
-                            serviceType = "place";
-                            refId = heart.dataset.placeId;
-                        }
+        if (heart.dataset.tourId) {
+            serviceType = "tour";
+            refId = heart.dataset.tourId;
+            console.log("Tour ID:", refId);
+        } else if (heart.dataset.flightId) {
+            serviceType = "flight";
+            refId = heart.dataset.flightId;
+        } else if (heart.dataset.hotelId) {
+            serviceType = "hotel";
+            refId = heart.dataset.hotelId;
+        } else if (heart.dataset.vehicleId) {
+            serviceType = "vehicle";
+            refId = heart.dataset.vehicleId;
+        } else if (heart.dataset.placeId) {
+            serviceType = "place";
+            refId = heart.dataset.placeId;
+        }
 
-                        if (!serviceType || !refId) return;
+        if (serviceType && refId) {
+            itemsToCheck.push({ heart, serviceType, refId });
+        }
+    });
 
-                        // Send AJAX request
-                        fetch('${pageContext.request.contextPath}/favorite', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                action: 'toggle',
-                                serviceType: serviceType,
-                                refId: refId
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Toggle the heart
-                                heart.classList.toggle("favorited");
-                            } else {
-                                alert("Error: " + (data.message || "Failed to update favorite"));
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert("An error occurred while updating favorite");
-                        });
-                    });
-                });
-            });
+    itemsToCheck.forEach(({ heart, serviceType, refId }) => {
+        fetch('${pageContext.request.contextPath}/favorite?action=check&serviceType=' + serviceType + '&refId=' + refId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.isFavorite) {
+                heart.classList.add("favorited");
+            }
+        });
+    });
+
+    // ====== HANDLE CLICK ======
+    document.querySelectorAll(".heart").forEach(heart => {
+        heart.addEventListener("click", () => {
+            let serviceType = "";
+            let refId = "";
+
+            if (heart.dataset.tourId) {
+                serviceType = "tour";
+                refId = heart.dataset.tourId;
+            } else if (heart.dataset.flightId) {
+                serviceType = "flight";
+                refId = heart.dataset.flightId;
+            } else if (heart.dataset.hotelId) {
+                serviceType = "hotel";
+                refId = heart.dataset.hotelId;
+            } else if (heart.dataset.vehicleId) {
+                serviceType = "vehicle";
+                refId = heart.dataset.vehicleId;
+            } else if (heart.dataset.placeId) {
+                serviceType = "place";
+                refId = heart.dataset.placeId;
+            }
+
+            if (!serviceType || !refId) return;
+
+            fetch('${pageContext.request.contextPath}/favorite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'toggle',
+                    serviceType: serviceType,
+                    refId: refId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    heart.classList.toggle("favorited");
+                } else {
+                    alert(data.message || "Error updating favorite");
+                }
+            })
+            .catch(err => console.error(err));
+        });
+    });
+});
+</script>
+
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

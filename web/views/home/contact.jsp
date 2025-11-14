@@ -21,6 +21,8 @@ if (currentUser != null) {
     }
 }
 %>
+
+
 <body>
  <%@ include file="/views/common/navbar.jsp" %>
  <!-- KẾT THÚC nav -->
@@ -57,7 +59,7 @@ if (currentUser != null) {
          <span class="fa fa-map-marker"></span>
        </div>
        <h3 class="mb-2">Địa chỉ</h3>
-       <p>198 West 21th Street, Suite 721 New York NY 10016</p>
+       <p>Đại học FPT Hà Nội, HaNoi City</p>
      </div>
    </div>
    <div class="col-md-3 d-flex">
@@ -66,7 +68,7 @@ if (currentUser != null) {
        <span class="fa fa-phone"></span>
      </div>
      <h3 class="mb-2">Số liên hệ</h3>
-     <p><a href="tel://1234567920">+ 1235 2355 98</a></p>
+     <p><a href="tel://1234567920">+84 982706236</a></p>
    </div>
  </div>
  <div class="col-md-3 d-flex">
@@ -75,7 +77,7 @@ if (currentUser != null) {
      <span class="fa fa-paper-plane"></span>
    </div>
    <h3 class="mb-2">Địa chỉ Email</h3>
-   <p><a href="mailto:info@yoursite.com">info@yoursite.com</a></p>
+   <p><a href="mailto:info@yoursite.com">nqaghuyyy6969@gmail.com</a></p>
  </div>
 </div>
 <div class="col-md-3 d-flex">
@@ -84,7 +86,7 @@ if (currentUser != null) {
    <span class="fa fa-globe"></span>
  </div>
  <h3 class="mb-2">Trang web</h3>
- <p><a href="#">yoursite.com</a></p>
+ <p><a href="#">MelanBooking.com</a></p>
 </div>
 </div>
 </div>
@@ -116,8 +118,16 @@ if (currentUser != null) {
       </div>
 
       <div class="col-md-6 d-flex">
-       <div id="map" class="bg-white"></div>
-     </div>
+    <div id="map" 
+         style="background-image: url('${pageContext.request.contextPath}/views/home/images/island_Bg.jpg');
+                background-size: cover;
+                background-position: center;
+                width: 100%;
+                height: 600px;
+                border-radius: 6px;">
+    </div>
+</div>
+
    </div>
  </div>
 </section>
@@ -128,7 +138,7 @@ if (currentUser != null) {
    <div class="col-md-12 text-center">
     <div class="img" style="background-image: url(images/bg_2.jpg);">
      <div class="overlay"></div>
-     <h2>Chúng tôi là Pacific - Công ty Du lịch</h2>
+     <h2>Chúng tôi là MelanBooking - Công ty Du lịch</h2>
      <p>Chúng tôi có thể quản lý giấc mơ xây dựng của bạn. Một con sông nhỏ tên là Duden chảy qua nơi họ ở.</p>
      <p class="mb-0"><a href="#" class="btn btn-primary px-4 py-3">Yêu cầu Báo giá</a></p>
    </div>

@@ -107,8 +107,6 @@ GO
 */
 
 
-<<<<<<< HEAD
-=======
 
 
 update Users
@@ -124,7 +122,6 @@ where airlineId=7
 
 select * from Flights
 
->>>>>>> a98e559f8a08f1942fd2b5d03e4ecdc73c00f758
 CREATE TABLE Roles (
     roleId INT IDENTITY(1,1) PRIMARY KEY,
     roleName NVARCHAR(50) UNIQUE NOT NULL
@@ -276,6 +273,9 @@ CREATE TABLE Countries (
 );
 go
 
+SELECT tourName, availableQuantity
+FROM Tours
+WHERE tourId = (SELECT tourId FROM Bookings WHERE bookingId = 83);
 
 
 -- Bảng Islands
@@ -631,6 +631,7 @@ CREATE TABLE IslandVehicles (
 
 go
 select * from IslandVehicles
+
 update Users
 set accountUserId=5
 where historyId=5
@@ -810,17 +811,6 @@ SELECT name, is_disabled
 FROM sys.triggers
 WHERE parent_id = OBJECT_ID('Users');
 -- review
-CREATE TABLE Reviews (
-    reviewId INT IDENTITY(1,1) PRIMARY KEY,
-    userId INT NOT NULL,
-    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','FLIGHT','CAR','ISLAND')),
-    refId INT NOT NULL, -- id của dịch vụ
-    rating INT CHECK (rating BETWEEN 1 AND 5),
-    comment NVARCHAR(1000),
-    createdAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (userId) REFERENCES Users(userId) 
-);
-go
 
 
 -- Notification 
@@ -858,15 +848,8 @@ IF OBJECT_ID('trg_Booking_Insert_Notification', 'TR') IS NOT NULL
     DROP TRIGGER trg_Booking_Insert_Notification;
 GO
 */
--- Xem chi tiết constraint
-SELECT definition
-FROM sys.check_constraints
-WHERE name = 'CK__Payments__status__7C3A67EB';
 
-
---- trigger khi thông báo khi người dùng đặt chỗ "chạy khi thêm bản ghi mới vào Bookings"
-
-
+-- trigger booking
 CREATE OR ALTER TRIGGER trg_Booking_Insert_Notification
 ON Bookings
 AFTER INSERT
@@ -898,6 +881,9 @@ BEGIN
     LEFT JOIN CustomTours ct ON i.customTourId = ct.customTourId;
 END;
 GO
+
+
+
 
 
 --- triger khi thông báo customer những tour mới "chạy khi cập nhật trạng thái Tours"
@@ -966,258 +952,12 @@ BEGIN
 END;
 GO
 
--------------------------------------------- stored procedure trừ số lượng và triger khi thông báo cho staff , khi cảnh báo tồn kho của dịch vụ----------------------------------------------
-
--- 1. PROCEDURE: Trừ tồn kho khi booking hoàn tất
-
-CREATE OR ALTER PROCEDURE sp_UpdateInventory_OnBookingCompleted
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Kiểm tra có booking nào chuyển sang COMPLETED không
-    IF NOT EXISTS (
-        SELECT 1 FROM inserted i
-        INNER JOIN deleted d ON i.bookingId = d.bookingId
-        WHERE i.status = 'COMPLETED' AND d.status <> 'COMPLETED'
-    )
-        RETURN;
-
-    -- Bảng tạm lưu booking hoàn tất
-    IF OBJECT_ID('tempdb..#CompletedBookings') IS NOT NULL
-        DROP TABLE #CompletedBookings;
-
-    SELECT
-        b.bookingId,
-        ISNULL(b.tourId, 0) AS tourId,
-        ISNULL(b.customTourId, 0) AS customTourId,
-        ISNULL(b.adultQuantity, 0) + ISNULL(b.childQuantity, 0) AS totalPeople
-    INTO #CompletedBookings
-    FROM inserted b
-    INNER JOIN deleted d ON b.bookingId = d.bookingId
-    WHERE b.status = 'COMPLETED' AND d.status <> 'COMPLETED';
-
-    IF NOT EXISTS (SELECT 1 FROM #CompletedBookings)
-        RETURN;
-
-    BEGIN TRANSACTION;
-    BEGIN TRY
-        -- FLIGHTS (Tour)
-        UPDATE f
-        SET f.ticketAvailable = CASE
-                                    WHEN f.ticketAvailable - cb.totalPeople < 0 THEN 0
-                                    ELSE f.ticketAvailable - cb.totalPeople
-                                END
-        FROM Flights f
-        INNER JOIN Tours t ON t.islandId = f.destinationIslandId
-        INNER JOIN #CompletedBookings cb ON cb.tourId = t.tourId;
-
-        -- FLIGHTS (CustomTour)
-        UPDATE f
-        SET f.ticketAvailable = CASE
-                                    WHEN f.ticketAvailable - cb.totalPeople < 0 THEN 0
-                                    ELSE f.ticketAvailable - cb.totalPeople
-                                END
-        FROM Flights f
-        INNER JOIN CustomTours ct ON ct.islandId = f.destinationIslandId
-        INNER JOIN #CompletedBookings cb ON cb.customTourId = ct.customTourId;
-
-        -- HOTELS (Tour)
-        UPDATE h
-        SET h.roomsAvailable = CASE
-                                   WHEN h.roomsAvailable - cb.totalPeople < 0 THEN 0
-                                   ELSE h.roomsAvailable - cb.totalPeople
-                               END
-        FROM Hotels h
-        INNER JOIN Tours t ON t.islandId = h.islandId
-        INNER JOIN #CompletedBookings cb ON cb.tourId = t.tourId;
-
-        -- HOTELS (CustomTour)
-        UPDATE h
-        SET h.roomsAvailable = CASE
-                                   WHEN h.roomsAvailable - cb.totalPeople < 0 THEN 0
-                                   ELSE h.roomsAvailable - cb.totalPeople
-                               END
-        FROM Hotels h
-        INNER JOIN CustomTours ct ON ct.islandId = h.islandId
-        INNER JOIN #CompletedBookings cb ON cb.customTourId = ct.customTourId;
-
-        -- VEHICLES (Tour)
-        UPDATE v
-        SET v.availability = CASE
-                                 WHEN v.availability - cb.totalPeople < 0 THEN 0
-                                 ELSE v.availability - cb.totalPeople
-                             END
-        FROM IslandVehicles v
-        INNER JOIN Tours t ON t.islandId = v.islandId
-        INNER JOIN #CompletedBookings cb ON cb.tourId = t.tourId;
-
-        -- VEHICLES (CustomTour)
-        UPDATE v
-        SET v.availability = CASE
-                                 WHEN v.availability - cb.totalPeople < 0 THEN 0
-                                 ELSE v.availability - cb.totalPeople
-                             END
-        FROM IslandVehicles v
-        INNER JOIN CustomTours ct ON ct.islandId = v.islandId
-        INNER JOIN #CompletedBookings cb ON cb.customTourId = ct.customTourId;
-
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
-        THROW;
-    END CATCH
-END;
-GO
-
-
--- 2. PROCEDURE: Gửi cảnh báo khi tồn kho <= 5
-CREATE OR ALTER PROCEDURE sp_SendLowInventoryNotifications
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE @staffId INT;
-    SELECT TOP 1 @staffId = userId FROM Users WHERE roleId = 4;
-
-    IF @staffId IS NULL
-        RETURN;
-
-    -- Flights (Tour)
-    INSERT INTO Notifications (userId, title, message, type)
-    SELECT
-        @staffId,
-        N'Cảnh báo vé máy bay sắp hết (Tour)',
-        N'Tour ID: ' + CAST(t.tourId AS NVARCHAR(10)) +
-        N' – Flight ID: ' + CAST(f.flightId AS NVARCHAR(10)) +
-        N' – Vé bay đến đảo ' + i.islandName +
-        N' chỉ còn ' + CAST(f.ticketAvailable AS NVARCHAR(10)) + N' vé.',
-        'SYSTEM'
-    FROM Flights f
-    INNER JOIN Islands i ON f.destinationIslandId = i.islandId
-    INNER JOIN Tours t ON t.islandId = f.destinationIslandId
-    WHERE f.ticketAvailable <= 5;
-
-    -- Flights (CustomTour)
-    INSERT INTO Notifications (userId, title, message, type)
-    SELECT
-        @staffId,
-        N'Cảnh báo vé máy bay sắp hết (Custom Tour)',
-        N'CustomTour ID: ' + CAST(ct.customTourId AS NVARCHAR(10)) +
-        N' – Flight ID: ' + CAST(f.flightId AS NVARCHAR(10)) +
-        N' – Vé bay đến đảo ' + i.islandName +
-        N' chỉ còn ' + CAST(f.ticketAvailable AS NVARCHAR(10)) + N' vé.',
-        'SYSTEM'
-    FROM Flights f
-    INNER JOIN Islands i ON f.destinationIslandId = i.islandId
-    INNER JOIN CustomTours ct ON ct.islandId = f.destinationIslandId
-    WHERE f.ticketAvailable <= 5;
-
-    -- Hotels (Tour)
-    INSERT INTO Notifications (userId, title, message, type)
-    SELECT
-        @staffId,
-        N'Cảnh báo phòng khách sạn sắp hết (Tour)',
-        N'Tour ID: ' + CAST(t.tourId AS NVARCHAR(10)) +
-        N' – Hotel ID: ' + CAST(h.hotelId AS NVARCHAR(10)) +
-        N' – Số phòng còn lại tại đảo ' + i.islandName +
-        N' chỉ còn ' + CAST(h.roomsAvailable AS NVARCHAR(10)) + N' phòng.',
-        'SYSTEM'
-    FROM Hotels h
-    INNER JOIN Islands i ON h.islandId = i.islandId
-    INNER JOIN Tours t ON t.islandId = h.islandId
-    WHERE h.roomsAvailable <= 5;
-
-    -- Hotels (CustomTour)
-    INSERT INTO Notifications (userId, title, message, type)
-    SELECT
-        @staffId,
-        N'Cảnh báo phòng khách sạn sắp hết (Custom Tour)',
-        N'CustomTour ID: ' + CAST(ct.customTourId AS NVARCHAR(10)) +
-        N' – Hotel ID: ' + CAST(h.hotelId AS NVARCHAR(10)) +
-        N' – Số phòng còn lại tại đảo ' + i.islandName +
-        N' chỉ còn ' + CAST(h.roomsAvailable AS NVARCHAR(10)) + N' phòng.',
-        'SYSTEM'
-    FROM Hotels h
-    INNER JOIN Islands i ON h.islandId = i.islandId
-    INNER JOIN CustomTours ct ON ct.islandId = h.islandId
-    WHERE h.roomsAvailable <= 5;
-
-    -- Vehicles (Tour)
-    INSERT INTO Notifications (userId, title, message, type)
-    SELECT
-        @staffId,
-        N'Cảnh báo phương tiện sắp hết (Tour)',
-        N'Tour ID: ' + CAST(t.tourId AS NVARCHAR(10)) +
-        N' – Vehicle ID: ' + CAST(v.vehicleId AS NVARCHAR(10)) +
-        N' – Xe tại đảo ' + i.islandName +
-        N' chỉ còn ' + CAST(v.availability AS NVARCHAR(10)) + N' chiếc.',
-        'SYSTEM'
-    FROM IslandVehicles v
-    INNER JOIN Islands i ON v.islandId = i.islandId
-    INNER JOIN Tours t ON t.islandId = v.islandId
-    WHERE v.availability <= 5;
-
-    -- Vehicles (CustomTour)
-    INSERT INTO Notifications (userId, title, message, type)
-    SELECT
-        @staffId,
-        N'Cảnh báo phương tiện sắp hết (Custom Tour)',
-        N'CustomTour ID: ' + CAST(ct.customTourId AS NVARCHAR(10)) +
-        N' – Vehicle ID: ' + CAST(v.vehicleId AS NVARCHAR(10)) +
-        N' – Xe tại đảo ' + i.islandName +
-        N' chỉ còn ' + CAST(v.availability AS NVARCHAR(10)) + N' chiếc.',
-        'SYSTEM'
-    FROM IslandVehicles v
-    INNER JOIN Islands i ON v.islandId = i.islandId
-    INNER JOIN CustomTours ct ON ct.islandId = v.islandId
-    WHERE v.availability <= 5;
-END;
-GO
-
-
--- 3. TRIGGER: Gọi 2 procedure trên
-
-CREATE TRIGGER trg_UpdateInventory_AndNotify
-ON dbo.Bookings
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Kiểm tra có booking nào chuyển sang COMPLETED không
-    IF NOT EXISTS (
-        SELECT 1 FROM inserted i
-        INNER JOIN deleted d ON i.bookingId = d.bookingId
-        WHERE i.status = 'COMPLETED' AND d.status <> 'COMPLETED'
-    )
-        RETURN;
-
-    BEGIN TRY
-        -- 1. Trừ tồn kho
-        EXEC sp_UpdateInventory_OnBookingCompleted;
-
-        -- 2. Gửi cảnh báo (chỉ khi tồn kho thấp)
-        EXEC sp_SendLowInventoryNotifications;
-    END TRY
-    BEGIN CATCH
-        THROW;
-    END CATCH
-END;
-GO
-
-
-
--------------------------------------------------------------------------------------------
-
-
 
 -- ----favourite services
 CREATE TABLE Favorites (
     favoriteId INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,
-    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','FLIGHT','CAR','ISLAND')),
+    serviceType VARCHAR(20) CHECK (serviceType IN ('HOTEL','FLIGHT','CAR','TOUR')),
     refId INT NOT NULL,  -- id dịch vụ được lưu
     createdAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
@@ -1691,6 +1431,21 @@ CREATE TABLE Places (
 );
 
 select * from HistoryBookings
+
+
+
+SELECT flightId, ticketAvailable FROM Flights WHERE destinationIslandId = 1;
+SELECT hotelId, roomsAvailable FROM Hotels WHERE islandId = 1;
+SELECT vehicleId, availability FROM IslandVehicles WHERE islandId = 1;
+
+
+
+select * from Tours
+select * from Bookings
+
+
+
+
 
 
 INSERT INTO Places (islandId, placeName, location, description, hasTicket, ticketPrice, placeImageUrl)
