@@ -18,8 +18,8 @@ import model.Country;
  * @author Admin
  */
 public class IslandDao extends DBContext {
-    
-       public static IslandDao INSTANCE = new IslandDao();
+
+    public static IslandDao INSTANCE = new IslandDao();
 
     public List<Country> getAllCountries() throws SQLException {
         List<Country> list = new ArrayList<>();
@@ -40,7 +40,7 @@ public class IslandDao extends DBContext {
 
     public List<Island> getIslands() throws SQLException {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId";
+        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId where approvalStatus = 'APPROVED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -103,7 +103,7 @@ public class IslandDao extends DBContext {
 
     public List<Island> searchIslands(String country, String season) throws SQLException {
         List<Island> list = new ArrayList<>();
-        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE 1=1";
+        String sql = "SELECT * FROM Islands a join Countries b on a.countryId = b.countryId WHERE 1=1 AND approvalStatus = 'APPROVED'";
 
         if (country != null && !country.isEmpty()) {
             sql += " AND b.countryName LIKE ?";
@@ -155,44 +155,39 @@ public class IslandDao extends DBContext {
         return total;
     }
 
-    public static void main(String[] args) {
-        try {
-            IslandDao id = new IslandDao();
-            List<Island> i = id.searchIslands("Thái Lan", "");
-            System.out.println(i.toString());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    
-   
-
     // Lấy danh sách Đảo đang chờ duyệt
-   public List<Island> getPendingIslands() throws SQLException {
-    List<Island> list = new ArrayList<>();
-    // ⭐ SỬA: Thay description bằng shortDescription hoặc longDescription
-    String sql = "SELECT islandId, islandName, shortDescription, longDescription, islandImageUrl, approvalStatus FROM Islands WHERE approvalStatus = 'PENDING' ORDER BY islandId DESC";
+    public List<Island> getPendingIslands() throws SQLException {
+        List<Island> list = new ArrayList<>();
 
-    try (PreparedStatement ps = connection.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+        String sql = "SELECT i.islandId, i.islandName,i. bestSeason ,i.activities,i.location, i.shortDescription, i.longDescription, "
+                + "i.imageUrl, i.approvalStatus, c.countryName "
+                + "FROM Islands i "
+                + "JOIN Countries c ON i.countryId = c.countryId "
+                + "WHERE i.approvalStatus = 'PENDING' "
+                + "ORDER BY i.islandId DESC";
 
-        while (rs.next()) {
-            Island island = new Island();
-            island.setIslandId(rs.getInt("islandId"));
-            island.setIslandName(rs.getString("islandName"));
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
-            // ⭐ SỬA: Dùng setter tương ứng với cột SQL mới
-            island.setShortDescription(rs.getString("shortDescription"));
-            // Hoặc island.setLongDescription(rs.getString("longDescription"));
+            while (rs.next()) {
+                Island island = new Island();
 
-            island.setImageUrl(rs.getString("islandImageUrl")); // Tên này cũng cần được kiểm tra lại (bạn dùng imageUrl trong model)
-            island.setApprovalStatus(rs.getString("approvalStatus"));
-            list.add(island);
+                island.setIslandId(rs.getInt("islandId"));
+                island.setIslandName(rs.getString("islandName"));
+                island.setShortDescription(rs.getString("shortDescription"));
+                island.setLongDescription(rs.getString("longDescription"));
+                island.setImageUrl(rs.getString("imageUrl"));
+                island.setApprovalStatus(rs.getString("approvalStatus"));
+                island.setBestSeason(rs.getString("bestSeason"));
+                island.setActivities(rs.getString("activities"));
+                island.setLocation(rs.getString("location"));
+                // ⭐ ADD: country name
+                island.setCountryName(rs.getString("countryName"));
+
+                list.add(island);
+            }
         }
+        return list;
     }
-    return list;
-}
 
     // Cập nhật trạng thái duyệt của Đảo
     public void updateIslandStatus(int islandId, String status) throws SQLException {
@@ -205,6 +200,25 @@ public class IslandDao extends DBContext {
             ps.executeUpdate();
         }
     }
-}
-    
 
+    // ⭐ Cập nhật phương thức updateIslandStatus()
+// THAY ĐỔI CHỮ KÝ PHƯƠNG THỨC để nhận rejectionReason
+    public void updateIslandStatus(int islandId, String status, String rejectionReason) throws SQLException {
+        // Cập nhật trạng thái duyệt và lý do từ chối
+        String sql = "UPDATE Islands SET approvalStatus = ?, rejectionReason = ? WHERE islandId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+
+            // Logic để set rejectionReason: chỉ lưu lý do nếu status là REJECTED
+            if ("REJECTED".equalsIgnoreCase(status)) {
+                ps.setString(2, rejectionReason);
+            } else {
+                ps.setNull(2, java.sql.Types.NVARCHAR); // Đặt NULL cho các trạng thái khác
+            }
+
+            ps.setInt(3, islandId);
+            ps.executeUpdate();
+        }
+    }
+}

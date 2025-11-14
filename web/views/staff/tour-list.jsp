@@ -62,6 +62,16 @@
             margin-bottom: 30px;
         }
         
+        .rejection-reason-label {
+            cursor: pointer;
+            opacity: 0.9;
+        }
+        
+        .rejection-reason-label:hover {
+            opacity: 1;
+            text-decoration: underline !important;
+        }
+        
         .tour-card {
             background: white;
             border-radius: 15px;
@@ -398,6 +408,7 @@ if (currentUser != null) {
                         <div class="col-lg-6 col-xl-4 mb-3">
                             <div class="tour-card">
                                 <!-- Approval Status Badge -->
+                            
                                 <div class="approval-status 
                                     <c:choose>
                                         <c:when test="${tour.approvalStatus == 'APPROVED'}">status-approved</c:when>
@@ -410,13 +421,21 @@ if (currentUser != null) {
                                         </c:when>
                                         <c:when test="${tour.approvalStatus == 'REJECTED'}">
                                             <span class="badge status-rejected">Từ chối</span>
+                                            <c:if test="${not empty tour.rejectionReason}">
+                                                <span class="rejection-reason-label" 
+                                                      data-reason="<c:out value='${tour.rejectionReason}'/>"
+                                                      style="cursor: pointer; margin-left: 5px; font-size: 0.7em; text-decoration: underline;"
+                                                      title="Xem lý do từ chối"
+                                                      onclick="showRejectionReasonFromData(this)">
+                                                    <i class="fa fa-info-circle"></i> Lý do
+                                                </span>
+                                            </c:if>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="badge status-pending">Chờ duyệt</span>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
-                                
                                 <div class="tour-card-body">
                                     <h5 class="tour-title">${tour.tourName}</h5>
                                     <p class="tour-description">
@@ -537,6 +556,31 @@ if (currentUser != null) {
 
     <!-- Include common scripts -->
     <jsp:include page="../common/script.jsp" />
+    
+    <!-- Rejection Reason Modal -->
+    <div class="modal fade" id="rejectionReasonModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #dc3545; color: white;">
+                    <h5 class="modal-title">
+                        <i class="fa fa-exclamation-triangle"></i> Lý do từ chối
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" style="color: white;">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p style="white-space: pre-wrap; word-wrap: break-word; font-size: 1.1em; line-height: 1.6;" id="rejectionReasonText"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    
 
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
@@ -573,7 +617,16 @@ if (currentUser != null) {
             document.getElementById('deleteForm').action = '${pageContext.request.contextPath}/staff/tours';
             $('#deleteModal').modal('show');
         }
-
+  function showRejectionReason(reason) {
+            document.getElementById('rejectionReasonText').textContent = reason;
+            $('#rejectionReasonModal').modal('show');
+        }
+        
+        function showRejectionReasonFromData(element) {
+            var reason = element.getAttribute('data-reason');
+            document.getElementById('rejectionReasonText').textContent = reason;
+            $('#rejectionReasonModal').modal('show');
+        }
 
 
         // Auto-hide alerts after 5 seconds

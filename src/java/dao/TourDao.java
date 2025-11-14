@@ -109,6 +109,7 @@ public class TourDao extends DBContext {
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
                 t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                t.setRejectionReason(rs.getString("rejectionReason"));
                 return t;
             }
         } catch (SQLException e) {
@@ -694,6 +695,7 @@ public class TourDao extends DBContext {
                 t.setTourImageUrl(rs.getString("tourImageUrl"));
                 t.setApprovalStatus(rs.getString("approvalStatus"));
                 t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                 t.setRejectionReason(rs.getString("rejectionReason"));
                 t.setIslandName(rs.getString("islandName"));
                 list.add(t);
             }
@@ -757,6 +759,7 @@ public class TourDao extends DBContext {
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
                     t.setApprovalStatus(rs.getString("approvalStatus"));
                     t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                        t.setRejectionReason(rs.getString("rejectionReason"));
                     t.setIslandName(rs.getString("islandName"));
                     list.add(t);
                 }
@@ -836,7 +839,9 @@ public class TourDao extends DBContext {
                     t.setDescription(rs.getString("description"));
                     t.setPrice(rs.getInt("price"));
                     t.setTourImageUrl(rs.getString("tourImageUrl"));
+                      t.setApprovalStatus(rs.getString("approvalStatus"));
                     t.setAvailableQuantity(rs.getInt("availableQuantity"));
+                     t.setRejectionReason(rs.getString("rejectionReason"));
                     t.setIslandName(rs.getString("islandName"));
                     list.add(t);
                 }
@@ -1730,48 +1735,6 @@ if (!rs.wasNull() && ti != null) {
             throw new SQLException("Lỗi khi lấy lịch sử booking mới nhất của userId=" + userId, e);
         }
         return hb;
-    }
-
-
-
-
-
-
-    public static void main(String[] args) {
-        try {
-            TourDao dao = new TourDao();
-      
-           int testUserId = 10; // <-- đổi userId để test theo dữ liệu thật trong DB
-        
-            TourBookingInfo info = dao.getLatestTourAfterBookingByUser(testUserId);
-
-            System.out.println("\n===== THÔNG TIN TOUR MỚI NHẤT CỦA USER ID: " + testUserId + " =====");
-            System.out.println("📌 Tour: " + info.getTour());
-            System.out.println("📅 Booking: " + info.getBooking().getBookingId());
-             System.out.println("📅 Booking: " + info.getBooking().getTotalPrice());
-            System.out.println("🧾 History: " + info.getHistoryBooking());
-
-            System.out.println("\n--- Các dịch vụ đi kèm ---");
-            for (TourService s : info.getTourServices()) {
-                System.out.println("  • " + s);
-            }
-
-            System.out.println("\n--- Lịch trình tour ---");
-            for (TourItinerary ti : info.getTourItineraries()) {
-                System.out.println("Ngày " + ti.getDayNumber() + ": " + ti.getTitle());
-                if (ti.getActivities() != null) {
-                    for (TourActivities act : ti.getActivities()) {
-                        System.out.println("   ↳ " + act.getActivityOrder() + ". " + act.getActivityTitle() 
-                                           + " — " + act.getDescription());
-                    }
-                } else {
-                    System.out.println("   (Không có hoạt động nào)");
-                }
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }

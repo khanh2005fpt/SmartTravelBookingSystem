@@ -12,6 +12,7 @@ public class Island {
 
      private int islandId;
     private String islandName;
+    private int countryId;
     private String countryName;
     private String shortDescription;
     private String longDescription;
@@ -21,8 +22,6 @@ public class Island {
     private String location;
     private String approvalStatus;
 
-    private String rejectionReason;
-    
     public Island() {
     }
 
@@ -52,6 +51,14 @@ public class Island {
 
     public void setIslandName(String islandName) {
         this.islandName = islandName;
+    }
+
+    public int getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
     }
 
     public String getCountryName() {
@@ -109,6 +116,7 @@ public class Island {
     public void setLocation(String location) {
         this.location = location;
     }
+
     public String getApprovalStatus() {
         return approvalStatus;
     }
@@ -117,18 +125,9 @@ public class Island {
         this.approvalStatus = approvalStatus;
     }
 
-    public String getRejectionReason() {
-        return rejectionReason;
-    }
-
-    public void setRejectionReason(String rejectionReason) {
-        this.rejectionReason = rejectionReason;
-    }
-    
-
     @Override
     public String toString() {
-        return "Island{" + "islandId=" + islandId + ", islandName=" + islandName + ", countryName=" + countryName + ", shortDescription=" + shortDescription + ", longDescription=" + longDescription + ", bestSeason=" + bestSeason + ", activities=" + activities + ", imageUrl=" + imageUrl + ", location=" + location + '}' + "\n";
+        return "Island{" + "islandId=" + islandId + ", islandName=" + islandName + ", countryName=" + countryName + ", shortDescription=" + shortDescription + ", longDescription=" + longDescription + ", bestSeason=" + bestSeason + ", activities=" + activities + ", imageUrl=" + imageUrl + ", location=" + location + ", approvalStatus=" + approvalStatus + '}' + "\n";
     }
     
     

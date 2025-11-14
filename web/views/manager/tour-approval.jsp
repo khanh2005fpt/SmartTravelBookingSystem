@@ -138,7 +138,10 @@
                                         data-description="<%=t.getDescription()%>"
                                         data-price="<%= String.format("%,d", t.getPrice()) %>"
                                         data-island-name="<%=t.getIslandName() != null ? t.getIslandName() : "N/A"%>"
-                                        data-image-url="<%=t.getTourImageUrl() != null ? t.getTourImageUrl() : ""%>">
+                                      data-image-url="<%= t.getTourImageUrl() != null 
+    ? request.getContextPath() + "/" + t.getTourImageUrl()
+    : "" %>"
+
                                     <i class="bi bi-eye"></i> Xem chi tiết
                                 </button>
                             </td>

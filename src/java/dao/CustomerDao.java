@@ -82,15 +82,7 @@ public class CustomerDao extends DBContext {
     }
     return false;
      }
-     
-       public static void main(String[] args) {
- 
-        
-    }
-
-     
-
-     
+   
      
  
    // ======= Cập nhật avatar =======

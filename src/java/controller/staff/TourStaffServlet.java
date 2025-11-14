@@ -66,9 +66,7 @@ public class TourStaffServlet extends HttpServlet {
      * methods.
      *
      * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @param response servlet response    * @throws ServletException if a servlet-specific error occurs     * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -92,7 +90,7 @@ public class TourStaffServlet extends HttpServlet {
                 case "view":
                     viewTour(request, response);
                     break;
-                case "Tour":
+                case "create":
                     createTour(request, response);
                     break;
                 case "edit":
@@ -368,7 +366,7 @@ public class TourStaffServlet extends HttpServlet {
     /**
      * Update existing tour
      */
-    private void updateTour(HttpServletRequest request, HttpServletResponse response)
+   private void updateTour(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         
         String tourIdStr = request.getParameter("id");
@@ -475,6 +473,21 @@ public class TourStaffServlet extends HttpServlet {
                 System.out.println("selectedServices is null!");
             }
             
+            // Validate: Only one hotel and one flight allowed
+            if (hotelIds.size() > 1) {
+                request.setAttribute("error", "Chỉ có thể chọn một khách sạn cho tour");
+                request.setAttribute("action", "edit");
+                loadEditTourData(request, response, Integer.parseInt(tourIdStr));
+                return;
+            }
+            
+            if (flightIds.size() > 1) {
+                request.setAttribute("error", "Chỉ có thể chọn một vé máy bay cho tour");
+                request.setAttribute("action", "edit");
+                loadEditTourData(request, response, Integer.parseInt(tourIdStr));
+                return;
+            }
+            
             System.out.println("Parsed services - Hotels: " + hotelIds.size() + ", Places: " + placeIds.size() + 
                              ", Vehicles: " + vehicleIds.size() + ", Flights: " + flightIds.size());
             
@@ -495,7 +508,7 @@ public class TourStaffServlet extends HttpServlet {
             }
 
             if (success) {
-                request.setAttribute("success", "Cập nhật tour thành công");
+                request.getSession().setAttribute("successMessage", "Cập nhật tour thành công");
                 response.sendRedirect(request.getContextPath() + "/staff/tours?action=view&id=" + tourId);
             } else {
                 request.setAttribute("error", "Cập nhật tour thất bại");
@@ -692,11 +705,13 @@ public class TourStaffServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         HttpSession session = request.getSession(false);
-        // Check staff authorization for POST requests
+      
+             // Check staff authorization for POST requests
+             HttpSession session = request.getSession(false);
         if (!isStaffAuthorized(session, request, response)) {
         return;
     }
+
         String action = request.getParameter("action");
         
         try {
@@ -788,22 +803,41 @@ public class TourStaffServlet extends HttpServlet {
                     List<String> vehicleIds = new ArrayList<>();
                     List<String> flightIds = new ArrayList<>();
 
-                    if (selectedServices != null) {
-                        for (String service : selectedServices) {
-                            if (service.startsWith("hotel_")) {
-                                hotelIds.add(service.substring(6));
-                            } else if (service.startsWith("place_")) {
-                                placeIds.add(service.substring(6));
-                            } else if (service.startsWith("vehicle_")) {
-                                vehicleIds.add(service.substring(8));
-                            } else if (service.startsWith("flight_")) {
-                                flightIds.add(service.substring(7));
-                            } else if (service.startsWith("airline_")) {
-                                // Backward compatibility: convert airline_ to flight_
-                                flightIds.add(service.substring(8));
-                            }
+                if (selectedServices != null) {
+                    for (String service : selectedServices) {
+                        if (service.startsWith("hotel_")) {
+                            hotelIds.add(service.substring(6));
+                        } else if (service.startsWith("place_")) {
+                            placeIds.add(service.substring(6));
+                        } else if (service.startsWith("vehicle_")) {
+                            vehicleIds.add(service.substring(8));
+                        } else if (service.startsWith("flight_")) {
+                            flightIds.add(service.substring(7));
+                        } else if (service.startsWith("airline_")) {
+                            // Backward compatibility: convert airline_ to flight_
+                            flightIds.add(service.substring(8));
                         }
                     }
+                }
+                
+                // Validate: Only one hotel and one flight allowed
+                if (hotelIds.size() > 1) {
+                    request.setAttribute("error", "Chỉ có thể chọn một khách sạn cho tour");
+                    request.setAttribute("action", "create");
+                    List<Island> islands = islandDao.getIslands();
+                    request.setAttribute("islands", islands);
+                    request.getRequestDispatcher("/views/staff/tour-form.jsp").forward(request, response);
+                    return;
+                }
+                
+                if (flightIds.size() > 1) {
+                    request.setAttribute("error", "Chỉ có thể chọn một vé máy bay cho tour");
+                    request.setAttribute("action", "create");
+                    List<Island> islands = islandDao.getIslands();
+                    request.setAttribute("islands", islands);
+                    request.getRequestDispatcher("/views/staff/tour-form.jsp").forward(request, response);
+                    return;
+                }
 
                     // Add selected services to tour
                     addSelectedServicesToTour(newTourId, hotelIds.toArray(new String[0]), "Hotel");
@@ -877,14 +911,16 @@ public class TourStaffServlet extends HttpServlet {
                             tourImageUrl = "UploadData/Tours/" + uniqueName;
                         } catch (IOException e) {
                             request.setAttribute("error", "Lỗi khi tải lên hình ảnh: " + e.getMessage());
-                            editTour(request, response);
+                            // Load edit form with current data to preserve user input
+                            loadEditTourData(request, response, tourId);
                             return;
                         }
                     }
                     
                     // Validation
                     if (!validateTourInput(tourIdStr, tourName, description, priceStr, islandIdStr, request)) {
-                        editTour(request, response);
+                        // Load edit form with current data to preserve user input
+                        loadEditTourData(request, response, tourId);
                         return;
                     }
                     
@@ -894,7 +930,8 @@ public class TourStaffServlet extends HttpServlet {
                     // Check if tour name already exists (excluding current tour)
                     if (tourDao.tourNameExists(tourName, tourId)) {
                         request.setAttribute("error", "Tên tour đã tồn tại");
-                        editTour(request, response);
+                        // Load edit form with current data to preserve user input
+                        loadEditTourData(request, response, tourId);
                         return;
                     }
                     
@@ -928,6 +965,19 @@ public class TourStaffServlet extends HttpServlet {
                         }
                     }
                     
+                    // Validate: Only one hotel and one flight allowed
+                    if (hotelIds.size() > 1) {
+                        request.setAttribute("error", "Chỉ có thể chọn một khách sạn cho tour");
+                        loadEditTourData(request, response, tourId);
+                        return;
+                    }
+                    
+                    if (flightIds.size() > 1) {
+                        request.setAttribute("error", "Chỉ có thể chọn một vé máy bay cho tour");
+                        loadEditTourData(request, response, tourId);
+                        return;
+                    }
+                    
                     // Convert lists to arrays
                     String[] selectedHotels = hotelIds.toArray(new String[0]);
                     String[] selectedPlaces = placeIds.toArray(new String[0]);
@@ -948,12 +998,18 @@ public class TourStaffServlet extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/staff/tours?action=view&id=" + tourId);
                     } else {
                         request.setAttribute("error", "Cập nhật tour thất bại");
-                        editTour(request, response);
+                        // Load edit form with current data to preserve user input
+                        loadEditTourData(request, response, tourId);
                     }
                     
                 } catch (NumberFormatException e) {
                     request.setAttribute("error", "Dữ liệu không hợp lệ");
-                    editTour(request, response);
+                    try {
+                        int tourId = Integer.parseInt(tourIdStr);
+                        loadEditTourData(request, response, tourId);
+                    } catch (Exception ex) {
+                        listTours(request, response);
+                    }
                 }
 
             } else {
@@ -1033,13 +1089,41 @@ public class TourStaffServlet extends HttpServlet {
             // Check if service is already in tour
             if (serviceDao.isServiceInTour(tourId, serviceType, serviceId)) {
                 request.getSession().setAttribute("error", "Dịch vụ đã được thêm vào tour");
-            } else {
-                boolean success = serviceDao.addServiceToTour(tourId, serviceType, serviceId);
-                if (success) {
-                    request.getSession().setAttribute("success", "Thêm dịch vụ thành công");
-                } else {
-                    request.getSession().setAttribute("error", "Thêm dịch vụ thất bại");
+                response.sendRedirect(request.getContextPath() + "/staff/tours?action=manage-services&tourId=" + tourId);
+                return;
+            }
+            
+            // Validate: Only one hotel and one flight allowed
+            if ("Hotel".equals(serviceType)) {
+                // Check if there's already a hotel in the tour
+                List<TourService> currentServices = serviceDao.getServicesByTourId(tourId);
+                long hotelCount = currentServices.stream()
+                        .filter(s -> "Hotel".equals(s.getServiceType()))
+                        .count();
+                if (hotelCount >= 1) {
+                    request.getSession().setAttribute("error", "Tour này đã có khách sạn. Chỉ có thể chọn một khách sạn cho mỗi tour.");
+                    response.sendRedirect(request.getContextPath() + "/staff/tours?action=manage-services&tourId=" + tourId);
+                    return;
                 }
+            } else if ("FLIGHT".equals(serviceType) || "AIRLINE".equals(serviceType)) {
+                // Check if there's already a flight in the tour
+                List<TourService> currentServices = serviceDao.getServicesByTourId(tourId);
+                long flightCount = currentServices.stream()
+                        .filter(s -> "FLIGHT".equals(s.getServiceType()) || "AIRLINE".equals(s.getServiceType()))
+                        .count();
+                if (flightCount >= 1) {
+                    request.getSession().setAttribute("error", "Tour này đã có vé máy bay. Chỉ có thể chọn một vé máy bay cho mỗi tour.");
+                    response.sendRedirect(request.getContextPath() + "/staff/tours?action=manage-services&tourId=" + tourId);
+                    return;
+                }
+            }
+            
+            // Add service to tour
+            boolean success = serviceDao.addServiceToTour(tourId, serviceType, serviceId);
+            if (success) {
+                request.getSession().setAttribute("success", "Thêm dịch vụ thành công");
+            } else {
+                request.getSession().setAttribute("error", "Thêm dịch vụ thất bại");
             }
             
             // Redirect back to manage services page
@@ -1054,7 +1138,8 @@ public class TourStaffServlet extends HttpServlet {
     /**
      * Remove service from tour
      */
-    private void removeServiceFromTour(HttpServletRequest request, HttpServletResponse response)
+  
+      private void removeServiceFromTour(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         
         String tourServiceIdStr = request.getParameter("tourServiceId");

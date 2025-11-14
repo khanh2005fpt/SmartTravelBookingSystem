@@ -193,13 +193,7 @@
                 <i class="bi bi-people-fill"></i> Quản lý Tài khoản
             </a>
         </div>
-        <div class="nav-item">
-            <a href="${pageContext.request.contextPath}/admin/logs"
-               class="nav-link <%= "logs".equals(currentPage) ? "active" : "" %>">
-                <i class="bi bi-clock-history"></i> Nhật ký Log
-            </a>
-        </div>
-         
+     
                     
     <% } else if (roleId == 2) { %>
         <!-- Manager --------------------------------------------------------->
@@ -320,6 +314,14 @@
                     <i class="bi bi-calendar2-check-fill"></i> Quản lý Booking
                 </a>
             </div>
+                    
+                           
+        <div class="nav-item">
+    <a href="${pageContext.request.contextPath}/staff/islands"
+       class="nav-link <%= "customers".equals(currentPage) ? "active" : "" %>">
+        <i class="bi bi-bar-chart-line"></i> Quản lí đảo
+    </a>
+</div>
         
     <% } %>
 </nav>

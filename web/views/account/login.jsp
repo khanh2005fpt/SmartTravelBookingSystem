@@ -84,6 +84,7 @@
 
                         <!-- Form -->
                         <form action="${pageContext.request.contextPath}/login" method="POST">
+                            
                              <input type="hidden" name="redirect" value="${param.redirect}">
                             <div class="mb-4">
                                 <label for="username" class="form-label">Tên đăng nhập</label>
@@ -108,7 +109,12 @@
                             <button type="submit" class="btn text-white w-100 mb-3 mt-3  d-flex align-items-center justify-content-center" style="height: 37px; background:#01908F  ">Đăng Nhập</button>
 
                             <div class="text-center text-muted-option mb-3 mt-2">hoặc đăng nhập với </div>
-
+                                <%
+    String redirect = request.getParameter("redirect");
+    if (redirect != null && !redirect.trim().isEmpty()) {
+        session.setAttribute("redirectAfterLogin", redirect);
+    }
+%>
                             <a href="https://accounts.google.com/o/oauth2/auth?scope=email profile openid
 
 &redirect_uri=http://localhost:9090/SmartBookingTravelSystem/login
@@ -118,6 +124,7 @@
 &client_id=552818851773-6psek03psq9r6tnpec86rgs6hrbhqqql.apps.googleusercontent.com
 
 &approval_prompt=force" class="btn btn-google w-100 mb-3 mt-2 d-flex align-items-center justify-content-center" style="height: 50px;">
+                                
                                <img src="${pageContext.request.contextPath}/views/home/images/google_logo.png"  alt="Google" style="width:20px; height:20px; margin-right:8px;"> Đăng nhập bằng Google
                             </a>
 
