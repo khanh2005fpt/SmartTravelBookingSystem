@@ -112,7 +112,7 @@
     %>
 
     <h2>
-        <i class="fas fa-info-circle"></i> Service Detail — <%= type %>
+        <i class="fas fa-info-circle"></i> Chi tiết dịch vụ — <%= type %>
     </h2>
 
     <div class="section">

@@ -606,7 +606,7 @@ if (currentUser != null) {
                                        id="placeImageFile" 
                                        name="placeImageFile" 
                                        accept="image/*"
-                                       onchange="previewImage(this, 'placeImagePreview')">
+                                       onchange="previewImage(this, 'placeImagePrwevie')">
                                 <div class="form-text">Chọn file hình ảnh (JPG, PNG, GIF). Tối đa 10MB</div>
                             </div>
                             <div class="form-group">

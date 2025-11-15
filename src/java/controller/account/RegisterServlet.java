@@ -65,12 +65,7 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-          HttpSession session = request.getSession(false);
-           if (!isStaffAuthorized(session, request, response)) {
-        return;
-    }
-
-        
+    
         request.getRequestDispatcher("/views/account/register.jsp").forward(request, response);
     }
 
@@ -224,44 +219,6 @@ public class RegisterServlet extends HttpServlet {
             session.setAttribute("errorMess", "Đăng kí thất bại: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/views/account/register.jsp");
         }
-    }
-private boolean isStaffAuthorized(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
-    if (session == null) {
-        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-        return false;
-    }
-
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        session.setAttribute("errorMess", "Vui lòng đăng nhập để tiếp tục!");
-        response.sendRedirect(request.getContextPath() + "/views/account/login.jsp");
-        return false;
-    }
-
-    // Map roleId -> roleName
- String role;
-        switch (user.getRoleId()) {
-            case 1:
-                role = "ADMIN";
-                break;
-            case 2:
-                role = "BOOKING MANAGER";
-                break;
-            case 3:
-                role = "CUSTOMER";
-                break;
-            default:
-                role = "STAFF";
-                break;
-        }
-
-        if (!"CUSTOMER".equals(role) && !"ADMIN".equals(role)) {
-            session.setAttribute("errorMess", "Bạn không có quyền truy cập!");
-            response.sendRedirect(request.getContextPath() + "/views/account/access_denied.jsp");
-            return false;
-        }
-
-        return true;
     }
 
   

@@ -1956,13 +1956,19 @@ public class ServiceDao extends DBContext {
                 island.setActivities(rs.getString("activities"));
                 island.setImageUrl(rs.getString("imageUrl"));
                 island.setLocation(rs.getString("location"));
-
+                island.setApprovalStatus(rs.getString("approvalStatus"));
                 list.add(island);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
+    }
+    public static void main(String[] args) {
+        List<Island> list = ServiceDao.INSTANCE.getAllIslands();
+        for(Island i : list){
+             System.out.println("islandName:"+i.getIslandName() +"-"+ i.getApprovalStatus());
+        }
     }
 
     // Tim kiem dao theo ten
@@ -2664,6 +2670,11 @@ public class ServiceDao extends DBContext {
 
         return services;
     }
+    
+    
+    
+    
+    
 
     // Them service vao tour
     public boolean addServiceToTour(int tourId, String serviceType, int serviceId) {
@@ -2696,57 +2707,67 @@ public class ServiceDao extends DBContext {
             return false;
         }
     }
-    
-
-    // Lay tat ca services cua mot tour
     public List<TourService> getServicesByTourId(int tourId) {
-        List<TourService> services = new ArrayList<>();
-        String sql = "SELECT ts.*, "
-                + "CASE "
-                + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelName "
-                + "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.placeName "
-                + "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN CONCAT(v.vehicleType, ' - ', v.modelName) "
-                + "END as serviceName, "
-                + "CASE "
-                + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelImageUrl "
-                + "ELSE '' "
-                + "END as serviceImageUrl, "
-                + "CASE "
-                + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.pricePerNight "
-                + "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.ticketPrice "
-                + "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN v.pricePerDay "
-                + "ELSE 0 "
-                + "END as servicePrice "
-                + "FROM TourServices ts "
-                + "LEFT JOIN Hotels h ON UPPER(ts.serviceType) = 'HOTEL' AND ts.serviceId = h.hotelId "
-                + "LEFT JOIN Places p ON UPPER(ts.serviceType) = 'PLACE' AND ts.serviceId = p.placeId "
-                + "LEFT JOIN IslandVehicles v ON UPPER(ts.serviceType) = 'VEHICLE' AND ts.serviceId = v.vehicleId "
-                + "WHERE ts.tourId = ? "
-                + "ORDER BY ts.createdAt";
+    List<TourService> services = new ArrayList<>();
+    String sql = "SELECT ts.*, "
+            + "CASE "
+            + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelName "
+            + "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.placeName "
+            + "WHEN UPPER(ts.serviceType) = 'FLIGHT' THEN CONCAT(f.flightNumber, ' - ', a.airlineName) "
+            + "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN CONCAT(v.vehicleType, ' - ', v.modelName) "
+            + "END as serviceName, "
 
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, tourId);
-            ResultSet rs = ps.executeQuery();
+            + "CASE "
+            + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.hotelImageUrl "
+            + "WHEN UPPER(ts.serviceType) = 'FLIGHT' THEN f.destinationImageUrl "
+            + "ELSE '' "
+            + "END as serviceImageUrl, "
 
-            while (rs.next()) {
-                TourService service = new TourService();
-                service.setTourServiceId(rs.getInt("tourServiceId"));
-                service.setTourId(rs.getInt("tourId"));
-                service.setServiceType(rs.getString("serviceType"));
-                service.setServiceId(rs.getInt("serviceId"));
-                service.setCreatedAt(rs.getTimestamp("createdAt"));
-                service.setServiceName(rs.getString("serviceName"));
-                service.setServiceImageUrl(rs.getString("serviceImageUrl"));
-                service.setServicePrice(rs.getInt("servicePrice"));
-                services.add(service);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            + "CASE "
+            + "WHEN UPPER(ts.serviceType) = 'HOTEL' THEN h.pricePerNight "
+            + "WHEN UPPER(ts.serviceType) = 'PLACE' THEN p.ticketPrice "
+            + "WHEN UPPER(ts.serviceType) = 'VEHICLE' THEN v.pricePerDay "
+            + "WHEN UPPER(ts.serviceType) = 'FLIGHT' THEN f.basePrice "
+            + "ELSE 0 "
+            + "END as servicePrice "
+
+            + "FROM TourServices ts "
+            + "LEFT JOIN Hotels h ON UPPER(ts.serviceType) = 'HOTEL' AND ts.serviceId = h.hotelId "
+            + "LEFT JOIN Places p ON UPPER(ts.serviceType) = 'PLACE' AND ts.serviceId = p.placeId "
+            + "LEFT JOIN IslandVehicles v ON UPPER(ts.serviceType) = 'VEHICLE' AND ts.serviceId = v.vehicleId "
+            + "LEFT JOIN Flights f ON UPPER(ts.serviceType) = 'FLIGHT' AND ts.serviceId = f.flightId "
+            + "LEFT JOIN Airlines a ON f.airlineId = a.airlineId "
+
+            + "WHERE ts.tourId = ? "
+            + "ORDER BY ts.createdAt";
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, tourId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            TourService service = new TourService();
+            service.setTourServiceId(rs.getInt("tourServiceId"));
+            service.setTourId(rs.getInt("tourId"));
+            service.setServiceType(rs.getString("serviceType"));
+            service.setServiceId(rs.getInt("serviceId"));
+            service.setCreatedAt(rs.getTimestamp("createdAt"));
+
+            // giá trị mới có FLIGHT
+            service.setServiceName(rs.getString("serviceName"));
+            service.setServiceImageUrl(rs.getString("serviceImageUrl"));
+            service.setServicePrice(rs.getInt("servicePrice"));
+
+            services.add(service);
         }
-
-        return services;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return services;
+}
+
+    
 
     // Kiem tra xem service da duoc them vao tour chua
     public boolean isServiceInTour(int tourId, String serviceType, int serviceId) {

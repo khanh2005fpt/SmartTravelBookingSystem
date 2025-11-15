@@ -415,7 +415,7 @@ if (currentUser != null) {
                                                 <c:when test="${service.serviceType == 'Hotel'}">Khách sạn</c:when>
                                                 <c:when test="${service.serviceType == 'Place'}">Địa điểm</c:when>
                                                 <c:when test="${service.serviceType == 'Vehicle'}">Phương tiện</c:when>
-                                                <c:when test="${service.serviceType == 'Restaurant'}">Nhà hàng</c:when>
+                                                <c:when test="${service.serviceType == 'FLIGHT'}">Máy Bay</c:when>
                                                 <c:otherwise>${service.serviceType}</c:otherwise>
                                             </c:choose>
                                         </div>

@@ -4,40 +4,30 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/account/LoginServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/IslandDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/IslandStaffServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/Island.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/ServiceDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/com/vnpay/common/VnpayReturn.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/IslandDao.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/BookingDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/SystemDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/UserDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/error.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/customer/my_tour.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-form.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/HotelDao.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/TourBookingInfo.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/manager/service_list.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/account/RegisterServlet.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/manager/report_dashboard.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/history_bookings/HistoryBookingServlet.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/TourDao.java</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-services.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/dao/CustomerDao.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/history_bookings/FullHistoryBookingServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/profile/account/EmailAdded.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/BookingStaffServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/common/navbar.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/TourService.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/account/GoogleLogin.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/place-form.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/trip/custom_tour_detail.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/trip/island_detail.jsp</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/TourStaffServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/dashboard/ManagerDashboardServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/manager/TourApprovalManagerServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/WEB-INF/web.xml</file>
             <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/account/login.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/manager/tour-approval.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/nbproject/build-impl.xml</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/manager/IslandApprovalManagerServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/profile/avatar/AvatarDisplayServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/staff/HotelStaffServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/profile/notifications/NotificatiosServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/dashboard/StaffDashboardServlet.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/tour-list.jsp</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/home/FlightSearchController.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/controller/home/SearchIslandController.java</file>
-            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/src/java/model/Tour.java</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/staff/island-list.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/account/register.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/account/reset_password.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/manager/service_detail.jsp</file>
+            <file>file:/E:/FALL_2025/SWP/SmartTravelBookingSystem/web/views/home/service_terms.jsp</file>
         </group>
     </open-files>
 </project-private>

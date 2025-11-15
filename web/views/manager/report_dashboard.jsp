@@ -143,7 +143,7 @@
     <%@ include file="/views/staff/sidebar.jsp" %>
 <div class="container">
 
-    <h1>Manager Report Dashboard</h1>
+    <h1>Báo cáo thống kê</h1>
  
     <div class="dashboard">
 

@@ -289,7 +289,7 @@ public class TourStaffServlet extends HttpServlet {
 
             // Load island data for the tour
             Island island = islandDao.getIslandById(tour.getIslandId());
-            
+             
             // Load current services for the tour (to display on the view page)
             List<TourService> currentServices = serviceDao.getServicesByTourId(tourId);
             

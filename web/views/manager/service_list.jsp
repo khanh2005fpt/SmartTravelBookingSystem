@@ -356,7 +356,7 @@
   
 
         <div class="container">
-            <h2><i class="fas fa-cogs"></i> Service Management</h2>
+            <h2><i class="fas fa-cogs"></i> Quản lý lịch vụ</h2>
 
             <!-- SEARCH & FILTER CARD -->
             <div class="search-card">

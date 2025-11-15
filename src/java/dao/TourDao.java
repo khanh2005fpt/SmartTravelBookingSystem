@@ -1614,82 +1614,80 @@ if (!rs.wasNull() && ti != null) {
 
     
     // Lay tat ca lich bay sau khi booking tour trọn gói
+public FlightSchedule getFlightScheduleOfTourByUser(int userId) throws SQLException {
+   String sql = """
+    SELECT TOP 1
+        fs.scheduleId,
+        fs.departureTime,
+        fs.arrivalTime,
+        fs.returnDepartureTime,
+        fs.returnArrivalTime,
+        fs.departureAirport,
+        fs.arrivalAirport,
+        fs.transitAirport,
+        fs.transitDuration,
+        fs.notes,
+       
+        f.flightId,
+        f.flightNumber,
+        f.flightClass,
+        f.flightType,
+        f.destinationImageUrl
+    FROM HistoryBooking hb
+    JOIN Payments p ON hb.paymentId = p.paymentId
+    JOIN Bookings b ON p.bookingId = b.bookingId
+    JOIN Tours t ON b.tourId = t.tourId
+    JOIN Islands i ON t.islandId = i.islandId
+    JOIN Flights f ON f.destinationIslandId = i.islandId
+    JOIN FlightSchedules fs ON fs.flightId = f.flightId
+    WHERE hb.accountUserId = ?
+    ORDER BY hb.historyId DESC, f.flightId DESC, fs.scheduleId ASC
+""";
 
-    public FlightSchedule getFlightScheduleOfTourByUser(int userId) throws SQLException {
-        String sql = """
-        SELECT TOP 1 
-            fs.scheduleId,
-            fs.departureTime,
-            fs.arrivalTime,
-            fs.returnDepartureTime,
-            fs.returnArrivalTime,
-            fs.departureAirport,
-            fs.arrivalAirport,
-            fs.transitAirport,
-            fs.transitDuration,
-            fs.notes,
-            
-            f.flightId,
-            f.flightNumber,
-            f.flightClass,
-            f.flightType,
-            f.destinationImageUrl
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                // === Tạo Flight ===
+                Flight flight = new Flight();
+                flight.setFlightId(rs.getInt("flightId"));
+                flight.setFlightNumber(rs.getString("flightNumber"));
+                flight.setFlightClass(rs.getString("flightClass"));
+                flight.setFlightType(rs.getString("flightType"));
+                flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
 
-        FROM HistoryBooking hb
-        JOIN Payments p ON hb.paymentId = p.paymentId
-        JOIN Bookings b ON p.bookingId = b.bookingId
-        JOIN Tours t ON b.tourId = t.tourId
-        JOIN Islands i ON t.islandId = i.islandId
-        JOIN Flights f ON f.destinationIslandId = i.islandId
-        JOIN FlightSchedules fs ON fs.flightId = f.flightId
-        WHERE hb.accountUserId = ?
-        ORDER BY hb.historyId DESC, fs.scheduleId ASC
-    """;
+                // === Tạo FlightSchedule ===
+                FlightSchedule schedule = new FlightSchedule();
+                schedule.setScheduleId(rs.getInt("scheduleId"));
+                schedule.setFlight(flight);
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, userId);
+                // --- Thời gian ---
+                Time dep = rs.getTime("departureTime");
+                schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
+                Time arr = rs.getTime("arrivalTime");
+                schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
+                Time retDep = rs.getTime("returnDepartureTime");
+                schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
+                Time retArr = rs.getTime("returnArrivalTime");
+                schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    // === Tạo Flight ===
-                    Flight flight = new Flight();
-                    flight.setFlightId(rs.getInt("flightId"));
-                    flight.setFlightNumber(rs.getString("flightNumber"));
-                    flight.setFlightClass(rs.getString("flightClass"));
-                    flight.setFlightType(rs.getString("flightType"));
-                    flight.setDestinationImageUrl(rs.getString("destinationImageUrl"));
+                // --- Thông tin chuyến bay khác ---
+                schedule.setDepartureAirport(rs.getString("departureAirport"));
+                schedule.setArrivalAirport(rs.getString("arrivalAirport"));
+                schedule.setTransitAirport(rs.getString("transitAirport"));
+                schedule.setTransitDuration(rs.getString("transitDuration"));
+                schedule.setNotes(rs.getString("notes"));
 
-                    // === Tạo FlightSchedule ===
-                    FlightSchedule schedule = new FlightSchedule();
-                    schedule.setScheduleId(rs.getInt("scheduleId"));
-                    schedule.setFlight(flight);
+                // --- Cài đặt thông tin máy bay ---
+                setAircraftInfo(schedule, flight.getFlightClass());
 
-                    // --- Thời gian ---
-                    Time dep = rs.getTime("departureTime");
-                    schedule.setDepartureTime(dep != null ? dep.toLocalTime() : null);
-                    Time arr = rs.getTime("arrivalTime");
-                    schedule.setArrivalTime(arr != null ? arr.toLocalTime() : null);
-                    Time retDep = rs.getTime("returnDepartureTime");
-                    schedule.setReturnDepartureTime(retDep != null ? retDep.toLocalTime() : null);
-                    Time retArr = rs.getTime("returnArrivalTime");
-                    schedule.setReturnArrivalTime(retArr != null ? retArr.toLocalTime() : null);
-
-                    // --- Thông tin chuyến bay khác ---
-                    schedule.setDepartureAirport(rs.getString("departureAirport"));
-                    schedule.setArrivalAirport(rs.getString("arrivalAirport"));
-                    schedule.setTransitAirport(rs.getString("transitAirport"));
-                    schedule.setTransitDuration(rs.getString("transitDuration"));
-                    schedule.setNotes(rs.getString("notes"));
-
-                    // --- Cài đặt thông tin máy bay ---
-                    setAircraftInfo(schedule, flight.getFlightClass());
-
-                    return schedule;
-                }
+                return schedule;
             }
         }
-        return null; // nếu user chưa booking custom tour nào có flight
     }
+
+    return null; // nếu user chưa booking tour nào có flight
+}
     // để check xem booking mới nhất là kiểu tour nào 
 
     public HistoryBooking getLatestHistoryBookingWithTourType(int userId) throws SQLException {
@@ -1736,5 +1734,45 @@ if (!rs.wasNull() && ti != null) {
         }
         return hb;
     }
+    public static void main(String[] args) {
+         try {
+            // Khởi tạo DAO chứa phương thức getFlightScheduleOfTourByUser
+            TourDao dao = new TourDao();
 
+            int userId = 4; // ID user muốn test
+            FlightSchedule schedule = dao.getFlightScheduleOfTourByUser(userId);
+
+            if (schedule == null) {
+                System.out.println("User " + userId + " chưa có lịch bay nào.");
+                return;
+            }
+
+            // ===== FLIGHT =====
+            Flight flight = schedule.getFlight();
+            System.out.println("=== FLIGHT INFO ===");
+            System.out.println("Flight ID: " + flight.getFlightId());
+            System.out.println("Flight Number: " + flight.getFlightNumber());
+            System.out.println("Class: " + flight.getFlightClass());
+            System.out.println("Type: " + flight.getFlightType());
+            System.out.println("Destination Image: " + flight.getDestinationImageUrl());
+
+            // ===== FLIGHT SCHEDULE =====
+            System.out.println("\n=== FLIGHT SCHEDULE ===");
+            System.out.println("Schedule ID: " + schedule.getScheduleId());
+            System.out.println("Departure Time: " + schedule.getDepartureTime());
+            System.out.println("Arrival Time: " + schedule.getArrivalTime());
+            System.out.println("Return Departure: " + schedule.getReturnDepartureTime());
+            System.out.println("Return Arrival: " + schedule.getReturnArrivalTime());
+            System.out.println("Departure Airport: " + schedule.getDepartureAirport());
+            System.out.println("Arrival Airport: " + schedule.getArrivalAirport());
+            System.out.println("Transit Airport: " + schedule.getTransitAirport());
+            System.out.println("Transit Duration: " + schedule.getTransitDuration());
+            System.out.println("Notes: " + schedule.getNotes());
+
+         
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -158,8 +158,8 @@ if (currentUser != null) {
 
         <h2>10. Liên hệ</h2>
         <div class="contact-info">
-            <p>📧 <strong>Email:</strong> support@smartislandbooking.com</p>
-            <p>📞 <strong>Hotline:</strong> 1800-123-456</p>
+            <p>📧 <strong>Email:</strong> nqaghuyyy6969@gmail.com</p>
+            <p>📞 <strong>Hotline:</strong> 0982706236</p>
         </div>
     </main>
 
